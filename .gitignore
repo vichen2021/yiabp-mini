@@ -59,3 +59,6 @@ docs/.vitepress/cache
 .vs
 PublishProfiles
 /publish
+
+
+lefthook.yml
