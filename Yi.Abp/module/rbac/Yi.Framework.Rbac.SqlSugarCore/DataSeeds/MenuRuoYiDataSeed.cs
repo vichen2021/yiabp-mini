@@ -571,21 +571,6 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
 
 
 
-            //Yi框架
-            MenuAggregateRoot guide = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-
-                MenuName = "Yi框架",
-                MenuType = MenuTypeEnum.Catalogue,
-                Router = "https://ccnetcore.com",
-                IsShow = true,
-                IsLink = true,
-                MenuIcon = "guide",
-                OrderNum = 90,
-                IsDeleted = false,
-            };
-            entities.Add(guide);
-
             //租户管理
             MenuAggregateRoot tenant = new MenuAggregateRoot(_guidGenerator.Create())
             {
