@@ -7,6 +7,7 @@ using Yi.Framework.Rbac.Application.Contracts.IServices;
 using Yi.Framework.Rbac.Domain.Entities;
 using Yi.Framework.Rbac.Domain.Shared.Consts;
 using Yi.Framework.SqlSugarCore.Abstractions;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Yi.Framework.Rbac.Application.Services
 {
@@ -40,6 +41,18 @@ namespace Yi.Framework.Rbac.Application.Services
                     x => x.CreationTime >= input.StartTime && x.CreationTime <= input.EndTime)
                 .ToPageListAsync(input.SkipCount, input.MaxResultCount, total);
             return new PagedResultDto<ConfigGetListOutputDto>(total, await MapToGetListOutputDtosAsync(entities));
+        }
+        /// <summary>
+        /// 根据key查配置
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        ///
+        [Route("config/config-key/{configKey}")]
+        public async Task<string> GetConfigKeyAsync(string configKey)
+        {
+            var entity = await _repository.GetAsync(x => x.ConfigKey == configKey);
+            return entity.ConfigValue;
         }
 
         protected override async Task CheckCreateInputDtoAsync(ConfigCreateInputVo input)
