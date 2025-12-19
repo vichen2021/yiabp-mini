@@ -23,7 +23,7 @@ namespace Yi.Abp.HttpApi.Client
             Configure<AbpRemoteServiceOptions>(options =>
             {
                 options.RemoteServices.Default =
-                    new RemoteServiceConfiguration("http://localhost:19001");
+                    new RemoteServiceConfiguration("http://localhost:19002");
             });
         }
 

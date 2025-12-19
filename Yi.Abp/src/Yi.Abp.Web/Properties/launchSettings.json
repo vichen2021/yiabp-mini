@@ -9,14 +9,14 @@
         //"ASPNETCORE_ENVIRONMENT": "Staging"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:19001"
+      "applicationUrl": "http://localhost:19002"
     },
     "Docker": {
       "commandName": "Docker",
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
       "environmentVariables": {
-        "ASPNETCORE_HTTP_PORTS": "19001"
+        "ASPNETCORE_HTTP_PORTS": "19002"
       },
       "publishAllPorts": true
     }
