@@ -12,14 +12,13 @@ import { commonExport, ContentTypeEnum } from '#/api/helper';
 import { requestClient } from '#/api/request';
 
 enum Api {
-  deptTree = '/dept/tree-list',
+  deptTree = '/system/dept/tree-list',
   listDeptUsers = '/system/user/list/dept',
   root = '/system/user',
   userAuthRole = '/system/user/authRole',
   userExport = '/system/user/export',
   userImport = '/system/user/importData',
   userImportTemplate = '/system/user/importTemplate',
-  userList = '/user',
   userResetPassword = '/system/user/resetPwd',
   userStatusChange = '/system/user/changeStatus',
 }
@@ -30,7 +29,7 @@ enum Api {
  * @returns User
  */
 export function userList(params?: PageQuery) {
-  return requestClient.get<PageResult<User>>(Api.userList, { params });
+  return requestClient.get<PageResult<User>>(Api.root, { params });
 }
 
 /**

@@ -38,5 +38,5 @@ export interface CaptchaResponse {
  * @returns resp
  */
 export function captchaImage() {
-  return requestClient.get<CaptchaResponse>('/account/captcha-image');
+  return requestClient.get<CaptchaResponse>('/system/account/captcha-image');
 }

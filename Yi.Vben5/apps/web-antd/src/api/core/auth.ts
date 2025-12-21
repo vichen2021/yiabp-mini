@@ -83,7 +83,7 @@ export namespace AuthApi {
  */
 export async function loginApi(data: AuthApi.LoginParams) {
   return requestClient.post<AuthApi.LoginResult>(
-    '/account/login',
+    '/system/account/login',
     { ...data, clientId },
     {
       encrypt: true,
@@ -97,7 +97,7 @@ export async function loginApi(data: AuthApi.LoginParams) {
  */
 export async function doLogout() {
   const resp = await requestClient.post<HttpResponse<void>>(
-    '/auth/logout',
+    'system/auth/logout',
     null,
     {
       isTransformResponse: false,

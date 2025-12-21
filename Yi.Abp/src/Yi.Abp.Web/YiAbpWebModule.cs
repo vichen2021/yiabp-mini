@@ -97,7 +97,7 @@ namespace Yi.Abp.Web
                     opts => 
                     {
                         opts.RemoteServiceName = "tenant-management";
-                        opts.RootPath = "api/tenant-management";
+                        opts.RootPath = "api/tenant";
                     });
                 
                 // 代码生成模块：/api/code-gen/*

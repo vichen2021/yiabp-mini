@@ -8,7 +8,7 @@ import { requestClient } from '#/api/request';
 enum Api {
   dictDataExport = '/system/dict/data/export',
   dictDataList = '/system/dict/data/list',
-  root = '/dictionary/dic-type',
+  root = '/system/dictionary/dic-type',
 }
 
 /**
