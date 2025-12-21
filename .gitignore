@@ -15,7 +15,6 @@ selenium-debug.log
 **/obj
 **/node_modules
 **/dist
-**/.user
 
 # Logs
 logs
@@ -63,3 +62,4 @@ PublishProfiles
 
 
 lefthook.yml
+*.user
