@@ -30,7 +30,7 @@ using Yi.Framework.Rbac.Domain.Shared.Etos;
 using Yi.Framework.Rbac.Domain.Shared.Options;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
-namespace Yi.Framework.Rbac.Application.Services
+namespace Yi.Framework.Rbac.Application.Services.System
 {
     public class AccountService : ApplicationService, IAccountService
     {

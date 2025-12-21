@@ -9,7 +9,7 @@ using Yi.Framework.Rbac.Domain.Shared.Consts;
 using Yi.Framework.SqlSugarCore.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Yi.Framework.Rbac.Application.Services
+namespace Yi.Framework.Rbac.Application.Services.System
 {
     /// <summary>
     /// Config服务实现
