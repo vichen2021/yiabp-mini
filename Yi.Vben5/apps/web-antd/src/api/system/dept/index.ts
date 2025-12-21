@@ -15,7 +15,7 @@ enum Api {
  * @returns list
  */
 export function deptList(params?: { deptName?: string; status?: string }) {
-  return requestClient.get<Dept[]>(Api.deptList, { params });
+  return requestClient.get<Dept[]>(Api.root, { params });
 }
 
 /**
