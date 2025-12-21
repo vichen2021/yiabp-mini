@@ -81,7 +81,7 @@ namespace Yi.Abp.Web
                     opts => 
                     {
                         opts.RemoteServiceName = "rbac";  // Swagger 分组名称
-                        opts.RootPath = "api/rbac";       // 路由前缀
+                        opts.RootPath = "api/system";       // 路由前缀
                     });
                 
                 // 默认模块：/api/app/*
