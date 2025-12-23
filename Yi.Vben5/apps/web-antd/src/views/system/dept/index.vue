@@ -17,6 +17,37 @@ import { deptList, deptRemove } from '#/api/system/dept';
 import { columns, querySchema } from './data';
 import deptDrawer from './dept-drawer.vue';
 
+// 构建树形结构的辅助函数
+function buildTree(data: any[], parentId: string = '00000000-0000-0000-0000-000000000000') {
+  return data
+    .filter((item) => item.parentId === parentId)
+    .map((item) => {
+      const children = buildTree(data, item.id);
+      return {
+        ...item,
+        children: children.length > 0 ? children : undefined,
+      };
+    });
+}
+
+// 根据实际后端返回数据调整字段名
+function transformDeptData(dept: any) {
+  return {
+    ...dept,
+    // 映射后端字段名到表格需要的字段名
+    id: dept.id,
+    deptId: dept.id,
+    deptName: dept.deptName,
+    deptCode: dept.deptCode,
+    leader: dept.leader,
+    parentId: dept.parentId,
+    remark: dept.remark,
+    orderNum: dept.orderNum,
+    createTime: dept.creationTime,
+    status: dept.state ? '0' : '1', // 假设 state=true 表示正常状态
+  };
+}
+
 const formOptions: VbenFormProps = {
   commonConfig: {
     labelWidth: 80,
@@ -41,7 +72,15 @@ const gridOptions: VxeGridProps = {
         const resp = await deptList({
           ...formValues,
         });
-        return { rows: resp };
+        // 将扁平数据转换为树形结构
+        const flatData = resp.items || [];
+        // 转换数据字段以匹配表格需要的字段名
+        const transformedData = flatData.map(transformDeptData);
+        const treeData = buildTree(transformedData);
+        return {
+          ...resp,
+          items: treeData,
+        };
       },
       // 默认请求接口后展开全部 不需要可以删除这段
       querySuccess: () => {
@@ -65,9 +104,10 @@ const gridOptions: VxeGridProps = {
     keyField: 'deptId',
   },
   treeConfig: {
+    childrenField: 'children',
     parentField: 'parentId',
     rowField: 'deptId',
-    transform: true,
+    transform: false, // 前端已处理为树形结构，不需要表格转换
   },
   id: 'system-dept-index',
 };
