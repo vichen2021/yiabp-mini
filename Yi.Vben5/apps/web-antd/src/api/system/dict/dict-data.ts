@@ -8,7 +8,7 @@ import { requestClient } from '#/api/request';
 enum Api {
   dictDataExport = '/system/dict/data/export',
   dictDataList = '/system/dict/data/list',
-  root = '/system/dictionary/dic-type',
+  root = '/system/dictionary',
 }
 
 /**
@@ -26,7 +26,7 @@ export function dictDataInfo(dictType: string) {
  * @returns 字典数据列表
  */
 export function dictDataList(params?: PageQuery) {
-  return requestClient.get<DictData[]>(Api.dictDataList, { params });
+  return requestClient.get<DictData[]>(Api.root, { params });
 }
 
 /**

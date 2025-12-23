@@ -27,7 +27,7 @@ enum Api {
  * @returns 分页列表
  */
 export function roleList(params?: PageQuery) {
-  return requestClient.get<PageResult<Role>>(Api.roleList, { params });
+  return requestClient.get<PageResult<Role>>(Api.root, { params });
 }
 
 /**

@@ -18,7 +18,7 @@ enum Api {
  * @returns Post[]
  */
 export function postList(params?: PageQuery) {
-  return requestClient.get<Post[]>(Api.postList, { params });
+  return requestClient.get<Post[]>(Api.root, { params });
 }
 
 /**

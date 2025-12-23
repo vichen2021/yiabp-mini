@@ -6,11 +6,11 @@ import { commonExport } from '#/api/helper';
 import { requestClient } from '#/api/request';
 
 enum Api {
-  dictOptionSelectList = '/system/dict/type/optionselect',
-  dictTypeExport = '/system/dict/type/export',
-  dictTypeList = '/system/dict/type/list',
-  dictTypeRefreshCache = '/system/dict/type/refreshCache',
-  root = '/system/dict/type',
+  dictOptionSelectList = '/system/dictionary-type/optionselect',
+  dictTypeExport = '/system/dictionary-type/export',
+  dictTypeList = '/system/dictionary-type/list',
+  dictTypeRefreshCache = '/system/dictionary-type/refreshCache',
+  root = '/system/dictionary-type',
 }
 
 /**
@@ -19,7 +19,7 @@ enum Api {
  * @returns list
  */
 export function dictTypeList(params?: PageQuery) {
-  return requestClient.get<PageResult<DictType>>(Api.dictTypeList, { params });
+  return requestClient.get<PageResult<DictType>>(Api.root, { params });
 }
 
 /**
