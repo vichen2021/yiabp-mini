@@ -7,6 +7,7 @@ import { requestClient } from '#/api/request';
 
 enum Api {
   dictDataExport = '/system/dict/data/export',
+  dictDataInfo = '/system/dictionary/dict-type',
   dictDataList = '/system/dict/data/list',
   root = '/system/dictionary',
 }
@@ -17,7 +18,7 @@ enum Api {
  * @returns 字典数据
  */
 export function dictDataInfo(dictType: string) {
-  return requestClient.get<DictData[]>(`${Api.root}/${dictType}`);
+  return requestClient.get<DictData[]>(`${Api.dictDataInfo}/${dictType}`);
 }
 
 /**
