@@ -49,10 +49,10 @@ namespace Yi.Framework.Rbac.Application.Services.System
         /// </summary>
         /// <param name="dicType"></param>
         /// <returns></returns>
-        [Route("dictionary/dic-type/{dicType}")]
-        public async Task<List<DictionaryGetListOutputDto>> GetDicType([FromRoute] string dicType)
+        [Route("dictionary/dict-type/{dictType}")]
+        public async Task<List<DictionaryGetListOutputDto>> GetDicType([FromRoute] string dictType)
         {
-            var entities = await _repository.GetListAsync(u => u.DictType == dicType && u.State == true);
+            var entities = await _repository.GetListAsync(u => u.DictType == dictType && u.State == true);
             var result = await MapToGetListOutputDtosAsync(entities);
             return result;
         }

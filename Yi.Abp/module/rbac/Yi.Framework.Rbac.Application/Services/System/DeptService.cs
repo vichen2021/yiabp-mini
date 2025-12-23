@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using SqlSugar;
 using Volo.Abp.Application.Dtos;
 using Yi.Framework.Core.Helper;
@@ -46,19 +47,16 @@ namespace Yi.Framework.Rbac.Application.Services.System
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public override async Task<PagedResultDto<DeptGetListOutputDto>> GetListAsync(DeptGetListInputVo input)
+        [Route("dept/list")]
+        public async Task<List<DeptGetListOutputDto>> GetListAsync(DeptGetListInputVo input)
         {
-            RefAsync<int> total = 0;
             var entities = await _repository._DbQueryable
                 .WhereIF(!string.IsNullOrEmpty(input.DeptName), u => u.DeptName.Contains(input.DeptName!))
                 .WhereIF(input.State is not null, u => u.State == input.State)
                 .OrderBy(u => u.OrderNum, OrderByType.Asc)
                 .ToListAsync();
-            return new PagedResultDto<DeptGetListOutputDto>
-            {
-                Items = await MapToGetListOutputDtosAsync(entities),
-                TotalCount = total
-            };
+            
+            return await MapToGetListOutputDtosAsync(entities);
         }
 
         protected override async Task CheckCreateInputDtoAsync(DeptCreateInputVo input)
