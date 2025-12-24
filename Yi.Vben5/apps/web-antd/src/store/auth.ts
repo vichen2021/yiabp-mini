@@ -107,7 +107,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (!backUserInfo) {
       throw new Error('获取用户信息失败.');
     }
-    const { permissions = [], roles = [], user } = backUserInfo;
+    const { permissions = [], roleCodes = [], user } = backUserInfo;
     /**
      * 从后台user -> vben user转换
      */
@@ -115,7 +115,7 @@ export const useAuthStore = defineStore('auth', () => {
       avatar: user.avatar ?? '',
       permissions,
       realName: user.nickName,
-      roles,
+      roles: roleCodes,
       userId: user.userId,
       username: user.userName,
       email: user.email ?? '',

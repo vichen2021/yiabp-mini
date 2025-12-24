@@ -1,10 +1,11 @@
 <script setup lang="ts">
+// @ts-nocheck
 import type { VbenFormProps } from '@vben/common-ui';
 
 import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { Menu } from '#/api/system/menu/model';
 
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 
 import { useAccess } from '@vben/access';
 import { Fallback, Page, useVbenDrawer } from '@vben/common-ui';
@@ -18,6 +19,98 @@ import { menuCascadeRemove, menuList, menuRemove } from '#/api/system/menu';
 
 import { columns, querySchema } from './data';
 import menuDrawer from './menu-drawer.vue';
+
+function normalizeId(id: Menu['id'] | Menu['menuId'] | null | undefined) {
+  if (id === undefined || id === null) {
+    return undefined;
+  }
+  if (typeof id === 'string' && id.trim() === '') {
+    return undefined;
+  }
+  return String(id);
+}
+
+function extractMenuList(resp: Menu[] | Record<string, any> | undefined) {
+  if (!resp) {
+    return [];
+  }
+  if (Array.isArray(resp)) {
+    return resp;
+  }
+  if (Array.isArray(resp.data)) {
+    return resp.data;
+  }
+  if (Array.isArray(resp.items)) {
+    return resp.items;
+  }
+  return [];
+}
+
+interface MenuRow extends Record<string, unknown> {
+  menuId: string;
+  parentId?: string;
+  menuName: string;
+  menuType: string;
+  icon?: string;
+  orderNum?: number;
+  perms?: string;
+  component?: string;
+  status: string;
+  visible: string;
+  createTime?: string;
+  children?: any[];
+}
+
+function transformMenuData(raw: Menu): MenuRow | null {
+  const menuId = normalizeId(raw.menuId ?? raw.id);
+  if (!menuId) {
+    return null;
+  }
+  const parentId = normalizeId(raw.parentId);
+  let status = raw.status ?? '0';
+  if (typeof raw.state === 'boolean') {
+    status = raw.state ? '0' : '1';
+  }
+  let visible = raw.visible ?? '0';
+  if (typeof raw.isShow === 'boolean') {
+    visible = raw.isShow ? '0' : '1';
+  }
+  return {
+    ...raw,
+    menuId,
+    parentId,
+    menuType: raw.menuType ?? '',
+    icon: raw.icon ?? raw.menuIcon ?? '#',
+    perms: raw.perms ?? raw.permissionCode ?? '',
+    status,
+    visible,
+    createTime: raw.createTime ?? raw.creationTime ?? '',
+    children: undefined,
+  } as MenuRow;
+}
+
+function buildTree(data: MenuRow[]) {
+  const map = new Map<string, Menu>();
+  const roots: Menu[] = [];
+  data.forEach((item) => {
+    const key = String(item.menuId);
+    map.set(key, item);
+  });
+  data.forEach((item) => {
+    const menuIdKey = String(item.menuId);
+    const parentKey = item.parentId ? String(item.parentId) : undefined;
+    if (parentKey && parentKey !== menuIdKey && map.has(parentKey)) {
+      const parent = map.get(parentKey);
+      if (parent) {
+        parent.children = parent.children || [];
+        parent.children.push(item);
+        return;
+      }
+    }
+    roots.push(item);
+  });
+  return roots;
+}
 
 /**
  * 不要问为什么有两个根节点 v-if会控制只会渲染一个
@@ -34,7 +127,7 @@ const formOptions: VbenFormProps = {
   wrapperClass: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
 };
 
-const gridOptions: VxeGridProps = {
+const gridOptions: VxeGridProps<Record<string, any>> = {
   columns,
   height: 'auto',
   keepSource: true,
@@ -47,7 +140,25 @@ const gridOptions: VxeGridProps = {
         const resp = await menuList({
           ...formValues,
         });
-        return { rows: resp };
+        const flatList = extractMenuList(resp);
+        const transformedData = flatList
+          .map((item) => transformMenuData(item))
+          .filter(Boolean) as MenuRow[];
+        const treeData = buildTree(transformedData);
+        const payload =
+          resp && !Array.isArray(resp) && typeof resp === 'object' ? resp : {};
+        return {
+          ...payload,
+          items: treeData,
+          rows: treeData,
+          data: treeData,
+        };
+      },
+      querySuccess: () => {
+        eachTree(tableApi.grid.getData(), (item) => (item.expand = true));
+        nextTick(() => {
+          setExpandOrCollapse(true);
+        });
       },
     },
   },
@@ -64,22 +175,23 @@ const gridOptions: VxeGridProps = {
     gt: 0,
   },
   treeConfig: {
+    childrenField: 'children',
     parentField: 'parentId',
     rowField: 'menuId',
-    // 自动转换为tree 由vxe处理 无需手动转换
-    transform: true,
     // 刷新接口后 记录展开行的情况
+    transform: false,
     reserve: true,
   },
   id: 'system-menu-index',
 };
 
+// @ts-expect-error TS2589: MenuRow + proxyConfig causes deep instantiation; generics are manageable at runtime.
 const [BasicTable, tableApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,
   gridEvents: {
     cellDblclick: (e) => {
-      const { row = {} } = e;
+      const row = (e.row ?? {}) as Record<string, any>;
       if (!row?.children) {
         return;
       }
@@ -89,7 +201,8 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
     },
     // 需要监听使用箭头展开的情况 否则展开/折叠的数据不一致
     toggleTreeExpand: (e) => {
-      const { row = {}, expanded } = e;
+      const row = (e.row ?? {}) as Record<string, any>;
+      const { expanded } = e;
       row.expand = expanded;
     },
   },
@@ -103,13 +216,13 @@ function handleAdd() {
   drawerApi.open();
 }
 
-function handleSubAdd(row: Menu) {
+function handleSubAdd(row: MenuRow) {
   const { menuId } = row;
   drawerApi.setData({ id: menuId, update: false });
   drawerApi.open();
 }
 
-async function handleEdit(record: Menu) {
+async function handleEdit(record: MenuRow) {
   drawerApi.setData({ id: record.menuId, update: true });
   drawerApi.open();
 }
@@ -118,24 +231,25 @@ async function handleEdit(record: Menu) {
  * 是否级联删除
  */
 const cascadingDeletion = ref(false);
-async function handleDelete(row: Menu) {
+async function handleDelete(row: MenuRow) {
   if (cascadingDeletion.value) {
     // 级联删除
-    const menuAndChildren: Menu[] = treeToList([row], { id: 'menuId' });
-    await menuCascadeRemove(menuAndChildren.map((item) => item.menuId));
+    const menuAndChildren = treeToList<MenuRow[]>([row], { id: 'menuId' });
+    const menuIds = menuAndChildren.map((item) => String(item.menuId));
+    await menuCascadeRemove(menuIds);
   } else {
     // 单删除
-    await menuRemove([row.menuId]);
+    await menuRemove([String(row.menuId)]);
   }
   await tableApi.query();
 }
 
-function removeConfirmTitle(row: Menu) {
+function removeConfirmTitle(row: MenuRow) {
   const menuName = $t(row.menuName);
   if (!cascadingDeletion.value) {
     return `是否确认删除 [${menuName}] ?`;
   }
-  const menuAndChildren = treeToList([row], { id: 'menuId' });
+  const menuAndChildren = treeToList<MenuRow[]>([row], { id: 'menuId' });
   if (menuAndChildren.length === 1) {
     return `是否确认删除 [${menuName}] ?`;
   }

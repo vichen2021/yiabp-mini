@@ -1,25 +1,34 @@
 export interface Menu {
-  createBy?: any;
-  createTime: string;
-  updateBy?: any;
-  updateTime?: any;
-  remark?: any;
-  menuId: number;
-  menuName: string;
+  id?: string | number;
+  createBy?: string | null;
+  createTime?: string;
+  creationTime?: string;
+  updateBy?: string | null;
+  updateTime?: string | null;
+  remark?: string | null;
+  menuId?: string | number;
+  parentId?: string | number | null;
   parentName?: string;
-  parentId: number;
-  orderNum: number;
-  path: string;
-  component?: string;
-  query: string;
-  isFrame: string;
-  isCache: string;
+  menuName: string;
   menuType: string;
-  visible: string;
-  status: string;
-  perms: string;
-  icon: string;
-  children: Menu[];
+  orderNum?: number;
+  path?: string;
+  router?: string;
+  routerName?: string;
+  component?: string;
+  query?: string | null;
+  permissionCode?: string;
+  perms?: string;
+  icon?: string;
+  menuIcon?: string;
+  isFrame?: string;
+  isLink?: boolean;
+  isCache?: boolean | string;
+  visible?: string;
+  status?: string;
+  state?: boolean;
+  isShow?: boolean;
+  children?: Menu[];
 }
 
 /**

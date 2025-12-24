@@ -51,10 +51,15 @@ export const yesNoOptions = [
 ];
 
 // （M目录 C菜单 F按钮）
-const menuTypes = {
-  C: { icon: MenuIcon, value: '菜单' },
-  F: { icon: OkButtonIcon, value: '按钮' },
-  M: { icon: FolderIcon, value: '目录' },
+const menuTypes: Record<string, { icon: typeof MenuIcon; value: string }> = {
+  c: { icon: MenuIcon, value: '菜单' },
+  menu: { icon: MenuIcon, value: '菜单' },
+  catalog: { icon: FolderIcon, value: '目录' },
+  directory: { icon: FolderIcon, value: '目录' },
+  folder: { icon: FolderIcon, value: '目录' },
+  m: { icon: FolderIcon, value: '目录' },
+  f: { icon: OkButtonIcon, value: '按钮' },
+  button: { icon: OkButtonIcon, value: '按钮' },
 };
 export const columns: VxeGridProps['columns'] = [
   {
@@ -95,7 +100,8 @@ export const columns: VxeGridProps['columns'] = [
     width: 150,
     slots: {
       default: ({ row }) => {
-        const current = menuTypes[row.menuType as 'C' | 'F' | 'M'];
+        const typeKey = `${row.menuType ?? ''}`.toString().trim().toLowerCase();
+        const current = menuTypes[typeKey];
         if (!current) {
           return '未知';
         }

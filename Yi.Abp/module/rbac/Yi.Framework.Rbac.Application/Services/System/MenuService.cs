@@ -6,6 +6,7 @@ using Yi.Framework.Rbac.Application.Contracts.IServices;
 using Yi.Framework.Rbac.Domain.Entities;
 using Yi.Framework.Rbac.Domain.Shared.Consts;
 using Yi.Framework.SqlSugarCore.Abstractions;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Yi.Framework.Rbac.Application.Services.System
 {
@@ -21,15 +22,15 @@ namespace Yi.Framework.Rbac.Application.Services.System
             _repository = repository;
         }
 
-        public override async Task<PagedResultDto<MenuGetListOutputDto>> GetListAsync(MenuGetListInputVo input)
+        [Route("menu/list")]
+        public async Task<List<MenuGetListOutputDto>> GetListAsync(MenuGetListInputVo input)
         {
-            RefAsync<int> total = 0;
             var entities = await _repository._DbQueryable.WhereIF(!string.IsNullOrEmpty(input.MenuName), x => x.MenuName.Contains(input.MenuName!))
                         .WhereIF(input.State is not null, x => x.State == input.State)
                         .Where(x=>x.MenuSource==input.MenuSource)
                         .OrderByDescending(x => x.OrderNum)
                         .ToListAsync();
-            return new PagedResultDto<MenuGetListOutputDto>(total, await MapToGetListOutputDtosAsync(entities));
+            return await MapToGetListOutputDtosAsync(entities);
         }
 
         /// <summary>
