@@ -32,7 +32,7 @@ export interface User {
 }
 
 export interface UserInfoResp {
-  permissions: string[];
+  permissionCodes: string[];
   roles: string[];
   roleCodes: string[];
   user: User;
