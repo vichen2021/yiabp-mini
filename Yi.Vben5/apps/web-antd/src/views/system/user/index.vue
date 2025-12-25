@@ -74,7 +74,7 @@ const formOptions: VbenFormProps = {
   // 日期选择格式化
   fieldMappingTime: [
     [
-      'createTime',
+      'creationTime',
       ['params[beginTime]', 'params[endTime]'],
       ['YYYY-MM-DD 00:00:00', 'YYYY-MM-DD 23:59:59'],
     ],
@@ -89,7 +89,7 @@ const gridOptions: VxeGridProps = {
     reserve: true,
     // 点击行选中
     trigger: 'default',
-    checkMethod: ({ row }) => row?.userId !== 1,
+    checkMethod: ({ row }) => row?.id !== 1,
   },
   columns,
   height: 'auto',
@@ -124,6 +124,7 @@ const gridOptions: VxeGridProps = {
   },
   id: 'system-user-index',
 };
+// @ts-expect-error 类型实例化过深
 const [BasicTable, tableApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,
@@ -232,20 +233,20 @@ const { hasAccessByCodes } = useAccess();
         </template>
         <template #avatar="{ row }">
           <!-- 可能要判断空字符串情况 所以没有使用?? -->
-          <Avatar :src="row.avatar || preferences.app.defaultAvatar" />
+          <Avatar :src="row.icon || preferences.app.defaultAvatar" />
         </template>
         <template #status="{ row }">
           <TableSwitch
-            v-model:value="row.status"
+            v-model:value="row.state"
             :api="() => userStatusChange(row)"
             :disabled="
-              row.userId === 1 || !hasAccessByCodes(['system:user:edit'])
+              row.id === '1' || !hasAccessByCodes(['system:user:edit'])
             "
             @reload="() => tableApi.query()"
           />
         </template>
         <template #action="{ row }">
-          <template v-if="row.userId !== 1">
+          <template v-if="row.id !== '1'">
             <Space>
               <ghost-button
                 v-access:code="['system:user:edit']"

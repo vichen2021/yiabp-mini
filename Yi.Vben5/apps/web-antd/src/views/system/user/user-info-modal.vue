@@ -17,9 +17,9 @@ const [BasicModal, modalApi] = useVbenModal({
 });
 
 interface UserInfoData extends User {
-  posts?: Array<{ postId: number; postName: string; [key: string]: any }>;
+  posts?: Array<{ [key: string]: any; postId: number; postName: string }>;
   roles?: Role[];
-  dept?: { deptName: string; [key: string]: any } | null;
+  dept?: null | { [key: string]: any; deptName: string };
 }
 
 const currentUser = shallowRef<null | UserInfoData>(null);
@@ -32,28 +32,21 @@ async function handleOpenChange(open: boolean) {
 
   const { userId } = modalApi.getData() as { userId: number | string };
   const response = await findUserInfo(userId);
-  
+
   // 新接口直接返回完整的用户数据，包含posts和roles数组
   currentUser.value = response as UserInfoData;
 
   modalApi.modalLoading(false);
 }
 
-const mixInfo = computed(() => {
-  if (!currentUser.value) {
-    return '-';
-  }
-  const { userName, nick, dept } = currentUser.value;
-  const deptName = dept?.deptName ?? '-';
-  return `${userName} / ${nick} / ${deptName}`;
-});
-
 const sexLabel = computed(() => {
   if (!currentUser.value) {
     return '-';
   }
   const { sex } = currentUser.value;
-  return sex === 'Man' ? '男' : sex === 'Woman' ? '女' : '-';
+  if (sex === 'Man') return '男';
+  if (sex === 'Woman') return '女';
+  return '-';
 });
 </script>
 

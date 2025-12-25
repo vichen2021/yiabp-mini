@@ -15,12 +15,12 @@ export const querySchema: FormSchemaGetter = () => [
   },
   {
     component: 'Input',
-    fieldName: 'nickName',
+    fieldName: 'nick',
     label: '用户昵称',
   },
   {
     component: 'Input',
-    fieldName: 'phonenumber',
+    fieldName: 'phone',
     label: '手机号码',
   },
   {
@@ -29,12 +29,12 @@ export const querySchema: FormSchemaGetter = () => [
       getPopupContainer,
       options: getDictOptions(DictEnum.SYS_NORMAL_DISABLE),
     },
-    fieldName: 'status',
+    fieldName: 'state',
     label: '用户状态',
   },
   {
     component: 'RangePicker',
-    fieldName: 'createTime',
+    fieldName: 'creationTime',
     label: '创建时间',
   },
 ];
@@ -98,7 +98,7 @@ export const drawerSchema: FormSchemaGetter = () => [
       show: () => false,
       triggerFields: [''],
     },
-    fieldName: 'userId',
+    fieldName: 'id',
   },
   {
     component: 'Input',
@@ -114,7 +114,7 @@ export const drawerSchema: FormSchemaGetter = () => [
   },
   {
     component: 'Input',
-    fieldName: 'nickName',
+    fieldName: 'nick',
     label: '用户昵称',
     rules: 'required',
   },
@@ -128,7 +128,7 @@ export const drawerSchema: FormSchemaGetter = () => [
   },
   {
     component: 'Input',
-    fieldName: 'phonenumber',
+    fieldName: 'phone',
     label: '手机号码',
     defaultValue: undefined,
     rules: z
@@ -170,7 +170,7 @@ export const drawerSchema: FormSchemaGetter = () => [
       optionType: 'button',
     },
     defaultValue: '0',
-    fieldName: 'status',
+    fieldName: 'state',
     formItemClass: 'col-span-2 lg:col-span-1',
     label: '状态',
   },

@@ -26,7 +26,7 @@ const [BasicForm, formApi] = useVbenForm({
         show: () => false,
         triggerFields: [''],
       },
-      fieldName: 'userId',
+      fieldName: 'id',
       label: '用户ID',
       rules: 'required',
     },
@@ -58,7 +58,7 @@ async function handleOpenChange(open: boolean) {
 
   const { record } = modalApi.getData() as { record: User };
   currentUser.value = record;
-  await formApi.setValues({ userId: record.userId });
+  await formApi.setValues({ id: record.id });
 
   modalApi.modalLoading(false);
 }
@@ -97,13 +97,13 @@ async function handleClosed() {
     <div class="flex flex-col gap-[12px]">
       <Descriptions v-if="currentUser" size="small" :column="1" bordered>
         <DescriptionsItem label="用户ID">
-          {{ currentUser.userId }}
+          {{ currentUser.id }}
         </DescriptionsItem>
         <DescriptionsItem label="用户名">
           {{ currentUser.userName }}
         </DescriptionsItem>
         <DescriptionsItem label="昵称">
-          {{ currentUser.nickName }}
+          {{ currentUser.nick }}
         </DescriptionsItem>
       </Descriptions>
       <BasicForm />
