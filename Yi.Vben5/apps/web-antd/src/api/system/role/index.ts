@@ -16,7 +16,7 @@ enum Api {
   roleDeptTree = '/system/role/deptTree',
   roleExport = '/system/role/export',
   roleList = '/system/role/list',
-  roleOptionSelect = '/system/role/optionselect',
+  roleOptionSelect = '/system/role/select-data-list',
   roleUnallocatedList = '/system/role/authUser/unallocatedList',
   root = '/system/role',
 }

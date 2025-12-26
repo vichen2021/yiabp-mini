@@ -3,7 +3,6 @@ import type {
   ResetPwdParam,
   User,
   UserImportParam,
-  UserInfoData,
 } from './model';
 
 import type { ID, IDS, PageQuery, PageResult } from '#/api/common';
@@ -82,7 +81,7 @@ export function downloadImportTemplate() {
  */
 export function findUserInfo(userId?: ID) {
   const url = userId ? `${Api.root}/${userId}` : `${Api.root}/`;
-  return requestClient.get<UserInfoData>(url);
+  return requestClient.get<User>(url);
 }
 
 /**

@@ -68,7 +68,7 @@ async function setupPostOptions(deptId: number | string) {
   const postListResp = await postOptionSelect(deptId);
   const options = postListResp.map((item) => ({
     label: item.postName,
-    value: item.postId,
+    value: item.id,
   }));
   const placeholder = options.length > 0 ? '请选择' : '该部门下暂无岗位';
   formApi.updateSchema([
@@ -170,32 +170,17 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
       },
     ]);
     // 更新 && 赋值
-    const response = await findUserInfo(id);
+    const user = await findUserInfo(id);
 
-    // 新接口返回格式：可能是 UserInfoResponse（旧格式）或直接是 User 对象（新格式）
-    // 兼容处理两种格式
-    let user: any;
-    let posts: any[] = [];
-    let roles: any[] = [];
-    let postIds: any[] = [];
-    let roleIds: any[] = [];
-
-    if (response && 'user' in response) {
-      // 旧格式：{ user, posts, roles, postIds, roleIds }
-      ({ user, posts = [], roles = [], postIds = [], roleIds = [] } = response);
-    } else {
-      // 新格式：直接是用户对象，posts 和 roles 在对象内
-      user = response;
-      posts = user?.posts ?? [];
-      roles = user?.roles ?? [];
-      // 从 posts 和 roles 数组中提取 ID
-      postIds = posts.map((item: any) => item.postId);
-      roleIds = roles.map((item: any) => item.roleId);
-    }
+    // 从用户对象中提取 posts 和 roles
+    const posts = user?.posts ?? [];
+    const roles = user?.roles ?? [];
+    const postIds = posts.map((item: any) => item.id);
+    const roleIds = roles.map((item: any) => item.roleId);
 
     const postOptions = posts.map((item: any) => ({
       label: item.postName,
-      value: item.postId,
+      value: item.id,
     }));
 
     formApi.updateSchema([

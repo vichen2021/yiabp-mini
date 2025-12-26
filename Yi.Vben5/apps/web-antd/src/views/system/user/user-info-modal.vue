@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Role, User } from '#/api/system/user/model';
+import type { User } from '#/api/system/user/model';
 
 import { computed, shallowRef } from 'vue';
 
@@ -16,13 +16,7 @@ const [BasicModal, modalApi] = useVbenModal({
   },
 });
 
-interface UserInfoData extends User {
-  posts?: Array<{ [key: string]: any; postId: number; postName: string }>;
-  roles?: Role[];
-  dept?: null | { [key: string]: any; deptName: string };
-}
-
-const currentUser = shallowRef<null | UserInfoData>(null);
+const currentUser = shallowRef<null | User>(null);
 
 async function handleOpenChange(open: boolean) {
   if (!open) {
@@ -34,7 +28,7 @@ async function handleOpenChange(open: boolean) {
   const response = await findUserInfo(userId);
 
   // 新接口直接返回完整的用户数据，包含posts和roles数组
-  currentUser.value = response as UserInfoData;
+  currentUser.value = response as User;
 
   modalApi.modalLoading(false);
 }

@@ -64,6 +64,8 @@ export interface User {
   creatorId?: null | string;
   state: boolean;
   deptName?: null | string;
+  posts?: Post[];
+  roles?: Role[];
 }
 
 export interface Post {
