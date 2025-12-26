@@ -65,57 +65,86 @@ function genRoleOptionlabel(role: Role) {
  * 岗位的加载
  */
 async function setupPostOptions(deptId: number | string) {
-  const postListResp = await postOptionSelect(deptId);
-  const options = postListResp.map((item) => ({
-    label: item.postName,
-    value: item.id,
-  }));
-  const placeholder = options.length > 0 ? '请选择' : '该部门下暂无岗位';
-  formApi.updateSchema([
-    {
-      componentProps: { options, placeholder },
-      fieldName: 'postIds',
-    },
-  ]);
+  try {
+    const postListResp = await postOptionSelect(deptId);
+    // 确保返回的是数组
+    const postList = Array.isArray(postListResp) ? postListResp : [];
+    const options = postList.map((item) => ({
+      label: item.postName,
+      value: item.id,
+    }));
+    const placeholder = options.length > 0 ? '请选择' : '该部门下暂无岗位';
+    formApi.updateSchema([
+      {
+        componentProps: { options, placeholder },
+        fieldName: 'postIds',
+      },
+    ]);
+  } catch (error) {
+    console.error('加载岗位信息失败:', error);
+    // 加载失败时设置空选项
+    formApi.updateSchema([
+      {
+        componentProps: { options: [], placeholder: '加载岗位失败' },
+        fieldName: 'postIds',
+      },
+    ]);
+  }
 }
 
 /**
  * 初始化部门选择
  */
 async function setupDeptSelect() {
-  // updateSchema
-  const deptTree = await getDeptTree();
-  // 选中后显示在输入框的值 即父节点 / 子节点
-  addFullName(deptTree, 'label', ' / ');
-  formApi.updateSchema([
-    {
-      componentProps: (formModel) => ({
-        class: 'w-full',
-        fieldNames: {
-          key: 'id',
-          value: 'id',
-          children: 'children',
+  try {
+    // updateSchema
+    const deptTree = await getDeptTree();
+    // 确保返回的是数组
+    const deptList = Array.isArray(deptTree) ? deptTree : [];
+    // 选中后显示在输入框的值 即父节点 / 子节点
+    addFullName(deptList, 'label', ' / ');
+    formApi.updateSchema([
+      {
+        componentProps: (formModel) => ({
+          class: 'w-full',
+          fieldNames: {
+            key: 'id',
+            value: 'id',
+            children: 'children',
+          },
+          getPopupContainer,
+          // async onSelect(deptId: number | string) {
+          //   /** 根据部门ID加载岗位 */
+          //   await setupPostOptions(deptId);
+          //   /** 变化后需要重新选择岗位 */
+          //   formModel.postIds = [];
+          // },
+          placeholder: '请选择',
+          showSearch: true,
+          treeData: deptList,
+          treeDefaultExpandAll: true,
+          treeLine: { showLeafIcon: false },
+          // 筛选的字段
+          treeNodeFilterProp: 'label',
+          // 选中后显示在输入框的值
+          treeNodeLabelProp: 'fullName',
+        }),
+        fieldName: 'deptId',
+      },
+    ]);
+  } catch (error) {
+    console.error('加载部门树失败:', error);
+    // 加载失败时设置空树
+    formApi.updateSchema([
+      {
+        componentProps: {
+          placeholder: '加载部门失败',
+          treeData: [],
         },
-        getPopupContainer,
-        async onSelect(deptId: number | string) {
-          /** 根据部门ID加载岗位 */
-          await setupPostOptions(deptId);
-          /** 变化后需要重新选择岗位 */
-          formModel.postIds = [];
-        },
-        placeholder: '请选择',
-        showSearch: true,
-        treeData: deptTree,
-        treeDefaultExpandAll: true,
-        treeLine: { showLeafIcon: false },
-        // 筛选的字段
-        treeNodeFilterProp: 'label',
-        // 选中后显示在输入框的值
-        treeNodeLabelProp: 'fullName',
-      }),
-      fieldName: 'deptId',
-    },
-  ]);
+        fieldName: 'deptId',
+      },
+    ]);
+  }
 }
 
 const defaultPassword = ref('');
@@ -159,70 +188,74 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
     }
     drawerApi.drawerLoading(true);
 
-    const { id } = drawerApi.getData() as { id?: number | string };
-    isUpdate.value = !!id;
-    /** update时 禁用用户名修改 不显示密码框 */
-    formApi.updateSchema([
-      { componentProps: { disabled: isUpdate.value }, fieldName: 'userName' },
-      {
-        dependencies: { show: () => !isUpdate.value, triggerFields: ['id'] },
-        fieldName: 'password',
-      },
-    ]);
-    // 更新 && 赋值
-    const user = await findUserInfo(id);
+    try {
+      const { id } = drawerApi.getData() as { id?: number | string };
+      isUpdate.value = !!id;
+      /** update时 禁用用户名修改 不显示密码框 */
+      formApi.updateSchema([
+        { componentProps: { disabled: isUpdate.value }, fieldName: 'userName' },
+        {
+          dependencies: { show: () => !isUpdate.value, triggerFields: ['id'] },
+          fieldName: 'password',
+        },
+      ]);
+      // 更新 && 赋值
+      const user = await findUserInfo(id);
 
-    // 从用户对象中提取 posts 和 roles
-    const posts = user?.posts ?? [];
-    const roles = user?.roles ?? [];
-    const postIds = posts.map((item: any) => item.id);
-    const roleIds = roles.map((item: any) => item.roleId);
+      // 从用户对象中提取 posts 和 roles
+      const posts = user?.posts ?? [];
+      const roles = user?.roles ?? [];
+      const postIds = posts.map((item: any) => item.id);
+      const roleIds = roles.map((item: any) => item.roleId);
 
-    const postOptions = posts.map((item: any) => ({
-      label: item.postName,
-      value: item.id,
-    }));
+      const postOptions = posts.map((item: any) => ({
+        label: item.postName,
+        value: item.id,
+      }));
 
-    formApi.updateSchema([
-      {
-        componentProps: {
-          // title用于选中后回填到输入框 默认为label
-          optionLabelProp: 'title',
-          options: roles.map((item: any) => ({
-            label: genRoleOptionlabel(item),
+      formApi.updateSchema([
+        {
+          componentProps: {
             // title用于选中后回填到输入框 默认为label
-            title: item.roleName,
-            value: item.roleId,
-          })),
+            optionLabelProp: 'title',
+            options: roles.map((item: any) => ({
+              label: genRoleOptionlabel(item),
+              // title用于选中后回填到输入框 默认为label
+              title: item.roleName,
+              value: item.roleId,
+            })),
+          },
+          fieldName: 'roleIds',
         },
-        fieldName: 'roleIds',
-      },
-      {
-        componentProps: {
-          options: postOptions,
+        {
+          componentProps: {
+            options: postOptions,
+          },
+          fieldName: 'postIds',
         },
-        fieldName: 'postIds',
-      },
-    ]);
+      ]);
 
-    // 部门选择、初始密码及用户相关操作并行处理
-    const promises = [setupDeptSelect(), loadDefaultPassword(isUpdate.value)];
-    if (user) {
-      promises.push(
-        // 添加基础信息
-        formApi.setValues(user),
-        // 添加角色和岗位
-        formApi.setFieldValue('postIds', postIds),
-        formApi.setFieldValue('roleIds', roleIds),
-        // 更新时不会触发onSelect 需要手动调用
-        setupPostOptions(user.deptId),
-      );
+      // 部门选择、初始密码及用户相关操作并行处理
+      const promises = [setupDeptSelect(), loadDefaultPassword(isUpdate.value)];
+      if (user) {
+        promises.push(
+          // 添加基础信息
+          formApi.setValues(user),
+          // 添加角色和岗位
+          formApi.setFieldValue('postIds', postIds),
+          formApi.setFieldValue('roleIds', roleIds),
+          // 更新时不会触发onSelect 需要手动调用
+          setupPostOptions(user.deptId),
+        );
+      }
+      // 并行处理 重构后会带来10-50ms的优化
+      await Promise.all(promises);
+      await markInitialized();
+    } catch (error) {
+      console.error('加载用户信息失败:', error);
+    } finally {
+      drawerApi.drawerLoading(false);
     }
-    // 并行处理 重构后会带来10-50ms的优化
-    await Promise.all(promises);
-    await markInitialized();
-
-    drawerApi.drawerLoading(false);
   },
 });
 
