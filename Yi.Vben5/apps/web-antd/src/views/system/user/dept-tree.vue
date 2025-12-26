@@ -95,8 +95,8 @@ onMounted(loadTree);
             v-model:selected-keys="selectDeptId"
             :class="$attrs.class"
             :field-names="{
-              title: 'deptName',
-              key: 'deptCode',
+              title: 'label',
+              key: 'id',
               children: 'children',
             }"
             :show-line="{ showLeafIcon: false }"
@@ -105,17 +105,17 @@ onMounted(loadTree);
             default-expand-all
             @select="$emit('select')"
           >
-            <template #title="{ deptName }">
-              <span v-if="deptName.includes(searchValue)">
-                {{ deptName.substring(0, deptName.indexOf(searchValue)) }}
+            <template #title="{ label }">
+              <span v-if="label.includes(searchValue)">
+                {{ label.substring(0, label.indexOf(searchValue)) }}
                 <span class="text-primary">{{ searchValue }}</span>
                 {{
-                  deptName.substring(
-                    deptName.indexOf(searchValue) + searchValue.length,
+                  label.substring(
+                    label.indexOf(searchValue) + searchValue.length,
                   )
                 }}
               </span>
-              <span v-else>{{ deptName }}</span>
+              <span v-else>{{ label }}</span>
             </template>
           </Tree>
           <!-- 仅本人数据权限 可以考虑直接不显示 -->

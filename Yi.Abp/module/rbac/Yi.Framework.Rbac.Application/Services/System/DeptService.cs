@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using SqlSugar;
 using Volo.Abp.Application.Dtos;
 using Yi.Framework.Core.Helper;
+using Yi.Framework.Core.Models;
 using Yi.Framework.Ddd.Application;
 using Yi.Framework.Rbac.Application.Contracts.Dtos.Dept;
 using Yi.Framework.Rbac.Application.Contracts.IServices;
@@ -80,10 +81,10 @@ namespace Yi.Framework.Rbac.Application.Services.System
         }
 
         /// <summary>
-        /// 获取部门树形列表
+        /// 获取树形结构的部门列表
         /// </summary>
         /// <returns>树形结构的部门列表</returns>
-        public async Task<List<DeptGetTreeListOutputDto>> GetTreeListAsync()
+        public async Task<List<TreeDto>> GetTreeAsync()
         {
             // 获取所有启用的部门
             var entities = await _repository._DbQueryable
@@ -91,42 +92,19 @@ namespace Yi.Framework.Rbac.Application.Services.System
                 .OrderBy(x => x.OrderNum, OrderByType.Asc)
                 .ToListAsync();
 
-            // 使用扩展方法构建树形结构
-            var treeDtos = entities.DeptTreeListBuild();
-            
-            // 转换为DeptGetTreeListOutputDto
-            return ConvertTreeDtoToOutputDto(treeDtos);
-        }
-
-        /// <summary>
-        /// 将DeptTreeDto转换为DeptGetTreeListOutputDto
-        /// </summary>
-        /// <param name="treeDtos">树形DTO列表</param>
-        /// <returns>输出DTO列表</returns>
-        private List<DeptGetTreeListOutputDto> ConvertTreeDtoToOutputDto(List<DeptTreeDto> treeDtos)
-        {
-            var result = new List<DeptGetTreeListOutputDto>();
-            
-            foreach (var treeDto in treeDtos)
+            // 将部门实体转换为标准 TreeDto
+            var treeDtos = entities.Select(dept => new TreeDto
             {
-                var outputDto = new DeptGetTreeListOutputDto
-                {
-                    Id = treeDto.Id,
-                    ParentId = treeDto.ParentId,
-                    OrderNum = treeDto.OrderNum,
-                    DeptName = treeDto.DeptName,
-                    DeptCode = treeDto.DeptCode,
-                    Leader = treeDto.Leader,
-                    Remark = treeDto.Remark,
-                    State = treeDto.State,
-                    CreationTime = treeDto.CreationTime,
-                    Children = treeDto.Children != null ? ConvertTreeDtoToOutputDto(treeDto.Children) : null
-                };
-                
-                result.Add(outputDto);
-            }
-            
-            return result;
+                Id = dept.Id,
+                ParentId = dept.ParentId,
+                Label = dept.DeptName,
+                Weight = dept.OrderNum,
+                Disabled = !dept.State,
+                Children = new List<TreeDto>()
+            }).ToList();
+
+            // 使用 Vben5TreeHelper 构建树形结构
+            return  Vben5TreeHelper.BuildTree(treeDtos);
         }
 
     }

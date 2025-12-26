@@ -94,49 +94,4 @@ namespace Yi.Framework.Rbac.Domain.Entities
         [SugarColumn(IsIgnore = true)]
         public List<DeptAggregateRoot>? Children { get; set; }
     }
-
-    /// <summary>
-    /// 部门实体扩展
-    /// </summary>
-    public static class DeptEntityExtensions
-    {
-        /// <summary>
-        /// 构建部门树形列表
-        /// </summary>
-        /// <param name="depts">部门列表</param>
-        /// <returns>树形结构的部门列表</returns>
-        public static List<DeptTreeDto> DeptTreeListBuild(this List<DeptAggregateRoot> depts)
-        {
-            // 过滤启用的部门
-            var filteredDepts = depts
-                .Where(d => d.State == true)
-                .ToList();
-
-            List<DeptTreeDto> deptTrees = new();
-            foreach (var dept in filteredDepts)
-            {
-                var deptTree = new DeptTreeDto
-                {
-                    Id = dept.Id,
-                    ParentId = dept.ParentId,
-                    OrderNum = dept.OrderNum,
-                    DeptName = dept.DeptName,
-                    DeptCode = dept.DeptCode,
-                    Leader = dept.Leader,
-                    Remark = dept.Remark,
-                    State = dept.State,
-                    CreationTime = dept.CreationTime,
-                    // 前端显示相关
-                    Label = dept.DeptName,
-                    Value = dept.Id.ToString(),
-                    Disabled = !dept.State
-                };
-
-                deptTrees.Add(deptTree);
-            }
-
-            // 使用TreeHelper构建树形结构
-            return TreeHelper.SetTree(deptTrees);
-        }
-    }
 }
