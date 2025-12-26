@@ -3,7 +3,7 @@ import type {
   ResetPwdParam,
   User,
   UserImportParam,
-  UserInfoResponse,
+  UserInfoData,
 } from './model';
 
 import type { ID, IDS, PageQuery, PageResult } from '#/api/common';
@@ -12,7 +12,7 @@ import { commonExport, ContentTypeEnum } from '#/api/helper';
 import { requestClient } from '#/api/request';
 
 enum Api {
-  deptTree = '/system/dept/tree-list',
+  deptTree = '/system/dept/tree',
   listDeptUsers = '/system/user/list/dept',
   root = '/system/user',
   userAuthRole = '/system/user/authRole',
@@ -82,7 +82,7 @@ export function downloadImportTemplate() {
  */
 export function findUserInfo(userId?: ID) {
   const url = userId ? `${Api.root}/${userId}` : `${Api.root}/`;
-  return requestClient.get<UserInfoResponse>(url);
+  return requestClient.get<UserInfoData>(url);
 }
 
 /**
@@ -110,8 +110,8 @@ export function userUpdate(data: Partial<User>) {
  */
 export function userStatusChange(data: Partial<User>) {
   const requestData = {
-    userId: data.userId,
-    status: data.status,
+    id: data.id,
+    state: data.state,
   };
   return requestClient.putWithMsg<void>(Api.userStatusChange, requestData);
 }
