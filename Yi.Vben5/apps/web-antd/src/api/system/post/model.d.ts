@@ -2,11 +2,11 @@
  * @description: Post interface
  */
 export interface Post {
-  postId: number;
+  id: string;
+  creationTime: string;
+  state: boolean;
   postCode: string;
   postName: string;
-  postSort: number;
-  status: string;
-  remark: string;
-  createTime: string;
+  remark: null | string;
+  orderNum: number;
 }

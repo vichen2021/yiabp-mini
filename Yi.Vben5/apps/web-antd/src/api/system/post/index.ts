@@ -1,5 +1,4 @@
 import type { Post } from './model';
-
 import type { ID, IDS, PageQuery } from '#/api/common';
 
 import { commonExport } from '#/api/helper';
@@ -8,7 +7,7 @@ import { requestClient } from '#/api/request';
 enum Api {
   postExport = '/system/post/export',
   postList = '/system/post/list',
-  postSelect = '/system/post/optionselect',
+  postSelect = '/system/post/select-data-list',
   root = '/system/post',
 }
 
@@ -71,6 +70,8 @@ export function postRemove(postIds: IDS) {
  * @param deptId 部门id
  * @returns 岗位
  */
-export function postOptionSelect(deptId: ID) {
-  return requestClient.get<Post[]>(Api.postSelect, { params: { deptId } });
+export async function postOptionSelect(deptId: ID) {
+  return requestClient.get<Post[]>(Api.postSelect, {
+    params: { deptId },
+  });
 }
