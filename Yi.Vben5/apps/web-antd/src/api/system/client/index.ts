@@ -51,7 +51,7 @@ export function clientAdd(data: Partial<Client>) {
  * @param data 参数
  */
 export function clientUpdate(data: Partial<Client>) {
-  return requestClient.putWithMsg<void>(Api.root, data);
+  return requestClient.putWithMsg<void>(`${Api.root}/${data.id}`, data);
 }
 
 /**
@@ -71,5 +71,7 @@ export function clientChangeStatus(data: any) {
  * @param ids id集合
  */
 export function clientRemove(ids: IDS) {
-  return requestClient.deleteWithMsg<void>(`${Api.root}/${ids}`);
+  return requestClient.deleteWithMsg<void>(Api.root, {
+    params: { ids: ids.join(',') },
+  });
 }

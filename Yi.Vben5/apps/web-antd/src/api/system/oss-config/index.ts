@@ -27,12 +27,14 @@ export function ossConfigAdd(data: Partial<OssConfig>) {
 
 // 更新现有的OSS配置
 export function ossConfigUpdate(data: Partial<OssConfig>) {
-  return requestClient.putWithMsg<void>(Api.root, data);
+  return requestClient.putWithMsg<void>(`${Api.root}/${data.id}`, data);
 }
 
 // 删除OSS配置
 export function ossConfigRemove(ossConfigIds: IDS) {
-  return requestClient.deleteWithMsg<void>(`${Api.root}/${ossConfigIds}`);
+  return requestClient.deleteWithMsg<void>(Api.root, {
+    params: { ids: ossConfigIds.join(',') },
+  });
 }
 
 // 更改OSS配置的状态

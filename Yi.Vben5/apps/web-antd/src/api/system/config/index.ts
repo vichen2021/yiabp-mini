@@ -47,7 +47,7 @@ export function configRefreshCache() {
  * @param data 参数
  */
 export function configUpdate(data: Partial<SysConfig>) {
-  return requestClient.putWithMsg<void>(Api.root, data);
+  return requestClient.putWithMsg<void>(`${Api.root}/${data.id}`, data);
 }
 
 /**
@@ -63,7 +63,9 @@ export function configAdd(data: Partial<SysConfig>) {
  * @param configIds ids
  */
 export function configRemove(configIds: IDS) {
-  return requestClient.deleteWithMsg<void>(`${Api.root}/${configIds}`);
+  return requestClient.deleteWithMsg<void>(Api.root, {
+    params: { ids: configIds.join(',') },
+  });
 }
 
 /**

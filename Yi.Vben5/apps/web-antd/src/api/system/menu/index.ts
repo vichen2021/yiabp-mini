@@ -43,7 +43,7 @@ export function menuAdd(data: Partial<Menu>) {
  * @param data 参数
  */
 export function menuUpdate(data: Partial<Menu>) {
-  return requestClient.putWithMsg<void>(Api.root, data);
+  return requestClient.putWithMsg<void>(`${Api.root}/${data.id}`, data);
 }
 
 /**
@@ -51,7 +51,9 @@ export function menuUpdate(data: Partial<Menu>) {
  * @param menuIds ids
  */
 export function menuRemove(menuIds: IDS) {
-  return requestClient.deleteWithMsg<void>(`${Api.root}/${menuIds}`);
+  return requestClient.deleteWithMsg<void>(Api.root, {
+    params: { ids: menuIds.join(',') },
+  });
 }
 
 /**

@@ -63,7 +63,7 @@ export function roleAdd(data: Partial<Role>) {
  * @returns void
  */
 export function roleUpdate(data: Partial<Role>) {
-  return requestClient.putWithMsg<void>(Api.root, data);
+  return requestClient.putWithMsg<void>(`${Api.root}/${data.id}`, data);
 }
 
 /**
@@ -85,7 +85,9 @@ export function roleChangeStatus(data: Partial<Role>) {
  * @returns void
  */
 export function roleRemove(roleIds: IDS) {
-  return requestClient.deleteWithMsg<void>(`${Api.root}/${roleIds}`);
+  return requestClient.deleteWithMsg<void>(Api.root, {
+    params: { ids: roleIds.join(',') },
+  });
 }
 
 /**

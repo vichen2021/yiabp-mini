@@ -71,5 +71,7 @@ export function ossDownload(
  * @returns void
  */
 export function ossRemove(ossIds: IDS) {
-  return requestClient.deleteWithMsg<void>(`${Api.root}/${ossIds}`);
+  return requestClient.deleteWithMsg<void>(Api.root, {
+    params: { ids: ossIds.join(',') },
+  });
 }

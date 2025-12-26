@@ -45,7 +45,9 @@ export function dictDataExport(data: Partial<DictData>) {
  * @returns void
  */
 export function dictDataRemove(dictIds: IDS) {
-  return requestClient.deleteWithMsg<void>(`${Api.root}/${dictIds}`);
+  return requestClient.deleteWithMsg<void>(Api.root, {
+    params: { ids: dictIds.join(',') },
+  });
 }
 
 /**
@@ -63,7 +65,7 @@ export function dictDataAdd(data: Partial<DictData>) {
  * @returns void
  */
 export function dictDataUpdate(data: Partial<DictData>) {
-  return requestClient.putWithMsg<void>(Api.root, data);
+  return requestClient.putWithMsg<void>(`${Api.root}/${data.id}`, data);
 }
 
 /**

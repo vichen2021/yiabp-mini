@@ -49,7 +49,7 @@ export function deptAdd(data: Partial<Dept>) {
  * @param data 参数
  */
 export function deptUpdate(data: Partial<Dept>) {
-  return requestClient.putWithMsg<void>(Api.root, data);
+  return requestClient.putWithMsg<void>(`${Api.root}/${data.id}`, data);
 }
 
 /**
@@ -58,5 +58,7 @@ export function deptUpdate(data: Partial<Dept>) {
  * @returns void
  */
 export function deptRemove(deptId: ID) {
-  return requestClient.deleteWithMsg<void>(`${Api.root}/${deptId}`);
+  return requestClient.deleteWithMsg<void>(Api.root, {
+    params: { ids: deptId },
+  });
 }

@@ -24,7 +24,7 @@ export function userProfile() {
  * @returns void
  */
 export function userProfileUpdate(data: any) {
-  return requestClient.putWithMsg<void>(Api.root, data);
+  return requestClient.putWithMsg<void>(`${Api.root}/${data.id}`, data);
 }
 
 /**

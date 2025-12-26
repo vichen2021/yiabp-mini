@@ -40,7 +40,7 @@ export function noticeAdd(data: Partial<Notice>) {
  * @param data 参数
  */
 export function noticeUpdate(data: any) {
-  return requestClient.putWithMsg<void>(Api.root, data);
+  return requestClient.putWithMsg<void>(`${Api.root}/${data.id}`, data);
 }
 
 /**
@@ -48,5 +48,7 @@ export function noticeUpdate(data: any) {
  * @param noticeIds ids
  */
 export function noticeRemove(noticeIds: IDS) {
-  return requestClient.deleteWithMsg<void>(`${Api.root}/${noticeIds}`);
+  return requestClient.deleteWithMsg<void>(Api.root, {
+    params: { ids: noticeIds.join(',') },
+  });
 }

@@ -53,7 +53,7 @@ export function postAdd(data: Partial<Post>) {
  * @returns void
  */
 export function postUpdate(data: Partial<Post>) {
-  return requestClient.putWithMsg<void>(Api.root, data);
+  return requestClient.putWithMsg<void>(`${Api.root}/${data.id}`, data);
 }
 
 /**
@@ -62,7 +62,9 @@ export function postUpdate(data: Partial<Post>) {
  * @returns void
  */
 export function postRemove(postIds: IDS) {
-  return requestClient.deleteWithMsg<void>(`${Api.root}/${postIds}`);
+  return requestClient.deleteWithMsg<void>(Api.root, {
+    params: { ids: postIds.join(',') },
+  });
 }
 
 /**

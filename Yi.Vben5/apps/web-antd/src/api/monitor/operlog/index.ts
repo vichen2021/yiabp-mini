@@ -28,7 +28,9 @@ export function operLogList(params?: PageQuery) {
  * @param operIds id/ids
  */
 export function operLogDelete(operIds: IDS) {
-  return requestClient.deleteWithMsg<void>(`${Api.root}/${operIds}`);
+  return requestClient.deleteWithMsg<void>(Api.root, {
+    params: { ids: operIds.join(',') },
+  });
 }
 
 /**

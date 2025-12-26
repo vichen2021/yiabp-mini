@@ -1,6 +1,6 @@
 import type { OnlineUser } from './model';
 
-import type { PageQuery, PageResult } from '#/api/common';
+import type { IDS, PageQuery, PageResult } from '#/api/common';
 
 import { requestClient } from '#/api/request';
 
@@ -31,8 +31,10 @@ export function onlineList(params?: PageQuery) {
  * @param tokenId 用户token
  * @returns void
  */
-export function forceLogout(tokenId: string) {
-  return requestClient.deleteWithMsg<void>(`${Api.root}/${tokenId}`);
+export function forceLogout(tokenId: IDS) {
+  return requestClient.deleteWithMsg<void>(Api.root, {
+    params: { ids: tokenId.join(',') },
+  });
 }
 
 /**

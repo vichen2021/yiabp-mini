@@ -58,7 +58,7 @@ export function tenantAdd(data: Partial<Tenant>) {
  * @returns void
  */
 export function tenantUpdate(data: Partial<Tenant>) {
-  return requestClient.putWithMsg<void>(Api.root, data);
+  return requestClient.putWithMsg<void>(`${Api.root}/${data.id}`, data);
 }
 
 /**
@@ -81,7 +81,9 @@ export function tenantStatusChange(data: Partial<Tenant>) {
  * @returns void
  */
 export function tenantRemove(ids: IDS) {
-  return requestClient.deleteWithMsg(`${Api.root}/${ids}`);
+  return requestClient.deleteWithMsg<void>(Api.root, {
+    params: { ids: ids.join(',') },
+  });
 }
 
 /**

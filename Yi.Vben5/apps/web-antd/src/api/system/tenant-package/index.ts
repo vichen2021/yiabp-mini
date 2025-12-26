@@ -65,7 +65,7 @@ export function packageAdd(data: Partial<TenantPackage>) {
  * @returns void
  */
 export function packageUpdate(data: Partial<TenantPackage>) {
-  return requestClient.putWithMsg<void>(Api.root, data);
+  return requestClient.putWithMsg<void>(`${Api.root}/${data.id}`, data);
 }
 
 /**
@@ -87,5 +87,7 @@ export function packageChangeStatus(data: Partial<TenantPackage>) {
  * @returns void
  */
 export function packageRemove(ids: IDS) {
-  return requestClient.deleteWithMsg<void>(`${Api.root}/${ids}`);
+  return requestClient.deleteWithMsg<void>(Api.root, {
+    params: { ids: ids.join(',') },
+  });
 }

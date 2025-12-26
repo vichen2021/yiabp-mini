@@ -80,7 +80,7 @@ export function downloadImportTemplate() {
  * @returns 用户信息
  */
 export function findUserInfo(userId?: ID) {
-  const url = userId ? `${Api.root}/${userId}` : `${Api.root}/`;
+  const url = userId ? `${Api.root}/${userId}` : `${Api.root}`;
   return requestClient.get<User>(url);
 }
 
@@ -99,7 +99,7 @@ export function userAdd(data: Partial<User>) {
  * @returns void
  */
 export function userUpdate(data: Partial<User>) {
-  return requestClient.putWithMsg<void>(Api.root, data);
+  return requestClient.putWithMsg<void>(`${Api.root}/${data.id}`, data);
 }
 
 /**
@@ -121,7 +121,9 @@ export function userStatusChange(data: Partial<User>) {
  * @returns void
  */
 export function userRemove(userIds: IDS) {
-  return requestClient.deleteWithMsg<void>(`${Api.root}/${userIds}`);
+  return requestClient.deleteWithMsg<void>(Api.root, {
+    params: { ids: userIds.join(',') },
+  });
 }
 
 /**

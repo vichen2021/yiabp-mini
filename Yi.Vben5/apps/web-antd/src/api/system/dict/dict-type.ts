@@ -37,7 +37,9 @@ export function dictTypeExport(data: Partial<DictType>) {
  * @returns void
  */
 export function dictTypeRemove(dictIds: IDS) {
-  return requestClient.deleteWithMsg<void>(`${Api.root}/${dictIds}`);
+  return requestClient.deleteWithMsg<void>(Api.root, {
+    params: { ids: dictIds.join(',') },
+  });
 }
 
 /**
@@ -63,7 +65,7 @@ export function dictTypeAdd(data: Partial<DictType>) {
  * @returns void
  */
 export function dictTypeUpdate(data: Partial<DictType>) {
-  return requestClient.putWithMsg<void>(Api.root, data);
+  return requestClient.putWithMsg<void>(`${Api.root}/${data.id}`, data);
 }
 
 /**
