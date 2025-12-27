@@ -181,10 +181,10 @@ export const drawerSchema: FormSchemaGetter = () => [
       mode: 'multiple',
       optionFilterProp: 'label',
       optionLabelProp: 'label',
-      placeholder: '请先选择部门',
+      placeholder: '请选择岗位',
     },
     fieldName: 'postIds',
-    help: '选择部门后, 将自动加载该部门下所有的岗位',
+    help: '岗位不再依赖部门，可直接选择',
     label: '岗位',
   },
   {
