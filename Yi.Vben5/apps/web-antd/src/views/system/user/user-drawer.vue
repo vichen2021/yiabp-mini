@@ -64,16 +64,17 @@ function genRoleOptionlabel(role: Role) {
 /**
  * 岗位的加载
  */
-async function setupPostOptions(deptId: number | string) {
+async function setupPostOptions() {
   try {
-    const postListResp = await postOptionSelect(deptId);
+    const postListResp = await postOptionSelect();
+    console.log(postListResp);
     // 确保返回的是数组
     const postList = Array.isArray(postListResp) ? postListResp : [];
     const options = postList.map((item) => ({
       label: item.postName,
       value: item.id,
     }));
-    const placeholder = options.length > 0 ? '请选择' : '该部门下暂无岗位';
+    const placeholder = options.length > 0 ? '请选择' : '暂无可选岗位';
     formApi.updateSchema([
       {
         componentProps: { options, placeholder },
@@ -113,12 +114,6 @@ async function setupDeptSelect() {
             children: 'children',
           },
           getPopupContainer,
-          // async onSelect(deptId: number | string) {
-          //   /** 根据部门ID加载岗位 */
-          //   await setupPostOptions(deptId);
-          //   /** 变化后需要重新选择岗位 */
-          //   formModel.postIds = [];
-          // },
           placeholder: '请选择',
           showSearch: true,
           treeData: deptList,
@@ -180,7 +175,7 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
       // 需要重置岗位选择
       formApi.updateSchema([
         {
-          componentProps: { options: [], placeholder: '请先选择部门' },
+          componentProps: { options: [], placeholder: '请选择岗位' },
           fieldName: 'postIds',
         },
       ]);
@@ -236,7 +231,11 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
       ]);
 
       // 部门选择、初始密码及用户相关操作并行处理
-      const promises = [setupDeptSelect(), loadDefaultPassword(isUpdate.value)];
+      const promises = [
+        setupDeptSelect(),
+        loadDefaultPassword(isUpdate.value),
+        setupPostOptions(),
+      ];
       if (user) {
         promises.push(
           // 添加基础信息
@@ -244,8 +243,6 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
           // 添加角色和岗位
           formApi.setFieldValue('postIds', postIds),
           formApi.setFieldValue('roleIds', roleIds),
-          // 更新时不会触发onSelect 需要手动调用
-          setupPostOptions(user.deptId),
         );
       }
       // 并行处理 重构后会带来10-50ms的优化

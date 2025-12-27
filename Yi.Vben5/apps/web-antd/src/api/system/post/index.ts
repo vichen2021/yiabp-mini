@@ -1,4 +1,5 @@
 import type { Post } from './model';
+
 import type { ID, IDS, PageQuery } from '#/api/common';
 
 import { commonExport } from '#/api/helper';
@@ -68,12 +69,9 @@ export function postRemove(postIds: IDS) {
 }
 
 /**
- * 根据部门id获取岗位下拉列表
- * @param deptId 部门id
+ * 获取岗位下拉列表
  * @returns 岗位
  */
-export async function postOptionSelect(deptId: ID) {
-  return requestClient.get<Post[]>(Api.postSelect, {
-    params: { deptId },
-  });
+export function postOptionSelect() {
+  return requestClient.get<Post[]>(Api.postSelect);
 }
