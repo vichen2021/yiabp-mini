@@ -72,11 +72,31 @@ namespace Yi.Framework.Rbac.Application.Services.System
 
         protected override async Task CheckUpdateInputDtoAsync(DeptAggregateRoot entity, DeptUpdateInputVo input)
         {
+            // 校验部门编码唯一性
             var isExist = await _repository._DbQueryable.Where(x => x.Id != entity.Id)
                 .AnyAsync(x => x.DeptCode == input.DeptCode);
             if (isExist)
             {
                 throw new UserFriendlyException(DeptConst.Exist);
+            }
+
+            // 校验上级部门不能是自己或自己的子孙部门
+            if (input.ParentId.HasValue && input.ParentId.Value != Guid.Empty)
+            {
+                // 不能将自己设置为上级部门
+                if (input.ParentId.Value == entity.Id)
+                {
+                    throw new UserFriendlyException("上级部门不能是自己");
+                }
+
+                // 获取当前部门的所有子孙部门ID
+                var childrenIds = await GetAllChildrenIdsAsync(entity.Id);
+                
+                // 上级部门不能是当前部门的子孙部门
+                if (childrenIds.Contains(input.ParentId.Value))
+                {
+                    throw new UserFriendlyException("上级部门不能是当前部门的子孙部门，这会造成循环引用");
+                }
             }
         }
 
@@ -105,6 +125,69 @@ namespace Yi.Framework.Rbac.Application.Services.System
 
             // 使用 Vben5TreeHelper 构建树形结构
             return  Vben5TreeHelper.BuildTree(treeDtos);
+        }
+
+        /// <summary>
+        /// 获取排除指定部门及其子孙部门的部门列表
+        /// </summary>
+        /// <param name="id">要排除的部门ID</param>
+        /// <returns>排除后的部门列表</returns>
+        [HttpGet]
+        [Route("dept/list/exclude/{id}")]
+        public async Task<List<DeptGetListOutputDto>> GetListExcludeAsync(Guid id)
+        {
+            // 获取所有部门
+            var allDepts = await _repository._DbQueryable
+                .OrderBy(x => x.OrderNum, OrderByType.Asc)
+                .ToListAsync();
+
+            // 获取要排除的部门及其所有子孙部门的ID
+            var excludeIds = await GetAllChildrenIdsAsync(id);
+            excludeIds.Add(id); // 同时排除自己
+
+            // 过滤掉排除的部门
+            var entities = allDepts.Where(x => !excludeIds.Contains(x.Id)).ToList();
+
+            return await MapToGetListOutputDtosAsync(entities);
+        }
+
+        /// <summary>
+        /// 递归获取指定部门的所有子孙部门ID
+        /// </summary>
+        /// <param name="deptId">部门ID</param>
+        /// <returns>所有子孙部门ID列表</returns>
+        private async Task<List<Guid>> GetAllChildrenIdsAsync(Guid deptId)
+        {
+            var result = new List<Guid>();
+            
+            // 获取所有部门
+            var allDepts = await _repository._DbQueryable.ToListAsync();
+            
+            // 递归获取子孙部门ID
+            GetChildrenIdsRecursive(deptId, allDepts, result);
+            
+            return result;
+        }
+
+        /// <summary>
+        /// 递归辅助方法：获取子孙部门ID
+        /// </summary>
+        /// <param name="parentId">父部门ID</param>
+        /// <param name="allDepts">所有部门列表</param>
+        /// <param name="result">结果列表</param>
+        private void GetChildrenIdsRecursive(Guid parentId, List<DeptAggregateRoot> allDepts, List<Guid> result)
+        {
+            // 查找直接子部门
+            var children = allDepts.Where(x => x.ParentId == parentId).ToList();
+            
+            foreach (var child in children)
+            {
+                // 添加子部门ID
+                result.Add(child.Id);
+                
+                // 递归获取子部门的子部门
+                GetChildrenIdsRecursive(child.Id, allDepts, result);
+            }
         }
 
     }

@@ -1,19 +1,13 @@
 export interface Dept {
-  createBy: string;
-  createTime: string;
-  updateBy?: string;
-  updateTime?: string;
-  remark?: string;
-  deptId: number;
-  parentId: number;
-  ancestors: string;
+  creationTime: string;
+  creatorId?: string | null;
+  state: boolean;
   deptName: string;
+  deptCode?: string;
+  leader?: string;
+  parentId: string | null;
+  remark?: string;
   orderNum: number;
-  leader: string;
-  phone: string;
-  email: string;
-  status: string;
-  delFlag: string;
-  parentName?: string;
+  id: string;
   children?: Dept[];
 }

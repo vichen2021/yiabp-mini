@@ -1,12 +1,7 @@
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { DictEnum } from '@vben/constants';
 import { getPopupContainer } from '@vben/utils';
-
-import { z } from '#/adapter/form';
-import { getDictOptions } from '#/utils/dict';
-import { renderDict } from '#/utils/render';
 
 export const querySchema: FormSchemaGetter = () => [
   {
@@ -18,9 +13,12 @@ export const querySchema: FormSchemaGetter = () => [
     component: 'Select',
     componentProps: {
       getPopupContainer,
-      options: getDictOptions(DictEnum.SYS_NORMAL_DISABLE),
+      options: [
+        { label: '启用', value: true },
+        { label: '禁用', value: false },
+      ],
     },
-    fieldName: 'status',
+    fieldName: 'state',
     label: '部门状态',
   },
 ];
@@ -32,24 +30,24 @@ export const columns: VxeGridProps['columns'] = [
     treeNode: true,
   },
   {
-    field: 'deptCategory',
-    title: '类别编码',
+    field: 'deptCode',
+    title: '部门编码',
   },
   {
     field: 'orderNum',
     title: '排序',
   },
   {
-    field: 'status',
+    field: 'state',
     title: '状态',
     slots: {
       default: ({ row }) => {
-        return renderDict(row.status, DictEnum.SYS_NORMAL_DISABLE);
+        return row.state ? '启用' : '禁用';
       },
     },
   },
   {
-    field: 'createTime',
+    field: 'creationTime',
     title: '创建时间',
   },
   {
@@ -69,7 +67,7 @@ export const drawerSchema: FormSchemaGetter = () => [
       show: () => false,
       triggerFields: [''],
     },
-    fieldName: 'deptId',
+    fieldName: 'id',
   },
   {
     component: 'TreeSelect',
@@ -77,7 +75,7 @@ export const drawerSchema: FormSchemaGetter = () => [
       getPopupContainer,
     },
     dependencies: {
-      show: (model) => model.parentId !== 0,
+      show: (model) => model.parentId !== '00000000-0000-0000-0000-000000000000',
       triggerFields: ['parentId'],
     },
     fieldName: 'parentId',
@@ -99,48 +97,31 @@ export const drawerSchema: FormSchemaGetter = () => [
   },
   {
     component: 'Input',
-    fieldName: 'deptCategory',
-    label: '类别编码',
+    fieldName: 'deptCode',
+    label: '部门编码',
   },
   {
-    component: 'Select',
-    componentProps: {
-      // 选中了就只能修改 不能重置为无负责人
-      allowClear: false,
-      getPopupContainer,
-    },
+    component: 'Input',
     fieldName: 'leader',
     label: '负责人',
   },
   {
-    component: 'Input',
-    fieldName: 'phone',
-    label: '联系电话',
-    rules: z
-      .string()
-      .regex(/^1[3,4578]\d{9}$/, { message: '请输入正确的手机号' })
-      .optional()
-      .or(z.literal('')),
-  },
-  {
-    component: 'Input',
-    fieldName: 'email',
-    label: '邮箱',
-    rules: z
-      .string()
-      .email({ message: '请输入正确的邮箱' })
-      .optional()
-      .or(z.literal('')),
+    component: 'Textarea',
+    fieldName: 'remark',
+    label: '备注',
   },
   {
     component: 'RadioGroup',
     componentProps: {
       buttonStyle: 'solid',
-      options: getDictOptions(DictEnum.SYS_NORMAL_DISABLE),
+      options: [
+        { label: '启用', value: true },
+        { label: '禁用', value: false },
+      ],
       optionType: 'button',
     },
-    defaultValue: '0',
-    fieldName: 'status',
+    defaultValue: true,
+    fieldName: 'state',
     label: '状态',
   },
 ];

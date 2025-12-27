@@ -228,5 +228,35 @@ namespace Yi.Framework.Rbac.Application.Services.System
         {
             return base.PostImportExcelAsync(input);
         }
+
+        /// <summary>
+        /// 获取指定部门及其所有子部门下的用户列表
+        /// </summary>
+        /// <param name="deptId">部门ID</param>
+        /// <returns>用户列表</returns>
+        [HttpGet]
+        [Route("user/dept/{deptId}")]
+        [Permission("system:user:list")]
+        public async Task<List<UserGetListOutputDto>> GetUsersByDeptAsync(Guid deptId)
+        {
+            // 获取当前部门及其所有子部门的ID列表
+            var deptIds = await _deptService.GetChildListAsync(deptId);
+            
+            // 将当前部门ID也加入列表
+            if (!deptIds.Contains(deptId))
+            {
+                deptIds.Add(deptId);
+            }
+
+            // 查询所有这些部门下的用户
+            var users = await _repository._DbQueryable
+                .Where(u => deptIds.Contains(u.DeptId ?? Guid.Empty))
+                .LeftJoin<DeptAggregateRoot>((user, dept) => user.DeptId == dept.Id)
+                .OrderByDescending(user => user.CreationTime)
+                .Select((user, dept) => new UserGetListOutputDto(), true)
+                .ToListAsync();
+
+            return users;
+        }
     }
 }

@@ -12,7 +12,7 @@ import { requestClient } from '#/api/request';
 
 enum Api {
   deptTree = '/system/dept/tree',
-  listDeptUsers = '/system/user/list/dept',
+  listDeptUsers = '/system/user/dept',
   root = '/system/user',
   userAuthRole = '/system/user/authRole',
   userExport = '/system/user/export',

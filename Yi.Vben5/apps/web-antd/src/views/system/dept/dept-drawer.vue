@@ -48,7 +48,7 @@ const [BasicForm, formApi] = useVbenForm({
 async function getDeptTree(deptId?: number | string, exclude = false) {
   let ret: Dept[] = [];
   ret = await (!deptId || exclude ? deptList({}) : deptNodeList(deptId));
-  const treeData = listToTree(ret, { id: 'deptId', pid: 'parentId' });
+  const treeData = listToTree(ret, { id: 'id', pid: 'parentId' });
   // 添加部门名称 如 xx-xx-xx
   addFullName(treeData, 'deptName', ' / ');
   return treeData;
@@ -60,7 +60,7 @@ async function initDeptSelect(deptId?: number | string) {
   formApi.updateSchema([
     {
       componentProps: {
-        fieldNames: { label: 'deptName', value: 'deptId' },
+        fieldNames: { label: 'deptName', value: 'id' },
         showSearch: true,
         treeData,
         treeDefaultExpandAll: true,
