@@ -38,6 +38,10 @@ export const columns: VxeGridProps['columns'] = [
     title: '排序',
   },
   {
+    field: 'leaderName',
+    title: '负责人',
+  },
+  {
     field: 'state',
     title: '状态',
     slots: {
@@ -101,7 +105,12 @@ export const drawerSchema: FormSchemaGetter = () => [
     label: '部门编码',
   },
   {
-    component: 'Input',
+    component: 'Select',
+    componentProps: {
+      allowClear: true,
+      getPopupContainer,
+      placeholder: '请选择负责人',
+    },
     fieldName: 'leader',
     label: '负责人',
   },

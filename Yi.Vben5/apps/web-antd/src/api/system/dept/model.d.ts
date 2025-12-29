@@ -5,6 +5,7 @@ export interface Dept {
   deptName: string;
   deptCode?: string;
   leader?: string;
+  leaderName?: string;
   parentId: string | null;
   remark?: string;
   orderNum: number;
