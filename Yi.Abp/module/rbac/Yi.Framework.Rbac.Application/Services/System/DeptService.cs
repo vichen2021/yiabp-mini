@@ -39,8 +39,27 @@ namespace Yi.Framework.Rbac.Application.Services.System
         //[Route("{roleId}")]
         public async Task<List<DeptGetListOutputDto>> GetRoleIdAsync(Guid roleId)
         {
-            var entities = await _repository.GetListRoleIdAsync(roleId);
-            return await MapToGetListOutputDtosAsync(entities);
+            var result = await _repository._DbQueryable
+                .InnerJoin<RoleDeptEntity>((dept, roleDept) => dept.Id == roleDept.DeptId && roleDept.RoleId == roleId)
+                .LeftJoin<UserAggregateRoot>((dept, roleDept, user) => dept.Leader == user.Id)
+                .OrderBy((dept, roleDept, user) => dept.OrderNum, OrderByType.Asc)
+                .Select((dept, roleDept, user) => new DeptGetListOutputDto
+                {
+                    Id = dept.Id,
+                    CreationTime = dept.CreationTime,
+                    CreatorId = dept.CreatorId,
+                    State = dept.State,
+                    DeptName = dept.DeptName,
+                    DeptCode = dept.DeptCode,
+                    Leader = dept.Leader,
+                    LeaderName = user.Name,
+                    ParentId = dept.ParentId,
+                    Remark = dept.Remark,
+                    OrderNum = dept.OrderNum
+                })
+                .ToListAsync();
+            
+            return result;
         }
 
         /// <summary>
@@ -51,13 +70,28 @@ namespace Yi.Framework.Rbac.Application.Services.System
         [Route("dept/list")]
         public async Task<List<DeptGetListOutputDto>> GetListAsync(DeptGetListInputVo input)
         {
-            var entities = await _repository._DbQueryable
+            var result = await _repository._DbQueryable
                 .WhereIF(!string.IsNullOrEmpty(input.DeptName), u => u.DeptName.Contains(input.DeptName!))
                 .WhereIF(input.State is not null, u => u.State == input.State)
-                .OrderBy(u => u.OrderNum, OrderByType.Asc)
+                .LeftJoin<UserAggregateRoot>((dept, user) => dept.Leader == user.Id)
+                .OrderBy((dept, user) => dept.OrderNum, OrderByType.Asc)
+                .Select((dept, user) => new DeptGetListOutputDto
+                {
+                    Id = dept.Id,
+                    CreationTime = dept.CreationTime,
+                    CreatorId = dept.CreatorId,
+                    State = dept.State,
+                    DeptName = dept.DeptName,
+                    DeptCode = dept.DeptCode,
+                    Leader = dept.Leader,
+                    LeaderName = user.Name,
+                    ParentId = dept.ParentId,
+                    Remark = dept.Remark,
+                    OrderNum = dept.OrderNum
+                })
                 .ToListAsync();
             
-            return await MapToGetListOutputDtosAsync(entities);
+            return result;
         }
 
         protected override async Task CheckCreateInputDtoAsync(DeptCreateInputVo input)
@@ -136,19 +170,32 @@ namespace Yi.Framework.Rbac.Application.Services.System
         [Route("dept/list/exclude/{id}")]
         public async Task<List<DeptGetListOutputDto>> GetListExcludeAsync(Guid id)
         {
-            // 获取所有部门
-            var allDepts = await _repository._DbQueryable
-                .OrderBy(x => x.OrderNum, OrderByType.Asc)
-                .ToListAsync();
-
             // 获取要排除的部门及其所有子孙部门的ID
             var excludeIds = await GetAllChildrenIdsAsync(id);
             excludeIds.Add(id); // 同时排除自己
 
-            // 过滤掉排除的部门
-            var entities = allDepts.Where(x => !excludeIds.Contains(x.Id)).ToList();
+            // 查询并过滤掉排除的部门，同时 Join 用户表获取负责人姓名
+            var result = await _repository._DbQueryable
+                .Where(x => !excludeIds.Contains(x.Id))
+                .LeftJoin<UserAggregateRoot>((dept, user) => dept.Leader == user.Id)
+                .OrderBy((dept, user) => dept.OrderNum, OrderByType.Asc)
+                .Select((dept, user) => new DeptGetListOutputDto
+                {
+                    Id = dept.Id,
+                    CreationTime = dept.CreationTime,
+                    CreatorId = dept.CreatorId,
+                    State = dept.State,
+                    DeptName = dept.DeptName,
+                    DeptCode = dept.DeptCode,
+                    Leader = dept.Leader,
+                    LeaderName = user.Name,
+                    ParentId = dept.ParentId,
+                    Remark = dept.Remark,
+                    OrderNum = dept.OrderNum
+                })
+                .ToListAsync();
 
-            return await MapToGetListOutputDtosAsync(entities);
+            return result;
         }
 
         /// <summary>

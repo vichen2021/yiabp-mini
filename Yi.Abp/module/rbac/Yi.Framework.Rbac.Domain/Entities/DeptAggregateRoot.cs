@@ -72,10 +72,10 @@ namespace Yi.Framework.Rbac.Domain.Entities
         [SugarColumn(ColumnName = "DeptCode")]
         public string DeptCode { get; set; }
         /// <summary>
-        /// 负责人 
+        /// 负责人（用户ID）
         ///</summary>
         [SugarColumn(ColumnName = "Leader")]
-        public string? Leader { get; set; }
+        public Guid? Leader { get; set; }
         /// <summary>
         /// 父级id 
         ///</summary>

@@ -33,7 +33,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 DeptCode = "Yi",
                 OrderNum = 100,
                 IsDeleted = false,
-                Leader = "橙子",
+                Leader = null, // 负责人ID，需要在用户创建后再设置
                 Remark = "如名所指"
             };
             entities.Add(chengziDept);

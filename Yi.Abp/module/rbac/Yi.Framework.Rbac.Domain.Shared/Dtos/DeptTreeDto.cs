@@ -34,9 +34,9 @@ namespace Yi.Framework.Rbac.Domain.Shared.Dtos
         public string DeptCode { get; set; } = string.Empty;
 
         /// <summary>
-        /// 负责人
+        /// 负责人（用户ID）
         /// </summary>
-        public string? Leader { get; set; }
+        public Guid? Leader { get; set; }
 
         /// <summary>
         /// 描述

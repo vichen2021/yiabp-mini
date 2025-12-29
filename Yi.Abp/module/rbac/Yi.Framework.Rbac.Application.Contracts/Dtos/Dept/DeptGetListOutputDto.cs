@@ -9,7 +9,13 @@ namespace Yi.Framework.Rbac.Application.Contracts.Dtos.Dept
         public bool State { get; set; }
         public string DeptName { get; set; } = string.Empty;
         public string DeptCode { get; set; } = string.Empty;
-        public string? Leader { get; set; }
+        public Guid? Leader { get; set; }
+        
+        /// <summary>
+        /// 负责人姓名（通过 Join User 表获取）
+        /// </summary>
+        public string? LeaderName { get; set; }
+        
         public Guid ParentId { get; set; }
         public string? Remark { get; set; }
 

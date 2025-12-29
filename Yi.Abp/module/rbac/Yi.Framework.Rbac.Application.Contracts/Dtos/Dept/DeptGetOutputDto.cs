@@ -7,7 +7,7 @@ namespace Yi.Framework.Rbac.Application.Contracts.Dtos.Dept
         public bool State { get; set; }
         public string DeptName { get; set; } = string.Empty;
         public string DeptCode { get; set; } = string.Empty;
-        public string? Leader { get; set; }
+        public Guid? Leader { get; set; }
         public string? Remark { get; set; }
 
         public Guid? deptId { get; set; }
