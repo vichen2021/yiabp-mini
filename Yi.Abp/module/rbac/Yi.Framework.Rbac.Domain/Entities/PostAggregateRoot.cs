@@ -66,6 +66,12 @@ namespace Yi.Framework.Rbac.Domain.Entities
         public string PostName { get; set; } = string.Empty;
 
         /// <summary>
+        /// 所属部门ID
+        ///</summary>
+        [SugarColumn(ColumnName = "DeptId")]
+        public Guid DeptId { get; set; }
+
+        /// <summary>
         /// 描述 
         ///</summary>
         [SugarColumn(ColumnName = "Remark")]

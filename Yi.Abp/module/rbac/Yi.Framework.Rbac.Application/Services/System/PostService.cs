@@ -27,11 +27,13 @@ namespace Yi.Framework.Rbac.Application.Services.System
         {
             RefAsync<int> total = 0;
 
-            var entities = await _repository._DbQueryable.WhereIF(!string.IsNullOrEmpty(input.PostName),
-                    x => x.PostName.Contains(input.PostName!))
+            var entities = await _repository._DbQueryable
+                .WhereIF(!string.IsNullOrEmpty(input.PostName), x => x.PostName.Contains(input.PostName!))
                 .WhereIF(input.State is not null, x => x.State == input.State)
+                .WhereIF(input.DeptId.HasValue, x => x.DeptId == input.DeptId)
                 .OrderByDescending(x => x.OrderNum)
                 .ToPageListAsync(input.SkipCount, input.MaxResultCount, total);
+            
             return new PagedResultDto<PostGetListOutputDto>(total, await MapToGetListOutputDtosAsync(entities));
         }
 
@@ -53,6 +55,28 @@ namespace Yi.Framework.Rbac.Application.Services.System
             {
                 throw new UserFriendlyException(RoleConst.Exist);
             }
+        }
+
+        /// <summary>
+        /// 获取岗位下拉框数据，支持按部门ID筛选
+        /// </summary>
+        /// <param name="keywords">部门ID（可选）</param>
+        /// <returns>岗位列表</returns>
+        public override async Task<List<PostGetListOutputDto>> GetSelectDataListAsync(string? keywords = null)
+        {
+            Guid? deptId = null;
+            if (!string.IsNullOrWhiteSpace(keywords) && Guid.TryParse(keywords, out var parsedId))
+            {
+                deptId = parsedId;
+            }
+
+            var entities = await _repository._DbQueryable
+                .WhereIF(deptId.HasValue, x => x.DeptId == deptId)
+                .Where(x => x.State)
+                .OrderByDescending(x => x.OrderNum)
+                .ToListAsync();
+
+            return await MapToGetListOutputDtosAsync(entities);
         }
     }
 }

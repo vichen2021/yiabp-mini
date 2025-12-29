@@ -8,64 +8,73 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
     public class PostDataSeed : IDataSeedContributor, ITransientDependency
     {
         private ISqlSugarRepository<PostAggregateRoot> _repository;
-        public PostDataSeed(ISqlSugarRepository<PostAggregateRoot> repository)
+        private ISqlSugarRepository<DeptAggregateRoot> _deptRepository;
+        
+        public PostDataSeed(
+            ISqlSugarRepository<PostAggregateRoot> repository,
+            ISqlSugarRepository<DeptAggregateRoot> deptRepository)
         {
             _repository = repository;
+            _deptRepository = deptRepository;
         }
+        
         public async Task SeedAsync(DataSeedContext context)
         {
             if (!await _repository.IsAnyAsync(x => true))
             {
-                await _repository.InsertManyAsync(GetSeedData());
+                // 获取根部门作为岗位的默认部门
+                var rootDept = await _deptRepository.GetFirstAsync(x => x.ParentId == Guid.Empty);
+                var defaultDeptId = rootDept?.Id ?? Guid.Empty;
+                
+                await _repository.InsertManyAsync(GetSeedData(defaultDeptId));
             }
         }
-        public List<PostAggregateRoot> GetSeedData()
+        
+        public List<PostAggregateRoot> GetSeedData(Guid deptId)
         {
             var entites = new List<PostAggregateRoot>();
 
             PostAggregateRoot Post1 = new PostAggregateRoot()
             {
-
                 PostName = "董事长",
                 PostCode = "ceo",
                 OrderNum = 100,
-                IsDeleted = false
+                IsDeleted = false,
+                DeptId = deptId
             };
             entites.Add(Post1);
 
             PostAggregateRoot Post2 = new PostAggregateRoot()
             {
-
                 PostName = "项目经理",
                 PostCode = "se",
                 OrderNum = 100,
-                IsDeleted = false
+                IsDeleted = false,
+                DeptId = deptId
             };
             entites.Add(Post2);
 
             PostAggregateRoot Post3 = new PostAggregateRoot()
             {
-
                 PostName = "人力资源",
                 PostCode = "hr",
                 OrderNum = 100,
-                IsDeleted = false
+                IsDeleted = false,
+                DeptId = deptId
             };
             entites.Add(Post3);
 
             PostAggregateRoot Post4 = new PostAggregateRoot()
             {
-
                 PostName = "普通员工",
                 PostCode = "user",
                 OrderNum = 100,
-                IsDeleted = false
+                IsDeleted = false,
+                DeptId = deptId
             };
-
             entites.Add(Post4);
+            
             return entites;
         }
     }
-
-
 }
