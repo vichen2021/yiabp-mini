@@ -177,14 +177,14 @@ export const drawerSchema: FormSchemaGetter = () => [
   {
     component: 'Select',
     componentProps: {
+      disabled: true,
       getPopupContainer,
       mode: 'multiple',
       optionFilterProp: 'label',
       optionLabelProp: 'label',
-      placeholder: '请选择岗位',
+      placeholder: '请先选择部门',
     },
     fieldName: 'postIds',
-    help: '岗位不再依赖部门，可直接选择',
     label: '岗位',
   },
   {

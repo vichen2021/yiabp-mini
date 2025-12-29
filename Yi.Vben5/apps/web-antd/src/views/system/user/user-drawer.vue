@@ -62,31 +62,57 @@ function genRoleOptionlabel(role: Role) {
 }
 
 /**
- * 岗位的加载
+ * 根据部门ID加载岗位列表
+ * @param deptId 部门ID
  */
-async function setupPostOptions() {
+async function setupPostOptions(deptId?: string) {
+  if (!deptId) {
+    // 没有选择部门时，显示提示
+    formApi.updateSchema([
+      {
+        componentProps: {
+          disabled: true,
+          options: [],
+          placeholder: '请先选择部门',
+        },
+        fieldName: 'postIds',
+      },
+    ]);
+    // 清空已选岗位
+    formApi.setFieldValue('postIds', []);
+    return;
+  }
+
   try {
-    const postListResp = await postOptionSelect();
-    console.log(postListResp);
+    const postListResp = await postOptionSelect(deptId);
     // 确保返回的是数组
     const postList = Array.isArray(postListResp) ? postListResp : [];
     const options = postList.map((item) => ({
       label: item.postName,
       value: item.id,
     }));
-    const placeholder = options.length > 0 ? '请选择' : '暂无可选岗位';
+    const placeholder = options.length > 0 ? '请选择岗位' : '该部门暂无岗位';
     formApi.updateSchema([
       {
-        componentProps: { options, placeholder },
+        componentProps: {
+          disabled: options.length === 0,
+          options,
+          placeholder,
+        },
         fieldName: 'postIds',
       },
     ]);
+    // 部门变化时清空已选岗位
+    formApi.setFieldValue('postIds', []);
   } catch (error) {
     console.error('加载岗位信息失败:', error);
-    // 加载失败时设置空选项
     formApi.updateSchema([
       {
-        componentProps: { options: [], placeholder: '加载岗位失败' },
+        componentProps: {
+          disabled: true,
+          options: [],
+          placeholder: '加载岗位失败',
+        },
         fieldName: 'postIds',
       },
     ]);
@@ -106,7 +132,7 @@ async function setupDeptSelect() {
     addFullName(deptList, 'label', ' / ');
     formApi.updateSchema([
       {
-        componentProps: (formModel) => ({
+        componentProps: {
           class: 'w-full',
           fieldNames: {
             key: 'id',
@@ -123,7 +149,11 @@ async function setupDeptSelect() {
           treeNodeFilterProp: 'label',
           // 选中后显示在输入框的值
           treeNodeLabelProp: 'fullName',
-        }),
+          // 部门选择变化时加载对应岗位
+          onChange: (value: string) => {
+            setupPostOptions(value);
+          },
+        },
         fieldName: 'deptId',
       },
     ]);
@@ -175,7 +205,11 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
       // 需要重置岗位选择
       formApi.updateSchema([
         {
-          componentProps: { options: [], placeholder: '请选择岗位' },
+          componentProps: {
+            disabled: true,
+            options: [],
+            placeholder: '请先选择部门',
+          },
           fieldName: 'postIds',
         },
       ]);
@@ -222,21 +256,26 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
           },
           fieldName: 'roleIds',
         },
-        {
-          componentProps: {
-            options: postOptions,
-          },
-          fieldName: 'postIds',
-        },
       ]);
 
-      // 部门选择、初始密码及用户相关操作并行处理
+      // 部门选择、初始密码
       const promises = [
         setupDeptSelect(),
         loadDefaultPassword(isUpdate.value),
-        setupPostOptions(),
       ];
+
       if (user) {
+        // 编辑模式：使用用户已有的岗位数据
+        formApi.updateSchema([
+          {
+            componentProps: {
+              disabled: false,
+              options: postOptions,
+              placeholder: '请选择岗位',
+            },
+            fieldName: 'postIds',
+          },
+        ]);
         promises.push(
           // 添加基础信息
           formApi.setValues(user),
@@ -244,8 +283,12 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
           formApi.setFieldValue('postIds', postIds),
           formApi.setFieldValue('roleIds', roleIds),
         );
+      } else {
+        // 新增模式：等待选择部门后再加载岗位
+        await setupPostOptions();
       }
-      // 并行处理 重构后会带来10-50ms的优化
+
+      // 并行处理
       await Promise.all(promises);
       await markInitialized();
     } catch (error) {

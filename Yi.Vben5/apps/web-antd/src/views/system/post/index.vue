@@ -58,9 +58,9 @@ const gridOptions: VxeGridProps = {
       query: async ({ page }, formValues = {}) => {
         // 部门树选择处理
         if (selectDeptId.value.length === 1) {
-          formValues.belongDeptId = selectDeptId.value[0];
+          formValues.deptId = selectDeptId.value[0];
         } else {
-          Reflect.deleteProperty(formValues, 'belongDeptId');
+          Reflect.deleteProperty(formValues, 'deptId');
         }
 
         return await postList({
@@ -72,7 +72,7 @@ const gridOptions: VxeGridProps = {
     },
   },
   rowConfig: {
-    keyField: 'postId',
+    keyField: 'id',
   },
   id: 'system-post-index',
 };
@@ -92,18 +92,18 @@ function handleAdd() {
 }
 
 async function handleEdit(record: Post) {
-  drawerApi.setData({ id: record.postId });
+  drawerApi.setData({ id: record.id });
   drawerApi.open();
 }
 
 async function handleDelete(row: Post) {
-  await postRemove([row.postId]);
+  await postRemove([row.id]);
   await tableApi.query();
 }
 
 function handleMultiDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
-  const ids = rows.map((row: Post) => row.postId);
+  const ids = rows.map((row: Post) => row.id);
   Modal.confirm({
     title: '提示',
     okType: 'danger',

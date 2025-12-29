@@ -9,4 +9,6 @@ export interface Post {
   postName: string;
   remark: null | string;
   orderNum: number;
+  deptId: string;
+  deptName?: string;
 }

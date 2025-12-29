@@ -72,6 +72,6 @@ export function postRemove(postIds: IDS) {
  * 获取岗位下拉列表
  * @returns 岗位
  */
-export function postOptionSelect() {
-  return requestClient.get<Post[]>(Api.postSelect);
+export function postOptionSelect(deptId: string) {
+  return requestClient.get<Post[]>(`${Api.postSelect}?keywords=${deptId}`);
 }
