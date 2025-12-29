@@ -63,3 +63,4 @@ PublishProfiles
 
 lefthook.yml
 *.user
+.docs
