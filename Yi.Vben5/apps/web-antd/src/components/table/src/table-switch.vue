@@ -42,8 +42,8 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   checkedText: undefined,
   unCheckedText: undefined,
-  checkedValue: '0',
-  unCheckedValue: '1',
+  checkedValue: true,
+  unCheckedValue: false,
   confirm: false,
   confirmText: undefined,
 });

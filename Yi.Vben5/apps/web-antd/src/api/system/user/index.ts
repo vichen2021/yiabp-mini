@@ -19,7 +19,6 @@ enum Api {
   userImport = '/system/user/importData',
   userImportTemplate = '/system/user/importTemplate',
   userResetPassword = '/system/user/resetPwd',
-  userStatusChange = '/system/user/changeStatus',
 }
 
 /**
@@ -100,19 +99,6 @@ export function userAdd(data: Partial<User>) {
  */
 export function userUpdate(data: Partial<User>) {
   return requestClient.putWithMsg<void>(`${Api.root}/${data.id}`, data);
-}
-
-/**
- * 更新用户状态
- * @param data data
- * @returns void
- */
-export function userStatusChange(data: Partial<User>) {
-  const requestData = {
-    id: data.id,
-    state: data.state,
-  };
-  return requestClient.putWithMsg<void>(Api.userStatusChange, requestData);
 }
 
 /**

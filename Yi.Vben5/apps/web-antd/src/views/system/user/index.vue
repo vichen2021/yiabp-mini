@@ -27,7 +27,7 @@ import {
   userExport,
   userList,
   userRemove,
-  userStatusChange,
+  userUpdate,
 } from '#/api/system/user';
 import { TableSwitch } from '#/components/table';
 import { commonDownloadExcel } from '#/utils/file/download';
@@ -238,7 +238,7 @@ const { hasAccessByCodes } = useAccess();
         <template #status="{ row }">
           <TableSwitch
             v-model:value="row.state"
-            :api="() => userStatusChange(row)"
+            :api="() => userUpdate(row)"
             :disabled="
               row.id === '1' || !hasAccessByCodes(['system:user:edit'])
             "
