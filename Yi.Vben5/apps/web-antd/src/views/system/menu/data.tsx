@@ -24,25 +24,36 @@ export const querySchema: FormSchemaGetter = () => [
       getPopupContainer,
       options: getDictOptions(DictEnum.SYS_NORMAL_DISABLE),
     },
-    fieldName: 'status',
+    component: 'Select',
+    componentProps: {
+      getPopupContainer,
+      options: [
+        { label: '启用', value: true },
+        { label: '禁用', value: false },
+      ],
+    },
+    fieldName: 'state',
     label: '菜单状态 ',
   },
   {
     component: 'Select',
     componentProps: {
       getPopupContainer,
-      options: getDictOptions(DictEnum.SYS_SHOW_HIDE),
+      options: [
+        { label: '显示', value: true },
+        { label: '隐藏', value: false },
+      ],
     },
-    fieldName: 'visible',
+    fieldName: 'isShow',
     label: '显示状态',
   },
 ];
 
-// 菜单类型（M目录 C菜单 F按钮）
+// 菜单类型
 export const menuTypeOptions = [
-  { label: '目录', value: 'M' },
-  { label: '菜单', value: 'C' },
-  { label: '按钮', value: 'F' },
+  { label: '目录', value: 'Catalogue' },
+  { label: '菜单', value: 'Menu' },
+  { label: '按钮', value: 'Component' },
 ];
 
 export const yesNoOptions = [
@@ -54,10 +65,13 @@ export const yesNoOptions = [
 const menuTypes: Record<string, { icon: typeof MenuIcon; value: string }> = {
   c: { icon: MenuIcon, value: '菜单' },
   menu: { icon: MenuIcon, value: '菜单' },
+  Menu: { icon: MenuIcon, value: '菜单' },
   catalog: { icon: FolderIcon, value: '目录' },
   directory: { icon: FolderIcon, value: '目录' },
   folder: { icon: FolderIcon, value: '目录' },
   m: { icon: FolderIcon, value: '目录' },
+  catalogue: { icon: FolderIcon, value: '目录' },
+  component: { icon: OkButtonIcon, value: '按钮' },
   f: { icon: OkButtonIcon, value: '按钮' },
   button: { icon: OkButtonIcon, value: '按钮' },
 };
@@ -74,16 +88,16 @@ export const columns: VxeGridProps['columns'] = [
   },
   {
     title: '图标',
-    field: 'icon',
+    field: 'menuIcon',
     width: 80,
     slots: {
       default: ({ row }) => {
-        if (row?.icon === '#') {
+        if (row?.menuIcon === '#' || !row?.menuIcon) {
           return '';
         }
         return (
           <span class={'flex justify-center'}>
-            <VbenIcon icon={row.icon} />
+            <VbenIcon icon={row.menuIcon} />
           </span>
         );
       },
@@ -116,7 +130,7 @@ export const columns: VxeGridProps['columns'] = [
   },
   {
     title: '权限标识',
-    field: 'perms',
+    field: 'permissionCode',
   },
   {
     title: '组件路径',
@@ -124,27 +138,27 @@ export const columns: VxeGridProps['columns'] = [
   },
   {
     title: '状态',
-    field: 'status',
+    field: 'state',
     width: 100,
     slots: {
       default: ({ row }) => {
-        return renderDict(row.status, DictEnum.SYS_NORMAL_DISABLE);
+        return row.state ? '启用' : '禁用';
       },
     },
   },
   {
     title: '显示',
-    field: 'visible',
+    field: 'isShow',
     width: 100,
     slots: {
       default: ({ row }) => {
-        return renderDict(row.visible, DictEnum.SYS_SHOW_HIDE);
+        return row.isShow ? '显示' : '隐藏';
       },
     },
   },
   {
     title: '创建时间',
-    field: 'createTime',
+    field: 'creationTime',
   },
   {
     field: 'action',
@@ -163,7 +177,7 @@ export const drawerSchema: FormSchemaGetter = () => [
       show: () => false,
       triggerFields: [''],
     },
-    fieldName: 'menuId',
+    fieldName: 'id',
   },
   {
     component: 'TreeSelect',
@@ -202,14 +216,14 @@ export const drawerSchema: FormSchemaGetter = () => [
       triggerFields: ['menuType'],
     },
     renderComponentContent: (model) => ({
-      addonBefore: () => <VbenIcon icon={model.icon} />,
+      addonBefore: () => <VbenIcon icon={model.menuIcon} />,
       addonAfter: () => (
         <a href="https://icon-sets.iconify.design/" target="_blank">
           搜索图标
         </a>
       ),
     }),
-    fieldName: 'icon',
+    fieldName: 'menuIcon',
     help: '点击搜索图标跳转到iconify & 粘贴',
     label: '菜单图标',
   },
@@ -231,17 +245,16 @@ export const drawerSchema: FormSchemaGetter = () => [
   {
     component: 'Input',
     componentProps: (model) => {
-      const placeholder =
-        model.isFrame === '0'
-          ? '填写链接地址http(s)://  使用新页面打开'
-          : '填写`路由地址`或者`链接地址`  链接默认使用内部iframe内嵌打开';
+      const placeholder = model.isLink
+        ? '填写链接地址http(s)://  使用新页面打开'
+        : '填写`路由地址`或者`链接地址`  链接默认使用内部iframe内嵌打开';
       return {
         placeholder,
       };
     },
     dependencies: {
       rules: (model) => {
-        if (model.isFrame !== '0') {
+        if (!model.isLink) {
           return z
             .string({ message: '请输入路由地址' })
             .min(1, '请输入路由地址')
@@ -256,9 +269,9 @@ export const drawerSchema: FormSchemaGetter = () => [
       },
       // 类型不为按钮时显示
       show: (values) => values?.menuType !== 'F',
-      triggerFields: ['isFrame', 'menuType'],
+      triggerFields: ['isLink', 'menuType'],
     },
-    fieldName: 'path',
+    fieldName: 'router',
     help: `路由地址不带/, 如: menu, user\n 链接为http(s)://开头\n 链接默认使用内部iframe打开, 可通过{是否外链}控制打开方式`,
     label: '路由地址',
   },
@@ -267,14 +280,14 @@ export const drawerSchema: FormSchemaGetter = () => [
     componentProps: (model) => {
       return {
         // 为链接时组件disabled
-        disabled: model.isFrame === '0',
+        disabled: model.isLink,
       };
     },
     defaultValue: '',
     dependencies: {
       rules: (model) => {
         // 非链接时为必填项
-        if (model.path && !/^https?:\/\//.test(model.path)) {
+        if (model.router && !/^https?:\/\//.test(model.router)) {
           return z
             .string()
             .min(1, { message: '非链接时必填组件路径' })
@@ -287,7 +300,7 @@ export const drawerSchema: FormSchemaGetter = () => [
       },
       // 类型为菜单时显示
       show: (values) => values.menuType === 'C',
-      triggerFields: ['menuType', 'path'],
+      triggerFields: ['menuType', 'router'],
     },
     fieldName: 'component',
     help: '填写./src/views下的组件路径, 如system/menu/index',
@@ -297,16 +310,19 @@ export const drawerSchema: FormSchemaGetter = () => [
     component: 'RadioGroup',
     componentProps: {
       buttonStyle: 'solid',
-      options: yesNoOptions,
+      options: [
+        { label: '是', value: true },
+        { label: '否', value: false },
+      ],
       optionType: 'button',
     },
-    defaultValue: '1',
+    defaultValue: false,
     dependencies: {
       // 类型不为按钮时显示
       show: (values) => values.menuType !== 'F',
       triggerFields: ['menuType'],
     },
-    fieldName: 'isFrame',
+    fieldName: 'isLink',
     help: '外链为http(s)://开头\n 选择否时, 使用iframe从内部打开页面, 否则新窗口打开',
     label: '是否外链',
   },
@@ -314,16 +330,19 @@ export const drawerSchema: FormSchemaGetter = () => [
     component: 'RadioGroup',
     componentProps: {
       buttonStyle: 'solid',
-      options: getDictOptions(DictEnum.SYS_SHOW_HIDE),
+      options: [
+        { label: '显示', value: true },
+        { label: '隐藏', value: false },
+      ],
       optionType: 'button',
     },
-    defaultValue: '0',
+    defaultValue: true,
     dependencies: {
       // 类型不为按钮时显示
       show: (values) => values.menuType !== 'F',
       triggerFields: ['menuType'],
     },
-    fieldName: 'visible',
+    fieldName: 'isShow',
     help: '隐藏后不会出现在菜单栏, 但仍然可以访问',
     label: '是否显示',
   },
@@ -331,16 +350,19 @@ export const drawerSchema: FormSchemaGetter = () => [
     component: 'RadioGroup',
     componentProps: {
       buttonStyle: 'solid',
-      options: getDictOptions(DictEnum.SYS_NORMAL_DISABLE),
+      options: [
+        { label: '启用', value: true },
+        { label: '禁用', value: false },
+      ],
       optionType: 'button',
     },
-    defaultValue: '0',
+    defaultValue: true,
     dependencies: {
       // 类型不为按钮时显示
       show: (values) => values.menuType !== 'F',
       triggerFields: ['menuType'],
     },
-    fieldName: 'status',
+    fieldName: 'state',
     help: '停用后不会出现在菜单栏, 也无法访问',
     label: '菜单状态',
   },
@@ -351,7 +373,7 @@ export const drawerSchema: FormSchemaGetter = () => [
       show: (values) => values.menuType !== 'M',
       triggerFields: ['menuType'],
     },
-    fieldName: 'perms',
+    fieldName: 'permissionCode',
     help: `控制器中定义的权限字符\n 如: @SaCheckPermission("system:user:import")`,
     label: '权限标识',
   },
@@ -359,7 +381,7 @@ export const drawerSchema: FormSchemaGetter = () => [
     component: 'Input',
     componentProps: (model) => ({
       // 为链接时组件disabled
-      disabled: model.isFrame === '0',
+      disabled: model.isLink,
       placeholder: '必须为json字符串格式',
     }),
     dependencies: {
@@ -367,7 +389,7 @@ export const drawerSchema: FormSchemaGetter = () => [
       show: (values) => values.menuType === 'C',
       triggerFields: ['menuType'],
     },
-    fieldName: 'queryParam',
+    fieldName: 'query',
     help: 'vue-router中的query属性\n 如{"name": "xxx", "age": 16}',
     label: '路由参数',
   },
@@ -375,10 +397,13 @@ export const drawerSchema: FormSchemaGetter = () => [
     component: 'RadioGroup',
     componentProps: {
       buttonStyle: 'solid',
-      options: yesNoOptions,
+      options: [
+        { label: '是', value: true },
+        { label: '否', value: false },
+      ],
       optionType: 'button',
     },
-    defaultValue: '0',
+    defaultValue: false,
     dependencies: {
       // 类型为菜单时显示
       show: (values) => values.menuType === 'C',

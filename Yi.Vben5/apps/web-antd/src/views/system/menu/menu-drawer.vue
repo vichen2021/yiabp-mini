@@ -16,8 +16,11 @@ import { defaultFormValueGetter, useBeforeCloseDiff } from '#/utils/popup';
 
 import { drawerSchema } from './data';
 
+// 空GUID，用于判断根节点
+const EMPTY_GUID = '00000000-0000-0000-0000-000000000000';
+
 interface ModalProps {
-  id?: number | string;
+  id?: string;
   update: boolean;
 }
 
@@ -54,10 +57,10 @@ async function setupMenuSelect() {
    * 不允许在按钮下添加数据
    */
   const filteredList = menuArray.filter((item) => item.menuType !== 'F');
-  const menuTree = listToTree(filteredList, { id: 'menuId', pid: 'parentId' });
+  const menuTree = listToTree(filteredList, { id: 'id', pid: 'parentId' });
   const fullMenuTree = [
     {
-      menuId: 0,
+      id: EMPTY_GUID,
       menuName: $t('menu.root'),
       children: menuTree,
     },
@@ -69,7 +72,7 @@ async function setupMenuSelect() {
       componentProps: {
         fieldNames: {
           label: 'menuName',
-          value: 'menuId',
+          value: 'id',
         },
         getPopupContainer,
         // 设置弹窗滚动高度 默认256
@@ -78,7 +81,7 @@ async function setupMenuSelect() {
         treeData: fullMenuTree,
         treeDefaultExpandAll: false,
         // 默认展开的树节点
-        treeDefaultExpandedKeys: [0],
+        treeDefaultExpandedKeys: [EMPTY_GUID],
         treeLine: { showLeafIcon: false },
         // 筛选的字段
         treeNodeFilterProp: 'menuName',

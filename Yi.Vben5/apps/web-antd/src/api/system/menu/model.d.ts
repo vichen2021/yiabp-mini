@@ -1,33 +1,25 @@
 export interface Menu {
-  id?: string | number;
-  createBy?: string | null;
-  createTime?: string;
-  creationTime?: string;
-  updateBy?: string | null;
-  updateTime?: string | null;
-  remark?: string | null;
-  menuId?: string | number;
-  parentId?: string | number | null;
-  parentName?: string;
+  id: string;
+  isDeleted: boolean;
+  creationTime: string;
+  creatorId: string | null;
+  lastModifierId: string | null;
+  lastModificationTime: string | null;
+  orderNum: number;
+  state: boolean;
   menuName: string;
+  routerName?: string | null;
   menuType: string;
-  orderNum?: number;
-  path?: string;
-  router?: string;
-  routerName?: string;
-  component?: string;
+  permissionCode?: string | null;
+  parentId: string;
+  menuIcon?: string | null;
+  router?: string | null;
+  isLink: boolean;
+  isCache: boolean;
+  isShow: boolean;
+  remark?: string | null;
+  component?: string | null;
   query?: string | null;
-  permissionCode?: string;
-  perms?: string;
-  icon?: string;
-  menuIcon?: string;
-  isFrame?: string;
-  isLink?: boolean;
-  isCache?: boolean | string;
-  visible?: string;
-  status?: string;
-  state?: boolean;
-  isShow?: boolean;
   children?: Menu[];
 }
 
@@ -61,6 +53,6 @@ export interface MenuResp {
  */
 export interface MenuQuery {
   menuName?: string;
-  visible?: string;
-  status?: string;
+  isShow?: boolean;
+  state?: boolean;
 }

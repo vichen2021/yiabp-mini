@@ -24,7 +24,7 @@ const EMPTY_GUID = '00000000-0000-0000-0000-000000000000';
 
 interface MenuRow extends Menu {
   menuId: string;
-  parentId?: string | null;
+  parentId: string | null;
 }
 
 const formOptions: VbenFormProps = {
@@ -53,10 +53,8 @@ const gridOptions: VxeGridProps<Record<string, any>> = {
         });
         // 统一处理数据：确保 menuId 和 parentId 存在，并将根节点的 parentId 置为 null
         const items = (resp || []).map((item) => {
-          const menuId = String(item.menuId ?? item.id ?? '');
-          const parentId = item.parentId
-            ? String(item.parentId)
-            : null;
+          const menuId = String(item.id ?? '');
+          const parentId = item.parentId ? String(item.parentId) : null;
           return {
             ...item,
             menuId,
