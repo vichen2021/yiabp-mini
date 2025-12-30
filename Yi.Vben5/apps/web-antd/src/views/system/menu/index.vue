@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// @ts-nocheck
 import type { VbenFormProps } from '@vben/common-ui';
 
 import type { VxeGridProps } from '#/adapter/vxe-table';
@@ -20,101 +19,13 @@ import { menuCascadeRemove, menuList, menuRemove } from '#/api/system/menu';
 import { columns, querySchema } from './data';
 import menuDrawer from './menu-drawer.vue';
 
-function normalizeId(id: Menu['id'] | Menu['menuId'] | null | undefined) {
-  if (id === undefined || id === null) {
-    return undefined;
-  }
-  if (typeof id === 'string' && id.trim() === '') {
-    return undefined;
-  }
-  return String(id);
-}
+// 空GUID，用于判断根节点
+const EMPTY_GUID = '00000000-0000-0000-0000-000000000000';
 
-function extractMenuList(resp: Menu[] | Record<string, any> | undefined) {
-  if (!resp) {
-    return [];
-  }
-  if (Array.isArray(resp)) {
-    return resp;
-  }
-  if (Array.isArray(resp.data)) {
-    return resp.data;
-  }
-  if (Array.isArray(resp.items)) {
-    return resp.items;
-  }
-  return [];
-}
-
-interface MenuRow extends Record<string, unknown> {
+interface MenuRow extends Menu {
   menuId: string;
-  parentId?: string;
-  menuName: string;
-  menuType: string;
-  icon?: string;
-  orderNum?: number;
-  perms?: string;
-  component?: string;
-  status: string;
-  visible: string;
-  createTime?: string;
-  children?: any[];
+  parentId?: string | null;
 }
-
-function transformMenuData(raw: Menu): MenuRow | null {
-  const menuId = normalizeId(raw.menuId ?? raw.id);
-  if (!menuId) {
-    return null;
-  }
-  const parentId = normalizeId(raw.parentId);
-  let status = raw.status ?? '0';
-  if (typeof raw.state === 'boolean') {
-    status = raw.state ? '0' : '1';
-  }
-  let visible = raw.visible ?? '0';
-  if (typeof raw.isShow === 'boolean') {
-    visible = raw.isShow ? '0' : '1';
-  }
-  return {
-    ...raw,
-    menuId,
-    parentId,
-    menuType: raw.menuType ?? '',
-    icon: raw.icon ?? raw.menuIcon ?? '#',
-    perms: raw.perms ?? raw.permissionCode ?? '',
-    status,
-    visible,
-    createTime: raw.createTime ?? raw.creationTime ?? '',
-    children: undefined,
-  } as MenuRow;
-}
-
-function buildTree(data: MenuRow[]) {
-  const map = new Map<string, Menu>();
-  const roots: Menu[] = [];
-  data.forEach((item) => {
-    const key = String(item.menuId);
-    map.set(key, item);
-  });
-  data.forEach((item) => {
-    const menuIdKey = String(item.menuId);
-    const parentKey = item.parentId ? String(item.parentId) : undefined;
-    if (parentKey && parentKey !== menuIdKey && map.has(parentKey)) {
-      const parent = map.get(parentKey);
-      if (parent) {
-        parent.children = parent.children || [];
-        parent.children.push(item);
-        return;
-      }
-    }
-    roots.push(item);
-  });
-  return roots;
-}
-
-/**
- * 不要问为什么有两个根节点 v-if会控制只会渲染一个
- */
 
 const formOptions: VbenFormProps = {
   commonConfig: {
@@ -140,21 +51,30 @@ const gridOptions: VxeGridProps<Record<string, any>> = {
         const resp = await menuList({
           ...formValues,
         });
-        const flatList = extractMenuList(resp);
-        const transformedData = flatList
-          .map((item) => transformMenuData(item))
-          .filter(Boolean) as MenuRow[];
-        const treeData = buildTree(transformedData);
-        const payload =
-          resp && !Array.isArray(resp) && typeof resp === 'object' ? resp : {};
-        return {
-          ...payload,
-          items: treeData,
-          rows: treeData,
-          data: treeData,
-        };
+        // 统一处理数据：确保 menuId 和 parentId 存在，并将根节点的 parentId 置为 null
+        const items = (resp || []).map((item) => {
+          const menuId = String(item.menuId ?? item.id ?? '');
+          const parentId = item.parentId
+            ? String(item.parentId)
+            : null;
+          return {
+            ...item,
+            menuId,
+            // 将根节点的 parentId 置为 null，以便 vxe-table 正确识别根节点
+            parentId:
+              !parentId ||
+              parentId === EMPTY_GUID ||
+              parentId === menuId
+                ? null
+                : parentId,
+          } as MenuRow;
+        });
+        return { items };
       },
+      // 默认请求接口后展开全部 不需要可以删除这段
       querySuccess: () => {
+        // 默认展开 需要加上标记
+        // eslint-disable-next-line no-use-before-define
         eachTree(tableApi.grid.getData(), (item) => (item.expand = true));
         nextTick(() => {
           setExpandOrCollapse(true);
@@ -175,23 +95,19 @@ const gridOptions: VxeGridProps<Record<string, any>> = {
     gt: 0,
   },
   treeConfig: {
-    childrenField: 'children',
     parentField: 'parentId',
     rowField: 'menuId',
-    // 刷新接口后 记录展开行的情况
-    transform: false,
-    reserve: true,
+    transform: true,
   },
   id: 'system-menu-index',
 };
-
-// @ts-expect-error TS2589: MenuRow + proxyConfig causes deep instantiation; generics are manageable at runtime.
+// @ts-expect-error TS2589: MenuRow 与 proxyConfig 组合导致类型实例化层级过深；运行时泛型已被擦除，可控，先压制报错。
 const [BasicTable, tableApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,
   gridEvents: {
     cellDblclick: (e) => {
-      const row = (e.row ?? {}) as Record<string, any>;
+      const { row = {} } = e;
       if (!row?.children) {
         return;
       }
@@ -201,8 +117,7 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
     },
     // 需要监听使用箭头展开的情况 否则展开/折叠的数据不一致
     toggleTreeExpand: (e) => {
-      const row = (e.row ?? {}) as Record<string, any>;
-      const { expanded } = e;
+      const { row = {}, expanded } = e;
       row.expand = expanded;
     },
   },
