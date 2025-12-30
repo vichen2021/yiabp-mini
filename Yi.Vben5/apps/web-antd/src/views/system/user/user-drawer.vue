@@ -12,6 +12,7 @@ import { Tag } from 'ant-design-vue';
 import { useVbenForm } from '#/adapter/form';
 import { configInfoByKey } from '#/api/system/config';
 import { postOptionSelect } from '#/api/system/post';
+import { roleOptionSelect } from '#/api/system/role';
 import {
   findUserInfo,
   getDeptTree,
@@ -228,14 +229,23 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
           fieldName: 'password',
         },
       ]);
-      // 更新 && 赋值
-      const user = await findUserInfo(id);
 
-      // 从用户对象中提取 posts 和 roles
+      let user: any | null = null;
+
+      if (isUpdate.value && id) {
+        // 编辑模式：从用户详情中获取用户信息（含岗位、角色ID）
+        user = await findUserInfo(id);
+      }
+
+      // 角色下拉统一使用 roleOptionSelect
+      const roleListResp = await roleOptionSelect();
+      const allRoles = Array.isArray(roleListResp) ? (roleListResp as Role[]) : [];
+
+      const userRoles = user?.roles ?? [];
       const posts = user?.posts ?? [];
-      const roles = user?.roles ?? [];
+
       const postIds = posts.map((item: any) => item.id);
-      const roleIds = roles.map((item: any) => item.roleId);
+      const roleIds = userRoles.map((item: any) => item.roleId ?? item.id);
 
       const postOptions = posts.map((item: any) => ({
         label: item.postName,
@@ -247,11 +257,11 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
           componentProps: {
             // title用于选中后回填到输入框 默认为label
             optionLabelProp: 'title',
-            options: roles.map((item: any) => ({
+            options: allRoles.map((item: any) => ({
               label: genRoleOptionlabel(item),
               // title用于选中后回填到输入框 默认为label
               title: item.roleName,
-              value: item.roleId,
+              value: item.roleId ?? item.id,
             })),
           },
           fieldName: 'roleIds',

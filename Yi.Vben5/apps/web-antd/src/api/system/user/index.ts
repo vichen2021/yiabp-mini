@@ -78,9 +78,8 @@ export function downloadImportTemplate() {
  * @param userId 用户ID
  * @returns 用户信息
  */
-export function findUserInfo(userId?: ID) {
-  const url = userId ? `${Api.root}/${userId}` : `${Api.root}`;
-  return requestClient.get<User>(url);
+export function findUserInfo(userId: ID) {
+  return requestClient.get<User>(`${Api.root}/${userId}`);
 }
 
 /**
