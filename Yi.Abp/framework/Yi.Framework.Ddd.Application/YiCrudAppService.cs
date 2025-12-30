@@ -5,6 +5,7 @@ using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Repositories;
+using Yi.Framework.Core.Data;
 
 namespace Yi.Framework.Ddd.Application
 {
@@ -261,5 +262,31 @@ namespace Yi.Framework.Ddd.Application
         {
             throw new NotImplementedException("请在实现类中重写此方法以支持Excel导入");
         }
+    //
+    //     /// <summary>
+    //     /// 更新实体状态
+    //     /// </summary>
+    //     /// <param name="id">实体ID</param>
+    //     /// <param name="state">状态值</param>
+    //     public virtual async Task UpdateChangeStateAsync(TKey id, bool state)
+    //     {
+    //         // 检查更新权限
+    //         await CheckUpdatePolicyAsync();
+    //
+    //         // 获取并验证实体
+    //         var entity = await GetEntityByIdAsync(id);
+    //
+    //         // 检查实体是否实现 IState 接口
+    //         if (entity is not IState stateEntity)
+    //         {
+    //             throw new UserFriendlyException($"实体 {typeof(TEntity).Name} 未实现 IState 接口，不支持状态更新");
+    //         }
+    //
+    //         // 更新状态
+    //         stateEntity.State = state;
+    //
+    //         // 保存更改
+    //         await Repository.UpdateAsync(entity, autoSave: true);
+    //     }
     }
 }
