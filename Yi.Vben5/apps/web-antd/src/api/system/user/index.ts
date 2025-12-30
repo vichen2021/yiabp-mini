@@ -118,7 +118,7 @@ export function userRemove(userIds: IDS) {
  * @returns void
  */
 export function userResetPassword(data: ResetPwdParam) {
-  return requestClient.putWithMsg<void>(Api.userResetPassword, data, {
+  return requestClient.putWithMsg<void>(`${Api.userResetPassword}/${data.id}`, data, {
     encrypt: true,
   });
 }

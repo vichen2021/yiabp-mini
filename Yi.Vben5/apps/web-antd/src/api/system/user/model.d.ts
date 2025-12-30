@@ -12,7 +12,7 @@ export interface UserImportParam {
  * @description: 重置密码
  */
 export interface ResetPwdParam {
-  userId: string;
+  id: string;
   password: string;
 }
 
