@@ -38,7 +38,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 Router = "/system",
                 IsShow = true,
                 IsLink = false,
-                MenuIcon = "system",
+                MenuIcon = "eos-icons:system-group",
                 OrderNum = 100,
                 IsDeleted = false
             };
@@ -52,7 +52,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 Router = "/code",
                 IsShow = true,
                 IsLink = false,
-                MenuIcon = "build",
+                MenuIcon = "tabler:code",
                 OrderNum = 91,
                 IsDeleted = false,
             };
@@ -69,7 +69,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 IsLink = false,
                 IsCache = true,
                 Component = "code/table/index",
-                MenuIcon = "online",
+                MenuIcon = "tabler:table",
                 OrderNum = 100,
                 IsDeleted = false
             };
@@ -86,7 +86,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 IsLink = false,
                 IsCache = true,
                 Component = "code/field/index",
-                MenuIcon = "number",
+                MenuIcon = "tabler:file-code",
                 OrderNum = 99,
                 ParentId = code.Id,
                 IsDeleted = false
@@ -105,18 +105,13 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 IsLink = false,
                 IsCache = true,
                 Component = "code/template/index",
-                MenuIcon = "documentation",
+                MenuIcon = "tabler:template",
                 OrderNum = 98,
                 IsDeleted = false
             };
             entities.Add(template);
-
-
-
-
-
-
-
+            
+            
             //系统监控
             MenuAggregateRoot monitoring = new MenuAggregateRoot(_guidGenerator.Create())
             {
@@ -125,7 +120,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 Router = "/monitor",
                 IsShow = true,
                 IsLink = false,
-                MenuIcon = "monitor",
+                MenuIcon = "solar:monitor-camera-outline",
                 OrderNum = 99,
                 IsDeleted = false
             };
@@ -143,7 +138,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 IsLink = false,
                 IsCache = true,
                 Component = "monitor/online/index",
-                MenuIcon = "online",
+                MenuIcon = "material-symbols:generating-tokens-outline",
                 OrderNum = 100,
                 IsDeleted = false
             };
@@ -160,7 +155,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 IsLink = false,
                 IsCache = true,
                 Component = "monitor/cache/list",
-                MenuIcon = "redis-list",
+                MenuIcon = "devicon:redis-wordmark",
                 OrderNum = 99,
                 IsDeleted = false
             };
@@ -177,7 +172,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 IsLink = false,
                 IsCache = true,
                 Component = "monitor/server/index",
-                MenuIcon = "server",
+                MenuIcon = "devicon:dotnetcore",
                 OrderNum = 98,
                 IsDeleted = false
             };
@@ -189,10 +184,10 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
             {
                 MenuName = "定时任务",
                 MenuType = MenuTypeEnum.Menu,
-                Router = "http://ccnetcore.com:16001/hangfire",
+                Router = "http://127.0.0.1:19002/hangfire",
                 IsShow = true,
                 IsLink = true,
-                MenuIcon = "job",
+                MenuIcon = "tabler:calendar-clock",
                 OrderNum = 97,
                 IsDeleted = false
             };
@@ -207,7 +202,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 Router = "/tool",
                 IsShow = true,
                 IsLink = false,
-                MenuIcon = "tool",
+                MenuIcon = "ant-design:tool-outlined",
                 OrderNum = 98,
                 IsDeleted = false
             };
@@ -217,10 +212,10 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
             {
                 MenuName = "接口文档",
                 MenuType = MenuTypeEnum.Menu,
-                Router = "http://ccnetcore.com:16001/swagger",
+                Router = "http://127.0.0.1:19002/swagger",
                 IsShow = true,
                 IsLink = true,
-                MenuIcon = "list",
+                MenuIcon = "devicon:swagger",
                 OrderNum = 100,
                 IsDeleted = false,
             };
@@ -234,7 +229,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 Router = "build",
                 IsShow = true,
                 IsLink = false,
-                MenuIcon = "form",
+                MenuIcon = "tabler:forms",
                 Component = "tool/build/index",
 				IsCache = true,
 				OrderNum = 101,
@@ -582,7 +577,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 IsLink = false,
                 IsCache = true,
                 Component = "system/tenant/index",
-                MenuIcon = "list",
+                MenuIcon = "tabler:users",
                 OrderNum = 101,
                 ParentId = system.Id,
                 IsDeleted = false
@@ -636,18 +631,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 IsDeleted = false
             };
             entities.Add(tenantRemove);
-
-
-
-
-
-
-
-
-
-
-
-
+            
             //用户管理
             MenuAggregateRoot user = new MenuAggregateRoot(_guidGenerator.Create())
             {
@@ -660,7 +644,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 IsLink = false,
                 IsCache = true,
                 Component = "system/user/index",
-                MenuIcon = "user",
+                MenuIcon = "tabler:user",
                 OrderNum = 100,
                 ParentId = system.Id,
                 IsDeleted = false
@@ -741,7 +725,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 IsLink = false,
                 IsCache = true,
                 Component = "system/role/index",
-                MenuIcon = "peoples",
+                MenuIcon = "eos-icons:role-binding-outlined",
                 OrderNum = 99,
                 ParentId = system.Id,
                 IsDeleted = false
@@ -809,7 +793,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 IsLink = false,
                 IsCache = true,
                 Component = "system/menu/index",
-                MenuIcon = "tree-table",
+                MenuIcon = "ic:sharp-menu",
                 OrderNum = 98,
                 ParentId = system.Id,
                 IsDeleted = false
@@ -876,7 +860,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 IsLink = false,
                 IsCache = true,
                 Component = "system/dept/index",
-                MenuIcon = "tree",
+                MenuIcon = "mingcute:department-line",
                 OrderNum = 97,
                 ParentId = system.Id,
                 IsDeleted = false
@@ -945,7 +929,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 IsLink = false,
                 IsCache = true,
                 Component = "system/post/index",
-                MenuIcon = "post",
+                MenuIcon = "tabler:user-star",
                 OrderNum = 96,
                 ParentId = system.Id,
                 IsDeleted = false
@@ -1012,7 +996,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 IsLink = false,
                 IsCache = true,
                 Component = "system/dict/index",
-                MenuIcon = "dict",
+                MenuIcon = "fluent-mdl2:dictionary",
                 OrderNum = 95,
                 ParentId = system.Id,
                 IsDeleted = false
@@ -1080,7 +1064,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 IsLink = false,
                 IsCache = true,
                 Component = "system/config/index",
-                MenuIcon = "edit",
+                MenuIcon = "ant-design:setting-outlined",
                 OrderNum = 94,
                 ParentId = system.Id,
                 IsDeleted = false
@@ -1150,7 +1134,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 IsLink = false,
                 IsCache = true,
                 Component = "system/notice/index",
-                MenuIcon = "message",
+                MenuIcon = "fe:notice-push",
                 OrderNum = 93,
                 ParentId = system.Id,
                 IsDeleted = false
@@ -1216,7 +1200,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 Router = "log",
                 IsShow = true,
                 IsLink = false,
-                MenuIcon = "log",
+                MenuIcon = "material-symbols:logo-dev-outline",
                 OrderNum = 92,
                 ParentId = system.Id,
                 IsDeleted = false
@@ -1235,7 +1219,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 IsLink = false,
                 IsCache = true,
                 Component = "monitor/operlog/index",
-                MenuIcon = "form",
+                MenuIcon = "tabler:align-box-right-middle",
                 OrderNum = 100,
                 ParentId = log.Id,
                 IsDeleted = false
@@ -1279,7 +1263,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 IsLink = false,
                 IsCache = true,
                 Component = "monitor/logininfor/index",
-                MenuIcon = "logininfor",
+                MenuIcon = "tabler:align-box-right-middle",
                 OrderNum = 100,
                 ParentId = log.Id,
                 IsDeleted = false
