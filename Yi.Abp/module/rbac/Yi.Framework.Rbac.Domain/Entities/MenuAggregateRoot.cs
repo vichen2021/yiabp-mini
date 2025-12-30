@@ -231,59 +231,5 @@ namespace Yi.Framework.Rbac.Domain.Entities
 
             return TreeHelper.SetTree(routers);
         }
-
-
-        /// <summary>
-        /// 构建vue3  pure路由
-        /// </summary>
-        /// <param name="menus"></param>
-        /// <returns></returns>
-        public static List<Vue3PureRouterDto> Vue3PureRouterBuild(this List<MenuAggregateRoot> menus)
-        {
-            //pure的菜单为树形
-            var allRouters = menus
-                .Where(m => m.State == true)
-                .Where(m => m.MenuType != MenuTypeEnum.Component)
-                .Where(m => m.MenuSource == MenuSourceEnum.Pure)
-                .Select(m => new Vue3PureRouterDto
-                {
-                    Path =m.Router.StartsWith("/")?m.Router:"/"+m.Router,
-                    Name =m.IsLink==true?"Link": m.RouterName,
-                    component = m.Component,
-                    Meta = new MetaPureRouterDto()
-                    {
-                        showLink = m.IsShow,
-                        FrameSrc = m.IsLink == true ? m.Router : null,
-                        Auths = new List<string>() { m.PermissionCode },
-                        Icon = m.MenuIcon,
-                        Title = m.MenuName,
-                        
-                    },
-                    Children =null,
-                    Id = m.Id,
-                    ParentId = m.ParentId
-                })
-                .ToList();
-
-            
-            var routerDic = allRouters.GroupBy(x => x.ParentId).ToDictionary(x => x.Key,y=>y.ToList());
-            //根路由
-            if (!routerDic.TryGetValue(Guid.Empty, out var rootRouters))
-            {
-                return new List<Vue3PureRouterDto>();
-            }
-            Stack<Vue3PureRouterDto> stack = new Stack<Vue3PureRouterDto>(rootRouters);
-            while (stack.Count > 0)
-            {
-                var currentRouter = stack.Pop();
-                if (routerDic.TryGetValue(currentRouter.Id, out var items))
-                {
-                    currentRouter.Children = items;
-                    items?.ForEach(x => stack.Push(x));
-                }
-            }
-
-            return rootRouters;
-        }
     }
 }

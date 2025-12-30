@@ -423,12 +423,6 @@ namespace Yi.Framework.Rbac.Application.Services.System
                 output =
                     ObjectMapper.Map<List<MenuDto>, List<MenuAggregateRoot>>(menus.Where(x=>x.MenuSource==MenuSourceEnum.Ruoyi).ToList()).Vue3RuoYiRouterBuild();
             }
-            else if (routerType == "pure")
-            {
-                //将后端菜单转换成前端路由，组件级别需要过滤
-                output =
-                    ObjectMapper.Map<List<MenuDto>, List<MenuAggregateRoot>>(menus.Where(x=>x.MenuSource==MenuSourceEnum.Pure).ToList()).Vue3PureRouterBuild();
-            }
 
             return output;
         }
