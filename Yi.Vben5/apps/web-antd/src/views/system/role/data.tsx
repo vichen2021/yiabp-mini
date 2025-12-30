@@ -9,12 +9,11 @@ import { Tag } from 'ant-design-vue';
  * authScopeOptions user也会用到
  */
 export const authScopeOptions = [
-  { color: 'green', label: '全部数据权限', value: '1' },
-  { color: 'default', label: '自定数据权限', value: '2' },
-  { color: 'orange', label: '本部门数据权限', value: '3' },
-  { color: 'cyan', label: '本部门及以下数据权限', value: '4' },
-  { color: 'error', label: '仅本人数据权限', value: '5' },
-  { color: 'default', label: '部门及以下或本人数据权限', value: '6' },
+  { color: 'green', label: '全部数据权限', value: 'ALL' },
+  { color: 'default', label: '自定数据权限', value: 'CUSTOM' },
+  { color: 'orange', label: '本部门数据权限', value: 'DEPT' },
+  { color: 'cyan', label: '本部门及以下数据权限', value: 'DEPT_FOLLOW' },
+  { color: 'error', label: '仅本人数据权限', value: 'USER' },
 ];
 
 export const querySchema: FormSchemaGetter = () => [
@@ -201,7 +200,7 @@ export const authModalSchemas: FormSchemaGetter = () => [
     component: 'TreeSelect',
     defaultValue: [],
     dependencies: {
-      show: (values) => values.dataScope === '2',
+      show: (values) => values.dataScope === 'CUSTOM',
       triggerFields: ['dataScope'],
     },
     fieldName: 'deptIds',
