@@ -1,17 +1,18 @@
 export interface Role {
-  roleId: number;
+  id: string;
+  creationTime: string;
+  creatorId?: string | null;
+  lastModifierId?: string | null;
+  lastModificationTime?: string | null;
+  isDeleted?: boolean;
+  orderNum: number;
+  state: boolean;
   roleName: string;
-  roleKey: string;
-  roleSort: number;
+  roleCode: string;
+  remark?: string | null;
   dataScope: string;
-  menuCheckStrictly: boolean;
-  deptCheckStrictly: boolean;
-  status: string;
-  remark: string;
-  createTime: string;
-  // 用户是否存在此角色标识 默认不存在
-  flag: boolean;
-  superAdmin: boolean;
+  menus?: any[];
+  depts?: any[];
 }
 
 export interface DeptOption {

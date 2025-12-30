@@ -15,10 +15,10 @@ import { Modal, Popconfirm, Space } from 'ant-design-vue';
 
 import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
 import {
-  roleChangeStatus,
   roleExport,
   roleList,
   roleRemove,
+  roleUpdate,
 } from '#/api/system/role';
 import { TableSwitch } from '#/components/table';
 import { commonDownloadExcel } from '#/utils/file/download';
@@ -39,7 +39,7 @@ const formOptions: VbenFormProps = {
   // 日期选择格式化
   fieldMappingTime: [
     [
-      'createTime',
+      'creationTime',
       ['params[beginTime]', 'params[endTime]'],
       ['YYYY-MM-DD 00:00:00', 'YYYY-MM-DD 23:59:59'],
     ],
@@ -54,7 +54,6 @@ const gridOptions: VxeGridProps = {
     reserve: true,
     // 点击行选中
     // trigger: 'row',
-    checkMethod: ({ row }) => row.roleId !== 1,
   },
   columns,
   height: 'auto',
@@ -72,7 +71,7 @@ const gridOptions: VxeGridProps = {
     },
   },
   rowConfig: {
-    keyField: 'roleId',
+    keyField: 'id',
   },
   id: 'system-role-index',
 };
@@ -91,18 +90,18 @@ function handleAdd() {
 }
 
 async function handleEdit(record: Role) {
-  drawerApi.setData({ id: record.roleId });
+  drawerApi.setData({ id: record.id });
   drawerApi.open();
 }
 
 async function handleDelete(row: Role) {
-  await roleRemove([row.roleId]);
+  await roleRemove([row.id]);
   await tableApi.query();
 }
 
 function handleMultiDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
-  const ids = rows.map((row: Role) => row.roleId);
+  const ids = rows.map((row: Role) => row.id);
   Modal.confirm({
     title: '提示',
     okType: 'danger',
@@ -129,13 +128,13 @@ const [RoleAuthModal, authModalApi] = useVbenModal({
 });
 
 function handleAuthEdit(record: Role) {
-  authModalApi.setData({ id: record.roleId });
+  authModalApi.setData({ id: record.id });
   authModalApi.open();
 }
 
 const router = useRouter();
 function handleAssignRole(record: Role) {
-  router.push(`/system/role-auth/user/${record.roleId}`);
+  router.push(`/system/role-auth/user/${record.id}`);
 }
 </script>
 
@@ -167,14 +166,14 @@ function handleAssignRole(record: Role) {
             {{ $t('pages.common.add') }}
           </a-button>
         </Space>
-      </template>
+      </template>      
       <template #status="{ row }">
         <TableSwitch
-          v-model:value="row.status"
-          :api="() => roleChangeStatus(row)"
+          v-model:value="row.state"
+          :api="() => roleUpdate(row)"
           :disabled="
-            row.roleId === 1 ||
-            row.roleKey === 'admin' ||
+            row.id === '1' ||
+            row.roleCode === 'admin' ||
             !hasAccessByCodes(['system:role:edit'])
           "
           @reload="tableApi.query()"
@@ -184,7 +183,7 @@ function handleAssignRole(record: Role) {
         <!-- 租户管理员不可修改admin角色 防止误操作 -->
         <!-- 超级管理员可通过租户切换来操作租户管理员角色 -->
         <template
-          v-if="!row.superAdmin && (row.roleKey !== 'admin' || isSuperAdmin)"
+          v-if="row.roleCode !== 'admin' || isSuperAdmin"
         >
           <Space>
             <ghost-button

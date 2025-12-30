@@ -1,12 +1,9 @@
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { DictEnum } from '@vben/constants';
 import { getPopupContainer } from '@vben/utils';
 
 import { Tag } from 'ant-design-vue';
-
-import { getDictOptions } from '#/utils/dict';
 
 /**
  * authScopeOptions user也会用到
@@ -28,20 +25,24 @@ export const querySchema: FormSchemaGetter = () => [
   },
   {
     component: 'Input',
-    fieldName: 'roleKey',
-    label: '权限字符',
+    fieldName: 'roleCode',
+    label: '角色编码',
   },
   {
     component: 'Select',
     componentProps: {
-      options: getDictOptions(DictEnum.SYS_NORMAL_DISABLE),
+      getPopupContainer,
+      options: [
+        { label: '启用', value: true },
+        { label: '禁用', value: false },
+      ],
     },
-    fieldName: 'status',
+    fieldName: 'state',
     label: '状态',
   },
   {
     component: 'RangePicker',
-    fieldName: 'createTime',
+    fieldName: 'creationTime',
     label: '创建时间',
   },
 ];
@@ -53,11 +54,11 @@ export const columns: VxeGridProps['columns'] = [
     field: 'roleName',
   },
   {
-    title: '权限字符',
-    field: 'roleKey',
+    title: '角色编码',
+    field: 'roleCode',
     slots: {
       default: ({ row }) => {
-        return <Tag color="processing">{row.roleKey}</Tag>;
+        return <Tag color="processing">{row.roleCode}</Tag>;
       },
     },
   },
@@ -78,16 +79,16 @@ export const columns: VxeGridProps['columns'] = [
   },
   {
     title: '排序',
-    field: 'roleSort',
+    field: 'orderNum',
   },
   {
     title: '状态',
-    field: 'status',
+    field: 'state',
     slots: { default: 'status' },
   },
   {
     title: '创建时间',
-    field: 'createTime',
+    field: 'creationTime',
   },
   {
     field: 'action',
@@ -106,7 +107,7 @@ export const drawerSchema: FormSchemaGetter = () => [
       show: () => false,
       triggerFields: [''],
     },
-    fieldName: 'roleId',
+    fieldName: 'id',
     label: '角色ID',
   },
   {
@@ -117,39 +118,31 @@ export const drawerSchema: FormSchemaGetter = () => [
   },
   {
     component: 'Input',
-    fieldName: 'roleKey',
-    help: '如: test simpleUser等',
-    label: '权限标识',
+    fieldName: 'roleCode',
+    help: '如: admin, user 等',
+    label: '角色编码',
     rules: 'required',
   },
   {
     component: 'InputNumber',
-    fieldName: 'roleSort',
-    label: '角色排序',
+    fieldName: 'orderNum',
+    label: '排序',
     rules: 'required',
     defaultValue: 0,
   },
   {
-    component: 'Select',
+    component: 'RadioGroup',
     componentProps: {
-      allowClear: false,
-      options: getDictOptions(DictEnum.SYS_NORMAL_DISABLE),
-      getPopupContainer,
+      buttonStyle: 'solid',
+      options: [
+        { label: '启用', value: true },
+        { label: '禁用', value: false },
+      ],
+      optionType: 'button',
     },
-    defaultValue: '0',
-    fieldName: 'status',
-    help: '修改后, 拥有该角色的用户将自动下线.',
-    label: '角色状态',
-    rules: 'required',
-  },
-  {
-    component: 'Radio',
-    dependencies: {
-      show: () => false,
-      triggerFields: [''],
-    },
-    fieldName: 'menuCheckStrictly',
-    label: '菜单权限',
+    defaultValue: true,
+    fieldName: 'state',
+    label: '状态',
   },
   {
     component: 'Input',
@@ -174,17 +167,8 @@ export const authModalSchemas: FormSchemaGetter = () => [
       show: () => false,
       triggerFields: [''],
     },
-    fieldName: 'roleId',
+    fieldName: 'id',
     label: '角色ID',
-  },
-  {
-    component: 'Radio',
-    dependencies: {
-      show: () => false,
-      triggerFields: [''],
-    },
-    fieldName: 'deptCheckStrictly',
-    label: 'deptCheckStrictly',
   },
   {
     component: 'Input',
@@ -199,8 +183,8 @@ export const authModalSchemas: FormSchemaGetter = () => [
     componentProps: {
       disabled: true,
     },
-    fieldName: 'roleKey',
-    label: '权限标识',
+    fieldName: 'roleCode',
+    label: '角色编码',
   },
   {
     component: 'Select',

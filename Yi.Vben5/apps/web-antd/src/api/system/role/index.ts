@@ -11,7 +11,6 @@ enum Api {
   roleAuthCancel = '/system/role/authUser/cancel',
   roleAuthCancelAll = '/system/role/authUser/cancelAll',
   roleAuthSelectAll = '/system/role/authUser/selectAll',
-  roleChangeStatus = '/system/role/changeStatus',
   roleDataScope = '/system/role/dataScope',
   roleDeptTree = '/system/role/deptTree',
   roleExport = '/system/role/export',
@@ -64,19 +63,6 @@ export function roleAdd(data: Partial<Role>) {
  */
 export function roleUpdate(data: Partial<Role>) {
   return requestClient.putWithMsg<void>(`${Api.root}/${data.id}`, data);
-}
-
-/**
- * 修改角色状态
- * @param data 参数
- * @returns void
- */
-export function roleChangeStatus(data: Partial<Role>) {
-  const requestData = {
-    roleId: data.roleId,
-    status: data.status,
-  };
-  return requestClient.putWithMsg<void>(Api.roleChangeStatus, requestData);
 }
 
 /**
