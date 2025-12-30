@@ -33,7 +33,7 @@ const formOptions: VbenFormProps = {
   // 日期选择格式化
   fieldMappingTime: [
     [
-      'createTime',
+      'creationTime',
       ['params[beginTime]', 'params[endTime]'],
       ['YYYY-MM-DD 00:00:00', 'YYYY-MM-DD 23:59:59'],
     ],
@@ -63,7 +63,7 @@ const gridOptions: VxeGridProps = {
     },
   },
   rowConfig: {
-    keyField: 'configId',
+    keyField: 'id',
   },
   id: 'system-config-index',
 };
@@ -82,18 +82,18 @@ function handleAdd() {
 }
 
 async function handleEdit(record: SysConfig) {
-  modalApi.setData({ id: record.configId });
+  modalApi.setData({ id: record.id });
   modalApi.open();
 }
 
 async function handleDelete(row: SysConfig) {
-  await configRemove([row.configId]);
+  await configRemove([row.id]);
   await tableApi.query();
 }
 
 function handleMultiDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
-  const ids = rows.map((row: SysConfig) => row.configId);
+  const ids = rows.map((row: SysConfig) => row.id);
   Modal.confirm({
     title: '提示',
     okType: 'danger',

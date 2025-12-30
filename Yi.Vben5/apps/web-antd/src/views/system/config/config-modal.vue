@@ -44,7 +44,7 @@ const [BasicModal, modalApi] = useVbenModal({
     }
     modalApi.modalLoading(true);
 
-    const { id } = modalApi.getData() as { id?: number | string };
+    const { id } = modalApi.getData() as { id?: string };
     isUpdate.value = !!id;
 
     if (isUpdate.value && id) {

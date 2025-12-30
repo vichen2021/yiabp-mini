@@ -19,7 +19,7 @@ enum Api {
  * @returns 列表
  */
 export function configList(params?: PageQuery) {
-  return requestClient.get<PageResult<SysConfig>>(Api.configList, { params });
+  return requestClient.get<PageResult<SysConfig>>(Api.root, { params });
 }
 
 export function configInfo(configId: ID) {

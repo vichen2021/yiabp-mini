@@ -29,7 +29,7 @@ export const querySchema: FormSchemaGetter = () => [
   },
   {
     component: 'RangePicker',
-    fieldName: 'createTime',
+    fieldName: 'creationTime',
     label: '创建时间',
   },
 ];
@@ -64,7 +64,7 @@ export const columns: VxeGridProps['columns'] = [
   },
   {
     title: '创建时间',
-    field: 'createTime',
+    field: 'creationTime',
   },
   {
     field: 'action',
@@ -83,7 +83,7 @@ export const modalSchema: FormSchemaGetter = () => [
       show: () => false,
       triggerFields: [''],
     },
-    fieldName: 'configId',
+    fieldName: 'id',
     label: '参数主键',
   },
   {
