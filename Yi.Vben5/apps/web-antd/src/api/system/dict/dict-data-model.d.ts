@@ -1,17 +1,17 @@
 export interface DictData {
-  createBy: string;
-  createTime: string;
-  cssClass: string;
-  default: boolean;
-  dictCode: number;
-  dictLabel: string;
-  dictSort: number;
+  id: string;
+  isDeleted: boolean;
+  orderNum: number;
+  state: boolean;
+  remark: string | null;
+  listClass: string | null;
+  cssClass: string | null;
   dictType: string;
+  dictLabel: string | null;
   dictValue: string;
-  isDefault: string;
-  listClass: string;
-  remark: string;
-  status: string;
-  updateBy?: any;
-  updateTime?: any;
+  isDefault: boolean;
+  creationTime: string;
+  creatorId: string | null;
+  lastModifierId: string | null;
+  lastModificationTime: string | null;
 }

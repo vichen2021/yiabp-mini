@@ -62,7 +62,7 @@ const gridOptions: VxeGridProps = {
     },
   },
   rowConfig: {
-    keyField: 'dictId',
+    keyField: 'id',
     // 高亮当前行
     isCurrent: true,
   },
@@ -101,12 +101,12 @@ function handleAdd() {
 }
 
 async function handleEdit(record: DictType) {
-  modalApi.setData({ id: record.dictId });
+  modalApi.setData({ id: record.id });
   modalApi.open();
 }
 
 async function handleDelete(row: DictType) {
-  await dictTypeRemove([row.dictId]);
+  await dictTypeRemove([row.id]);
   await tableApi.query();
 }
 
@@ -135,12 +135,12 @@ function handleRefreshCache() {
 }
 
 const lastDictType = ref<string>('');
-const currentRowId = ref<null | number | string>(null);
+const currentRowId = ref<null | string>(null);
 function handleRowClick(row: DictType) {
   if (lastDictType.value === row.dictType) {
     return;
   }
-  currentRowId.value = row.dictId;
+  currentRowId.value = row.id;
   emitter.emit('rowClick', row.dictType);
 }
 

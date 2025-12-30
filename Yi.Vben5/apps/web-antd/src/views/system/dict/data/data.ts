@@ -30,7 +30,7 @@ export const columns: VxeGridProps['columns'] = [
   },
   {
     title: '字典排序',
-    field: 'dictSort',
+    field: 'orderNum',
   },
   {
     title: '备注',
@@ -38,7 +38,7 @@ export const columns: VxeGridProps['columns'] = [
   },
   {
     title: '创建时间',
-    field: 'createTime',
+    field: 'creationTime',
   },
   {
     field: 'action',
@@ -57,7 +57,7 @@ export const drawerSchema: FormSchemaGetter = () => [
       show: () => false,
       triggerFields: [''],
     },
-    fieldName: 'dictCode',
+    fieldName: 'id',
   },
   {
     component: 'Input',
@@ -96,7 +96,7 @@ export const drawerSchema: FormSchemaGetter = () => [
   },
   {
     component: 'InputNumber',
-    fieldName: 'dictSort',
+    fieldName: 'orderNum',
     label: '显示排序',
     rules: 'required',
     defaultValue: 0,

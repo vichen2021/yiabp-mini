@@ -60,7 +60,7 @@ const gridOptions: VxeGridProps = {
     },
   },
   rowConfig: {
-    keyField: 'dictId',
+    keyField: 'id',
     // 高亮当前行
     isCurrent: true,
   },
@@ -70,6 +70,7 @@ const gridOptions: VxeGridProps = {
 
 const lastDictType = ref('');
 
+// @ts-expect-error TS2589: DictType + proxyConfig causes deep instantiation; generics are manageable at runtime.
 const [BasicTable, tableApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,
@@ -94,18 +95,18 @@ function handleAdd() {
 }
 
 async function handleEdit(record: DictType) {
-  modalApi.setData({ id: record.dictId });
+  modalApi.setData({ id: record.id });
   modalApi.open();
 }
 
 async function handleDelete(row: DictType) {
-  await dictTypeRemove([row.dictId]);
+  await dictTypeRemove([row.id]);
   await tableApi.query();
 }
 
 function handleMultiDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
-  const ids = rows.map((row: DictType) => row.dictId);
+  const ids = rows.map((row: DictType) => row.id);
   Modal.confirm({
     title: '提示',
     okType: 'danger',

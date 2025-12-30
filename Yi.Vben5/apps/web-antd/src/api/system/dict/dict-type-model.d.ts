@@ -1,8 +1,13 @@
 export interface DictType {
-  createTime: string;
-  dictId: number;
+  id: string;
+  isDeleted: boolean;
+  orderNum: number;
+  state: boolean | null;
   dictName: string;
   dictType: string;
-  remark: string;
-  status: string;
+  remark: string | null;
+  creationTime: string;
+  creatorId: string | null;
+  lastModifierId: string | null;
+  lastModificationTime: string | null;
 }

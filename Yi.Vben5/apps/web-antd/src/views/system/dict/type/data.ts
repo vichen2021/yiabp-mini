@@ -32,7 +32,7 @@ export const columns: VxeGridProps['columns'] = [
   },
   {
     title: '创建时间',
-    field: 'createTime',
+    field: 'creationTime',
   },
   {
     field: 'action',
@@ -51,8 +51,8 @@ export const modalSchema: FormSchemaGetter = () => [
       show: () => false,
       triggerFields: [''],
     },
-    fieldName: 'dictId',
-    label: 'dictId',
+    fieldName: 'id',
+    label: 'id',
   },
   {
     component: 'Input',

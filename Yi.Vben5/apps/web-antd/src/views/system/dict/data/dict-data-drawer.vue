@@ -20,7 +20,7 @@ import TagStylePicker from './tag-style-picker.vue';
 const emit = defineEmits<{ reload: [] }>();
 
 interface DrawerProps {
-  dictCode?: number | string;
+  id?: string;
   dictType: string;
 }
 
@@ -52,7 +52,11 @@ const selectType = ref('default');
  * 根据标签样式判断是自定义还是默认
  * @param listClass 标签样式
  */
-function setupSelectType(listClass: string) {
+function setupSelectType(listClass: string | null | undefined) {
+  if (!listClass) {
+    selectType.value = 'default';
+    return;
+  }
   // 判断是自定义还是预设
   const isDefault = Reflect.has(tagTypes, listClass);
   selectType.value = isDefault ? 'default' : 'custom';
@@ -75,13 +79,13 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
     }
     drawerApi.drawerLoading(true);
 
-    const { dictCode, dictType } = drawerApi.getData() as DrawerProps;
-    isUpdate.value = !!dictCode;
+    const { id, dictType } = drawerApi.getData() as DrawerProps;
+    isUpdate.value = !!id;
     await formApi.setFieldValue('dictType', dictType);
 
-    if (dictCode && isUpdate.value) {
-      const record = await dictDetailInfo(dictCode);
-      setupSelectType(record.listClass);
+    if (id && isUpdate.value) {
+      const record = await dictDetailInfo(id);
+      setupSelectType(record.listClass || '');
       await formApi.setValues(record);
     }
     await markInitialized();
