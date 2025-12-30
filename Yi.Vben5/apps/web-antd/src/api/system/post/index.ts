@@ -32,11 +32,11 @@ export function postExport(data: Partial<Post>) {
 
 /**
  * 查询岗位信息
- * @param postId id
+ * @param id 岗位id
  * @returns 岗位信息
  */
-export function postInfo(postId: ID) {
-  return requestClient.get<Post>(`${Api.root}/${postId}`);
+export function postInfo(id: ID) {
+  return requestClient.get<Post>(`${Api.root}/${id}`);
 }
 
 /**

@@ -22,9 +22,12 @@ export const querySchema: FormSchemaGetter = () => [
     component: 'Select',
     componentProps: {
       getPopupContainer,
-      options: getDictOptions(DictEnum.SYS_NORMAL_DISABLE),
+      options: [
+        { label: '启用', value: true },
+        { label: '禁用', value: false },
+      ],
     },
-    fieldName: 'status',
+    fieldName: 'state',
     label: '状态',
   },
 ];
@@ -36,29 +39,25 @@ export const columns: VxeGridProps['columns'] = [
     field: 'postCode',
   },
   {
-    title: '类别编码',
-    field: 'postCategory',
-  },
-  {
     title: '岗位名称',
     field: 'postName',
   },
   {
     title: '排序',
-    field: 'postSort',
+    field: 'orderNum',
   },
   {
     title: '状态',
-    field: 'status',
+    field: 'state',
     slots: {
       default: ({ row }) => {
-        return renderDict(row.status, DictEnum.SYS_NORMAL_DISABLE);
+        return row.state ? '启用' : '禁用';
       },
     },
   },
   {
     title: '创建时间',
-    field: 'createTime',
+    field: 'creationTime',
   },
   {
     field: 'action',
@@ -77,8 +76,8 @@ export const drawerSchema: FormSchemaGetter = () => [
       show: () => false,
       triggerFields: [''],
     },
-    fieldName: 'postId',
-    label: 'postId',
+    fieldName: 'id',
+    label: 'id',
   },
   {
     component: 'TreeSelect',
@@ -102,13 +101,8 @@ export const drawerSchema: FormSchemaGetter = () => [
     rules: 'required',
   },
   {
-    component: 'Input',
-    fieldName: 'postCategory',
-    label: '类别编码',
-  },
-  {
     component: 'InputNumber',
-    fieldName: 'postSort',
+    fieldName: 'orderNum',
     label: '岗位排序',
     rules: 'required',
     defaultValue: 0,
@@ -117,11 +111,14 @@ export const drawerSchema: FormSchemaGetter = () => [
     component: 'RadioGroup',
     componentProps: {
       buttonStyle: 'solid',
-      options: getDictOptions(DictEnum.SYS_NORMAL_DISABLE),
+      options: [
+        { label: '启用', value: true },
+        { label: '禁用', value: false },
+      ],
       optionType: 'button',
     },
-    defaultValue: '0',
-    fieldName: 'status',
+    defaultValue: true,
+    fieldName: 'state',
     label: '岗位状态',
     rules: 'required',
   },

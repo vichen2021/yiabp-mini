@@ -3,12 +3,15 @@
  */
 export interface Post {
   id: string;
+  isDeleted: boolean;
   creationTime: string;
+  creatorId: string | null;
+  lastModifierId: string | null;
+  lastModificationTime: string | null;
+  orderNum: number;
   state: boolean;
   postCode: string;
   postName: string;
-  remark: null | string;
-  orderNum: number;
   deptId: string;
-  deptName?: string;
+  remark: string | null;
 }

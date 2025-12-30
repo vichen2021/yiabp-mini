@@ -67,7 +67,7 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
       return null;
     }
     drawerApi.drawerLoading(true);
-    const { id } = drawerApi.getData() as { id?: number | string };
+    const { id } = drawerApi.getData() as { id?: string };
     isUpdate.value = !!id;
     // 初始化
     await setupDeptSelect();
