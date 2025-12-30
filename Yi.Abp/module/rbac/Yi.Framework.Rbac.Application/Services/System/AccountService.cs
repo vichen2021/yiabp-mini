@@ -481,7 +481,7 @@ namespace Yi.Framework.Rbac.Application.Services.System
         /// <param name="input"></param>
         /// <returns></returns>
         [HttpPut]
-        public async Task<bool> RestPasswordAsync(Guid userId, RestPasswordDto input)
+        public async Task<bool> ResetPasswordAsync(Guid userId, RestPasswordDto input)
         {
             if (string.IsNullOrEmpty(input.Password))
             {

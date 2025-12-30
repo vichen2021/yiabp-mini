@@ -18,7 +18,7 @@ enum Api {
   userExport = '/system/user/export',
   userImport = '/system/user/importData',
   userImportTemplate = '/system/user/importTemplate',
-  userResetPassword = '/system/user/resetPwd',
+  userResetPassword = '/system/account/reset-password',
 }
 
 /**

@@ -11,7 +11,7 @@ namespace Yi.Framework.Rbac.Application.Contracts.IServices
         Task<CaptchaImageDto> GetCaptchaImageAsync();
         Task<LoginOutputDto> PostLoginAsync(LoginInputVo input);
         Task PostRegisterAsync(RegisterDto input);
-        Task<bool> RestPasswordAsync(Guid userId, RestPasswordDto input);
+        Task<bool> ResetPasswordAsync(Guid userId, RestPasswordDto input);
 
         /// <summary>
         /// 提供其他服务使用，根据用户id，直接返回token
