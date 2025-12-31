@@ -231,5 +231,30 @@ namespace Yi.Framework.Rbac.Domain.Entities
 
             return TreeHelper.SetTree(routers);
         }
+
+        /// <summary>
+        /// 构建菜单树表
+        /// </summary>
+        /// <param name="menus"></param>
+        /// <returns></returns>
+        public static List<MenuTreeDto> TreeDtoBuild(this List<MenuAggregateRoot> menus)
+        {
+            List<MenuTreeDto> treeDtos = new();
+            foreach (var m in menus)
+            {
+                var treeDto = new MenuTreeDto
+                {
+                    Id = m.Id,
+                    ParentId = m.ParentId,
+                    OrderNum = m.OrderNum,
+                    MenuName = m.MenuName,
+                    MenuType = m.MenuType,
+                    MenuIcon = m.MenuIcon
+                };
+                treeDtos.Add(treeDto);
+            }
+
+            return TreeHelper.SetTree(treeDtos);
+        }
     }
 }
