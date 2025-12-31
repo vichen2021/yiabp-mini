@@ -38,7 +38,7 @@ namespace Yi.Framework.Rbac.Application.Services.System
         /// </summary>
         /// <param name="roleId"></param>
         /// <returns></returns>
-        public async Task<ActionResult> GetRoleMenuTree(Guid roleId)
+        public async Task<ActionResult> GetRoleMenuTreeAsync(Guid roleId)
         {
             var checkedKeys = await _repository._DbQueryable
                 .Where(m => SqlFunc.Subqueryable<RoleMenuEntity>().Where(rm => rm.RoleId == roleId && rm.MenuId == m.Id).Any())
@@ -56,7 +56,7 @@ namespace Yi.Framework.Rbac.Application.Services.System
         /// 获取菜单树
         /// </summary>
         /// <returns></returns>
-        public async Task<List<MenuTreeDto>> GetTree()
+        public async Task<List<MenuTreeDto>> GetTreeAsync()
         {
             var menuList = await _repository._DbQueryable.ToListAsync();
             return menuList.TreeDtoBuild();
