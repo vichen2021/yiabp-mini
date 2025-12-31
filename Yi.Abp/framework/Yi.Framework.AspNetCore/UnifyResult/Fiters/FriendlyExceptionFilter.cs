@@ -17,8 +17,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.DependencyInjection;
+using Volo.Abp.Validation;
 using Yi.Framework.Core.Extensions;
 
 namespace Yi.Framework.AspNetCore.UnifyResult.Fiters;
@@ -80,8 +83,25 @@ public sealed class FriendlyExceptionFilter : IAsyncExceptionFilter
                     : default
             );
 
+        // 判断是否是验证异常
+        if (exception is AbpValidationException validationException)
+        {
+            isValidationException = true;
+            statusCode = StatusCodes.Status400BadRequest;
+            
+            // 提取第一个验证错误消息
+            if (validationException.ValidationErrors != null && validationException.ValidationErrors.Count > 0)
+            {
+                var firstError = validationException.ValidationErrors.FirstOrDefault();
+                errors = firstError?.ErrorMessage ?? validationException.Message;
+            }
+            else
+            {
+                errors = validationException.Message;
+            }
+        }
         // 判断是否是友好异常
-        if (exception is UserFriendlyException friendlyException)
+        else if (exception is UserFriendlyException friendlyException)
         {
             int statusCode2 = 500;
             int.TryParse(friendlyException.Code, out statusCode2);
