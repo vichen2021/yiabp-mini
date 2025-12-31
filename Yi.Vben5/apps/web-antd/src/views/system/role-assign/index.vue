@@ -4,12 +4,12 @@ import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { User } from '#/api/system/user/model';
 
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 import { Page, useVbenDrawer } from '@vben/common-ui';
 import { getVxePopupContainer } from '@vben/utils';
 
-import { Modal, Popconfirm, Space } from 'ant-design-vue';
+import { message, Modal, Popconfirm, Space } from 'ant-design-vue';
 
 import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
 import {
@@ -22,6 +22,7 @@ import { columns, querySchema } from './data';
 import roleAssignDrawer from './role-assign-drawer.vue';
 
 const route = useRoute();
+const router = useRouter();
 const roleId = route.params.roleId as string;
 
 const formOptions: VbenFormProps = {
@@ -48,24 +49,33 @@ const gridOptions: VxeGridProps = {
   height: 'auto',
   keepSource: true,
   pagerConfig: {},
-  proxyConfig: {
-    ajax: {
-      query: async ({ page }, formValues = {}) => {
-        return await roleAllocatedList({
-          SkipCount: page.currentPage,
-          MaxResultCount: page.pageSize,
-          roleId,
-          ...formValues,
-        });
+    proxyConfig: {
+      ajax: {
+        query: async ({ page }, formValues = {}) => {
+          // 校验roleId是否为空
+          if (!roleId || roleId === ':roleId') {
+            message.error('角色信息丢失，请重新点击分配');
+            // 重定向回角色列表
+            router.push('/system/role');
+            return {
+              items: [],
+              total: 0,
+            };
+          }
+          return await roleAllocatedList(roleId, {
+            SkipCount: page.currentPage,
+            MaxResultCount: page.pageSize,
+            ...formValues,
+          });
+        },
       },
     },
-  },
   rowConfig: {
-    keyField: 'userId',
+    keyField: 'id',
   },
   id: 'system-role-assign-index',
 };
-
+// @ts-expect-error TS2589: User 与 proxyConfig 组合导致类型实例化层级过深；运行时泛型已被擦除，可控，先压制报错。
 const [BasicTable, tableApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,
@@ -84,7 +94,7 @@ function handleAdd() {
  * 取消授权 一条记录
  */
 async function handleAuthCancel(record: User) {
-  await roleAuthCancel({ userId: record.userId, roleId });
+  await roleAuthCancel({ userId: record.id, roleId });
   await tableApi.query();
 }
 
@@ -93,7 +103,7 @@ async function handleAuthCancel(record: User) {
  */
 function handleMultipleAuthCancel() {
   const rows = tableApi.grid.getCheckboxRecords();
-  const ids = rows.map((row: User) => row.userId);
+  const ids = rows.map((row: User) => row.id);
   Modal.confirm({
     title: '提示',
     okType: 'danger',
@@ -133,7 +143,7 @@ function handleMultipleAuthCancel() {
       <template #action="{ row }">
         <Popconfirm
           :get-popup-container="getVxePopupContainer"
-          :title="`是否取消授权用户[${row.userName} - ${row.nickName}]?`"
+          :title="`是否取消授权用户[${row.userName} - ${row.nick}]?`"
           placement="left"
           @confirm="handleAuthCancel(row)"
         >

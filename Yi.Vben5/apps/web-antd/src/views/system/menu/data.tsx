@@ -9,7 +9,6 @@ import { $t } from '@vben/locales';
 import { getPopupContainer } from '@vben/utils';
 
 import { z } from '#/adapter/form';
-import { getDictOptions } from '#/utils/dict';
 import { renderDict } from '#/utils/render';
 
 export const querySchema: FormSchemaGetter = () => [
@@ -19,11 +18,6 @@ export const querySchema: FormSchemaGetter = () => [
     label: '菜单名称 ',
   },
   {
-    component: 'Select',
-    componentProps: {
-      getPopupContainer,
-      options: getDictOptions(DictEnum.SYS_NORMAL_DISABLE),
-    },
     component: 'Select',
     componentProps: {
       getPopupContainer,
@@ -60,6 +54,30 @@ export const yesNoOptions = [
   { label: '是', value: '0' },
   { label: '否', value: '1' },
 ];
+
+/**
+ * 判断是否为菜单类型（Menu/C）
+ */
+function isMenuType(menuType: string): boolean {
+  const type = menuType?.toLowerCase();
+  return type === 'c' || type === 'menu';
+}
+
+/**
+ * 判断是否为目录类型（Catalogue/M）
+ */
+function isCatalogueType(menuType: string): boolean {
+  const type = menuType?.toLowerCase();
+  return type === 'm' || type === 'catalogue' || type === 'catalog' || type === 'directory' || type === 'folder';
+}
+
+/**
+ * 判断是否为按钮类型（Component/F）
+ */
+function isComponentType(menuType: string): boolean {
+  const type = menuType?.toLowerCase();
+  return type === 'f' || type === 'component' || type === 'button';
+}
 
 // （M目录 C菜单 F按钮）
 const menuTypes: Record<string, { icon: typeof MenuIcon; value: string }> = {
@@ -212,7 +230,7 @@ export const drawerSchema: FormSchemaGetter = () => [
     component: 'Input',
     dependencies: {
       // 类型不为按钮时显示
-      show: (values) => values.menuType !== 'F',
+      show: (values) => !isComponentType(values.menuType),
       triggerFields: ['menuType'],
     },
     renderComponentContent: (model) => ({
@@ -268,7 +286,7 @@ export const drawerSchema: FormSchemaGetter = () => [
           .regex(/^https?:\/\//, { message: '请输入正确的链接地址' });
       },
       // 类型不为按钮时显示
-      show: (values) => values?.menuType !== 'F',
+      show: (values) => !isComponentType(values?.menuType),
       triggerFields: ['isLink', 'menuType'],
     },
     fieldName: 'router',
@@ -299,7 +317,7 @@ export const drawerSchema: FormSchemaGetter = () => [
         return z.string().optional();
       },
       // 类型为菜单时显示
-      show: (values) => values.menuType === 'C',
+      show: (values) => isMenuType(values.menuType),
       triggerFields: ['menuType', 'router'],
     },
     fieldName: 'component',
@@ -319,7 +337,7 @@ export const drawerSchema: FormSchemaGetter = () => [
     defaultValue: false,
     dependencies: {
       // 类型不为按钮时显示
-      show: (values) => values.menuType !== 'F',
+      show: (values) => !isComponentType(values.menuType),
       triggerFields: ['menuType'],
     },
     fieldName: 'isLink',
@@ -339,7 +357,7 @@ export const drawerSchema: FormSchemaGetter = () => [
     defaultValue: true,
     dependencies: {
       // 类型不为按钮时显示
-      show: (values) => values.menuType !== 'F',
+      show: (values) => !isComponentType(values.menuType),
       triggerFields: ['menuType'],
     },
     fieldName: 'isShow',
@@ -359,7 +377,7 @@ export const drawerSchema: FormSchemaGetter = () => [
     defaultValue: true,
     dependencies: {
       // 类型不为按钮时显示
-      show: (values) => values.menuType !== 'F',
+      show: (values) => !isComponentType(values.menuType),
       triggerFields: ['menuType'],
     },
     fieldName: 'state',
@@ -370,7 +388,7 @@ export const drawerSchema: FormSchemaGetter = () => [
     component: 'Input',
     dependencies: {
       // 类型为菜单/按钮时显示
-      show: (values) => values.menuType !== 'M',
+      show: (values) => !isCatalogueType(values.menuType),
       triggerFields: ['menuType'],
     },
     fieldName: 'permissionCode',
@@ -386,7 +404,7 @@ export const drawerSchema: FormSchemaGetter = () => [
     }),
     dependencies: {
       // 类型为菜单时显示
-      show: (values) => values.menuType === 'C',
+      show: (values) => isMenuType(values.menuType),
       triggerFields: ['menuType'],
     },
     fieldName: 'query',
@@ -406,7 +424,7 @@ export const drawerSchema: FormSchemaGetter = () => [
     defaultValue: false,
     dependencies: {
       // 类型为菜单时显示
-      show: (values) => values.menuType === 'C',
+      show: (values) => isMenuType(values.menuType),
       triggerFields: ['menuType'],
     },
     fieldName: 'isCache',

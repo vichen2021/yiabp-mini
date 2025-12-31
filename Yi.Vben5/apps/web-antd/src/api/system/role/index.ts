@@ -8,7 +8,7 @@ import { commonExport } from '#/api/helper';
 import { requestClient } from '#/api/request';
 
 enum Api {
-  roleAllocatedList = '/system/role/authUser/allocatedList',
+  roleAllocatedList = '/system/role/auth-user',
   roleAuthCancel = '/system/role/authUser/cancel',
   roleAuthCancelAll = '/system/role/authUser/cancelAll',
   roleAuthSelectAll = '/system/role/authUser/selectAll',
@@ -99,8 +99,8 @@ export function roleOptionSelect(params?: any) {
  * @param params 请求参数
  * @returns 分页
  */
-export function roleAllocatedList(params?: PageQuery) {
-  return requestClient.get<PageResult<User>>(Api.roleAllocatedList, { params });
+export function roleAllocatedList(roleId: ID, params?: PageQuery) {
+  return requestClient.get<PageResult<User>>(`${Api.roleAllocatedList}/${roleId}/true`, { params });
 }
 
 /**

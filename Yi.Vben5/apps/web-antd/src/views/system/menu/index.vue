@@ -4,7 +4,7 @@ import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { Menu } from '#/api/system/menu/model';
 
-import { computed, nextTick, ref } from 'vue';
+import { computed, ref } from 'vue';
 
 import { useAccess } from '@vben/access';
 import { Fallback, Page, useVbenDrawer } from '@vben/common-ui';
@@ -22,10 +22,10 @@ import menuDrawer from './menu-drawer.vue';
 // 空GUID，用于判断根节点
 const EMPTY_GUID = '00000000-0000-0000-0000-000000000000';
 
-interface MenuRow extends Menu {
+type MenuRow = Omit<Menu, 'parentId'> & {
   menuId: string;
   parentId: string | null;
-}
+};
 
 const formOptions: VbenFormProps = {
   commonConfig: {
@@ -68,15 +68,6 @@ const gridOptions: VxeGridProps<Record<string, any>> = {
           } as MenuRow;
         });
         return { items };
-      },
-      // 默认请求接口后展开全部 不需要可以删除这段
-      querySuccess: () => {
-        // 默认展开 需要加上标记
-        // eslint-disable-next-line no-use-before-define
-        eachTree(tableApi.grid.getData(), (item) => (item.expand = true));
-        nextTick(() => {
-          setExpandOrCollapse(true);
-        });
       },
     },
   },
