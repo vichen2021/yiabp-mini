@@ -25,17 +25,16 @@ export interface Menu {
 
 /**
  * @description 菜单信息
- * @param label 菜单名称
+ * @param menuName 菜单名称
  */
 export interface MenuOption {
-  id: number;
-  parentId: number;
-  label: string;
-  weight: number;
-  children: MenuOption[];
-  key: string; // 实际上不存在 ide报错
+  id: string;
+  parentId: string;
+  orderNum: number;
+  menuName: string;
   menuType: string;
-  icon: string;
+  menuIcon?: string | null;
+  children?: MenuOption[] | null;
 }
 
 /**
@@ -44,7 +43,7 @@ export interface MenuOption {
  * @param menus 菜单信息
  */
 export interface MenuResp {
-  checkedKeys: number[];
+  checkedKeys: string[];
   menus: MenuOption[];
 }
 

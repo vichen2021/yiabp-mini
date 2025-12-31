@@ -6,7 +6,7 @@ import { requestClient } from '#/api/request';
 
 enum Api {
   menuList = '/system/menu/list',
-  menuTreeSelect = '/system/menu/treeselect',
+  menuTreeSelect = '/system/menu/tree',
   roleMenuTree = '/system/menu/role-menu-tree',
   root = '/system/menu',
   tenantPackageMenuTreeselect = '/system/menu/tenantPackageMenuTreeselect',

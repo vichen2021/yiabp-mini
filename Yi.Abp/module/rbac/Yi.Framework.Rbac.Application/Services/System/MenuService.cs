@@ -7,6 +7,7 @@ using Yi.Framework.Rbac.Domain.Entities;
 using Yi.Framework.Rbac.Domain.Shared.Consts;
 using Yi.Framework.SqlSugarCore.Abstractions;
 using Microsoft.AspNetCore.Mvc;
+using Yi.Framework.Rbac.Domain.Shared.Dtos;
 
 namespace Yi.Framework.Rbac.Application.Services.System
 {
@@ -32,18 +33,11 @@ namespace Yi.Framework.Rbac.Application.Services.System
                         .ToListAsync();
             return await MapToGetListOutputDtosAsync(entities);
         }
-
         /// <summary>
-        /// 查询当前角色的菜单
+        /// 获取角色菜单树
         /// </summary>
         /// <param name="roleId"></param>
         /// <returns></returns>
-        public async Task<List<MenuGetListOutputDto>> GetListRoleIdAsync(Guid roleId)
-        {
-            var entities = await _repository._DbQueryable.Where(m => SqlFunc.Subqueryable<RoleMenuEntity>().Where(rm => rm.RoleId == roleId && rm.MenuId == m.Id).Any()).ToListAsync();
-
-            return await MapToGetListOutputDtosAsync(entities);
-        }
         public async Task<ActionResult> GetRoleMenuTree(Guid roleId)
         {
             // 如果是超管返回全部id
@@ -66,6 +60,16 @@ namespace Yi.Framework.Rbac.Application.Services.System
                 checkedKeys,
                 menus
             });
+        }
+        
+        /// <summary>
+        /// 获取菜单树
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<MenuTreeDto>> GetTree()
+        {
+            var menuList = await _repository._DbQueryable.ToListAsync();
+            return menuList.TreeDtoBuild();
         }
         
         

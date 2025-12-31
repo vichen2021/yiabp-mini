@@ -62,7 +62,7 @@ const association = defineModel<boolean>('association', {
 const gridOptions: VxeGridProps = {
   checkboxConfig: {
     // checkbox显示的字段
-    labelField: 'label',
+    labelField: 'menuName',
     // 是否严格模式 即节点不关联
     checkStrictly: !association.value,
   },
@@ -321,7 +321,11 @@ function getCheckedKeys() {
     // 子节点
     const nodeKeys = getKeys(records, true);
     // 所有父节点
-    const parentIds = findGroupParentIds(props.menus, nodeKeys as number[]);
+    // Note: findGroupParentIds is typed for number[] but works with strings at runtime
+    const parentIds = findGroupParentIds(
+      props.menus,
+      nodeKeys as any,
+    ) as (string | number)[];
     // 拼接 去重
     const realKeys = uniq([...parentIds, ...nodeKeys]);
     return realKeys;

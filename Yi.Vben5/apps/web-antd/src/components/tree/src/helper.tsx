@@ -53,11 +53,12 @@ export function menusWithPermissions(menus: MenuOption[]) {
     if (item.children && item.children.length > 0) {
       /**
        * 所有为按钮的节点提取出来
-       * 需要注意 这里需要过滤目录下直接是按钮的情况item.menuType !== 'M'
+       * 需要注意 这里需要过滤目录下直接是按钮的情况
        * 将按钮往children添加而非加到permissions
        */
       const permissions = item.children.filter(
-        (child: MenuOption) => child.menuType === 'F' && item.menuType !== 'M',
+        (child: MenuOption) =>
+          isComponentType(child.menuType) && !isCatalogueType(item.menuType),
       );
       // 取差集
       const diffCollection = difference(item.children, permissions);
@@ -68,7 +69,7 @@ export function menusWithPermissions(menus: MenuOption[]) {
       const permissionsArr = permissions.map((permission) => {
         return {
           id: permission.id,
-          label: permission.label,
+          label: permission.menuName,
           checked: false,
         };
       });
@@ -135,6 +136,30 @@ export function setTableChecked(
 }
 
 /**
+ * 判断是否为菜单类型（Menu/C）
+ */
+function isMenuType(menuType: string): boolean {
+  const type = menuType?.toLowerCase();
+  return type === 'c' || type === 'menu';
+}
+
+/**
+ * 判断是否为目录类型（Catalogue/M）
+ */
+function isCatalogueType(menuType: string): boolean {
+  const type = menuType?.toLowerCase();
+  return type === 'm' || type === 'catalogue' || type === 'catalog' || type === 'directory' || type === 'folder';
+}
+
+/**
+ * 判断是否为按钮类型（Component/F）
+ */
+function isComponentType(menuType: string): boolean {
+  const type = menuType?.toLowerCase();
+  return type === 'f' || type === 'component' || type === 'button';
+}
+
+/**
  * 校验是否符合规范 给出warning提示
  *
  * 不符合规范
@@ -143,16 +168,11 @@ export function setTableChecked(
  * @param menu menu
  */
 function validateMenuTree(menu: MenuOption) {
-  /**
-   * C: { icon: markRaw(MenuIcon), value: '菜单' },
-      F: { icon: markRaw(OkButtonIcon), value: '按钮' },
-      M: { icon: markRaw(FolderIcon), value: '目录' },
-   */
   // 菜单下不能放目录/菜单
-  if (menu.menuType === 'C') {
+  if (isMenuType(menu.menuType)) {
     menu.children?.forEach?.((item) => {
-      if (['C', 'M'].includes(item.menuType)) {
-        const description = `错误用法: [${menu.label} - 菜单]下不能放 目录/菜单 -> [${item.label}]`;
+      if (isMenuType(item.menuType) || isCatalogueType(item.menuType)) {
+        const description = `错误用法: [${menu.menuName} - 菜单]下不能放 目录/菜单 -> [${item.menuName}]`;
         console.warn(description);
         notification.warning({
           message: '提示',
@@ -163,13 +183,17 @@ function validateMenuTree(menu: MenuOption) {
     });
   }
   // 按钮为最末级 不能再放置
-  if (menu.menuType === 'F') {
+  if (isComponentType(menu.menuType)) {
     /**
-     * 其实可以直接判断length 这里为了更准确知道label 采用遍历的形式
+     * 其实可以直接判断length 这里为了更准确知道menuName 采用遍历的形式
      */
     menu.children?.forEach?.((item) => {
-      if (['C', 'F', 'M'].includes(item.menuType)) {
-        const description = `错误用法: [${menu.label} - 按钮]下不能放置'目录/菜单/按钮' -> [${item.label}]`;
+      if (
+        isMenuType(item.menuType) ||
+        isComponentType(item.menuType) ||
+        isCatalogueType(item.menuType)
+      ) {
+        const description = `错误用法: [${menu.menuName} - 按钮]下不能放置'目录/菜单/按钮' -> [${item.menuName}]`;
         console.warn(description);
         notification.warning({
           message: '提示',

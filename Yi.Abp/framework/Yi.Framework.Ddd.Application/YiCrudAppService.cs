@@ -208,6 +208,7 @@ namespace Yi.Framework.Ddd.Application
         /// <summary>
         /// 单个删除实体(禁用远程访问)
         /// </summary>
+        /// <param name="id">实体ID</param>
         [RemoteService(isEnabled: false)]
         public override Task DeleteAsync(TKey id)
         {

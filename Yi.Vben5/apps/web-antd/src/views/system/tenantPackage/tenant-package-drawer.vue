@@ -45,7 +45,7 @@ async function setupMenuTree(id?: number | string) {
   const menus = resp.menus;
   // i18n处理
   eachTree(menus, (node) => {
-    node.label = $t(node.label);
+    node.menuName = $t(node.menuName);
   });
   // 设置菜单信息
   menuTree.value = menus;

@@ -16,10 +16,22 @@ export interface MenuPermissionOption extends MenuOption {
   permissions: Permission[];
 }
 
-const menuTypes = {
-  C: { icon: markRaw(MenuIcon), value: '菜单' },
-  F: { icon: markRaw(OkButtonIcon), value: '按钮' },
-  M: { icon: markRaw(FolderIcon), value: '目录' },
+// （M目录 C菜单 F按钮）
+// 支持多种格式的菜单类型值
+const menuTypes: Record<string, { icon: ReturnType<typeof markRaw>; value: string }> = {
+  c: { icon: markRaw(MenuIcon), value: '菜单' },
+  menu: { icon: markRaw(MenuIcon), value: '菜单' },
+  Menu: { icon: markRaw(MenuIcon), value: '菜单' },
+  catalog: { icon: markRaw(FolderIcon), value: '目录' },
+  directory: { icon: markRaw(FolderIcon), value: '目录' },
+  folder: { icon: markRaw(FolderIcon), value: '目录' },
+  m: { icon: markRaw(FolderIcon), value: '目录' },
+  catalogue: { icon: markRaw(FolderIcon), value: '目录' },
+  Catalogue: { icon: markRaw(FolderIcon), value: '目录' },
+  component: { icon: markRaw(OkButtonIcon), value: '按钮' },
+  Component: { icon: markRaw(OkButtonIcon), value: '按钮' },
+  f: { icon: markRaw(OkButtonIcon), value: '按钮' },
+  button: { icon: markRaw(OkButtonIcon), value: '按钮' },
 };
 
 export const nodeOptions = [
@@ -31,7 +43,7 @@ export const columns: VxeGridProps['columns'] = [
   {
     type: 'checkbox',
     title: '菜单名称',
-    field: 'label',
+    field: 'menuName',
     treeNode: true,
     headerAlign: 'left',
     align: 'left',
@@ -39,16 +51,16 @@ export const columns: VxeGridProps['columns'] = [
   },
   {
     title: '图标',
-    field: 'icon',
+    field: 'menuIcon',
     width: 80,
     slots: {
       default: ({ row }) => {
-        if (row?.icon === '#') {
+        if (row?.menuIcon === '#' || !row?.menuIcon) {
           return '';
         }
         return (
           <span class={'flex justify-center'}>
-            <VbenIcon icon={row.icon} />
+            <VbenIcon icon={row.menuIcon} />
           </span>
         );
       },
@@ -60,7 +72,8 @@ export const columns: VxeGridProps['columns'] = [
     width: 80,
     slots: {
       default: ({ row }) => {
-        const current = menuTypes[row.menuType as 'C' | 'F' | 'M'];
+        const typeKey = `${row.menuType ?? ''}`.toString().trim().toLowerCase();
+        const current = menuTypes[typeKey];
         if (!current) {
           return '未知';
         }
