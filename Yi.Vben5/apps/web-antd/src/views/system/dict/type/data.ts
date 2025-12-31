@@ -27,6 +27,16 @@ export const columns: VxeGridProps['columns'] = [
     field: 'dictType',
   },
   {
+    title: '状态',
+    field: 'state',
+    width: 120,
+    slots: {
+      default: ({ row }) => {
+        return row.state ? '启用' : '禁用';
+      },
+    },
+  },
+  {
     title: '备注',
     field: 'remark',
   },
@@ -73,5 +83,19 @@ export const modalSchema: FormSchemaGetter = () => [
     component: 'Textarea',
     fieldName: 'remark',
     label: '备注',
+  },
+  {
+    component: 'RadioGroup',
+    componentProps: {
+      buttonStyle: 'solid',
+      options: [
+        { label: '启用', value: true },
+        { label: '禁用', value: false },
+      ],
+      optionType: 'button',
+    },
+    defaultValue: true,
+    fieldName: 'state',
+    label: '状态',
   },
 ];
