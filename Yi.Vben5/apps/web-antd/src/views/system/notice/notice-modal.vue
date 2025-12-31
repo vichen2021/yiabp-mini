@@ -31,22 +31,22 @@ const title = computed(() => {
  * 定义表单数据类型
  */
 interface FormData {
-  noticeId?: number;
-  noticeTitle?: string;
-  status?: string;
-  noticeType?: string;
-  noticeContent?: string;
+  id?: string;
+  title?: string;
+  state?: boolean | string;
+  type?: string;
+  content?: string;
 }
 
 /**
  * 定义默认值 用于reset
  */
 const defaultValues: FormData = {
-  noticeId: undefined,
-  noticeTitle: '',
-  status: '0',
-  noticeType: '1',
-  noticeContent: '',
+  id: undefined,
+  title: '',
+  state: '0',
+  type: '1',
+  content: '',
 };
 
 /**
@@ -61,10 +61,10 @@ type AntdFormRules<T> = Partial<Record<keyof T, RuleObject[]>> & {
  * 表单校验规则
  */
 const formRules = ref<AntdFormRules<FormData>>({
-  status: [{ required: true, message: $t('ui.formRules.selectRequired') }],
-  noticeContent: [{ required: true, message: $t('ui.formRules.required') }],
-  noticeType: [{ required: true, message: $t('ui.formRules.selectRequired') }],
-  noticeTitle: [{ required: true, message: $t('ui.formRules.required') }],
+  state: [{ required: true, message: $t('ui.formRules.selectRequired') }],
+  content: [{ required: true, message: $t('ui.formRules.required') }],
+  type: [{ required: true, message: $t('ui.formRules.selectRequired') }],
+  title: [{ required: true, message: $t('ui.formRules.required') }],
 });
 
 /**
@@ -98,13 +98,16 @@ const [BasicModal, modalApi] = useVbenModal({
     }
     modalApi.modalLoading(true);
 
-    const { id } = modalApi.getData() as { id?: number | string };
+    const { id } = modalApi.getData() as { id?: string };
     isUpdate.value = !!id;
     if (isUpdate.value && id) {
       const record = await noticeInfo(id);
-      // 只赋值存在的字段
+      // 只赋值存在的字段，并处理state的转换（boolean转string用于RadioGroup）
       const filterRecord = pick(record, Object.keys(defaultValues));
-      formData.value = filterRecord;
+      formData.value = {
+        ...filterRecord,
+        state: typeof filterRecord.state === 'boolean' ? (filterRecord.state ? '1' : '0') : filterRecord.state,
+      };
     }
     await markInitialized();
 
@@ -118,6 +121,10 @@ async function handleConfirm() {
     await validate();
     // 可能会做数据处理 使用cloneDeep深拷贝
     const data = cloneDeep(formData.value);
+    // 转换state从string到boolean（RadioGroup返回string，但API需要boolean）
+    if (typeof data.state === 'string') {
+      data.state = data.state === '1' || data.state === 'true';
+    }
     await (isUpdate.value ? noticeUpdate(data) : noticeAdd(data));
     resetInitialized();
     emit('reload');
@@ -139,32 +146,32 @@ async function handleClosed() {
 <template>
   <BasicModal :title="title">
     <Form layout="vertical">
-      <FormItem label="公告标题" v-bind="validateInfos.noticeTitle">
+      <FormItem label="公告标题" v-bind="validateInfos.title">
         <Input
           :placeholder="$t('ui.formRules.required')"
-          v-model:value="formData.noticeTitle"
+          v-model:value="formData.title"
         />
       </FormItem>
       <div class="grid sm:grid-cols-1 lg:grid-cols-2">
-        <FormItem label="公告状态" v-bind="validateInfos.status">
+        <FormItem label="公告状态" v-bind="validateInfos.state">
           <RadioGroup
             button-style="solid"
             option-type="button"
-            v-model:value="formData.status"
+            v-model:value="formData.state"
             :options="getDictOptions(DictEnum.SYS_NOTICE_STATUS)"
           />
         </FormItem>
-        <FormItem label="公告类型" v-bind="validateInfos.noticeType">
+        <FormItem label="公告类型" v-bind="validateInfos.type">
           <RadioGroup
             button-style="solid"
             option-type="button"
-            v-model:value="formData.noticeType"
+            v-model:value="formData.type"
             :options="getDictOptions(DictEnum.SYS_NOTICE_TYPE)"
           />
         </FormItem>
       </div>
-      <FormItem label="公告内容" v-bind="validateInfos.noticeContent">
-        <Tinymce v-model="formData.noticeContent" />
+      <FormItem label="公告内容" v-bind="validateInfos.content">
+        <Tinymce v-model="formData.content" />
       </FormItem>
     </Form>
   </BasicModal>

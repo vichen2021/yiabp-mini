@@ -51,7 +51,7 @@ const gridOptions: VxeGridProps = {
     },
   },
   rowConfig: {
-    keyField: 'noticeId',
+    keyField: 'id',
   },
   id: 'system-notice-index',
 };
@@ -71,18 +71,18 @@ function handleAdd() {
 }
 
 async function handleEdit(record: Notice) {
-  modalApi.setData({ id: record.noticeId });
+  modalApi.setData({ id: record.id });
   modalApi.open();
 }
 
 async function handleDelete(row: Notice) {
-  await noticeRemove([row.noticeId]);
+  await noticeRemove([row.id]);
   await tableApi.query();
 }
 
 function handleMultiDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
-  const ids = rows.map((row: Notice) => row.noticeId);
+  const ids = rows.map((row: Notice) => row.id);
   Modal.confirm({
     title: '提示',
     okType: 'danger',

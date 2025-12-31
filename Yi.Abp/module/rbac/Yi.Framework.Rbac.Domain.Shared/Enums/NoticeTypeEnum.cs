@@ -9,9 +9,9 @@ namespace Yi.Framework.Rbac.Domain.Shared.Enums
 {
     public enum NoticeTypeEnum
     {
-        [Description("走马灯")]
-        MerryGoRound = 0,
-        [Description("提示弹窗")]
-        Popup = 1
+        [Description("通知")]
+        Notice = 0,
+        [Description("公告")]
+        Announcement = 1
     }
 }

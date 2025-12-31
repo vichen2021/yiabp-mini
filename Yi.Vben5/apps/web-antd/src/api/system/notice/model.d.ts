@@ -1,11 +1,13 @@
 export interface Notice {
-  noticeId: number;
-  noticeTitle: string;
-  noticeType: string;
-  noticeContent: string;
-  status: string;
-  remark: string;
-  createBy: number;
-  createByName: string;
-  createTime: string;
+  id: string;
+  title: string;
+  type: string;
+  content: string;
+  state: boolean;
+  isDeleted: boolean;
+  creationTime: string;
+  creatorId?: string | null;
+  lastModifierId?: string | null;
+  lastModificationTime?: string | null;
+  orderNum: number;
 }

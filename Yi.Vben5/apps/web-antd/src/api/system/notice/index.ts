@@ -1,11 +1,10 @@
 import type { Notice } from './model';
 
-import type { ID, IDS, PageQuery } from '#/api/common';
+import type { ID, IDS, PageQuery, PageResult } from '#/api/common';
 
 import { requestClient } from '#/api/request';
 
 enum Api {
-  noticeList = '/system/notice/list',
   root = '/system/notice',
 }
 
@@ -15,16 +14,16 @@ enum Api {
  * @returns 分页结果
  */
 export function noticeList(params?: PageQuery) {
-  return requestClient.get<Notice[]>(Api.noticeList, { params });
+  return requestClient.get<PageResult<Notice>>(Api.root, { params });
 }
 
 /**
  * 通知公告详情
- * @param noticeId id
+ * @param id id
  * @returns 详情
  */
-export function noticeInfo(noticeId: ID) {
-  return requestClient.get<Notice>(`${Api.root}/${noticeId}`);
+export function noticeInfo(id: ID) {
+  return requestClient.get<Notice>(`${Api.root}/${id}`);
 }
 
 /**
@@ -45,10 +44,10 @@ export function noticeUpdate(data: any) {
 
 /**
  * 通知公告删除
- * @param noticeIds ids
+ * @param ids ids
  */
-export function noticeRemove(noticeIds: IDS) {
+export function noticeRemove(ids: IDS) {
   return requestClient.deleteWithMsg<void>(Api.root, {
-    params: { ids: noticeIds.join(',') },
+    params: { ids: ids.join(',') },
   });
 }
