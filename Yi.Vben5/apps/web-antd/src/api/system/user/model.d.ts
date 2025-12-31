@@ -1,3 +1,5 @@
+import type { Dept } from '../dept/model';
+
 /**
  * @description: 用户导入
  * @param updateSupport 是否覆盖数据
@@ -14,20 +16,6 @@ export interface UserImportParam {
 export interface ResetPwdParam {
   id: string;
   password: string;
-}
-
-export interface Dept {
-  deptId: string; // 改为string类型以匹配新的部门ID格式
-  parentId: string;
-  parentName?: string;
-  ancestors: string;
-  deptName: string;
-  orderNum: number;
-  leader: string;
-  phone?: string;
-  email?: string;
-  status: string;
-  createTime?: string;
 }
 
 export interface Role {
@@ -47,25 +35,30 @@ export interface Role {
 
 export interface User {
   id: string;
-  name: string;
-  age: number;
+  isDeleted: boolean;
+  name?: string | null;
+  age?: number | null;
   userName: string;
-  icon?: null | string;
-  nick: string;
-  email: string;
-  ip?: null | string;
-  address: string;
-  phone: number;
-  introduction: string;
-  remark: string;
-  sex: string; // 示例值: 'Male' | 'Female'
-  deptId: string;
-  creationTime: string; // ISO 时间字符串
-  creatorId?: null | string;
+  icon?: string | null;
+  nick?: string | null;
+  email?: string | null;
+  ip?: string | null;
+  address?: string | null;
+  phone?: number | null;
+  introduction?: string | null;
+  remark?: string | null;
+  sex: string; // SexEnum
+  deptId?: string | null;
+  creationTime: string;
+  creatorId?: string | null;
+  lastModifierId?: string | null;
+  lastModificationTime?: string | null;
+  orderNum: number;
   state: boolean;
-  deptName?: null | string;
+  deptName?: string | null;
   posts?: Post[];
   roles?: Role[];
+  dept?: Dept | null;
 }
 
 export interface Post {

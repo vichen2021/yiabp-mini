@@ -166,10 +166,13 @@ export const drawerSchema: FormSchemaGetter = () => [
     component: 'RadioGroup',
     componentProps: {
       buttonStyle: 'solid',
-      options: getDictOptions(DictEnum.SYS_NORMAL_DISABLE),
+      options: [
+        { label: '启用', value: true },
+        { label: '禁用', value: false },
+      ],
       optionType: 'button',
     },
-    defaultValue: '0',
+    defaultValue: true,
     fieldName: 'state',
     formItemClass: 'col-span-2 lg:col-span-1',
     label: '状态',
