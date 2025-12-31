@@ -4,7 +4,7 @@ namespace Yi.Framework.Rbac.Application.Contracts.Dtos.Role
 {
     public class UpdateDataScopeInput
     {
-        public Guid RoleId { get; set; }
+        public Guid Id { get; set; }
 
         public List<Guid>? DeptIds { get; set; }
 

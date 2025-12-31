@@ -54,14 +54,14 @@ namespace Yi.Framework.Rbac.Application.Services.System
             //只有自定义的需要特殊处理
             if (input.DataScope == DataScopeEnum.CUSTOM)
             {
-                await _roleDeptRepository.DeleteAsync(x => x.RoleId == input.RoleId);
-                var insertEntities = input.DeptIds.Select(x => new RoleDeptEntity { DeptId = x, RoleId = input.RoleId })
+                await _roleDeptRepository.DeleteAsync(x => x.RoleId == input.Id);
+                var insertEntities = input.DeptIds.Select(x => new RoleDeptEntity { DeptId = x, RoleId = input.Id })
                     .ToList();
                 await _roleDeptRepository.InsertRangeAsync(insertEntities);
             }
 
             var entity = new RoleAggregateRoot() { DataScope = input.DataScope };
-            EntityHelper.TrySetId(entity, () => input.RoleId);
+            EntityHelper.TrySetId(entity, () => input.Id);
             await _repository._Db.Updateable(entity).UpdateColumns(x => x.DataScope).ExecuteCommandAsync();
         }
 
