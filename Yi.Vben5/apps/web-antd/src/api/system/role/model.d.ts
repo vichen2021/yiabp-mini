@@ -11,8 +11,8 @@ export interface Role {
   roleCode: string;
   remark?: string | null;
   dataScope: string;
-  menus?: any[];
-  depts?: any[];
+  menuIds?: string[];
+  deptIds?: string[];
 }
 
 export interface DeptOption {
