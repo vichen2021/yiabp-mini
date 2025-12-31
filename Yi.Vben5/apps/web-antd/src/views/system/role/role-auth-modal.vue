@@ -26,12 +26,27 @@ const [BasicForm, formApi] = useVbenForm({
   showDefaultActions: false,
 });
 
+// 空GUID，用于判断根节点
+const EMPTY_GUID = '00000000-0000-0000-0000-000000000000';
+
 const deptTree = ref<DeptOption[]>([]);
 async function setupDeptTree(id: number | string) {
   const resp = await roleDeptTree(id);
+  // 处理部门树数据：将根节点的 parentId 置为 null，以便 Tree 组件正确识别根节点
+  const processedDepts = resp.depts.map((dept) => {
+    const processNode = (node: DeptOption): DeptOption => {
+      return {
+        ...node,
+        parentId:
+          !node.parentId || node.parentId === EMPTY_GUID ? null : node.parentId,
+        children: node.children?.map(processNode) ?? null,
+      };
+    };
+    return processNode(dept);
+  });
+  deptTree.value = processedDepts;
+  // 设置已选中的部门IDs
   formApi.setFieldValue('deptIds', resp.checkedKeys);
-  // 设置菜单信息
-  deptTree.value = resp.depts;
 }
 
 async function customFormValueGetter() {
@@ -86,7 +101,7 @@ async function handleConfirm() {
     // formApi.getValues拿到的是一个readonly对象，不能直接修改，需要cloneDeep
     const data = cloneDeep(await formApi.getValues());
     // 不为自定义权限的话 删除部门id
-    if (data.dataScope === '2') {
+    if (data.dataScope === 'CUSTOM') {
       const deptIds = deptSelectRef.value?.[0]?.getCheckedKeys() ?? [];
       data.deptIds = deptIds;
     } else {

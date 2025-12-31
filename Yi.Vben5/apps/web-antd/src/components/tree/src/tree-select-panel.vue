@@ -86,11 +86,12 @@ const stop = watch([checkedKeys, () => props.treeData], () => {
     props.treeData.length > 0
   ) {
     /** 找到父节点 添加上 */
+    // Note: findGroupParentIds is typed for number[] but works with strings at runtime
     const parentIds = findGroupParentIds(
       props.treeData,
       checkedKeys.value as any,
       { id: props.fieldNames.key },
-    );
+    ) as (string | number)[];
     /**
      * uniq 解决上面的id重复问题
      */
@@ -115,7 +116,7 @@ type CheckedState<T = number | string> =
 function handleChecked(checkedStateKeys: CheckedState, info: CheckInfo) {
   // 数组的话为节点关联
   if (Array.isArray(checkedStateKeys)) {
-    const halfCheckedKeys: number[] = (info.halfCheckedKeys || []) as number[];
+    const halfCheckedKeys = (info.halfCheckedKeys || []) as (number | string)[];
     checkedRealKeys.value = [...halfCheckedKeys, ...checkedStateKeys];
   } else {
     checkedRealKeys.value = [...checkedStateKeys.checked];

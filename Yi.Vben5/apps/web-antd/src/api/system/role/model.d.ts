@@ -16,15 +16,15 @@ export interface Role {
 }
 
 export interface DeptOption {
-  id: number;
-  parentId: number;
+  id: string;
+  parentId: string | null;
   label: string;
   weight: number;
-  children: DeptOption[];
-  key: string; // 实际上不存在 ide报错
+  disabled?: boolean;
+  children?: DeptOption[] | null;
 }
 
 export interface DeptResp {
-  checkedKeys: number[];
+  checkedKeys: string[];
   depts: DeptOption[];
 }

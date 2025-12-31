@@ -12,7 +12,7 @@ enum Api {
   roleAuthCancel = '/system/role/authUser/cancel',
   roleAuthCancelAll = '/system/role/authUser/cancelAll',
   roleAuthSelectAll = '/system/role/authUser/selectAll',
-  roleDataScope = '/system/role/dataScope',
+  roleDataScope = '/system/role/data-scope',
   roleDeptTree = '/system/role/dept-tree',
   roleExport = '/system/role/export',
   roleList = '/system/role/list',
