@@ -6,14 +6,12 @@ import { commonExport } from '#/api/helper';
 import { requestClient } from '#/api/request';
 
 enum Api {
-  dictSync = '/system/tenant/syncTenantDict',
-  root = '/system/tenant',
-  tenantDynamic = '/system/tenant/dynamic',
-  tenantDynamicClear = '/system/tenant/dynamic/clear',
-  tenantExport = '/system/tenant/export',
-  tenantList = '/system/tenant/list',
-  tenantStatus = '/system/tenant/changeStatus',
-  tenantSyncPackage = '/system/tenant/syncTenantPackage',
+  dictSync = '/tenant/syncTenantDict',
+  root = '/tenant',
+  tenantDynamic = '/tenant/dynamic',
+  tenantDynamicClear = '/tenant/dynamic/clear',
+  tenantExport = '/tenant/export',
+  tenantSyncPackage = '/tenant/syncTenantPackage',
 }
 
 /**
@@ -22,7 +20,7 @@ enum Api {
  * @returns 分页
  */
 export function tenantList(params?: PageQuery) {
-  return requestClient.get<Tenant[]>(Api.tenantList, { params });
+  return requestClient.get<Tenant[]>(Api.root, { params });
 }
 
 /**
@@ -59,20 +57,6 @@ export function tenantAdd(data: Partial<Tenant>) {
  */
 export function tenantUpdate(data: Partial<Tenant>) {
   return requestClient.putWithMsg<void>(`${Api.root}/${data.id}`, data);
-}
-
-/**
- * 租户状态更新
- * @param data data
- * @returns void
- */
-export function tenantStatusChange(data: Partial<Tenant>) {
-  const requestData = {
-    id: data.id,
-    tenantId: data.tenantId,
-    status: data.status,
-  };
-  return requestClient.putWithMsg(Api.tenantStatus, requestData);
 }
 
 /**

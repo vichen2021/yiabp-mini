@@ -10,12 +10,12 @@ import { z } from '#/adapter/form';
 export const querySchema: FormSchemaGetter = () => [
   {
     component: 'Input',
-    fieldName: 'tenantId',
+    fieldName: 'id',
     label: '租户编号',
   },
   {
     component: 'Input',
-    fieldName: 'companyName',
+    fieldName: 'name',
     label: '租户名称',
   },
   {
@@ -34,11 +34,11 @@ export const columns: VxeGridProps['columns'] = [
   { type: 'checkbox', width: 60 },
   {
     title: '租户编号',
-    field: 'tenantId',
+    field: 'id',
   },
   {
     title: '租户名称',
-    field: 'companyName',
+    field: 'name',
   },
   {
     title: '联系人',
@@ -110,8 +110,8 @@ export const drawerSchema: FormSchemaGetter = () => [
   },
   {
     component: 'Input',
-    fieldName: 'companyName',
-    label: '企业名称',
+    fieldName: 'name',
+    label: '租户名称',
     rules: 'required',
   },
   {
@@ -174,15 +174,15 @@ export const drawerSchema: FormSchemaGetter = () => [
       default: () => '租户设置',
     }),
   },
-  {
-    component: 'Select',
-    componentProps: {
-      getPopupContainer,
-    },
-    fieldName: 'packageId',
-    label: '租户套餐',
-    rules: 'selectRequired',
-  },
+  // {
+  //   component: 'Select',
+  //   componentProps: {
+  //     getPopupContainer,
+  //   },
+  //   fieldName: 'packageId',
+  //   label: '租户套餐',
+  //   rules: 'selectRequired',
+  // },
   {
     component: 'DatePicker',
     componentProps: {

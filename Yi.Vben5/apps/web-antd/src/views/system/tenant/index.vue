@@ -18,8 +18,8 @@ import {
   tenantExport,
   tenantList,
   tenantRemove,
-  tenantStatusChange,
-  tenantSyncPackage,
+  tenantUpdate,
+  // tenantSyncPackage,
 } from '#/api/system/tenant';
 import { TableSwitch } from '#/components/table';
 import { useTenantStore } from '#/store/tenant';
@@ -47,7 +47,7 @@ const gridOptions: VxeGridProps = {
     reserve: true,
     // 点击行选中
     // trigger: 'row',
-    checkMethod: ({ row }) => row?.id !== 1,
+    checkMethod: ({ row }) => row?.id !== '00000000-0000-0000-0000-000000000001',
   },
   columns,
   height: 'auto',
@@ -89,11 +89,14 @@ async function handleEdit(record: Tenant) {
   drawerApi.open();
 }
 
-async function handleSync(record: Tenant) {
-  const { tenantId, packageId } = record;
-  await tenantSyncPackage(tenantId, packageId);
-  await tableApi.query();
-}
+// async function handleSync(record: Tenant) {
+//   const tenantId = record.tenantId || record.id;
+//   const packageId = record.packageId;
+//   if (tenantId && packageId) {
+//     await tenantSyncPackage(tenantId, packageId);
+//     await tableApi.query();
+//   }
+// }
 
 const tenantStore = useTenantStore();
 async function handleDelete(row: Tenant) {
@@ -151,12 +154,12 @@ function handleSyncTenantDict() {
     <BasicTable table-title="租户列表">
       <template #toolbar-tools>
         <Space>
-          <a-button
+          <!-- <a-button
             v-access:code="['system:tenant:edit']"
             @click="handleSyncTenantDict"
           >
             同步租户字典
-          </a-button>
+          </a-button> -->
           <a-button
             v-access:code="['system:tenant:export']"
             @click="handleDownloadExcel"
@@ -184,22 +187,22 @@ function handleSyncTenantDict() {
       <template #status="{ row }">
         <TableSwitch
           v-model:value="row.status"
-          :api="() => tenantStatusChange(row)"
-          :disabled="row.id === 1 || !hasAccessByCodes(['system:tenant:edit'])"
+          :api="() => tenantUpdate(row)"
+          :disabled="row.id === '00000000-0000-0000-0000-000000000001' || !hasAccessByCodes(['system:tenant:edit'])"
           @reload="tableApi.query()"
         />
       </template>
       <template #action="{ row }">
-        <Space v-if="row.id !== 1">
+        <Space v-if="row.id !== '00000000-0000-0000-0000-000000000001'">
           <ghost-button
             v-access:code="['system:tenant:edit']"
             @click="handleEdit(row)"
           >
             {{ $t('pages.common.edit') }}
           </ghost-button>
-          <Popconfirm
+          <!-- <Popconfirm
             :get-popup-container="getVxePopupContainer"
-            :title="`确认同步[${row.companyName}]的套餐吗?`"
+            :title="`确认同步[${row.name || row.companyName}]的套餐吗?`"
             placement="left"
             @confirm="handleSync(row)"
           >
@@ -209,7 +212,7 @@ function handleSyncTenantDict() {
             >
               {{ $t('pages.common.sync') }}
             </ghost-button>
-          </Popconfirm>
+          </Popconfirm> -->
           <Popconfirm
             :get-popup-container="getVxePopupContainer"
             placement="left"

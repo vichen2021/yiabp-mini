@@ -7,7 +7,7 @@ import { cloneDeep } from '@vben/utils';
 
 import { useVbenForm } from '#/adapter/form';
 import { tenantAdd, tenantInfo, tenantUpdate } from '#/api/system/tenant';
-import { packageSelectList } from '#/api/system/tenant-package';
+// import { packageSelectList } from '#/api/system/tenant-package';
 import { useTenantStore } from '#/store/tenant';
 import { defaultFormValueGetter, useBeforeCloseDiff } from '#/utils/popup';
 
@@ -33,24 +33,24 @@ const [BasicForm, formApi] = useVbenForm({
   wrapperClass: 'grid-cols-2',
 });
 
-async function setupPackageSelect() {
-  const tenantPackageList = await packageSelectList();
-  const options = tenantPackageList.map((item) => ({
-    label: item.packageName,
-    value: item.packageId,
-  }));
-  formApi.updateSchema([
-    {
-      componentProps: {
-        optionFilterProp: 'label',
-        optionLabelProp: 'label',
-        options,
-        showSearch: true,
-      },
-      fieldName: 'packageId',
-    },
-  ]);
-}
+// async function setupPackageSelect() {
+//   const tenantPackageList = await packageSelectList();
+//   const options = tenantPackageList.map((item) => ({
+//     label: item.packageName,
+//     value: item.packageId,
+//   }));
+//   formApi.updateSchema([
+//     {
+//       componentProps: {
+//         optionFilterProp: 'label',
+//         optionLabelProp: 'label',
+//         options,
+//         showSearch: true,
+//       },
+//       fieldName: 'packageId',
+//     },
+//   ]);
+// }
 
 const { onBeforeClose, markInitialized, resetInitialized } = useBeforeCloseDiff(
   {
@@ -69,24 +69,24 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
     }
     drawerApi.drawerLoading(true);
 
-    const { id } = drawerApi.getData() as { id?: number | string };
+    const { id } = drawerApi.getData() as { id?: string };
     isUpdate.value = !!id;
     // 初始化
-    await setupPackageSelect();
+    // await setupPackageSelect();
 
     if (isUpdate.value && id) {
       const record = await tenantInfo(id);
       await formApi.setValues(record);
     }
 
-    formApi.updateSchema([
-      {
-        fieldName: 'packageId',
-        componentProps: {
-          disabled: isUpdate.value,
-        },
-      },
-    ]);
+    // formApi.updateSchema([
+    //   {
+    //     fieldName: 'packageId',
+    //     componentProps: {
+    //       disabled: isUpdate.value,
+    //     },
+    //   },
+    // ]);
     await markInitialized();
 
     drawerApi.drawerLoading(false);
