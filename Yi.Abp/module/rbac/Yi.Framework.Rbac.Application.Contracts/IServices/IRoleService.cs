@@ -15,13 +15,13 @@ namespace Yi.Framework.Rbac.Application.Contracts.IServices
         /// </summary>
         /// <param name="roleId">角色ID</param>
         /// <returns>角色菜单树数据，包含已选中的菜单ID和菜单树结构</returns>
-        Task<ActionResult> GetRoleMenuTreeAsync(Guid roleId);
+        Task<ActionResult> GetMenuTreeAsync(Guid roleId);
 
         /// <summary>
         /// 获取角色部门树
         /// </summary>
         /// <param name="roleId">角色ID</param>
         /// <returns>角色部门树数据，包含已选中的部门ID和部门树结构</returns>
-        Task<ActionResult> GetRoleDeptTreeAsync(Guid roleId);
+        Task<ActionResult> GetDeptTreeAsync(Guid roleId);
     }
 }

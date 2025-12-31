@@ -1,3 +1,4 @@
+import type { MenuResp } from '../menu/model';
 import type { User } from '../user/model';
 import type { DeptResp, Role } from './model';
 
@@ -12,9 +13,10 @@ enum Api {
   roleAuthCancelAll = '/system/role/authUser/cancelAll',
   roleAuthSelectAll = '/system/role/authUser/selectAll',
   roleDataScope = '/system/role/dataScope',
-  roleDeptTree = '/system/role/deptTree',
+  roleDeptTree = '/system/role/dept-tree',
   roleExport = '/system/role/export',
   roleList = '/system/role/list',
+  roleMenuTree = '/system/role/menu-tree',
   roleOptionSelect = '/system/role/select-data-list',
   roleUnallocatedList = '/system/role/authUser/unallocatedList',
   root = '/system/role',
@@ -151,4 +153,13 @@ export function roleSelectAll(roleId: ID, userIds: IDS) {
  */
 export function roleDeptTree(roleId: ID) {
   return requestClient.get<DeptResp>(`${Api.roleDeptTree}/${roleId}`);
+}
+
+/**
+ * 返回对应角色的菜单
+ * @param roleId id
+ * @returns resp
+ */
+export function roleMenuTreeSelect(roleId: ID) {
+  return requestClient.get<MenuResp>(`${Api.roleMenuTree}/${roleId}`);
 }

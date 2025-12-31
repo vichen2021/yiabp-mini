@@ -231,8 +231,7 @@ namespace Yi.Framework.Rbac.Application.Services.System
         /// </summary>
         /// <param name="roleId"></param>
         /// <returns></returns>
-        [Route("role/role-menu-tree/{roleId}")]
-        public async Task<ActionResult> GetRoleMenuTreeAsync(Guid roleId)
+        public async Task<ActionResult> GetMenuTreeAsync(Guid roleId)
         {
             var checkedKeys = await _menuRepository._DbQueryable
                 .Where(m => SqlFunc.Subqueryable<RoleMenuEntity>().Where(rm => rm.RoleId == roleId && rm.MenuId == m.Id).Any())
@@ -251,8 +250,7 @@ namespace Yi.Framework.Rbac.Application.Services.System
         /// </summary>
         /// <param name="roleId"></param>
         /// <returns></returns>
-        [Route("role/role-dept-tree/{roleId}")]
-        public async Task<ActionResult> GetRoleDeptTreeAsync(Guid roleId)
+        public async Task<ActionResult> GetDeptTreeAsync(Guid roleId)
         {
             var checkedKeys = await _deptRepository._DbQueryable
                 .Where(d => SqlFunc.Subqueryable<RoleDeptEntity>().Where(rd => rd.RoleId == roleId && rd.DeptId == d.Id).Any())

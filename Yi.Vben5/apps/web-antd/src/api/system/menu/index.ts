@@ -7,7 +7,6 @@ import { requestClient } from '#/api/request';
 enum Api {
   menuList = '/system/menu/list',
   menuTreeSelect = '/system/menu/tree',
-  roleMenuTree = '/system/menu/role-menu-tree',
   root = '/system/menu',
   tenantPackageMenuTreeselect = '/system/menu/tenantPackageMenuTreeselect',
 }
@@ -54,15 +53,6 @@ export function menuRemove(menuIds: IDS) {
   return requestClient.deleteWithMsg<void>(Api.root, {
     params: { ids: menuIds.join(',') },
   });
-}
-
-/**
- * 返回对应角色的菜单
- * @param roleId id
- * @returns resp
- */
-export function roleMenuTreeSelect(roleId: ID) {
-  return requestClient.get<MenuResp>(`${Api.roleMenuTree}/${roleId}`);
 }
 
 /**

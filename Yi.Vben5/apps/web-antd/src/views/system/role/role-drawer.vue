@@ -11,8 +11,13 @@ import { $t } from '@vben/locales';
 import { cloneDeep, eachTree } from '@vben/utils';
 
 import { useVbenForm } from '#/adapter/form';
-import { menuTreeSelect, roleMenuTreeSelect } from '#/api/system/menu';
-import { roleAdd, roleInfo, roleUpdate } from '#/api/system/role';
+import { menuTreeSelect } from '#/api/system/menu';
+import {
+  roleAdd,
+  roleInfo,
+  roleMenuTreeSelect,
+  roleUpdate,
+} from '#/api/system/role';
 import { MenuSelectTable } from '#/components/tree';
 import { defaultFormValueGetter, useBeforeCloseDiff } from '#/utils/popup';
 
