@@ -40,16 +40,6 @@ namespace Yi.Framework.Rbac.Application.Services.System
         /// <returns></returns>
         public async Task<ActionResult> GetRoleMenuTree(Guid roleId)
         {
-            // 如果是超管返回全部id
-            if (CurrentUser.UserName.Equals(UserConst.Admin) || CurrentUser.Roles.Any(f => f.Equals(UserConst.AdminRolesCode))) 
-            {
-                var menuList = await _repository._DbQueryable.ToListAsync();
-                return new JsonResult(new
-                {
-                    checkedKeys = menuList.Select(x => x.Id),
-                    menus = menuList.TreeDtoBuild()
-                });
-            }
             var checkedKeys = await _repository._DbQueryable
                 .Where(m => SqlFunc.Subqueryable<RoleMenuEntity>().Where(rm => rm.RoleId == roleId && rm.MenuId == m.Id).Any())
                 .Select(x => x.Id).ToListAsync();
