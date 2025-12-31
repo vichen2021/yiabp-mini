@@ -5,13 +5,17 @@ using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.Uow;
+using Yi.Framework.Core.Helper;
+using Yi.Framework.Core.Models;
 using Yi.Framework.Ddd.Application;
 using Yi.Framework.Rbac.Application.Contracts.Dtos.Role;
 using Yi.Framework.Rbac.Application.Contracts.Dtos.User;
 using Yi.Framework.Rbac.Application.Contracts.IServices;
 using Yi.Framework.Rbac.Domain.Entities;
 using Yi.Framework.Rbac.Domain.Managers;
+using Yi.Framework.Rbac.Domain.Repositories;
 using Yi.Framework.Rbac.Domain.Shared.Consts;
+using Yi.Framework.Rbac.Domain.Shared.Dtos;
 using Yi.Framework.Rbac.Domain.Shared.Enums;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
@@ -26,10 +30,12 @@ namespace Yi.Framework.Rbac.Application.Services.System
     {
         public RoleService(RoleManager roleManager, ISqlSugarRepository<RoleDeptEntity> roleDeptRepository,
             ISqlSugarRepository<UserRoleEntity> userRoleRepository,
-            ISqlSugarRepository<RoleAggregateRoot, Guid> repository) : base(repository)
+            ISqlSugarRepository<RoleAggregateRoot, Guid> repository,
+            ISqlSugarRepository<MenuAggregateRoot, Guid> menuRepository,
+            IDeptRepository deptRepository) : base(repository)
         {
-            (_roleManager, _roleDeptRepository, _userRoleRepository, _repository) =
-                (roleManager, roleDeptRepository, userRoleRepository, repository);
+            (_roleManager, _roleDeptRepository, _userRoleRepository, _repository, _menuRepository, _deptRepository) =
+                (roleManager, roleDeptRepository, userRoleRepository, repository, menuRepository, deptRepository);
         }
 
         private ISqlSugarRepository<RoleAggregateRoot, Guid> _repository;
@@ -38,6 +44,10 @@ namespace Yi.Framework.Rbac.Application.Services.System
         private ISqlSugarRepository<RoleDeptEntity> _roleDeptRepository;
 
         private ISqlSugarRepository<UserRoleEntity> _userRoleRepository;
+
+        private ISqlSugarRepository<MenuAggregateRoot, Guid> _menuRepository;
+
+        private IDeptRepository _deptRepository;
 
         public async Task UpdateDataScopeAsync(UpdateDataScopeInput input)
         {
@@ -214,6 +224,58 @@ namespace Yi.Framework.Rbac.Application.Services.System
                 .Where(x => input.UserIds.Contains(x.UserId))
                 .ExecuteCommandAsync();
             ;
+        }
+
+        /// <summary>
+        /// 获取角色菜单树
+        /// </summary>
+        /// <param name="roleId"></param>
+        /// <returns></returns>
+        [Route("role/role-menu-tree/{roleId}")]
+        public async Task<ActionResult> GetRoleMenuTreeAsync(Guid roleId)
+        {
+            var checkedKeys = await _menuRepository._DbQueryable
+                .Where(m => SqlFunc.Subqueryable<RoleMenuEntity>().Where(rm => rm.RoleId == roleId && rm.MenuId == m.Id).Any())
+                .Select(x => x.Id).ToListAsync();
+            var menus = await _menuRepository._DbQueryable.ToListAsync();
+            var menuTrees = menus.TreeDtoBuild();
+            return new JsonResult(new
+            {
+                checkedKeys,
+                menus = menuTrees
+            });
+        }
+
+        /// <summary>
+        /// 获取角色部门树
+        /// </summary>
+        /// <param name="roleId"></param>
+        /// <returns></returns>
+        [Route("role/role-dept-tree/{roleId}")]
+        public async Task<ActionResult> GetRoleDeptTreeAsync(Guid roleId)
+        {
+            var checkedKeys = await _deptRepository._DbQueryable
+                .Where(d => SqlFunc.Subqueryable<RoleDeptEntity>().Where(rd => rd.RoleId == roleId && rd.DeptId == d.Id).Any())
+                .Select(x => x.Id).ToListAsync();
+            var depts = await _deptRepository._DbQueryable
+                .Where(x => x.State == true)
+                .OrderBy(x => x.OrderNum, OrderByType.Asc)
+                .ToListAsync();
+            var deptTrees = depts.Select(dept => new TreeDto
+            {
+                Id = dept.Id,
+                ParentId = dept.ParentId,
+                Label = dept.DeptName,
+                Weight = dept.OrderNum,
+                Disabled = !dept.State,
+                Children = new List<TreeDto>()
+            }).ToList();
+            var treeResult = Vben5TreeHelper.BuildTree(deptTrees);
+            return new JsonResult(new
+            {
+                checkedKeys,
+                depts = treeResult
+            });
         }
     }
 }

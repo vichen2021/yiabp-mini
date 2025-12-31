@@ -33,30 +33,12 @@ namespace Yi.Framework.Rbac.Application.Services.System
                         .ToListAsync();
             return await MapToGetListOutputDtosAsync(entities);
         }
-        /// <summary>
-        /// 获取角色菜单树
-        /// </summary>
-        /// <param name="roleId"></param>
-        /// <returns></returns>
-        public async Task<ActionResult> GetRoleMenuTree(Guid roleId)
-        {
-            var checkedKeys = await _repository._DbQueryable
-                .Where(m => SqlFunc.Subqueryable<RoleMenuEntity>().Where(rm => rm.RoleId == roleId && rm.MenuId == m.Id).Any())
-                .Select(x => x.Id).ToListAsync();
-            var roles = await _repository._DbQueryable.ToListAsync();
-            var menus = roles.TreeDtoBuild();
-            return new JsonResult(new
-            {
-                checkedKeys,
-                menus
-            });
-        }
         
         /// <summary>
         /// 获取菜单树
         /// </summary>
         /// <returns></returns>
-        public async Task<List<MenuTreeDto>> GetTree()
+        public async Task<List<MenuTreeDto>> GetTreeAsync()
         {
             var menuList = await _repository._DbQueryable.ToListAsync();
             return menuList.TreeDtoBuild();
