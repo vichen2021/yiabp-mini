@@ -51,7 +51,7 @@ export const columns: VxeGridProps['columns'] = [
     field: 'state',
     slots: {
       default: ({ row }) => {
-        return row.state ? '启用' : '禁用';
+        return renderDict(String(row.state), DictEnum.SYS_NORMAL_DISABLE);
       },
     },
   },

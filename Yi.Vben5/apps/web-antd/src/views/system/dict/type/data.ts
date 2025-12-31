@@ -1,7 +1,10 @@
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
+import { DictEnum } from '@vben/constants';
+
 import { z } from '#/adapter/form';
+import { renderDict } from '#/utils/render';
 
 export const querySchema: FormSchemaGetter = () => [
   {
@@ -32,7 +35,7 @@ export const columns: VxeGridProps['columns'] = [
     width: 120,
     slots: {
       default: ({ row }) => {
-        return row.state ? '启用' : '禁用';
+        return renderDict(String(row.state), DictEnum.SYS_NORMAL_DISABLE);
       },
     },
   },
