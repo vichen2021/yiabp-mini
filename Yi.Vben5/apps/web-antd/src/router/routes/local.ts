@@ -58,40 +58,7 @@ export const localMenuList: RouteRecordStringComponent[] = [
           title: 'page.dashboard.workspace',
         },
       },
-      {
-        name: 'VbenDocument',
-        path: '/vben-admin/document',
-        component: 'IFrameView',
-        meta: {
-          icon: 'lucide:book-open-text',
-          iframeSrc: 'https://dapdap.top',
-          keepAlive: true,
-          title: $t('demos.vben.document'),
-        },
-      },
-      {
-        name: 'V5UpdateLog',
-        path: '/changelog',
-        component: '/演示使用自行删除/changelog/index',
-        meta: {
-          icon: 'lucide:book-open-text',
-          keepAlive: true,
-          title: '更新记录',
-          badge: `当前: ${version}`,
-          badgeVariants: 'bg-primary',
-        },
-      },
     ],
-  },
-  {
-    component: '/_core/about/index',
-    meta: {
-      icon: 'lucide:copyright',
-      order: 9999,
-      title: $t('demos.vben.about'),
-    },
-    name: 'About',
-    path: '/vben-admin/about',
   },
   ...localRoutes,
 ];
