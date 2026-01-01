@@ -57,9 +57,9 @@ pnpm run dev:antd
 
 ![image-20260101175759249](https://gitee.com/vichen2021/yiabp-mini/blob/master/resource/image-20260101175759249.png)
 
-![image-20260101175912025](resource\image-20260101175912025.png)
+![image-20260101175912025](https://gitee.com/vichen2021/yiabp-mini/blob/master/resource/image-20260101175912025.png)
 
-![image-20260101180006771](resource\image-20260101180006771.png)
+![image-20260101180006771](https://gitee.com/vichen2021/yiabp-mini/blob/master/resource/image-20260101180006771.png)
 
 ## 🙏感谢
 
