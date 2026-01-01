@@ -287,9 +287,15 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
             fieldName: 'postIds',
           },
         ]);
+        // 处理用户数据，确保 phone 字段是字符串类型
+        const userData = {
+          ...user,
+          // 将数字类型的 phone 转换为字符串，null/undefined 转为空字符串
+          phone: user.phone != null ? String(user.phone) : '',
+        };
         promises.push(
           // 添加基础信息
-          formApi.setValues(user),
+          formApi.setValues(userData),
           // 添加角色和岗位
           formApi.setFieldValue('postIds', postIds),
           formApi.setFieldValue('roleIds', roleIds),
