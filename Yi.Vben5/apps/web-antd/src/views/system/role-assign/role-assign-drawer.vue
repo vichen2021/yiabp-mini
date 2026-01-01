@@ -47,17 +47,16 @@ const gridOptions: VxeGridProps = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await roleUnallocatedList({
+        return await roleUnallocatedList(roleId, {
           SkipCount: page.currentPage,
           MaxResultCount: page.pageSize,
-          roleId,
           ...formValues,
         });
       },
     },
   },
   rowConfig: {
-    keyField: 'userId',
+    keyField: 'id',
   },
 };
 
@@ -68,7 +67,7 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
 
 async function handleSubmit() {
   const records = tableApi.grid.getCheckboxRecords();
-  const userIds = records.map((item) => item.userId);
+  const userIds = records.map((item) => item.id);
   if (userIds.length > 0) {
     await roleSelectAll(roleId, userIds);
   }
