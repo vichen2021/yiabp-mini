@@ -76,37 +76,16 @@ namespace Yi.Abp.Web
             //动态Api-改进在pre中配置，启动更快
             PreConfigure<AbpAspNetCoreMvcOptions>(options =>
             {
-                // RBAC 模块：/api/rbac/*
                 options.ConventionalControllers.Create(typeof(YiFrameworkRbacApplicationModule).Assembly,
-                    opts => 
-                    {
-                        opts.RemoteServiceName = "rbac";  // Swagger 分组名称
-                        opts.RootPath = "api/system";       // 路由前缀
-                    });
-                
-                // 默认模块：/api/app/*
+                    options => options.RemoteServiceName = "rbac");
                 options.ConventionalControllers.Create(typeof(YiAbpApplicationModule).Assembly,
-                    opts => 
-                    {
-                        opts.RemoteServiceName = "default";
-                        opts.RootPath = "api/app";
-                    });
-                
-                // 租户管理模块：/api/tenant-management/*
+                    options => options.RemoteServiceName = "default");
                 options.ConventionalControllers.Create(typeof(YiFrameworkTenantManagementApplicationModule).Assembly,
-                    opts => 
-                    {
-                        opts.RemoteServiceName = "tenant-management";
-                        opts.RootPath = "api";
-                    });
-                
-                // 代码生成模块：/api/code-gen/*
+                    options => options.RemoteServiceName = "tenant-management");
                 options.ConventionalControllers.Create(typeof(YiFrameworkCodeGenApplicationModule).Assembly,
-                    opts => 
-                    {
-                        opts.RemoteServiceName = "code-gen";
-                        opts.RootPath = "api/code-gen";
-                    });
+                    options => options.RemoteServiceName = "code-gen");
+                //统一前缀
+                options.ConventionalControllers.ConventionalControllerSettings.ForEach(x => x.RootPath = "api");
             });
         }
 
