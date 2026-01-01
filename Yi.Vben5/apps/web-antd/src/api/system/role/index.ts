@@ -8,17 +8,13 @@ import { commonExport } from '#/api/helper';
 import { requestClient } from '#/api/request';
 
 enum Api {
-  roleAllocatedList = '/system/role/auth-user',
-  roleAuthCancel = '/system/role/authUser/cancel',
-  roleAuthCancelAll = '/system/role/authUser/cancelAll',
-  roleAuthSelectAll = '/system/role/authUser/selectAll',
+  roleAuthUser = '/system/role/auth-user',
   roleDataScope = '/system/role/data-scope',
   roleDeptTree = '/system/role/dept-tree',
   roleExport = '/system/role/export',
   roleList = '/system/role/list',
   roleMenuTree = '/system/role/menu-tree',
   roleOptionSelect = '/system/role/select-data-list',
-  roleUnallocatedList = '/system/role/authUser/unallocatedList',
   root = '/system/role',
 }
 
@@ -100,7 +96,7 @@ export function roleOptionSelect(params?: any) {
  * @returns 分页
  */
 export function roleAllocatedList(roleId: ID, params?: PageQuery) {
-  return requestClient.get<PageResult<User>>(`${Api.roleAllocatedList}/${roleId}/true`, { params });
+  return requestClient.get<PageResult<User>>(`${Api.roleAuthUser}/${roleId}/true`, { params });
 }
 
 /**
@@ -108,18 +104,8 @@ export function roleAllocatedList(roleId: ID, params?: PageQuery) {
  * @param params
  * @returns void
  */
-export function roleUnallocatedList(params: any) {
-  return requestClient.get<PageResult<User>>(Api.roleUnallocatedList, {
-    params,
-  });
-}
-
-/**
- * 取消用户角色授权
- * @returns void
- */
-export function roleAuthCancel(data: { roleId: ID; userId: ID }) {
-  return requestClient.putWithMsg<void>(Api.roleAuthCancel, data);
+export function roleUnallocatedList(roleId: ID, params?: PageQuery) {
+  return requestClient.get<PageResult<User>>(`${Api.roleAuthUser}/${roleId}/false`, { params });
 }
 
 /**
@@ -129,8 +115,14 @@ export function roleAuthCancel(data: { roleId: ID; userId: ID }) {
  * @returns void
  */
 export function roleAuthCancelAll(roleId: ID, userIds: IDS) {
-  return requestClient.putWithMsg<void>(
-    `${Api.roleAuthCancelAll}?roleId=${roleId}&userIds=${userIds.join(',')}`,
+  return requestClient.deleteWithMsg<void>(
+    `${Api.roleAuthUser}`,
+    {
+      data: {
+        roleId,
+        userIds,
+      }
+    },
   );
 }
 
@@ -141,8 +133,12 @@ export function roleAuthCancelAll(roleId: ID, userIds: IDS) {
  * @returns void
  */
 export function roleSelectAll(roleId: ID, userIds: IDS) {
-  return requestClient.putWithMsg<void>(
-    `${Api.roleAuthSelectAll}?roleId=${roleId}&userIds=${userIds.join(',')}`,
+  return requestClient.postWithMsg<void>(
+    `${Api.roleAuthUser}`,
+    {
+      roleId,
+      userIds,
+    },
   );
 }
 

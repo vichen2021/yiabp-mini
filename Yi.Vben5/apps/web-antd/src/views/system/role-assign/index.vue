@@ -14,7 +14,6 @@ import { message, Modal, Popconfirm, Space } from 'ant-design-vue';
 import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
 import {
   roleAllocatedList,
-  roleAuthCancel,
   roleAuthCancelAll,
 } from '#/api/system/role';
 
@@ -94,7 +93,7 @@ function handleAdd() {
  * 取消授权 一条记录
  */
 async function handleAuthCancel(record: User) {
-  await roleAuthCancel({ userId: record.id, roleId });
+  await roleAuthCancelAll(roleId, [record.id]);
   await tableApi.query();
 }
 
