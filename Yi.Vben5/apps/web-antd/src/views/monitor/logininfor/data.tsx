@@ -11,21 +11,13 @@ import { renderBrowserIcon, renderDict, renderOsIcon } from '#/utils/render';
 export const querySchema: FormSchemaGetter = () => [
   {
     component: 'Input',
-    fieldName: 'ipaddr',
+    fieldName: 'loginIp',
     label: 'IP地址',
   },
   {
     component: 'Input',
-    fieldName: 'userName',
+    fieldName: 'loginUser',
     label: '用户账号',
-  },
-  {
-    component: 'Select',
-    componentProps: {
-      options: getDictOptions(DictEnum.SYS_COMMON_STATUS),
-    },
-    fieldName: 'status',
-    label: '登录状态',
   },
   {
     component: 'RangePicker',
@@ -38,15 +30,11 @@ export const columns: VxeGridProps['columns'] = [
   { type: 'checkbox', width: 60 },
   {
     title: '用户账号',
-    field: 'userName',
-  },
-  {
-    title: '登录平台',
-    field: 'clientKey',
+    field: 'loginUser',
   },
   {
     title: 'IP地址',
-    field: 'ipaddr',
+    field: 'loginIp',
   },
   {
     title: 'IP地点',
@@ -82,21 +70,12 @@ export const columns: VxeGridProps['columns'] = [
     },
   },
   {
-    title: '登录结果',
-    field: 'status',
-    slots: {
-      default: ({ row }) => {
-        return renderDict(row.status, DictEnum.SYS_COMMON_STATUS);
-      },
-    },
-  },
-  {
     title: '信息',
-    field: 'msg',
+    field: 'logMsg',
   },
   {
     title: '日期',
-    field: 'loginTime',
+    field: 'creationTime',
   },
   {
     field: 'action',

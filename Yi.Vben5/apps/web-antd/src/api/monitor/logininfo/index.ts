@@ -6,11 +6,10 @@ import { commonExport } from '#/api/helper';
 import { requestClient } from '#/api/request';
 
 enum Api {
-  loginInfoClean = '/monitor/logininfor/clean',
-  loginInfoExport = '/monitor/logininfor/export',
-  loginInfoList = '/monitor/logininfor/list',
-  root = '/monitor/logininfor',
-  userUnlock = '/monitor/logininfor/unlock',
+  loginInfoClean = '/login-log/clean',
+  loginInfoExport = '/login-log/export',
+  root = '/login-log',
+  userUnlock = '/login-log/unlock',
 }
 
 /**
@@ -19,7 +18,7 @@ enum Api {
  * @returns list[]
  */
 export function loginInfoList(params?: PageQuery) {
-  return requestClient.get<PageResult<LoginLog>>(Api.loginInfoList, { params });
+  return requestClient.get<PageResult<LoginLog>>(Api.root, { params });
 }
 
 /**

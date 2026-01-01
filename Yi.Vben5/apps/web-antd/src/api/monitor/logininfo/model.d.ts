@@ -1,13 +1,11 @@
 export interface LoginLog {
-  infoId: string;
-  tenantId: string;
-  userName: string;
-  status: string;
-  ipaddr: string;
+  id: string;
+  loginUser: string;
   loginLocation: string;
+  loginIp: string;
   browser: string;
   os: string;
-  msg: string;
-  loginTime: string;
-  clientKey: string;
+  logMsg: string;
+  creationTime: string;
+  creatorId: string | null;
 }
