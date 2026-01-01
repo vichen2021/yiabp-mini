@@ -27,7 +27,7 @@ import {
 } from '#/utils/encryption/crypto';
 import * as encryptUtil from '#/utils/encryption/jsencrypt';
 
-const { apiURL, clientId, enableEncrypt } = useAppConfig(
+const { apiURL, clientId, enableEncrypt, demoMode } = useAppConfig(
   import.meta.env,
   import.meta.env.PROD,
 );
@@ -42,6 +42,18 @@ let isLogoutProcessing = false;
  * 定义一个401专用异常 用于可能会用到的区分场景?
  */
 export class UnauthorizedException extends Error {}
+
+/**
+ * 演示模式错误，用于标识演示环境禁止修改的错误
+ */
+export class DemoModeException extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'DemoModeException';
+    // 添加标记，用于错误拦截器识别
+    (this as any).__isDemoModeError = true;
+  }
+}
 
 function createRequestClient(baseURL: string) {
   const client = new RequestClient({
@@ -88,6 +100,25 @@ function createRequestClient(baseURL: string) {
 
   client.addRequestInterceptor({
     fulfilled: (config) => {
+      // 演示模式：拦截所有修改操作
+      if (demoMode) {
+        const method = config.method?.toUpperCase() || '';
+        const isModifyMethod = ['DELETE', 'PATCH', 'POST', 'PUT'].includes(
+          method,
+        );
+        // 排除登录等认证接口，允许通过
+        const isAuthPath =
+          config.url?.includes('/auth/') ||
+          config.url?.includes('/login') ||
+          config.url?.includes('/logout');
+        if (isModifyMethod && !isAuthPath) {
+          // 显示错误提示
+          message.error('演示环境，禁止修改');
+          // 抛出演示模式错误，错误拦截器会识别并跳过处理
+          throw new DemoModeException('演示环境，禁止修改');
+        }
+      }
+
       const accessStore = useAccessStore();
       // 添加token
       config.headers.Authorization = formatToken(accessStore.accessToken);
@@ -143,9 +174,16 @@ function createRequestClient(baseURL: string) {
 
   // 通用的错误处理, 如果没有进入上面的错误处理逻辑，就会进入这里
   // 主要处理http状态码不为200(如网络异常/离线)的情况 必须放在在下面的响应拦截器之前
-  client.addResponseInterceptor(
-    errorMessageResponseInterceptor((msg: string) => message.error(msg)),
+  const errorInterceptor = errorMessageResponseInterceptor(
+    (msg: string, error: any) => {
+      // 如果是演示模式错误，已经在请求拦截器中提示过了，这里不再提示
+      if (error?.__isDemoModeError || error?.name === 'DemoModeException') {
+        return;
+      }
+      message.error(msg);
+    },
   );
+  client.addResponseInterceptor(errorInterceptor);
 
   client.addResponseInterceptor<HttpResponse>({
     fulfilled: async (response) => {

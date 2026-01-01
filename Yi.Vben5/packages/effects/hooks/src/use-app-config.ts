@@ -22,6 +22,7 @@ export function useAppConfig(
     VITE_GLOB_RSA_PRIVATE_KEY,
     VITE_GLOB_RSA_PUBLIC_KEY,
     VITE_GLOB_SSE_ENABLE,
+    VITE_GLOB_DEMO_MODE,
   } = config;
 
   return {
@@ -36,5 +37,7 @@ export function useAppConfig(
     rsaPublicKey: VITE_GLOB_RSA_PUBLIC_KEY,
     // 是否开启sse
     sseEnable: VITE_GLOB_SSE_ENABLE === 'false',
+    // 是否开启演示模式
+    demoMode: VITE_GLOB_DEMO_MODE === 'true',
   };
 }
