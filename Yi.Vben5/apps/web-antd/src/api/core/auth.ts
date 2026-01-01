@@ -97,7 +97,7 @@ export async function loginApi(data: AuthApi.LoginParams) {
  */
 export async function doLogout() {
   const resp = await requestClient.post<HttpResponse<void>>(
-    'system/auth/logout',
+    'system/account/logout',
     null,
     {
       isTransformResponse: false,
