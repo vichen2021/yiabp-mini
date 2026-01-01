@@ -45,7 +45,7 @@ pnpm run dev:antd
 
 ## 🚀开发进度
 
-- [x] ##### 系统管理模块对接
+- [x] 系统管理模块对接
 
 - [ ] 系统监控
 
@@ -59,7 +59,7 @@ pnpm run dev:antd
 
 ![image-20260101175912025](E:\wcg_dev\code\yiabp-mini\resource\image-20260101175912025.png)
 
-
+![image-20260101180006771](E:\wcg_dev\code\yiabp-mini\resource\image-20260101180006771.png)
 
 ## 🙏感谢
 
