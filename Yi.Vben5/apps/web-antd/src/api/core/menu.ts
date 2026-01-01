@@ -41,5 +41,5 @@ export interface Menu {
  * 获取用户所有菜单
  */
 export async function getAllMenusApi() {
-  return requestClient.get<Menu[]>('/system/account/Vue3Router');
+  return requestClient.get<Menu[]>('/system/account/router');
 }

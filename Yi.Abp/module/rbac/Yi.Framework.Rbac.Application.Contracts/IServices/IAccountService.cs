@@ -28,6 +28,12 @@ namespace Yi.Framework.Rbac.Application.Contracts.IServices
         Task<UserRoleMenuDto?> GetAsync(string? userName,long? phone);
 
         /// <summary>
+        /// 获取当前登录用户的前端路由
+        /// </summary>
+        /// <returns></returns>
+        public Task<object> GetRouterAsync();
+
+        /// <summary>
         /// 校验电话验证码，需要与电话号码绑定
         /// </summary>
         Task ValidationPhoneCaptchaAsync(ValidationPhoneTypeEnum validationPhoneType, long phone,

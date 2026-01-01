@@ -3,7 +3,7 @@ using static Yi.Framework.Core.Helper.TreeHelper;
 
 namespace Yi.Framework.Rbac.Domain.Shared.Dtos
 {
-    public class Vue3RouterDto : ITreeModel<Vue3RouterDto>
+    public class RouterDto : ITreeModel<RouterDto>
     {
         public Guid Id { get; set; }
         public Guid ParentId { get; set; }
@@ -16,7 +16,7 @@ namespace Yi.Framework.Rbac.Domain.Shared.Dtos
         public string Component { get; set; } = string.Empty;
         public bool AlwaysShow { get; set; }
         public Meta Meta { get; set; } = new Meta();
-        public List<Vue3RouterDto> Children { get; set; }
+        public List<RouterDto> Children { get; set; }
     }
 
 

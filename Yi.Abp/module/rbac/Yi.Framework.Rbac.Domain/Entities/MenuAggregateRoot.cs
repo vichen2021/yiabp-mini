@@ -168,17 +168,17 @@ namespace Yi.Framework.Rbac.Domain.Entities
         /// </summary>
         /// <param name="menus"></param>
         /// <returns></returns>
-        public static List<Vue3RouterDto> Vue3RuoYiRouterBuild(this List<MenuAggregateRoot> menus)
+        public static List<RouterDto> RouterBuild(this List<MenuAggregateRoot> menus)
         {
             menus = menus
                 .Where(m => m.State == true)
                 .Where(m => m.MenuType != MenuTypeEnum.Component)
                 .Where(m => m.MenuSource == MenuSourceEnum.Ruoyi)
                 .ToList();
-            List<Vue3RouterDto> routers = new();
+            List<RouterDto> routers = new();
             foreach (var m in menus)
             {
-                var r = new Vue3RouterDto();
+                var r = new RouterDto();
                 r.OrderNum = m.OrderNum;
                 var routerName = m.Router?.Split("/").LastOrDefault();
                 r.Id = m.Id;
