@@ -53,6 +53,14 @@ pnpm run dev:antd
 
 
 
+## 🚀系统截图
+
+![image-20260101175759249](E:\wcg_dev\code\yiabp-mini\resource\image-20260101175759249.png)
+
+![image-20260101175912025](E:\wcg_dev\code\yiabp-mini\resource\image-20260101175912025.png)
+
+
+
 ## 🙏感谢
 
 感谢以下开源项目的支持：
