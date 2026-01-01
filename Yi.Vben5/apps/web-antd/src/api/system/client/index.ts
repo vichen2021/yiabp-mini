@@ -6,10 +6,10 @@ import { commonExport } from '#/api/helper';
 import { requestClient } from '#/api/request';
 
 enum Api {
-  clientChangeStatus = '/system/client/changeStatus',
-  clientExport = '/system/client/export',
-  clientList = '/system/client/list',
-  root = '/system/client',
+  clientChangeStatus = '/client/changeStatus',
+  clientExport = '/client/export',
+  clientList = '/client/list',
+  root = '/client',
 }
 
 /**

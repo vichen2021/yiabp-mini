@@ -6,10 +6,10 @@ import { commonExport } from '#/api/helper';
 import { requestClient } from '#/api/request';
 
 enum Api {
-  dictDataExport = '/system/dict/data/export',
-  dictDataInfo = '/system/dictionary/dict-type',
-  dictDataList = '/system/dict/data/list',
-  root = '/system/dictionary',
+  dictDataExport = '/dict/data/export',
+  dictDataInfo = '/dictionary/dict-type',
+  dictDataList = '/dict/data/list',
+  root = '/dictionary',
 }
 
 /**

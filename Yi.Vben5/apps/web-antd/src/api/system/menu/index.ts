@@ -5,10 +5,10 @@ import type { ID, IDS } from '#/api/common';
 import { requestClient } from '#/api/request';
 
 enum Api {
-  menuList = '/system/menu/list',
-  menuTreeSelect = '/system/menu/tree',
-  root = '/system/menu',
-  tenantPackageMenuTreeselect = '/system/menu/tenantPackageMenuTreeselect',
+  menuList = '/menu/list',
+  menuTreeSelect = '/menu/tree',
+  root = '/menu',
+  tenantPackageMenuTreeselect = '/menu/tenantPackageMenuTreeselect',
 }
 
 /**

@@ -5,9 +5,9 @@ import { buildUUID } from '@vben/utils';
 import { requestClient } from '#/api/request';
 
 enum Api {
-  root = '/system/user/profile',
-  updateAvatar = '/system/user/profile/avatar',
-  updatePassword = '/system/user/profile/updatePwd',
+  root = '/user/profile',
+  updateAvatar = '/user/profile/avatar',
+  updatePassword = '/user/profile/updatePwd',
 }
 
 /**

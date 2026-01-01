@@ -6,11 +6,11 @@ import { commonExport } from '#/api/helper';
 import { requestClient } from '#/api/request';
 
 enum Api {
-  dictOptionSelectList = '/system/dictionary-type/select-data-list',
-  dictTypeExport = '/system/dictionary-type/export',
-  dictTypeList = '/system/dictionary-type/list',
-  dictTypeRefreshCache = '/system/dictionary-type/refreshCache',
-  root = '/system/dictionary-type',
+  dictOptionSelectList = '/dictionary-type/select-data-list',
+  dictTypeExport = '/dictionary-type/export',
+  dictTypeList = '/dictionary-type/list',
+  dictTypeRefreshCache = '/dictionary-type/refreshCache',
+  root = '/dictionary-type',
 }
 
 /**

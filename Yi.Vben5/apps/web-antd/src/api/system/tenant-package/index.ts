@@ -6,11 +6,11 @@ import { commonExport } from '#/api/helper';
 import { requestClient } from '#/api/request';
 
 enum Api {
-  packageChangeStatus = '/system/tenant/package/changeStatus',
-  packageExport = '/system/tenant/package/export',
-  packageList = '/system/tenant/package/list',
-  packageSelectList = '/system/tenant/package/selectList',
-  root = '/system/tenant/package',
+  packageChangeStatus = '/tenant/package/changeStatus',
+  packageExport = '/tenant/package/export',
+  packageList = '/tenant/package/list',
+  packageSelectList = '/tenant/package/selectList',
+  root = '/tenant/package',
 }
 
 /**

@@ -5,9 +5,9 @@ import type { ID } from '#/api/common';
 import { requestClient } from '#/api/request';
 
 enum Api {
-  deptList = '/system/dept/list',
-  deptNodeInfo = '/system/dept/list/exclude',
-  root = '/system/dept',
+  deptList = '/dept/list',
+  deptNodeInfo = '/dept/list/exclude',
+  root = '/dept',
 }
 
 /**

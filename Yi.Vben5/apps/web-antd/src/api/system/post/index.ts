@@ -6,10 +6,10 @@ import { commonExport } from '#/api/helper';
 import { requestClient } from '#/api/request';
 
 enum Api {
-  postExport = '/system/post/export',
-  postList = '/system/post/list',
-  postSelect = '/system/post/select-data-list',
-  root = '/system/post',
+  postExport = '/post/export',
+  postList = '/post/list',
+  postSelect = '/post/select-data-list',
+  root = '/post',
 }
 
 /**

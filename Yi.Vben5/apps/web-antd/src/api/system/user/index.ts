@@ -11,14 +11,14 @@ import { commonExport, ContentTypeEnum } from '#/api/helper';
 import { requestClient } from '#/api/request';
 
 enum Api {
-  deptTree = '/system/dept/tree',
-  listDeptUsers = '/system/user/dept',
-  root = '/system/user',
-  userAuthRole = '/system/user/authRole',
-  userExport = '/system/user/export',
-  userImport = '/system/user/importData',
-  userImportTemplate = '/system/user/importTemplate',
-  userResetPassword = '/system/account/reset-password',
+  deptTree = '/dept/tree',
+  listDeptUsers = '/user/dept',
+  root = '/user',
+  userAuthRole = '/user/authRole',
+  userExport = '/user/export',
+  userImport = '/user/importData',
+  userImportTemplate = '/user/importTemplate',
+  userResetPassword = '/account/reset-password',
 }
 
 /**

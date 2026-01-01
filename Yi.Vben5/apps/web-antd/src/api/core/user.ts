@@ -43,5 +43,5 @@ export interface UserInfoResp {
  * 存在返回null的情况(401) 不会抛出异常 需要手动抛异常
  */
 export async function getUserInfoApi() {
-  return requestClient.get<null | UserInfoResp>('system/account');
+  return requestClient.get<null | UserInfoResp>('account');
 }

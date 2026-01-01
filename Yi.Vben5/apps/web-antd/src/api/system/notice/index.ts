@@ -5,7 +5,7 @@ import type { ID, IDS, PageQuery, PageResult } from '#/api/common';
 import { requestClient } from '#/api/request';
 
 enum Api {
-  root = '/system/notice',
+  root = '/notice',
 }
 
 /**

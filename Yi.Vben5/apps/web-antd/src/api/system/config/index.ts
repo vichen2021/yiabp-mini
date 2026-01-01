@@ -6,11 +6,11 @@ import { commonExport } from '#/api/helper';
 import { requestClient } from '#/api/request';
 
 enum Api {
-  configExport = '/system/config/export',
-  configInfoByKey = '/system/config/config-key',
-  configList = '/system/config/list',
-  configRefreshCache = '/system/config/refreshCache',
-  root = '/system/config',
+  configExport = '/config/export',
+  configInfoByKey = '/config/config-key',
+  configList = '/config/list',
+  configRefreshCache = '/config/refreshCache',
+  root = '/config',
 }
 
 /**

@@ -8,14 +8,14 @@ import { commonExport } from '#/api/helper';
 import { requestClient } from '#/api/request';
 
 enum Api {
-  roleAuthUser = '/system/role/auth-user',
-  roleDataScope = '/system/role/data-scope',
-  roleDeptTree = '/system/role/dept-tree',
-  roleExport = '/system/role/export',
-  roleList = '/system/role/list',
-  roleMenuTree = '/system/role/menu-tree',
-  roleOptionSelect = '/system/role/select-data-list',
-  root = '/system/role',
+  roleAuthUser = '/role/auth-user',
+  roleDataScope = '/role/data-scope',
+  roleDeptTree = '/role/dept-tree',
+  roleExport = '/role/export',
+  roleList = '/role/list',
+  roleMenuTree = '/role/menu-tree',
+  roleOptionSelect = '/role/select-data-list',
+  root = '/role',
 }
 
 /**
