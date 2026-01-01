@@ -38,6 +38,6 @@ export function useAppConfig(
     // 是否开启sse
     sseEnable: VITE_GLOB_SSE_ENABLE === 'false',
     // 是否开启演示模式
-    demoMode: VITE_GLOB_DEMO_MODE === 'false',
+    demoMode: VITE_GLOB_DEMO_MODE === 'true',
   };
 }
