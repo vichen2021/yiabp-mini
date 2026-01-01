@@ -1,21 +1,14 @@
 export interface OperationLog {
-  operId: string;
-  tenantId: string;
+  id: string;
   title: string;
-  businessType: string;
-  businessTypes?: any;
-  method: string;
+  operType: string;
   requestMethod: string;
-  operatorType: number;
-  operName: string;
-  deptName: string;
-  operUrl: string;
+  operUser: string;
   operIp: string;
   operLocation: string;
-  operParam: string;
-  jsonResult: string;
-  status: string;
-  errorMsg: string;
-  operTime: string;
-  costTime: number;
+  method: string;
+  requestParam: string;
+  requestResult: string;
+  creationTime: string;
+  creatorId: string | null;
 }

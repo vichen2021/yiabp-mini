@@ -17,7 +17,7 @@ import {
 } from '#/adapter/vxe-table';
 import {
   operLogClean,
-  operLogDelete,
+  operLogRemove,
   operLogExport,
   operLogList,
 } from '#/api/monitor/operlog';
@@ -40,7 +40,7 @@ const formOptions: VbenFormProps = {
   fieldMappingTime: [
     [
       'createTime',
-      ['params[beginTime]', 'params[endTime]'],
+      ['startTime', 'endTime'],
       ['YYYY-MM-DD 00:00:00', 'YYYY-MM-DD 23:59:59'],
     ],
   ],
@@ -74,7 +74,7 @@ const gridOptions: VxeGridProps<OperationLog> = {
     },
   },
   rowConfig: {
-    keyField: 'operId',
+    keyField: 'id',
   },
   sortConfig: {
     // 远程排序
@@ -121,15 +121,15 @@ function handleClear() {
 /**
  * 删除日志
  */
-async function handleDelete() {
+function handleDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
-  const ids = rows.map((row: OperationLog) => row.operId);
+  const ids = rows.map((row: OperationLog) => row.id);
   Modal.confirm({
     title: '提示',
     okType: 'danger',
     content: `确认删除选中的${ids.length}条操作日志吗？`,
     onOk: async () => {
-      await operLogDelete(ids);
+      await operLogRemove(ids);
       await tableApi.query();
     },
   });

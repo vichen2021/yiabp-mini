@@ -14,7 +14,7 @@ export const querySchema: FormSchemaGetter = () => [
   },
   {
     component: 'Input',
-    fieldName: 'operName',
+    fieldName: 'operUser',
     label: '操作人员',
   },
   {
@@ -22,21 +22,13 @@ export const querySchema: FormSchemaGetter = () => [
     componentProps: {
       options: getDictOptions(DictEnum.SYS_OPER_TYPE),
     },
-    fieldName: 'businessType',
+    fieldName: 'operType',
     label: '操作类型',
   },
   {
     component: 'Input',
     fieldName: 'operIp',
     label: '操作IP',
-  },
-  {
-    component: 'Select',
-    componentProps: {
-      options: getDictOptions(DictEnum.SYS_COMMON_STATUS),
-    },
-    fieldName: 'status',
-    label: '状态',
   },
   {
     component: 'RangePicker',
@@ -53,34 +45,17 @@ export const columns: VxeGridProps['columns'] = [
   { field: 'title', title: '系统模块' },
   {
     title: '操作类型',
-    field: 'businessType',
+    field: 'operType',
     slots: {
       default: ({ row }) => {
-        return renderDict(row.businessType, DictEnum.SYS_OPER_TYPE);
+        return renderDict(row.operType, DictEnum.SYS_OPER_TYPE);
       },
     },
   },
-  { field: 'operName', title: '操作人员' },
+  { field: 'operUser', title: '操作人员' },
   { field: 'operIp', title: 'IP地址' },
   { field: 'operLocation', title: 'IP信息' },
-  {
-    field: 'status',
-    title: '操作状态',
-    slots: {
-      default: ({ row }) => {
-        return renderDict(row.status, DictEnum.SYS_COMMON_STATUS);
-      },
-    },
-  },
-  { field: 'operTime', title: '操作日期', sortable: true },
-  {
-    field: 'costTime',
-    title: '操作耗时',
-    sortable: true,
-    formatter({ cellValue }) {
-      return `${cellValue} ms`;
-    },
-  },
+  { field: 'creationTime', title: '操作日期', sortable: true },
   {
     field: 'action',
     fixed: 'right',

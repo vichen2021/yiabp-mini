@@ -5,8 +5,8 @@ import type { ID } from '#/api/common';
 import { requestClient } from '#/api/request';
 
 enum Api {
-  root = '/system/social',
-  socialList = '/system/social/list',
+  root = '/social',
+  socialList = '/social/list',
 }
 
 /**

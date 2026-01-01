@@ -6,10 +6,9 @@ import { commonExport } from '#/api/helper';
 import { requestClient } from '#/api/request';
 
 enum Api {
-  operLogClean = '/monitor/operlog/clean',
-  operLogExport = '/monitor/operlog/export',
-  operLogList = '/monitor/operlog/list',
-  root = '/monitor/operlog',
+  operLogClean = '/operation-log/clean',
+  operLogExport = '/operation-log/export',
+  root = '/operation-log',
 }
 
 /**
@@ -18,7 +17,7 @@ enum Api {
  * @returns 分页结果
  */
 export function operLogList(params?: PageQuery) {
-  return requestClient.get<PageResult<OperationLog>>(Api.operLogList, {
+  return requestClient.get<PageResult<OperationLog>>(Api.root, {
     params,
   });
 }
@@ -27,7 +26,7 @@ export function operLogList(params?: PageQuery) {
  * 删除操作日志
  * @param operIds id/ids
  */
-export function operLogDelete(operIds: IDS) {
+export function operLogRemove(operIds: IDS) {
   return requestClient.deleteWithMsg<void>(Api.root, {
     params: { ids: operIds.join(',') },
   });
