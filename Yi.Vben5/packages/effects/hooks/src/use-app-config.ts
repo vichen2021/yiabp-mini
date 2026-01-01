@@ -35,6 +35,6 @@ export function useAppConfig(
     // RSA公钥
     rsaPublicKey: VITE_GLOB_RSA_PUBLIC_KEY,
     // 是否开启sse
-    sseEnable: VITE_GLOB_SSE_ENABLE === 'true',
+    sseEnable: VITE_GLOB_SSE_ENABLE === 'false',
   };
 }
