@@ -18,9 +18,18 @@ namespace Yi.Framework.Rbac.Domain.Entities
         {
         }
 
-        public DeptAggregateRoot(Guid Id) { this.Id = Id; ParentId = Guid.Empty; }
+        public DeptAggregateRoot(Guid Id)
+        {
+            this.Id = Id;
+            ParentId = Guid.Empty;
+        }
 
-        public DeptAggregateRoot(Guid Id, Guid parentId) { this.Id = Id; ParentId = parentId; }
+        public DeptAggregateRoot(Guid Id, Guid parentId)
+        {
+            this.Id = Id;
+            ParentId = parentId;
+        }
+
         /// <summary>
         /// 主键
         /// </summary>
@@ -66,16 +75,19 @@ namespace Yi.Framework.Rbac.Domain.Entities
         /// 部门名称 
         ///</summary>
         public string DeptName { get; set; }
+
         /// <summary>
         /// 部门编码 
         ///</summary>
         [SugarColumn(ColumnName = "DeptCode")]
         public string DeptCode { get; set; }
+
         /// <summary>
         /// 负责人（用户ID）
         ///</summary>
         [SugarColumn(ColumnName = "Leader")]
         public Guid? Leader { get; set; }
+
         /// <summary>
         /// 父级id 
         ///</summary>
@@ -93,5 +105,41 @@ namespace Yi.Framework.Rbac.Domain.Entities
         /// </summary>
         [SugarColumn(IsIgnore = true)]
         public List<DeptAggregateRoot>? Children { get; set; }
+    }
+
+    /// <summary>
+    /// 部门实体扩展
+    /// </summary>
+    public static class DeptEntityExtensions
+    {
+        /// <summary>
+        /// 构建部门树形列表
+        /// </summary>
+        /// <param name="depts">部门列表</param>
+        /// <returns>树形结构的部门列表</returns>
+        public static List<DeptTreeDto> DeptTreeBuild(this List<DeptAggregateRoot> depts)
+        {
+            // 过滤启用的部门
+            var filteredDepts = depts
+                .Where(d => d.State == true)
+                .ToList();
+
+            List<DeptTreeDto> deptTrees = new();
+            foreach (var dept in filteredDepts)
+            {
+                var deptTree = new DeptTreeDto
+                {
+                    Id = dept.Id,
+                    OrderNum = dept.OrderNum,
+                    DeptName = dept.DeptName,
+                    State = dept.State,
+                    ParentId = dept.ParentId,
+                };
+
+                deptTrees.Add(deptTree);
+            }
+            
+            return TreeHelper.SetTree(deptTrees);
+        }
     }
 }

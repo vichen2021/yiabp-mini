@@ -130,12 +130,13 @@ async function setupDeptSelect() {
     // 确保返回的是数组
     const deptList = Array.isArray(deptTree) ? deptTree : [];
     // 选中后显示在输入框的值 即父节点 / 子节点
-    addFullName(deptList, 'label', ' / ');
+    addFullName(deptList, 'deptName', ' / ');
     formApi.updateSchema([
       {
         componentProps: {
           class: 'w-full',
           fieldNames: {
+            label: 'deptName',
             key: 'id',
             value: 'id',
             children: 'children',
@@ -147,7 +148,7 @@ async function setupDeptSelect() {
           treeDefaultExpandAll: true,
           treeLine: { showLeafIcon: false },
           // 筛选的字段
-          treeNodeFilterProp: 'label',
+          treeNodeFilterProp: 'deptName',
           // 选中后显示在输入框的值
           treeNodeLabelProp: 'fullName',
           // 部门选择变化时加载对应岗位

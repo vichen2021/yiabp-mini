@@ -1,5 +1,5 @@
 import type {
-  DeptGetListOutputDto,
+  DeptTreeData,
   ResetPwdParam,
   User,
   UserImportParam,
@@ -145,7 +145,7 @@ export function userAuthRoleUpdate(userId: ID, roleIds: number[]) {
  * @returns 部门树数组
  */
 export function getDeptTree() {
-  return requestClient.get<DeptGetListOutputDto[]>(Api.deptTree);
+  return requestClient.get<DeptTreeData[]>(Api.deptTree);
 }
 
 /**

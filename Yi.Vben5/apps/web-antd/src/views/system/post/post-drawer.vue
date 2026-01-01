@@ -35,11 +35,11 @@ const [BasicForm, formApi] = useVbenForm({
 async function setupDeptSelect() {
   const deptTree = await getDeptTree();
   // 选中后显示在输入框的值 即父节点 / 子节点
-  addFullName(deptTree, 'label', ' / ');
+  addFullName(deptTree, 'deptName', ' / ');
   formApi.updateSchema([
     {
       componentProps: {
-        fieldNames: { label: 'label', value: 'id' },
+        fieldNames: { label: 'deptName', value: 'id' },
         treeData: deptTree,
         treeDefaultExpandAll: true,
         treeLine: { showLeafIcon: false },

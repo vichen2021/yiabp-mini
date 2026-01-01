@@ -88,26 +88,13 @@ export interface UserInfoResponse {
 }
 
 /**
- * @description: 部门输出DTO (对应C# DeptGetListOutputDto)
+ * @description: 部门树
  */
-export interface DeptGetListOutputDto {
-  creationTime: string;
-  creatorId?: string;
-  state: boolean;
-  deptName: string;
-  deptCode: string;
-  leader?: string;
-  parentId: string;
-  remark?: string;
-  orderNum: number;
-  /**
-   * 子部门列表（用于树形结构）
-   */
-  children?: DeptGetListOutputDto[];
-}
-
 export interface DeptTreeData {
-  id: number;
-  label: string;
-  children?: DeptTreeData[];
+  id: string;
+  parentId: string;
+  orderNum: number;
+  deptName: string;
+  state: boolean;
+  children?: DeptTreeData[] | null;
 }

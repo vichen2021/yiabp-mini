@@ -6,7 +6,6 @@ using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.Uow;
 using Yi.Framework.Core.Helper;
-using Yi.Framework.Core.Models;
 using Yi.Framework.Ddd.Application;
 using Yi.Framework.Rbac.Application.Contracts.Dtos.Role;
 using Yi.Framework.Rbac.Application.Contracts.Dtos.User;
@@ -255,24 +254,14 @@ namespace Yi.Framework.Rbac.Application.Services.System
             var checkedKeys = await _deptRepository._DbQueryable
                 .Where(d => SqlFunc.Subqueryable<RoleDeptEntity>().Where(rd => rd.RoleId == roleId && rd.DeptId == d.Id).Any())
                 .Select(x => x.Id).ToListAsync();
-            var depts = await _deptRepository._DbQueryable
+            var deptList = await _deptRepository._DbQueryable
                 .Where(x => x.State == true)
                 .OrderBy(x => x.OrderNum, OrderByType.Asc)
                 .ToListAsync();
-            var deptTrees = depts.Select(dept => new TreeDto
-            {
-                Id = dept.Id,
-                ParentId = dept.ParentId,
-                Label = dept.DeptName,
-                Weight = dept.OrderNum,
-                Disabled = !dept.State,
-                Children = new List<TreeDto>()
-            }).ToList();
-            var treeResult = Vben5TreeHelper.BuildTree(deptTrees);
             return new JsonResult(new
             {
                 checkedKeys,
-                depts = treeResult
+                depts = deptList.DeptTreeBuild()
             });
         }
     }

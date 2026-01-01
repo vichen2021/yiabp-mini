@@ -46,7 +46,6 @@ async function loadTree() {
   selectDeptId.value = [];
 
   const ret = await getDeptTree();
-
   deptTreeArray.value = ret;
   showTreeSkeleton.value = false;
 }
@@ -95,7 +94,7 @@ onMounted(loadTree);
             v-model:selected-keys="selectDeptId"
             :class="$attrs.class"
             :field-names="{
-              title: 'label',
+              title: 'deptName',
               key: 'id',
               children: 'children',
             }"
@@ -105,17 +104,17 @@ onMounted(loadTree);
             default-expand-all
             @select="$emit('select')"
           >
-            <template #title="{ label }">
-              <span v-if="label.includes(searchValue)">
-                {{ label.substring(0, label.indexOf(searchValue)) }}
+            <template #title="{ deptName }">
+              <span v-if="deptName.includes(searchValue)">
+                {{ deptName.substring(0, deptName.indexOf(searchValue)) }}
                 <span class="text-primary">{{ searchValue }}</span>
                 {{
-                  label.substring(
-                    label.indexOf(searchValue) + searchValue.length,
+                  deptName.substring(
+                    deptName.indexOf(searchValue) + searchValue.length,
                   )
                 }}
               </span>
-              <span v-else>{{ label }}</span>
+              <span v-else>{{ deptName }}</span>
             </template>
           </Tree>
           <!-- 仅本人数据权限 可以考虑直接不显示 -->

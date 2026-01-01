@@ -24,7 +24,7 @@ import { TableSwitch } from '#/components/table';
 import { commonDownloadExcel } from '#/utils/file/download';
 
 import { columns, querySchema } from './data';
-import roleAuthModal from './role-auth-modal.vue';
+import roleAuthModal from './role-datascope-drawer.vue';
 import roleDrawer from './role-drawer.vue';
 
 const formOptions: VbenFormProps = {

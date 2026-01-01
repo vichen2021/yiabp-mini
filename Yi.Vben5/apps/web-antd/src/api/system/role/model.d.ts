@@ -18,9 +18,9 @@ export interface Role {
 export interface DeptOption {
   id: string;
   parentId: string | null;
-  label: string;
-  weight: number;
-  disabled?: boolean;
+  orderNum: number;
+  deptName: string;
+  state: boolean;
   children?: DeptOption[] | null;
 }
 

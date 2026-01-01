@@ -141,6 +141,7 @@ function handleCheckStrictlyChange(value: boolean) {
           v-bind="slotProps"
           :check-strictly="formApi.form.values.deptCheckStrictly"
           :expand-all-on-init="true"
+          :field-names="{ key: 'id', title: 'deptName' }"
           :tree-data="deptTree"
           @check-strictly-change="handleCheckStrictlyChange"
         />
