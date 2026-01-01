@@ -58,12 +58,12 @@ const menus = computed(() => {
     },
     {
       handler: () => {
-        openWindow('https://gitee.com/dapppp/ruoyi-plus-vben5', {
+        openWindow('https://gitee.com/vichen2021/yiabp-mini', {
           target: '_blank',
         });
       },
       icon: () => h(GiteeIcon, { class: 'text-red-800' }),
-      text: 'Gitee项目地址',
+      text: 'YiAbp.Mini项目地址',
     },
     {
       handler: () => {
