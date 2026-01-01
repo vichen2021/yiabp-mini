@@ -55,7 +55,7 @@ pnpm run dev:antd
 
 ## 🚀系统截图
 
-![image-20260101175759249](resource\image-20260101175759249.png)
+![image-20260101175759249](https://gitee.com/vichen2021/yiabp-mini/blob/master/resource/image-20260101175759249.png)
 
 ![image-20260101175912025](resource\image-20260101175912025.png)
 
