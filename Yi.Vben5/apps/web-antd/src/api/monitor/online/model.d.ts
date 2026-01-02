@@ -1,11 +1,10 @@
 export interface OnlineUser {
-  tokenId: string;
-  deptName: string;
-  userName: string;
-  ipaddr: string;
-  loginLocation: string;
-  browser: string;
-  os: string;
+  connnectionId?: string;
+  userId?: string;
+  userName?: string;
   loginTime: number;
-  deviceType: string;
+  ipaddr?: string;
+  loginLocation?: string;
+  os?: string;
+  browser?: string;
 }

@@ -5,8 +5,7 @@ import type { IDS, PageQuery, PageResult } from '#/api/common';
 import { requestClient } from '#/api/request';
 
 enum Api {
-  onlineList = '/monitor/online/list',
-  root = '/monitor/online',
+  root = '/online',
 }
 
 /**
@@ -23,12 +22,12 @@ export function onlineDeviceList() {
  * @returns 结果
  */
 export function onlineList(params?: PageQuery) {
-  return requestClient.get<PageResult<OnlineUser>>(Api.onlineList, { params });
+  return requestClient.get<PageResult<OnlineUser>>(Api.root, { params });
 }
 
 /**
  * 强制下线
- * @param tokenId 用户token
+ * @param tokenId 连接Id
  * @returns void
  */
 export function forceLogout(tokenId: IDS) {
@@ -39,7 +38,7 @@ export function forceLogout(tokenId: IDS) {
 
 /**
  * 个人中心用的 跟上面的不同是用的Post
- * @param tokenId 用户token
+ * @param tokenId 连接Id
  * @returns void
  */
 export function forceLogout2(tokenId: string) {

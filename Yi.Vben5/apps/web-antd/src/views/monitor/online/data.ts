@@ -22,16 +22,8 @@ export const querySchema: FormSchemaGetter = () => [
 
 export const columns: VxeGridProps['columns'] = [
   {
-    title: '登录平台',
-    field: 'deviceType',
-  },
-  {
     title: '登录账号',
     field: 'userName',
-  },
-  {
-    title: '部门名称',
-    field: 'deptName',
   },
   {
     title: 'IP地址',

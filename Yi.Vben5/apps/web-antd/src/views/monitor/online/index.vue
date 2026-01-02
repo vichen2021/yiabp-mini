@@ -51,7 +51,7 @@ const gridOptions: VxeGridProps = {
     gt: 0,
   },
   rowConfig: {
-    keyField: 'tokenId',
+    keyField: 'connnectionId',
   },
   id: 'monitor-online-index',
 };
@@ -59,7 +59,7 @@ const gridOptions: VxeGridProps = {
 const [BasicTable, tableApi] = useVbenVxeGrid({ formOptions, gridOptions });
 
 async function handleForceOffline(row: OnlineUser) {
-  await forceLogout(row.tokenId);
+  await forceLogout(row.connnectionId ? [row.connnectionId] : []);
   await tableApi.query();
 }
 </script>
