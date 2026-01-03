@@ -47,10 +47,52 @@ namespace Yi.Framework.Core.Helper
             info.FileName = fileName;
             info.Arguments = args;
             info.RedirectStandardOutput = true;
+            info.UseShellExecute = false;
+            info.CreateNoWindow = true;
 
             using (var process = Process.Start(info))
             {
-                output = process.StandardOutput.ReadToEnd();
+                if (process != null)
+                {
+                    output = process.StandardOutput.ReadToEnd();
+                    process.WaitForExit();
+                }
+            }
+            return output;
+        }
+
+        /// <summary>
+        /// 执行 PowerShell 命令
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public static string PowerShell(string command)
+        {
+            string output = string.Empty;
+            try
+            {
+                var info = new ProcessStartInfo();
+                info.FileName = "powershell";
+                info.Arguments = $"-NoProfile -NonInteractive -Command \"{command}\"";
+                info.RedirectStandardOutput = true;
+                info.RedirectStandardError = true;
+                info.UseShellExecute = false;
+                info.CreateNoWindow = true;
+                info.StandardOutputEncoding = Encoding.UTF8;
+                info.StandardErrorEncoding = Encoding.UTF8;
+
+                using (var process = Process.Start(info))
+                {
+                    if (process != null)
+                    {
+                        output = process.StandardOutput.ReadToEnd();
+                        process.WaitForExit();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"执行 PowerShell 命令出错: {ex.Message}");
             }
             return output;
         }

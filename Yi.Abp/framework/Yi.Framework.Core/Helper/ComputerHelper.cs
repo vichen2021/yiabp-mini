@@ -198,8 +198,9 @@ namespace Yi.Framework.Core.Helper
             }
             else
             {
-                string output = ShellHelper.Cmd("wmic", "cpu get LoadPercentage");
-                cpuRate = output.Replace("LoadPercentage", string.Empty).Trim();
+                // 使用 PowerShell 获取 CPU 使用率
+                string output = ShellHelper.PowerShell("Get-CimInstance Win32_Processor | Measure-Object -property LoadPercentage -Average | Select-Object -ExpandProperty Average");
+                cpuRate = output.Trim();
             }
             return cpuRate;
         }
@@ -220,11 +221,22 @@ namespace Yi.Framework.Core.Helper
                 }
                 else
                 {
-                    string output = ShellHelper.Cmd("wmic", "OS get LastBootUpTime/Value");
-                    string[] outputArr = output.Split('=', (char)StringSplitOptions.RemoveEmptyEntries);
-                    if (outputArr.Length == 2)
+                    // 使用 PowerShell 获取系统启动时间
+                    // 方法1: 尝试获取格式化的日期时间
+                    string output = ShellHelper.PowerShell("$bootTime = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime; $bootTime.ToString('yyyyMMddHHmmss')");
+                    if (string.IsNullOrWhiteSpace(output))
                     {
-                        runTime = DateTimeHelper.FormatTime(ParseToLong((DateTime.Now - ParseToDateTime( outputArr[1].Split('.')[0])).TotalMilliseconds.ToString().Split('.')[0]));
+                        // 方法2: 如果方法1失败，尝试直接获取并格式化
+                        output = ShellHelper.PowerShell("(Get-CimInstance Win32_OperatingSystem).LastBootUpTime | ForEach-Object { $_.ToString('yyyyMMddHHmmss') }");
+                    }
+                    
+                    if (!string.IsNullOrWhiteSpace(output))
+                    {
+                        DateTime bootTime = ParseToDateTime(output.Trim());
+                        if (bootTime != DateTime.MinValue)
+                        {
+                            runTime = DateTimeHelper.FormatTime(ParseToLong((DateTime.Now - bootTime).TotalMilliseconds.ToString().Split('.')[0]));
+                        }
                     }
                 }
             }
@@ -253,15 +265,24 @@ namespace Yi.Framework.Core.Helper
             }
             else
             {
-                string output = ShellHelper.Cmd("wmic", "cpu get NumberOfCores,NumberOfLogicalProcessors /format:csv");
-                var lines = output.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
-
-                if (lines.Length > 1)
+                // 使用 PowerShell 获取 CPU 信息
+                try
                 {
-                    var values = lines[1].Split(',');
-                  
-                    cores =  int.Parse(values[1].Trim());
-                    logicalProcessors =int.Parse(values[2].Trim());
+                    string coresOutput = ShellHelper.PowerShell("(Get-CimInstance Win32_Processor).NumberOfCores | Measure-Object -Sum | Select-Object -ExpandProperty Sum");
+                    string logicalOutput = ShellHelper.PowerShell("(Get-CimInstance Win32_Processor).NumberOfLogicalProcessors | Measure-Object -Sum | Select-Object -ExpandProperty Sum");
+                    
+                    if (!string.IsNullOrWhiteSpace(coresOutput))
+                    {
+                        cores = int.Parse(coresOutput.Trim());
+                    }
+                    if (!string.IsNullOrWhiteSpace(logicalOutput))
+                    {
+                        logicalProcessors = int.Parse(logicalOutput.Trim());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("获取CPU详细信息出错: " + ex.Message);
                 }
             }
 
@@ -355,18 +376,27 @@ namespace Yi.Framework.Core.Helper
         /// <returns></returns>
         public MemoryMetrics GetWindowsMetrics()
         {
-            string output = ShellHelper.Cmd("wmic", "OS get FreePhysicalMemory,TotalVisibleMemorySize /Value");
             var metrics = new MemoryMetrics();
-            var lines = output.Trim().Split('\n', (char)StringSplitOptions.RemoveEmptyEntries);
+            try
+            {
+                // 使用 PowerShell 获取内存信息
+                string totalOutput = ShellHelper.PowerShell("(Get-CimInstance Win32_OperatingSystem).TotalVisibleMemorySize");
+                string freeOutput = ShellHelper.PowerShell("(Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory");
 
-            if (lines.Length <= 0) return metrics;
-
-            var freeMemoryParts = lines[0].Split('=', (char)StringSplitOptions.RemoveEmptyEntries);
-            var totalMemoryParts = lines[1].Split('=', (char)StringSplitOptions.RemoveEmptyEntries);
-
-            metrics.Total = Math.Round(double.Parse(totalMemoryParts[1]) / 1024, 0);
-            metrics.Free = Math.Round(double.Parse(freeMemoryParts[1]) / 1024, 0);//m
-            metrics.Used = metrics.Total - metrics.Free;
+                if (!string.IsNullOrWhiteSpace(totalOutput) && !string.IsNullOrWhiteSpace(freeOutput))
+                {
+                    double total = double.Parse(totalOutput.Trim());
+                    double free = double.Parse(freeOutput.Trim());
+                    
+                    metrics.Total = Math.Round(total / 1024, 0);
+                    metrics.Free = Math.Round(free / 1024, 0); // MB
+                    metrics.Used = metrics.Total - metrics.Free;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("获取Windows内存信息出错: " + ex.Message);
+            }
 
             return metrics;
         }
