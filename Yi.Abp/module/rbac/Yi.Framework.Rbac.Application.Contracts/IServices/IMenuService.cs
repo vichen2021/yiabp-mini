@@ -10,6 +10,13 @@ namespace Yi.Framework.Rbac.Application.Contracts.IServices
     /// </summary>
     public interface IMenuService : IYiCrudAppService<MenuGetOutputDto, MenuGetListOutputDto, Guid, MenuGetListInputVo, MenuCreateInputVo, MenuUpdateInputVo>
     {
+
+        /// <summary>
+        /// 获取菜单列表
+        /// </summary>
+        /// <param name="input">查询参数</param>
+        /// <returns>菜单列表</returns>
+        Task<List<MenuGetListOutputDto>> GetListAsync(MenuGetListInputVo input);
         /// <summary>
         /// 获取菜单树
         /// </summary>
