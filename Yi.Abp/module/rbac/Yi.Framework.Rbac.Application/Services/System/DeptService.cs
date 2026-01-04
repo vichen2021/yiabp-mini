@@ -10,7 +10,7 @@ using Yi.Framework.Rbac.Domain.Repositories;
 using Yi.Framework.Rbac.Domain.Shared.Consts;
 using Yi.Framework.Rbac.Domain.Shared.Dtos;
 
-namespace Yi.Framework.Rbac.Application.Services.System
+namespace Yi.Framework.Rbac.Application.Services
 {
     /// <summary>
     /// Dept服务实现

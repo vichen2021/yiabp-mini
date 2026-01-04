@@ -19,7 +19,7 @@ using Yi.Framework.Rbac.Domain.Shared.Etos;
 using Yi.Framework.Rbac.Domain.Shared.OperLog;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
-namespace Yi.Framework.Rbac.Application.Services.System
+namespace Yi.Framework.Rbac.Application.Services
 {
     /// <summary>
     /// User服务实现

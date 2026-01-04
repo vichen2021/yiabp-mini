@@ -10,7 +10,7 @@ using Xunit;
 using Yi.Framework.Rbac.Application.Contracts.Dtos.Account;
 using Yi.Framework.Rbac.Application.Contracts.Dtos.User;
 using Yi.Framework.Rbac.Application.Contracts.IServices;
-using Yi.Framework.Rbac.Application.Services.System;
+using Yi.Framework.Rbac.Application.Services;
 using Yi.Framework.Rbac.Domain.Entities;
 using Yi.Framework.Rbac.Domain.Shared.Consts;
 using Yi.Framework.Rbac.Test;

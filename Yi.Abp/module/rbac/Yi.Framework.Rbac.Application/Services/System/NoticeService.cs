@@ -9,7 +9,7 @@ using Yi.Framework.Rbac.Application.SignalRHubs;
 using Yi.Framework.Rbac.Domain.Entities;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
-namespace Yi.Framework.Rbac.Application.Services.System
+namespace Yi.Framework.Rbac.Application.Services
 {
     /// <summary>
     /// Notice服务实现

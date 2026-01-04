@@ -9,7 +9,7 @@ using Yi.Framework.Rbac.Domain.Entities;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
 
-namespace Yi.Framework.Rbac.Application.Services.System
+namespace Yi.Framework.Rbac.Application.Services
 {
     /// <summary>
     /// Dictionary服务实现

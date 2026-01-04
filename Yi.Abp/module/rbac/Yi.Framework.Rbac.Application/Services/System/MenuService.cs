@@ -9,7 +9,7 @@ using Yi.Framework.SqlSugarCore.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using Yi.Framework.Rbac.Domain.Shared.Dtos;
 
-namespace Yi.Framework.Rbac.Application.Services.System
+namespace Yi.Framework.Rbac.Application.Services
 {
     /// <summary>
     /// Menu服务实现

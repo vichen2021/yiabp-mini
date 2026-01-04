@@ -18,7 +18,7 @@ using Yi.Framework.Rbac.Domain.Shared.Dtos;
 using Yi.Framework.Rbac.Domain.Shared.Enums;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
-namespace Yi.Framework.Rbac.Application.Services.System
+namespace Yi.Framework.Rbac.Application.Services
 {
     /// <summary>
     /// Role服务实现
