@@ -185,7 +185,18 @@ namespace Yi.Framework.Rbac.Domain.Entities
                 r.ParentId = m.ParentId;
 
                 //开头大写
-                r.Name = routerName?.First().ToString().ToUpper() + routerName?.Substring(1);
+                if (string.IsNullOrEmpty(routerName))
+                {
+                    r.Name = routerName;
+                }
+                else if (routerName.Length == 1)
+                {
+                    r.Name = routerName.ToUpper();
+                }
+                else
+                {
+                    r.Name = routerName.First().ToString().ToUpper() + routerName.Substring(1);
+                }
                 r.Path = m.Router!;
                 r.Hidden = !m.IsShow;
 
