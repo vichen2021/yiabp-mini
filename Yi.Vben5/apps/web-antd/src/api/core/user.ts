@@ -17,10 +17,9 @@ export interface User {
   deptId: number;
   deptName: string;
   email: string;
-  loginDate: string;
   loginIp: string;
-  nickName: string;
-  phonenumber: string;
+  nick: string;
+  phone: string;
   remark: string;
   roles: Role[];
   sex: string;

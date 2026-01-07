@@ -57,7 +57,7 @@ function handleTransfer(userList: User[]) {
   const current = userList[0];
   Modal.confirm({
     title: '转办',
-    content: `确定转办给${current?.nickName}吗?`,
+    content: `确定转办给${current?.nick}吗?`,
     centered: true,
     onOk: async () => {
       await taskOperation(

@@ -100,7 +100,7 @@ const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
                       </div>
                     </template>
                     <div class="cursor-pointer">
-                      已绑定: {{ item.info.nickName }}
+                      已绑定: {{ item.info.nick }}
                     </div>
                   </Tooltip>
                 </template>

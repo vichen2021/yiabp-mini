@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { UserProfile } from '#/api/system/profile/model';
+import type { UserInfoResp } from '#/api/core/user';
 
 import { onMounted, onUnmounted, ref } from 'vue';
 
@@ -13,10 +13,14 @@ import { emitter } from './mitt';
 import ProfilePanel from './profile-panel.vue';
 import SettingPanel from './setting-panel.vue';
 
-const profile = ref<UserProfile>();
+const profile = ref<UserInfoResp>();
 async function loadProfile() {
-  const resp = await userProfile();
-  profile.value = resp;
+  try {
+    const resp = await userProfile();
+    profile.value = resp;
+  } catch (error) {
+    console.error('加载用户信息失败:', error);
+  }
 }
 
 onMounted(loadProfile);

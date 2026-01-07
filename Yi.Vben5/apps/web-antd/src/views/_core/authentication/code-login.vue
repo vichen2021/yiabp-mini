@@ -114,7 +114,7 @@ async function handleLogin(values: LoginCodeParams) {
   try {
     const requestParams: any = {
       tenantId: values.tenantId,
-      phonenumber: values.phoneNumber,
+      phone: values.phoneNumber,
       smsCode: values.code,
       grantType: 'sms',
     };

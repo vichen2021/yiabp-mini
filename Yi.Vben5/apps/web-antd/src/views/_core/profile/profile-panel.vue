@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { UserProfile } from '#/api/system/profile/model';
+import type { UserInfoResp } from '#/api/core/user';
 
 import { computed } from 'vue';
 
@@ -16,7 +16,7 @@ import {
 import { userUpdateAvatar } from '#/api/system/profile';
 import { CropperAvatar } from '#/components/cropper';
 
-const props = defineProps<{ profile?: UserProfile }>();
+const props = defineProps<{ profile?: UserInfoResp }>();
 
 defineEmits<{
   // 头像上传完毕
@@ -49,7 +49,7 @@ const poetrySrc = computed(() => {
         </Tooltip>
         <div class="flex flex-col items-center gap-[8px]">
           <span class="text-foreground text-xl font-bold">
-            {{ profile.user.nickName ?? '未知' }}
+            {{ profile.user.nick ?? '未知' }}
           </span>
           <!-- https://www.jinrishici.com/doc/#image -->
           <img :src="poetrySrc" />
@@ -61,7 +61,7 @@ const poetrySrc = computed(() => {
             {{ profile.user.userName }}
           </DescriptionsItem>
           <DescriptionsItem label="手机号码">
-            {{ profile.user.phonenumber || '未绑定手机号' }}
+            {{ profile.user.phone || '未绑定手机号' }}
           </DescriptionsItem>
           <DescriptionsItem label="邮箱">
             {{ profile.user.email || '未绑定邮箱' }}
@@ -70,12 +70,14 @@ const poetrySrc = computed(() => {
             <Tag color="processing">
               {{ profile.user.deptName ?? '未分配部门' }}
             </Tag>
-            <Tag v-if="profile.postGroup" color="processing">
-              {{ profile.postGroup }}
+          </DescriptionsItem>
+          <DescriptionsItem v-if="profile.roles && profile.roles.length > 0" label="角色">
+            <Tag v-for="role in profile.roles" :key="role" color="processing">
+              {{ role }}
             </Tag>
           </DescriptionsItem>
-          <DescriptionsItem label="上次登录">
-            {{ profile.user.loginDate }}
+          <DescriptionsItem label="注册时间">
+            {{ profile.user.creationTime }}
           </DescriptionsItem>
         </Descriptions>
       </div>

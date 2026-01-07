@@ -273,7 +273,7 @@ function handleDelegation(userList: User[]) {
   const current = userList[0];
   approveWithReasonModal({
     title: '委托',
-    description: `确定委托给[${current?.nickName}]吗?`,
+    description: `确定委托给[${current?.nick}]吗?`,
     onOk: async (reason) => {
       await taskOperation(
         { taskId: props.task!.id, userId: current!.userId, message: reason },
@@ -295,7 +295,7 @@ function handleTransfer(userList: User[]) {
   const current = userList[0];
   approveWithReasonModal({
     title: '转办',
-    description: `确定转办给[${current?.nickName}]吗?`,
+    description: `确定转办给[${current?.nick}]吗?`,
     onOk: async (reason) => {
       await taskOperation(
         { taskId: props.task!.id, userId: current!.userId, message: reason },
@@ -362,7 +362,7 @@ function handleUpdateAssignee(userList: User[]) {
   if (!current) return;
   Modal.confirm({
     title: '修改办理人',
-    content: `确定修改办理人为${current?.nickName}吗?`,
+    content: `确定修改办理人为${current?.nick}吗?`,
     centered: true,
     onOk: async () => {
       await updateAssignee([props.task!.id], current.userId);

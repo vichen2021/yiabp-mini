@@ -32,7 +32,7 @@ export interface Flow {
   flowCode?: any;
   version?: any;
   runDuration: string;
-  nickName?: any;
+  nick?: any;
 }
 
 export interface FlowInfoResponse {

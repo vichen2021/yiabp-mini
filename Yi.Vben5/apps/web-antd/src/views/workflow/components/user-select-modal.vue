@@ -205,7 +205,7 @@ const rightGridOptions: VxeGridProps = {
   checkboxConfig: {},
   columns: [
     {
-      field: 'nickName',
+      field: 'nick',
       title: '昵称',
       width: 200,
       resizable: false,
@@ -300,15 +300,15 @@ function handleSubmit() {
           <template #user="{ row }">
             <div class="flex items-center gap-2">
               <VbenAvatar
-                :alt="row.nickName"
+                :alt="row.nick"
                 :src="row.avatar ?? ''"
                 :class="{ 'bg-primary': !row.avatar }"
                 class="size-[32px] rounded-full text-white"
               />
               <div class="flex flex-col items-baseline text-[12px]">
-                <div>{{ row.nickName }}</div>
+                <div>{{ row.nick }}</div>
                 <div class="opacity-50">
-                  {{ row.phonenumber || '暂无手机号' }}
+                  {{ row.phone || '暂无手机号' }}
                 </div>
               </div>
             </div>
@@ -330,17 +330,17 @@ function handleSubmit() {
           <template #user="{ row }">
             <div class="flex items-center gap-2 overflow-hidden">
               <VbenAvatar
-                :alt="row.nickName"
+                :alt="row.nick"
                 :src="row.avatar ?? ''"
                 :class="{ 'bg-primary': !row.avatar }"
                 class="size-[32px] rounded-full text-white"
               />
               <div class="flex flex-col items-baseline text-[12px]">
                 <div class="overflow-ellipsis whitespace-nowrap">
-                  {{ row.nickName }}
+                  {{ row.nick }}
                 </div>
                 <div class="opacity-50">
-                  {{ row.phonenumber || '暂无手机号' }}
+                  {{ row.phone || '暂无手机号' }}
                 </div>
               </div>
             </div>

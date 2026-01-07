@@ -32,10 +32,10 @@ export interface User {
   tenantId: string;
   deptId: number;
   userName: string;
-  nickName: string;
+  nick: string;
   userType: string;
   email: string;
-  phonenumber: string;
+  phone: string;
   sex: string;
   avatar: string;
   status: string;

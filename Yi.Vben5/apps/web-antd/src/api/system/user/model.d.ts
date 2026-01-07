@@ -28,7 +28,7 @@ export interface Role {
   deptCheckStrictly?: boolean;
   status: string;
   remark: string;
-  createTime?: string;
+  creationTime?: string;
   flag: boolean;
   superAdmin: boolean;
 }

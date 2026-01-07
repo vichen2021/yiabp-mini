@@ -1,21 +1,27 @@
-import type { FileCallBack, UpdatePasswordParam, UserProfile } from './model';
+import type { FileCallBack, UpdatePasswordParam } from './model';
+import type { UserInfoResp } from '#/api/core/user';
 
 import { buildUUID } from '@vben/utils';
 
 import { requestClient } from '#/api/request';
+import { getUserInfoApi } from '#/api/core/user';
 
 enum Api {
   root = '/user/profile',
   updateAvatar = '/user/profile/avatar',
-  updatePassword = '/user/profile/updatePwd',
+  updatePassword = '/account/password',
 }
 
 /**
  * 用户个人主页信息
  * @returns userInformation
  */
-export function userProfile() {
-  return requestClient.get<UserProfile>(Api.root);
+export async function userProfile(): Promise<UserInfoResp> {
+  const resp = await getUserInfoApi();
+  if (!resp) {
+    throw new Error('获取用户信息失败');
+  }
+  return resp;
 }
 
 /**

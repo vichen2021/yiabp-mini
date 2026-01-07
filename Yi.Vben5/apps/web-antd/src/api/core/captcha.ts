@@ -2,12 +2,12 @@ import { requestClient } from '#/api/request';
 
 /**
  * 发送短信验证码
- * @param phonenumber 手机号
+ * @param phone 手机号
  * @returns void
  */
-export function sendSmsCode(phonenumber: string) {
+export function sendSmsCode(phone: string) {
   return requestClient.get<void>('/resource/sms/code', {
-    params: { phonenumber },
+    params: { phone },
   });
 }
 

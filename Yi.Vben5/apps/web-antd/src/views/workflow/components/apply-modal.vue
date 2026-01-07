@@ -117,7 +117,7 @@ async function handleSubmit() {
     // 需要转换数据 抄送人员
     const flowCCList = (flowCopyList as Array<any>).map((item) => ({
       userId: item.userId,
-      userName: item.nickName,
+      userName: item.nick,
     }));
     const requestData = {
       fileId: attachment.join(','),

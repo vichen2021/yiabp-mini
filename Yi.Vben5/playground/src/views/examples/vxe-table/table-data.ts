@@ -3,7 +3,7 @@ interface TableRowData {
   age: number;
   id: number;
   name: string;
-  nickname: string;
+  nick: string;
   role: string;
 }
 
@@ -17,7 +17,7 @@ export const MOCK_TABLE_DATA: TableRowData[] = (() => {
       age: i + 1,
       id: i,
       name: `Test${i}`,
-      nickname: `Test${i}`,
+      nick: `Test${i}`,
       role: roles[Math.floor(Math.random() * roles.length)] as string,
     });
   }

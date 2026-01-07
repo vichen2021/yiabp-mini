@@ -65,12 +65,12 @@ const displayedList = computed(() => {
       <Tooltip
         v-for="user in displayedList"
         :key="user.userId"
-        :title="user.nickName"
+        :title="user.nick"
         placement="top"
       >
         <div>
           <VbenAvatar
-            :alt="user.nickName"
+            :alt="user.nick"
             class="bg-primary size-[36px] cursor-pointer rounded-full border text-white"
             src=""
           />

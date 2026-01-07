@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Recordable } from '@vben/types';
 
-import type { UserProfile } from '#/api/system/profile/model';
+import type { UserInfoResp } from '#/api/core/user';
 
 import { onMounted } from 'vue';
 
@@ -17,7 +17,7 @@ import { getDictOptions } from '#/utils/dict';
 
 import { emitter } from '../mitt';
 
-const props = defineProps<{ profile: UserProfile }>();
+const props = defineProps<{ profile: UserInfoResp }>();
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
@@ -44,7 +44,7 @@ const [BasicForm, formApi] = useVbenForm({
     },
     {
       component: 'Input',
-      fieldName: 'nickName',
+      fieldName: 'nick',
       label: '昵称',
       rules: 'required',
     },
@@ -68,7 +68,7 @@ const [BasicForm, formApi] = useVbenForm({
     },
     {
       component: 'Input',
-      fieldName: 'phonenumber',
+      fieldName: 'phone',
       label: '电话',
       rules: z.string().regex(/^1[3-9]\d{9}$/, '请输入正确的电话'),
     },
@@ -104,9 +104,9 @@ async function handleSubmit(values: Recordable<any>) {
 onMounted(() => {
   const data = pick(props.profile.user, [
     'userId',
-    'nickName',
+    'nick',
     'email',
-    'phonenumber',
+    'phone',
     'sex',
   ]);
   formApi.setValues(data);

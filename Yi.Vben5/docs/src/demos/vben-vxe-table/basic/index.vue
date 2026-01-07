@@ -12,7 +12,7 @@ interface RowType {
   age: number;
   id: number;
   name: string;
-  nickname: string;
+  nick: string;
   role: string;
 }
 
@@ -21,7 +21,7 @@ const gridOptions: VxeGridProps<RowType> = {
     { title: '序号', type: 'seq', width: 50 },
     { field: 'name', title: 'Name' },
     { field: 'age', sortable: true, title: 'Age' },
-    { field: 'nickname', title: 'Nickname' },
+    { field: 'nick', title: 'Nickname' },
     { field: 'role', title: 'Role' },
     { field: 'address', showOverflow: true, title: 'Address' },
   ],

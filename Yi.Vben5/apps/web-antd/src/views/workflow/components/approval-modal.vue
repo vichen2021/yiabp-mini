@@ -158,7 +158,7 @@ async function handleSubmit() {
     // 需要转换数据 抄送人员
     const flowCopyList = (data.flowCopyList as Array<any>).map((item) => ({
       userId: item.userId,
-      userName: item.nickName,
+      userName: item.nick,
     }));
     const requestData = {
       ...omit(data, ['attachment']),

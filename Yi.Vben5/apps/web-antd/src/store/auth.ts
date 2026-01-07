@@ -114,7 +114,7 @@ export const useAuthStore = defineStore('auth', () => {
     const userInfo: UserInfo = {
       avatar: user.avatar ?? '',
       permissions: permissionCodes,
-      realName: user.nickName,
+      realName: user.nick,
       roles: roleCodes,
       userId: user.userId,
       username: user.userName,

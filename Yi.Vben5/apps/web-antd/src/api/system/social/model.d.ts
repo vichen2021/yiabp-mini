@@ -9,7 +9,7 @@ export interface SocialInfo {
   refreshToken: string;
   openId: string;
   userName: string;
-  nickName: string;
+  nick: string;
   email: string;
   avatar: string;
   accessCode?: any;
