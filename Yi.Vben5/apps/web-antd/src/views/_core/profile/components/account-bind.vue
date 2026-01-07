@@ -9,7 +9,7 @@ import { Alert, Avatar, Card, Empty, Modal, Tooltip } from 'ant-design-vue';
 
 import { authUnbinding } from '#/api';
 import { socialList } from '#/api/system/social';
-
+import { message } from 'ant-design-vue';
 import { accountBindList, handleAuthBinding } from '../../oauth-common';
 
 interface BindItemWithInfo extends BindItem {
@@ -20,7 +20,14 @@ interface BindItemWithInfo extends BindItem {
 const bindList = ref<BindItemWithInfo[]>([]);
 
 async function loadData() {
-  const resp = await socialList();
+
+  // const resp = await socialList();
+
+  const resp = [];
+  // messgae提示，暂不支持
+  message.error('暂不支持');
+
+
 
   const list: BindItemWithInfo[] = [...accountBindList];
   list.forEach((item) => {
