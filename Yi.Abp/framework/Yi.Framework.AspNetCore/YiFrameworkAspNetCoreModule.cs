@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -7,8 +6,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using MyCSharp.HttpUserAgentParser.DependencyInjection;
+using MyCSharp.HttpUserAgentParser.Providers;
 using Newtonsoft.Json.Linq;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Reflection;
 using Volo.Abp;
 using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.AspNetCore.WebClientInfo;
@@ -31,6 +33,9 @@ namespace Yi.Framework.AspNetCore
         public override void PostConfigureServices(ServiceConfigurationContext context)
         {
             var services = context.Services;
+
+            // IHttpUserAgentParserProvider注入
+            services.AddHttpUserAgentParser();
 
             // 替换默认的WebClientInfoProvider为支持代理的实现
             services.Replace(new ServiceDescriptor(
