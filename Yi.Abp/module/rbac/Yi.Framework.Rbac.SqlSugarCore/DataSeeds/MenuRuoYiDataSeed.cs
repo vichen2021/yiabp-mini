@@ -214,7 +214,6 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 MenuName = "接口文档",
                 MenuType = MenuTypeEnum.Menu,
                 Router = "http://127.0.0.1:19002/swagger",
-                Component = "InnerLink",
                 IsShow = true,
                 IsLink = false,
                 IsCache = false,
@@ -468,7 +467,8 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 Component = "system/role/authUser",
                 MenuIcon = "tabler:user-shield",
                 OrderNum = 15,
-                IsDeleted = false
+                IsDeleted = false,
+                ParentId = system.Id
             };
             entities.Add(roleAuthUser);
 

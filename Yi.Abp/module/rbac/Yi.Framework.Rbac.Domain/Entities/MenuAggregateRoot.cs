@@ -186,15 +186,21 @@ namespace Yi.Framework.Rbac.Domain.Entities
                 r.ParentId = m.ParentId;
                 r.Hidden = !m.IsShow;
 
-                // 判断是否为内嵌 iframe（优先级最高，因为 Component = "InnerLink" 是明确的标识）
-                bool isInnerLink = !string.IsNullOrEmpty(m.Component) && 
-                    m.Component.Equals("InnerLink", StringComparison.OrdinalIgnoreCase);
-
-                // 判断是否为外链（新标签页打开），需要排除内嵌 iframe 的情况
-                bool isExternalLink = !isInnerLink && 
-                    !string.IsNullOrEmpty(m.Router) && 
+                // 检测是否为 URL 链接（http:// 或 https:// 开头）
+                bool isUrl = !string.IsNullOrEmpty(m.Router) && 
                     (m.Router.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
                      m.Router.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
+
+                // 判断是否为内嵌 iframe：
+                // 1. Component 明确设置为 "InnerLink"（优先级最高）
+                // 2. 或者检测到是 URL 且 isLink = false（自动识别为内嵌）
+                bool isInnerLink = (!string.IsNullOrEmpty(m.Component) && 
+                    m.Component.Equals("InnerLink", StringComparison.OrdinalIgnoreCase)) ||
+                    (isUrl && !m.IsLink);
+
+                // 判断是否为外链（新标签页打开）：
+                // 检测到是 URL 且 isLink = true，且不是内嵌 iframe
+                bool isExternalLink = isUrl && m.IsLink && !isInnerLink;
 
                 // 生成路由名称
                 string routerName;
@@ -241,6 +247,7 @@ namespace Yi.Framework.Rbac.Domain.Entities
                 r.Path = m.Router ?? string.Empty;
 
                 // 处理内嵌 iframe 场景（优先级最高）
+                // 触发条件：Component = "InnerLink" 或 (检测到 URL 且 isLink = false)
                 if (isInnerLink)
                 {
                     // 内嵌 iframe：component 为 InnerLink，meta.link 包含完整 iframe 地址
@@ -248,7 +255,7 @@ namespace Yi.Framework.Rbac.Domain.Entities
                     r.AlwaysShow = false;
                     r.Component = "InnerLink";
                     
-                    // meta.link 应该包含完整的 iframe 地址，优先使用 Router，如果没有则使用 Component 中存储的地址
+                    // meta.link 应该包含完整的 iframe 地址，优先使用 Router
                     string iframeUrl = !string.IsNullOrEmpty(m.Router) ? m.Router : m.Component ?? string.Empty;
                     
                     // 清理 path：去除协议和特殊字符，避免前端路由拼接时出现问题
@@ -277,6 +284,7 @@ namespace Yi.Framework.Rbac.Domain.Entities
                     };
                 }
                 // 处理外链场景（新标签页打开）
+                // 触发条件：检测到 URL 且 isLink = true
                 else if (isExternalLink)
                 {
                     // 外链：path 保持原样，component 为 Layout 或 ParentView，meta.link 包含完整外链地址
