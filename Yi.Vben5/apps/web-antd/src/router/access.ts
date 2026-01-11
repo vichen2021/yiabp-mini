@@ -105,6 +105,16 @@ function backMenuToVbenMenu(
     // 内嵌iframe 组件为InnerLink
     if (menu.meta?.link && menu.component === 'InnerLink') {
       menu.component = 'IFrameView';
+      // 如果是 iframe，需要先清理 path 中的协议和特殊字符，避免后续拼接时出现问题
+      // 比如 path 是 http://127.0.0.1:19002/swagger，如果不清理，拼接后会变成 tool/http://127.0.0.1:19002/swagger
+      // 交给后端处理
+      // if (menu.path) {
+      //   menu.path = menu.path
+      //     .replaceAll(/^https?:\/\//g, '')
+      //     .replaceAll('/#/', '')
+      //     .replaceAll('#', '')
+      //     .replaceAll(/[?&]/g, '');
+      // }
     }
 
     /**

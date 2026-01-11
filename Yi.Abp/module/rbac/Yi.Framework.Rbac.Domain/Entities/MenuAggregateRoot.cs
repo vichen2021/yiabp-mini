@@ -1,4 +1,6 @@
-﻿using System.Web;
+﻿using System;
+using System.Text.RegularExpressions;
+using System.Web;
 using NUglify.Helpers;
 using SqlSugar;
 using Volo.Abp;
@@ -180,11 +182,48 @@ namespace Yi.Framework.Rbac.Domain.Entities
             {
                 var r = new RouterDto();
                 r.OrderNum = m.OrderNum;
-                var routerName = m.Router?.Split("/").LastOrDefault();
                 r.Id = m.Id;
                 r.ParentId = m.ParentId;
+                r.Hidden = !m.IsShow;
 
-                //开头大写
+                // 判断是否为内嵌 iframe（优先级最高，因为 Component = "InnerLink" 是明确的标识）
+                bool isInnerLink = !string.IsNullOrEmpty(m.Component) && 
+                    m.Component.Equals("InnerLink", StringComparison.OrdinalIgnoreCase);
+
+                // 判断是否为外链（新标签页打开），需要排除内嵌 iframe 的情况
+                bool isExternalLink = !isInnerLink && 
+                    !string.IsNullOrEmpty(m.Router) && 
+                    (m.Router.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
+                     m.Router.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
+
+                // 生成路由名称
+                string routerName;
+                if (isInnerLink)
+                {
+                    // 内嵌 iframe：从 path 或 router 中提取名称
+                    routerName = m.Router?.Split("/").LastOrDefault() ?? "InnerLink";
+                }
+                else if (isExternalLink)
+                {
+                    // 外链：从 URL 中提取名称
+                    try
+                    {
+                        var uri = new Uri(m.Router!);
+                        routerName = uri.Host.Replace(".", "").Replace("-", "");
+                    }
+                    catch
+                    {
+                        // 如果 URL 格式不正确，使用默认名称
+                        routerName = "ExternalLink";
+                    }
+                }
+                else
+                {
+                    // 普通路由：从 router 中提取名称
+                    routerName = m.Router?.Split("/").LastOrDefault() ?? string.Empty;
+                }
+
+                // 开头大写处理
                 if (string.IsNullOrEmpty(routerName))
                 {
                     r.Name = routerName;
@@ -197,16 +236,54 @@ namespace Yi.Framework.Rbac.Domain.Entities
                 {
                     r.Name = routerName.First().ToString().ToUpper() + routerName.Substring(1);
                 }
-                r.Path = m.Router!;
-                r.Hidden = !m.IsShow;
 
+                // 设置路径
+                r.Path = m.Router ?? string.Empty;
 
-                if (m.MenuType == MenuTypeEnum.Catalogue)
+                // 处理内嵌 iframe 场景（优先级最高）
+                if (isInnerLink)
                 {
+                    // 内嵌 iframe：component 为 InnerLink，meta.link 包含完整 iframe 地址
                     r.Redirect = "noRedirect";
-                    r.AlwaysShow = true;
-
-                    //判断是否为最顶层的路由
+                    r.AlwaysShow = false;
+                    r.Component = "InnerLink";
+                    
+                    // meta.link 应该包含完整的 iframe 地址，优先使用 Router，如果没有则使用 Component 中存储的地址
+                    string iframeUrl = !string.IsNullOrEmpty(m.Router) ? m.Router : m.Component ?? string.Empty;
+                    
+                    // 清理 path：去除协议和特殊字符，避免前端路由拼接时出现问题
+                    string cleanedPath = m.Router ?? m.Component ?? string.Empty;
+                    if (!string.IsNullOrEmpty(cleanedPath))
+                    {
+                        // 去除 http:// 或 https://
+                        cleanedPath = Regex.Replace(cleanedPath, @"^https?://", "", RegexOptions.IgnoreCase);
+                        // 去除 /#/
+                        cleanedPath = cleanedPath.Replace("/#/", "");
+                        // 去除 #
+                        cleanedPath = cleanedPath.Replace("#", "");
+                        // 去除 ? 和 &
+                        cleanedPath = cleanedPath.Replace("?", "").Replace("&", "");
+                    }
+                    
+                    // 使用清理后的 path，用于前端路由匹配
+                    r.Path = cleanedPath;
+                    
+                    r.Meta = new Meta
+                    {
+                        Title = m.MenuName!,
+                        Icon = m.MenuIcon ?? string.Empty,
+                        NoCache = !m.IsCache,
+                        link = iframeUrl // meta.link 保持完整的 URL，用于 iframe 加载
+                    };
+                }
+                // 处理外链场景（新标签页打开）
+                else if (isExternalLink)
+                {
+                    // 外链：path 保持原样，component 为 Layout 或 ParentView，meta.link 包含完整外链地址
+                    r.Redirect = "noRedirect";
+                    r.AlwaysShow = false;
+                    
+                    // 判断是否为最顶层的路由
                     if (Guid.Empty == m.ParentId)
                     {
                         r.Component = "Layout";
@@ -215,26 +292,52 @@ namespace Yi.Framework.Rbac.Domain.Entities
                     {
                         r.Component = "ParentView";
                     }
+                    
+                    r.Meta = new Meta
+                    {
+                        Title = m.MenuName!,
+                        Icon = m.MenuIcon ?? string.Empty,
+                        NoCache = !m.IsCache,
+                        link = m.Router! // 完整的外链地址
+                    };
                 }
+                // 处理普通路由菜单
+                else
+                {
+                    if (m.MenuType == MenuTypeEnum.Catalogue)
+                    {
+                        r.Redirect = "noRedirect";
+                        r.AlwaysShow = true;
 
-                if (m.MenuType == MenuTypeEnum.Menu)
-                {
-                    r.Redirect = "noRedirect";
-                    r.AlwaysShow = true;
-                    r.Component = m.Component!;
-                    r.AlwaysShow = false;
-                }
+                        // 判断是否为最顶层的路由
+                        if (Guid.Empty == m.ParentId)
+                        {
+                            r.Component = "Layout";
+                        }
+                        else
+                        {
+                            r.Component = "ParentView";
+                        }
+                    }
+                    else if (m.MenuType == MenuTypeEnum.Menu)
+                    {
+                        r.Redirect = "noRedirect";
+                        r.AlwaysShow = false;
+                        r.Component = m.Component ?? string.Empty;
+                    }
 
-                r.Meta = new Meta
-                {
-                    Title = m.MenuName!,
-                    Icon = m.MenuIcon!,
-                    NoCache = !m.IsCache
-                };
-                if (m.IsLink)
-                {
-                    r.Meta.link = m.Router!;
-                    r.AlwaysShow = false;
+                    r.Meta = new Meta
+                    {
+                        Title = m.MenuName!,
+                        Icon = m.MenuIcon ?? string.Empty,
+                        NoCache = !m.IsCache
+                    };
+                    
+                    // 如果 IsLink 为 true 但不是外链，则可能是其他类型的链接
+                    if (m.IsLink && !string.IsNullOrEmpty(m.Router))
+                    {
+                        r.Meta.link = m.Router;
+                    }
                 }
 
                 routers.Add(r);
