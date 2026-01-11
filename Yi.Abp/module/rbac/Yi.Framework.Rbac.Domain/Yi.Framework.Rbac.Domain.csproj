@@ -4,11 +4,11 @@
 
   <ItemGroup>
 
-    <PackageReference Include="AlibabaCloud.SDK.Dysmsapi20170525" Version="2.0.24" />
+    <PackageReference Include="AlibabaCloud.SDK.Dysmsapi20170525" Version="4.2.0" />
 
     <PackageReference Include="IPTools.China" Version="1.6.0" />
 
-    <PackageReference Include="TencentCloudSDK" Version="3.0.966" />
+    <PackageReference Include="TencentCloudSDK" Version="3.0.1374" />
 
     <PackageReference Include="UAParser" Version="3.1.47" />
 
@@ -21,7 +21,7 @@
 	  
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="DistributedLock.Redis" Version="1.0.3" />
+    <PackageReference Include="DistributedLock.Redis" Version="1.1.1" />
     <PackageReference Include="Volo.Abp.DistributedLocking" Version="$(AbpVersion)" />
   </ItemGroup>
   <ItemGroup>

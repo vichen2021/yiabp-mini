@@ -32,6 +32,10 @@ namespace Yi.Framework.SqlSugarCore.Repositories
 
         public bool? IsChangeTrackingEnabled => throw new NotImplementedException();
 
+        public string? EntityName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public string ProviderName => throw new NotImplementedException();
+
         public Task DeleteAsync(Expression<Func<TEntity, bool>> predicate, bool autoSave = false, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();

@@ -33,6 +33,10 @@ namespace Yi.Framework.SqlSugarCore.Repositories
         /// </summary>
         public bool? IsChangeTrackingEnabled => false;
 
+        public string? EntityName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public string ProviderName => throw new NotImplementedException();
+
         public SqlSugarRepository(ISugarDbContextProvider<ISqlSugarDbContext> dbContextProvider)
         {
             _dbContextProvider = dbContextProvider;
