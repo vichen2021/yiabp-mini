@@ -58,10 +58,16 @@ export function fieldRemove(fieldIds: IDS) {
 
 /**
  * 获取字段类型枚举
- * @returns 字段类型列表
+ * @returns 字段类型列表（注意：后端返回的是 lable，需要映射为 label）
  */
 export function getFieldTypeEnum() {
-  return requestClient.get<Array<{ label: string; value: number }>>(
+  return requestClient.get<Array<{ lable: string; value: number }>>(
     Api.fieldType,
-  );
+  ).then((res) => {
+    // 将后端的 lable 映射为 label（修复拼写错误）
+    return res.map((item) => ({
+      label: item.lable,
+      value: item.value,
+    }));
+  });
 }

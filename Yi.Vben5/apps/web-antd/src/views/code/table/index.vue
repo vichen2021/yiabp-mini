@@ -4,16 +4,17 @@ import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { Table } from '#/api/code/table/model';
 
-import { Page, useVbenDrawer } from '@vben/common-ui';
+import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
 import { getVxePopupContainer } from '@vben/utils';
 
 import { Modal, Popconfirm, Space } from 'ant-design-vue';
 
 import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
 import { tableList, tableRemove } from '#/api/code/table';
-import { postWebBuildCode } from '#/api/code/code-gen';
+import { postCodeBuildWeb, postWebBuildCode } from '#/api/code/code-gen';
 
 import { columns, querySchema } from './data';
+import codeGenModal from './code-gen-modal.vue';
 import tableDrawer from './table-drawer.vue';
 
 const formOptions: VbenFormProps = {
@@ -62,6 +63,10 @@ const [TableDrawer, drawerApi] = useVbenDrawer({
   connectedComponent: tableDrawer,
 });
 
+const [CodeGenModal, codeGenModalApi] = useVbenModal({
+  connectedComponent: codeGenModal,
+});
+
 function handleAdd() {
   drawerApi.setData({});
   drawerApi.open();
@@ -91,7 +96,7 @@ function handleMultiDelete() {
   });
 }
 
-async function handleGenerateCode() {
+function handleGenerateCode() {
   const rows = tableApi.grid.getCheckboxRecords();
   if (rows.length === 0) {
     Modal.warning({
@@ -101,15 +106,30 @@ async function handleGenerateCode() {
     return;
   }
   const ids = rows.map((row: Table) => row.id);
+  codeGenModalApi.setData({
+    tableIds: ids,
+    tables: rows,
+  });
+  codeGenModalApi.open();
+}
+
+async function handleCodeToWeb() {
   Modal.confirm({
     title: '提示',
-    content: `确认生成选中${ids.length}个表的代码吗？`,
+    content:
+      '此操作将从现有代码实体类反向生成表结构，会覆盖当前数据库中的表结构数据，是否继续？',
+    okType: 'danger',
     onOk: async () => {
-      await postWebBuildCode(ids);
-      Modal.success({
-        title: '成功',
-        content: '代码生成成功！',
-      });
+      try {
+        await postCodeBuildWeb();
+        Modal.success({
+          title: '成功',
+          content: '从代码反向生成表结构成功！',
+        });
+        await tableApi.query();
+      } catch (error) {
+        console.error('反向生成失败:', error);
+      }
     },
   });
 }
@@ -120,6 +140,9 @@ async function handleGenerateCode() {
     <BasicTable table-title="数据表列表">
       <template #toolbar-tools>
         <Space>
+          <a-button type="primary" @click="handleCodeToWeb">
+            从代码生成表结构
+          </a-button>
           <a-button
             :disabled="!vxeCheckboxChecked(tableApi)"
             type="primary"
@@ -171,5 +194,6 @@ async function handleGenerateCode() {
       </template>
     </BasicTable>
     <TableDrawer @reload="tableApi.query()" />
+    <CodeGenModal @reload="tableApi.query()" />
   </Page>
 </template>
