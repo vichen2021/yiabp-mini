@@ -15,6 +15,12 @@ import { drawerSchema } from './data';
 
 const emit = defineEmits<{ reload: [] }>();
 
+// 接收父组件传入的选中表ID
+const selectTableId = defineModel('selectTableId', {
+  type: String,
+  default: '',
+});
+
 const isUpdate = ref(false);
 const title = computed(() => {
   return isUpdate.value ? $t('pages.common.edit') : $t('pages.common.add');
@@ -78,6 +84,11 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
       if (isUpdate.value && id) {
         const record = await fieldInfo(id);
         await formApi.setValues(record);
+      } else {
+        // 新增时，如果有选中的表ID，则自动填充
+        if (selectTableId.value) {
+          await formApi.setValues({ tableId: selectTableId.value });
+        }
       }
       await markInitialized();
     } catch (error) {

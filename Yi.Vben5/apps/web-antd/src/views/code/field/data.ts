@@ -9,18 +9,6 @@ export const querySchema: FormSchemaGetter = () => [
     fieldName: 'name',
     label: '字段名',
   },
-  {
-    component: 'Select',
-    fieldName: 'tableId',
-    label: '数据表',
-    componentProps: {
-      getPopupContainer,
-      showSearch: true,
-      allowClear: true,
-      placeholder: '请选择数据表',
-      options: [], // 将在组件中动态加载
-    },
-  },
 ];
 
 export const columns: VxeGridProps['columns'] = [

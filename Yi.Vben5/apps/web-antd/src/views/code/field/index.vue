@@ -17,44 +17,29 @@ import { tableSelectList } from '#/api/code/table';
 
 import { columns, querySchema } from './data';
 import fieldDrawer from './field-drawer.vue';
+import tableList from './table-list.vue';
 
+// 选中的表ID
+const selectTableId = ref<string>('');
 // 表名映射
 const tableMap = ref<Record<string, string>>({});
-// 表选项列表
-const tableOptions = ref<Array<{ label: string; value: string }>>([]);
 
-// 加载表信息和选项
-async function loadTableData() {
+// 初始化表名映射
+async function initTableMap() {
   try {
     const tables = await tableSelectList();
     const map: Record<string, string> = {};
-    const options: Array<{ label: string; value: string }> = [];
     tables.forEach((table) => {
       map[table.id] = table.name;
-      options.push({
-        label: `${table.name}${table.description ? ` (${table.description})` : ''}`,
-        value: table.id,
-      });
     });
     tableMap.value = map;
-    tableOptions.value = options;
-    
-    // 更新搜索表单的表选项
-    tableApi.formApi.updateSchema([
-      {
-        componentProps: {
-          options: tableOptions.value,
-        },
-        fieldName: 'tableId',
-      },
-    ]);
   } catch (error) {
     console.error('加载表信息失败:', error);
   }
 }
 
 onMounted(() => {
-  loadTableData();
+  initTableMap();
 });
 
 const formOptions: VbenFormProps = {
@@ -80,6 +65,10 @@ const gridOptions: VxeGridProps = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues = {}) => {
+        // 添加选中的表ID过滤条件
+        if (selectTableId.value) {
+          formValues.tableId = selectTableId.value;
+        }
         const result = await fieldList({
           SkipCount: page.currentPage,
           MaxResultCount: page.pageSize,
@@ -143,52 +132,60 @@ function handleMultiDelete() {
 
 <template>
   <Page :auto-content-height="true">
-    <BasicTable table-title="字段列表">
-      <template #toolbar-tools>
-        <Space>
-          <a-button
-            :disabled="!vxeCheckboxChecked(tableApi)"
-            danger
-            type="primary"
-            v-access:code="['code:field:remove']"
-            @click="handleMultiDelete"
-          >
-            {{ $t('pages.common.delete') }}
-          </a-button>
-          <a-button
-            type="primary"
-            v-access:code="['code:field:add']"
-            @click="handleAdd"
-          >
-            {{ $t('pages.common.add') }}
-          </a-button>
-        </Space>
-      </template>
-      <template #action="{ row }">
-        <Space>
-          <ghost-button
-            v-access:code="['code:field:edit']"
-            @click.stop="handleEdit(row)"
-          >
-            {{ $t('pages.common.edit') }}
-          </ghost-button>
-          <Popconfirm
-            :get-popup-container="getVxePopupContainer"
-            placement="left"
-            title="确认删除？"
-            @confirm="handleDelete(row)"
-          >
-            <ghost-button
+    <div class="flex h-full gap-[8px]">
+      <tableList
+        v-model:select-table-id="selectTableId"
+        class="w-[260px]"
+        @reload="() => tableApi.reload()"
+        @select="() => tableApi.reload()"
+      />
+      <BasicTable class="flex-1 overflow-hidden" table-title="字段列表">
+        <template #toolbar-tools>
+          <Space>
+            <a-button
+              :disabled="!vxeCheckboxChecked(tableApi)"
               danger
+              type="primary"
               v-access:code="['code:field:remove']"
-              @click.stop=""
+              @click="handleMultiDelete"
             >
               {{ $t('pages.common.delete') }}
+            </a-button>
+            <a-button
+              type="primary"
+              v-access:code="['code:field:add']"
+              @click="handleAdd"
+            >
+              {{ $t('pages.common.add') }}
+            </a-button>
+          </Space>
+        </template>
+        <template #action="{ row }">
+          <Space>
+            <ghost-button
+              v-access:code="['code:field:edit']"
+              @click.stop="handleEdit(row)"
+            >
+              {{ $t('pages.common.edit') }}
             </ghost-button>
-          </Popconfirm>
-        </Space>
-      </template>
-    </BasicTable>
-    <FieldDrawer @reload="tableApi.query()" />
+            <Popconfirm
+              :get-popup-container="getVxePopupContainer"
+              placement="left"
+              title="确认删除？"
+              @confirm="handleDelete(row)"
+            >
+              <ghost-button
+                danger
+                v-access:code="['code:field:remove']"
+                @click.stop=""
+              >
+                {{ $t('pages.common.delete') }}
+              </ghost-button>
+            </Popconfirm>
+          </Space>
+        </template>
+      </BasicTable>
+    </div>
+    <FieldDrawer v-model:select-table-id="selectTableId" @reload="tableApi.query()" />
   </Page>
 </template>
