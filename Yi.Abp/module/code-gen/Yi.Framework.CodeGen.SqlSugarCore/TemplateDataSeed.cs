@@ -26,7 +26,7 @@ namespace Yi.Framework.CodeGen.SqlSugarCore
             TemplateAggregateRoot entityTemplate = new TemplateAggregateRoot()
             {
                 Name = "Entity",
-                BuildPath = "D:\\code\\Entities\\@ModelEntity.cs",
+                BuildPath = "D:\\code-gen\\Entities\\@ModelEntity.cs",
                 Remarks = "实体",
                 TemplateStr = "using SqlSugar;\r\nusing lo.Abp;\r\nusing lo.Abp.Auditing;\r\nusing lo.Abp.Domain.Entities;\r\nusing Yi.Framework.Core.Data;\r\n\r\nnamespace Yi.Framework.Rbac.Domain.Entities\r\n{\r\n    /// <summary>\r\n    /// 实体\r\n    /// </summary>\r\n    [SugarTable(\"@Model\")]\r\n    public class @ModelEntity : Entity<Guid>\r\n    {\r\n@field\r\n    }\r\n}\r\n"
             };
@@ -36,7 +36,7 @@ namespace Yi.Framework.CodeGen.SqlSugarCore
             TemplateAggregateRoot getListInputTemplate = new TemplateAggregateRoot()
             {
                 Name = "GetListInput",
-                BuildPath = "D:\\code\\Dtos\\@Model\\@ModelGetListInput.cs",
+                BuildPath = "D:\\code-gen\\Dtos\\@Model\\@ModelGetListInput.cs",
                 Remarks = "列表查询参数",
                 TemplateStr = "using Yi.Framework.Ddd;\r\nusing Yi.Framework.Ddd.Application.Contracts;\r\n\r\nnamespace Yi.Framework.Rbac.Application.Contracts.Dtos.@Model\r\n{\r\n    /// <summary>\r\n    /// 查询参数\r\n    /// </summary>\r\n    public class @ModelGetListInput : PagedAllResultRequestDto\r\n    {\r\n@field\r\n    }\r\n}\r\n"
             };
@@ -46,7 +46,7 @@ namespace Yi.Framework.CodeGen.SqlSugarCore
             TemplateAggregateRoot getListOutputDtoTemplate = new TemplateAggregateRoot()
             {
                 Name = "GetListOutputDto",
-                BuildPath = "D:\\code\\Dtos\\@Model\\@ModelGetListOutputDto.cs",
+                BuildPath = "D:\\code-gen\\Dtos\\@Model\\@ModelGetListOutputDto.cs",
                 Remarks = "列表返回dto",
                 TemplateStr = "using lo.Abp.Application.Dtos;\r\n\r\nnamespace Yi.Framework.Rbac.Application.Contracts.Dtos.@Model\r\n{\r\n    public class @ModelGetListOutputDto : EntityDto<Guid>\r\n    {\r\n@field\r\n    }\r\n}\r\n"
             };
@@ -56,7 +56,7 @@ namespace Yi.Framework.CodeGen.SqlSugarCore
             TemplateAggregateRoot getOutputDtoTemplate = new TemplateAggregateRoot()
             {
                 Name = "GetOutputDto",
-                BuildPath = "D:\\code\\Dtos\\@Model\\@ModelGetOutputDto.cs",
+                BuildPath = "D:\\code-gen\\Dtos\\@Model\\@ModelGetOutputDto.cs",
                 Remarks = "单返回dto",
                 TemplateStr = "using lo.Abp.Application.Dtos;\r\n\r\nnamespace Yi.Framework.Rbac.Application.Contracts.Dtos.@Model\r\n{\r\n    public class @ModelGetOutputDto : EntityDto<Guid>\r\n    {\r\n@field\r\n    }\r\n}\r\n"
             };
@@ -65,7 +65,7 @@ namespace Yi.Framework.CodeGen.SqlSugarCore
             TemplateAggregateRoot updateInputTemplate = new TemplateAggregateRoot()
             {
                 Name = "UpdateInput",
-                BuildPath = "D:\\code\\Dtos\\@Model\\@ModelUpdateInput.cs",
+                BuildPath = "D:\\code-gen\\Dtos\\@Model\\@ModelUpdateInput.cs",
                 Remarks = "更新输入",
                 TemplateStr = "namespace Yi.Framework.Rbac.Application.Contracts.Dtos.@Model\r\n{\r\n    public class @ModelUpdateInput\r\n    {\r\n@field\r\n    }\r\n}\r\n"
             };
@@ -74,7 +74,7 @@ namespace Yi.Framework.CodeGen.SqlSugarCore
             TemplateAggregateRoot createInputTemplate = new TemplateAggregateRoot()
             {
                 Name = "CreateInput",
-                BuildPath = "D:\\code\\Dtos\\@Model\\@ModelCreateInput.cs",
+                BuildPath = "D:\\code-gen\\Dtos\\@Model\\@ModelCreateInput.cs",
                 Remarks = "创建dto",
                 TemplateStr = "namespace Yi.Framework.Rbac.Application.Contracts.Dtos.@Model\r\n{\r\n    /// <summary>\r\n    /// @Model输入创建对象\r\n    /// </summary>\r\n    public class @ModelCreateInput\r\n    {\r\n@field\r\n    }\r\n}\r\n"
             };
@@ -84,7 +84,7 @@ namespace Yi.Framework.CodeGen.SqlSugarCore
             TemplateAggregateRoot iServicesTemplate = new TemplateAggregateRoot()
             {
                 Name = "IServices",
-                BuildPath = "D:\\code\\IServices\\I@ModelService.cs",
+                BuildPath = "D:\\code-gen\\IServices\\I@ModelService.cs",
                 Remarks = "应用服务抽象",
                 TemplateStr = "using lo.Abp.Application.Services;\r\nusing Yi.Framework.Ddd.Application.Contracts;\r\nusing Yi.Framework.Rbac.Application.Contracts.Dtos.@Model;\r\n\r\nnamespace Yi.Framework.Rbac.Application.Contracts.IServices\r\n{\r\n    /// <summary>\r\n    /// @Model服务抽象\r\n    /// </summary>\r\n    public interface I@ModelService : IYiCrudAppService<@ModelGetOutputDto, @ModelGetListOutputDto, Guid, @ModelGetListInput, @ModelCreateInput, @ModelUpdateInput>\r\n    {\r\n\r\n    }\r\n}\r\n"
             };
@@ -95,7 +95,7 @@ namespace Yi.Framework.CodeGen.SqlSugarCore
             TemplateAggregateRoot servicesTemplate = new TemplateAggregateRoot()
             {
                 Name = "Service",
-                BuildPath = "D:\\code\\Services\\@ModelService.cs",
+                BuildPath = "D:\\code-gen\\Services\\@ModelService.cs",
                 Remarks = "应用服务",
                 TemplateStr = "using SqlSugar;\r\nusing lo.Abp.Application.Dtos;\r\nusing lo.Abp.Application.Services;\r\nusing Yi.Framework.Ddd.Application;\r\nusing Yi.Framework.Rbac.Application.Contracts.Dtos.@Model;\r\nusing Yi.Framework.Rbac.Application.Contracts.IServices;\r\nusing Yi.Framework.Rbac.Domain.Entities;\r\nusing Yi.Framework.SqlSugarCore.Abstractions;\r\n\r\nnamespace Yi.Framework.Rbac.Application.Services\r\n{\r\n    /// <summary>\r\n    /// @Model服务实现\r\n    /// </summary>\r\n    public class @ModelService : YiCrudAppService<@ModelEntity, @ModelGetOutputDto, @ModelGetListOutputDto, Guid, @ModelGetListInput, @ModelCreateInput, @ModelUpdateInput>,\r\n       I@ModelService\r\n    {\r\n        private ISqlSugarRepository<@ModelEntity, Guid> _repository;\r\n        public @ModelService(ISqlSugarRepository<@ModelEntity, Guid> repository) : base(repository)\r\n        {\r\n            _repository = repository;\r\n        }\r\n\r\n        /// <summary>\r\n        /// 多查\r\n        /// </summary>\r\n        /// <param name=\"input\"></param>\r\n        /// <returns></returns>\r\n        public override async Task<PagedResultDto<@ModelGetListOutputDto>> GetListAsync(@ModelGetListInput input)\r\n        {\r\n            RefAsync<int> total = 0;\r\n\r\n            var entities = await _repository._DbQueryable.WhereIF(!string.IsNullOrEmpty(input.@ModelKey), x => x.@ModelKey.Contains(input.@ModelKey!))\r\n                          .WhereIF(!string.IsNullOrEmpty(input.@ModelName), x => x.@ModelName!.Contains(input.@ModelName!))\r\n                          .WhereIF(input.StartTime is not null && input.EndTime is not null, x => x.CreationTime >= input.StartTime && x.CreationTime <= input.EndTime)\r\n                          .ToPageListAsync(input.SkipCount, input.MaxResultCount, total);\r\n            return new PagedResultDto<@ModelGetListOutputDto>(total, await MapToGetListOutputDtosAsync(entities));\r\n        }\r\n    }\r\n}\r\n"
             };
@@ -103,9 +103,9 @@ namespace Yi.Framework.CodeGen.SqlSugarCore
 
             TemplateAggregateRoot apiTemplate = new TemplateAggregateRoot()
             {
-                TemplateStr = "import request from '@/utils/request'\r\n\r\n// 分页查询\r\nexport function listData(query) {\r\n  return request({\r\n    url: '/@model',\r\n    method: 'get',\r\n    params: query\r\n  })\r\n}\r\n\r\n// id查询\r\nexport function getData(id) {\r\n  return request({\r\n    url: `/@model/${id}`,\r\n    method: 'get'\r\n  })\r\n}\r\n\r\n// 新增\r\nexport function addData(data) {\r\n  return request({\r\n    url: '/@model',\r\n    method: 'post',\r\n    data: data\r\n  })\r\n}\r\n\r\n// 修改\r\nexport function updateData(id,data) {\r\n  return request({\r\n    url: `/@model/${id}`,\r\n    method: 'put',\r\n    data: data\r\n  })\r\n}\r\n\r\n// 删除\r\nexport function delData(ids) {\r\n  return request({\r\n    url: `/@model`,\r\n    method: 'delete',\r\n    params:{id:ids}\r\n  })\r\n}\r\n",
+                TemplateStr = "import type { @Model } from './model';\r\n\r\nimport type { ID, IDS, PageQuery, PageResult } from '#/api/common';\r\n\r\nimport { requestClient } from '#/api/request';\r\n\r\nenum Api {\r\n  root = '/@model',\r\n  selectList = '/@model/select-data-list',\r\n}\r\n\r\n/**\r\n * 获取@Model列表\r\n * @param params 请求参数\r\n * @returns 列表\r\n */\r\nexport function @modelList(params?: PageQuery) {\r\n  return requestClient.get<PageResult<@Model>>(Api.root, { params });\r\n}\r\n\r\n/**\r\n * 获取@Model详情\r\n * @param @modelId @ModelID\r\n * @returns @Model信息\r\n */\r\nexport function @modelInfo(@modelId: ID) {\r\n  return requestClient.get<@Model>(`${Api.root}/${@modelId}`);\r\n}\r\n\r\n/**\r\n * 新增@Model\r\n * @param data 数据\r\n * @returns void\r\n */\r\nexport function @modelAdd(data: Partial<@Model>) {\r\n  return requestClient.postWithMsg<void>(Api.root, data);\r\n}\r\n\r\n/**\r\n * 更新@Model\r\n * @param data 数据\r\n * @returns void\r\n */\r\nexport function @modelUpdate(data: Partial<@Model>) {\r\n  return requestClient.putWithMsg<void>(`${Api.root}/${data.id}`, data);\r\n}\r\n\r\n/**\r\n * 删除@Model\r\n * @param @modelIds @ModelID数组\r\n * @returns void\r\n */\r\nexport function @modelRemove(@modelIds: IDS) {\r\n  return requestClient.deleteWithMsg<void>(Api.root, {\r\n    params: { ids: @modelIds.join(',') },\r\n  });\r\n}\r\n\r\n/**\r\n * 获取@Model下拉列表（用于下拉选择）\r\n * @param keywords 搜索关键字（可选）\r\n * @returns @Model列表\r\n */\r\nexport function @modelSelectList(keywords?: string) {\r\n  return requestClient.get<@Model[]>(Api.selectList, {\r\n    params: keywords ? { keywords } : undefined,\r\n  });\r\n}\r\n",
                 Name = "api",
-                BuildPath = "D:\\code\\Api\\@ModelApi.vue",
+                BuildPath = "D:\\code-gen\\Api\\@model\\index.ts",
                 Remarks = "前端api"
             };
             entities.Add(apiTemplate);
