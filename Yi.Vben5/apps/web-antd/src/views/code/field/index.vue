@@ -6,18 +6,19 @@ import type { Field } from '#/api/code/field/model';
 
 import { onMounted, ref } from 'vue';
 
-import { Page, useVbenDrawer } from '@vben/common-ui';
+import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
 import { getVxePopupContainer } from '@vben/utils';
 
 import { Modal, Popconfirm, Space } from 'ant-design-vue';
 
 import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
 import { fieldList, fieldRemove } from '#/api/code/field';
-import { tableSelectList } from '#/api/code/table';
+import { tableSelectList, tableInfo } from '#/api/code/table';
 
 import { columns, querySchema } from './data';
 import fieldDrawer from './field-drawer.vue';
 import tableList from './table-list.vue';
+import codeGenModal from '../table/code-gen-modal.vue';
 
 // 选中的表ID
 const selectTableId = ref<string>('');
@@ -100,6 +101,10 @@ const [FieldDrawer, drawerApi] = useVbenDrawer({
   connectedComponent: fieldDrawer,
 });
 
+const [CodeGenModal, codeGenModalApi] = useVbenModal({
+  connectedComponent: codeGenModal,
+});
+
 function handleAdd() {
   drawerApi.setData({});
   drawerApi.open();
@@ -128,6 +133,32 @@ function handleMultiDelete() {
     },
   });
 }
+
+// 生成选中表的代码
+async function handleGenerateCode() {
+  if (!selectTableId.value) {
+    Modal.warning({
+      title: '提示',
+      content: '请先选择一个数据表',
+    });
+    return;
+  }
+
+  try {
+    const table = await tableInfo(selectTableId.value);
+    codeGenModalApi.setData({
+      tableIds: [selectTableId.value],
+      tables: [table],
+    });
+    codeGenModalApi.open();
+  } catch (error) {
+    console.error('获取表信息失败:', error);
+    Modal.error({
+      title: '错误',
+      content: '获取表信息失败，请重试',
+    });
+  }
+}
 </script>
 
 <template>
@@ -142,6 +173,13 @@ function handleMultiDelete() {
       <BasicTable class="flex-1 overflow-hidden" table-title="字段列表">
         <template #toolbar-tools>
           <Space>
+            <a-button
+              type="primary"
+              :disabled="!selectTableId"
+              @click="handleGenerateCode"
+            >
+              生成代码
+            </a-button>
             <a-button
               :disabled="!vxeCheckboxChecked(tableApi)"
               danger
@@ -187,5 +225,6 @@ function handleMultiDelete() {
       </BasicTable>
     </div>
     <FieldDrawer v-model:select-table-id="selectTableId" @reload="tableApi.query()" />
+    <CodeGenModal @reload="tableApi.query()" />
   </Page>
 </template>
