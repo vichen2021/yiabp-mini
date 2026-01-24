@@ -1,6 +1,8 @@
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
+import { getPopupContainer } from '@vben/utils';
+
 export const querySchema: FormSchemaGetter = () => [
   {
     component: 'Input',
@@ -8,14 +10,32 @@ export const querySchema: FormSchemaGetter = () => [
     label: '字段名',
   },
   {
-    component: 'Input',
+    component: 'Select',
     fieldName: 'tableId',
-    label: '表ID',
+    label: '数据表',
+    componentProps: {
+      getPopupContainer,
+      showSearch: true,
+      allowClear: true,
+      placeholder: '请选择数据表',
+      options: [], // 将在组件中动态加载
+    },
   },
 ];
 
 export const columns: VxeGridProps['columns'] = [
   { type: 'checkbox', width: 60 },
+  {
+    title: '表名',
+    field: 'tableId',
+    width: 150,
+    slots: {
+      default: ({ row }) => {
+        // 表名将通过外部传入的 tableMap 来显示
+        return row.tableName || row.tableId;
+      },
+    },
+  },
   {
     title: '字段名',
     field: 'name',
@@ -25,6 +45,20 @@ export const columns: VxeGridProps['columns'] = [
     title: '字段类型',
     field: 'fieldType',
     width: 120,
+    slots: {
+      default: ({ row }) => {
+        const typeMap: Record<number, string> = {
+          0: 'String',
+          1: 'Int',
+          2: 'Long',
+          3: 'Bool',
+          4: 'Decimal',
+          5: 'DateTime',
+          6: 'Guid',
+        };
+        return typeMap[row.fieldType] || row.fieldType;
+      },
+    },
   },
   {
     title: '长度',
@@ -82,9 +116,16 @@ export const drawerSchema: FormSchemaGetter = () => [
     label: 'ID',
   },
   {
-    component: 'Input',
+    component: 'Select',
     fieldName: 'tableId',
-    label: '表ID',
+    label: '数据表',
+    componentProps: {
+      getPopupContainer,
+      showSearch: true,
+      allowClear: true,
+      placeholder: '请选择数据表',
+      options: [], // 将在组件中动态加载
+    },
     rules: 'required',
   },
   {
@@ -98,15 +139,8 @@ export const drawerSchema: FormSchemaGetter = () => [
     fieldName: 'fieldType',
     label: '字段类型',
     componentProps: {
-      options: [
-        { label: 'String', value: 0 },
-        { label: 'Int', value: 1 },
-        { label: 'Long', value: 2 },
-        { label: 'Bool', value: 3 },
-        { label: 'Decimal', value: 4 },
-        { label: 'DateTime', value: 5 },
-        { label: 'Guid', value: 6 },
-      ],
+      getPopupContainer,
+      options: [], // 将在组件中动态加载
     },
     rules: 'required',
   },

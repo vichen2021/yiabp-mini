@@ -6,6 +6,7 @@ import { requestClient } from '#/api/request';
 
 enum Api {
   root = '/table',
+  tableSelectList = '/table/select-data-list',
 }
 
 /**
@@ -52,5 +53,16 @@ export function tableUpdate(data: Partial<Table>) {
 export function tableRemove(tableIds: IDS) {
   return requestClient.deleteWithMsg<void>(Api.root, {
     params: { ids: tableIds.join(',') },
+  });
+}
+
+/**
+ * 获取数据表下拉列表（用于下拉选择）
+ * @param keywords 搜索关键字（可选）
+ * @returns 数据表列表
+ */
+export function tableSelectList(keywords?: string) {
+  return requestClient.get<Table[]>(Api.tableSelectList, {
+    params: keywords ? { keywords } : undefined,
   });
 }

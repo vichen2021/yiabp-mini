@@ -7,6 +7,8 @@ import { cloneDeep } from '@vben/utils';
 
 import { useVbenForm } from '#/adapter/form';
 import { fieldAdd, fieldInfo, fieldUpdate } from '#/api/code/field';
+import { getFieldTypeEnum } from '#/api/code/field';
+import { tableSelectList } from '#/api/code/table';
 import { defaultFormValueGetter, useBeforeCloseDiff } from '#/utils/popup';
 
 import { drawerSchema } from './data';
@@ -43,16 +45,46 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
     }
     drawerApi.drawerLoading(true);
 
-    const { id } = drawerApi.getData() as { id?: string };
-    isUpdate.value = !!id;
+    try {
+      const { id } = drawerApi.getData() as { id?: string };
+      isUpdate.value = !!id;
 
-    if (isUpdate.value && id) {
-      const record = await fieldInfo(id);
-      await formApi.setValues(record);
+      // 加载表选项
+      const tables = await tableSelectList();
+      const tableOptions = tables.map((table) => ({
+        label: `${table.name}${table.description ? ` (${table.description})` : ''}`,
+        value: table.id,
+      }));
+
+      // 加载字段类型选项
+      const fieldTypes = await getFieldTypeEnum();
+
+      // 更新表单 schema
+      formApi.updateSchema([
+        {
+          componentProps: {
+            options: tableOptions,
+          },
+          fieldName: 'tableId',
+        },
+        {
+          componentProps: {
+            options: fieldTypes,
+          },
+          fieldName: 'fieldType',
+        },
+      ]);
+
+      if (isUpdate.value && id) {
+        const record = await fieldInfo(id);
+        await formApi.setValues(record);
+      }
+      await markInitialized();
+    } catch (error) {
+      console.error('加载数据失败:', error);
+    } finally {
+      drawerApi.drawerLoading(false);
     }
-    await markInitialized();
-
-    drawerApi.drawerLoading(false);
   },
 });
 

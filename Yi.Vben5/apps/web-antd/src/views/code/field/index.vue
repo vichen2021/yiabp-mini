@@ -4,6 +4,8 @@ import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { Field } from '#/api/code/field/model';
 
+import { onMounted, ref } from 'vue';
+
 import { Page, useVbenDrawer } from '@vben/common-ui';
 import { getVxePopupContainer } from '@vben/utils';
 
@@ -11,9 +13,49 @@ import { Modal, Popconfirm, Space } from 'ant-design-vue';
 
 import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
 import { fieldList, fieldRemove } from '#/api/code/field';
+import { tableSelectList } from '#/api/code/table';
 
 import { columns, querySchema } from './data';
 import fieldDrawer from './field-drawer.vue';
+
+// 表名映射
+const tableMap = ref<Record<string, string>>({});
+// 表选项列表
+const tableOptions = ref<Array<{ label: string; value: string }>>([]);
+
+// 加载表信息和选项
+async function loadTableData() {
+  try {
+    const tables = await tableSelectList();
+    const map: Record<string, string> = {};
+    const options: Array<{ label: string; value: string }> = [];
+    tables.forEach((table) => {
+      map[table.id] = table.name;
+      options.push({
+        label: `${table.name}${table.description ? ` (${table.description})` : ''}`,
+        value: table.id,
+      });
+    });
+    tableMap.value = map;
+    tableOptions.value = options;
+    
+    // 更新搜索表单的表选项
+    tableApi.formApi.updateSchema([
+      {
+        componentProps: {
+          options: tableOptions.value,
+        },
+        fieldName: 'tableId',
+      },
+    ]);
+  } catch (error) {
+    console.error('加载表信息失败:', error);
+  }
+}
+
+onMounted(() => {
+  loadTableData();
+});
 
 const formOptions: VbenFormProps = {
   commonConfig: {
@@ -38,11 +80,17 @@ const gridOptions: VxeGridProps = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await fieldList({
+        const result = await fieldList({
           SkipCount: page.currentPage,
           MaxResultCount: page.pageSize,
           ...formValues,
         });
+        // 为每个字段添加表名
+        result.items = result.items.map((field) => ({
+          ...field,
+          tableName: tableMap.value[field.tableId] || field.tableId,
+        }));
+        return result;
       },
     },
   },
@@ -52,6 +100,8 @@ const gridOptions: VxeGridProps = {
   id: 'code-field-index',
 };
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore 类型实例化过深
 const [BasicTable, tableApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,
