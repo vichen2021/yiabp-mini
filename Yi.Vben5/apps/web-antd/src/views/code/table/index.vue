@@ -121,12 +121,17 @@ async function handleCodeToWeb() {
     okType: 'danger',
     onOk: async () => {
       try {
-        await postCodeBuildWeb();
+        // await postCodeBuildWeb();
+        // Modal.success({
+        //   title: '成功',
+        //   content: '从代码反向生成表结构成功！',
+        // });
+       // await tableApi.query();
+
         Modal.success({
-          title: '成功',
-          content: '从代码反向生成表结构成功！',
+          title: '失败',
+          content: '危险操作，自行解禁此功能'
         });
-        await tableApi.query();
       } catch (error) {
         console.error('反向生成失败:', error);
       }
