@@ -41,15 +41,82 @@ pnpm install
 pnpm run dev:antd
 ```
 
+## 🤖 Claude Skills 使用指南
 
+本项目集成了三个 Claude Skills，帮助开发者快速生成代码和模块结构。这些 Skills 位于 `.claude/skills/` 目录下。
 
-## 🚀开发进度
+### 1. Module Generator（模块生成器）
 
-- [x] 系统管理模块对接
+**功能说明**：自动生成完整的 ABP 框架模块结构，包括所有必要的项目文件、模块类、目录结构，并自动更新主模块引用。
 
-- [x] 系统监控
+**使用场景**：当你需要在 `src/WebApi/module` 目录下创建新的模块时使用。
 
-- [x] 代码生成
+**提示词示例**：
+
+- `创建一个名为 ContentManagement 的新模块`
+- `使用 module-generator 创建 OrderManagement 模块`
+
+**生成内容**：
+- 5 个项目层：Domain.Shared、Domain、Application.Contracts、Application、SqlSugarCore
+- 模块类和项目文件
+- 目录结构（Entities、Dtos、IServices、Services、Repositories）
+- 自动更新主模块文件和解决方案文件
+
+### 2. Business Module Initializer（业务模块初始化器）
+
+**功能说明**：初始化完整的业务模块脚手架，包括后端（C# .NET with ABP framework）和前端（Vue3 + Vben5 + Ant Design Vue）。创建实体类、DTOs、服务接口、服务实现、仓储、API 文件和视图组件。
+
+**使用场景**：当你需要创建新的业务功能（如部门管理、用户管理）或任何需要全栈实现的 CRUD 模块时使用。
+
+**提示词示例**：
+
+- `初始化 Product 业务模块，包含实体、服务和前端页面`
+- `帮我生成 Order 模块的完整业务代码`
+- `使用 business-module-initializer 创建用户管理功能`
+
+**生成内容**：
+
+**后端**：
+- Entity 实体类（`Domain/Entities/`）
+- DTO 类（`Application.Contracts/Dtos/`）
+- 服务接口（`Application.Contracts/IServices/`）
+- 服务实现（`Application/Services/`）
+- 仓储接口和实现（如需要）
+
+**前端**：
+- API 文件（`api/system/{entity-name}/`）
+- 视图文件（`views/system/{entity-name}/`）
+- 表单和表格配置
+
+### 3. Skill Creator（技能创建器）
+
+**功能说明**：创建有效技能的指南。当你想创建新技能（或更新现有技能）来扩展 Claude 的专业知识、工作流程或工具集成时使用。
+
+**使用场景**：当你需要为特定领域或任务创建自定义 Skill 时使用。
+
+**提示词示例**：
+- `我想创建一个 PDF 处理技能，应该怎么做？`
+- `帮我创建一个用于处理 Excel 文件的技能`
+- `使用 skill-creator 创建一个 API 文档生成技能`
+- `如何创建一个自定义的业务规则验证技能？`
+
+**创建流程**：
+1. 理解技能的具体使用示例
+2. 规划可重用的技能内容（脚本、参考资料、资源）
+3. 初始化技能（运行 `init_skill.py`）
+4. 编辑技能（实现资源和编写 SKILL.md）
+5. 打包技能（运行 `package_skill.py`）
+6. 根据实际使用迭代优化
+
+**技能结构**：
+```
+skill-name/
+├── SKILL.md (必需)
+├── scripts/ (可选) - 可执行代码
+├── references/ (可选) - 参考文档
+└── assets/ (可选) - 输出资源文件
+```
+
 
 
 
