@@ -32,8 +32,8 @@ const routeMetaMapping: Record<string, Omit<RouteMeta, 'title'>> = {
     requireHomeRedirect: true,
   },
 
-  '/system/oss-config/index': {
-    activePath: '/system/oss',
+  '/system/file-config/index': {
+    activePath: '/system/file',
     requireHomeRedirect: true,
   },
 

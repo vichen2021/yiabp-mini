@@ -48,6 +48,13 @@
     <Project Path="module/tenant-management/Yi.Framework.TenantManagement.Domain/Yi.Framework.TenantManagement.Domain.csproj" />
     <Project Path="module/tenant-management/Yi.Framework.TenantManagement.SqlSugarCore/Yi.Framework.TenantManagement.SqlSugarCore.csproj" />
   </Folder>
+  <Folder Name="/module/file-management/">
+    <Project Path="module/file-management/Yi.Framework.FileManagement.Application.Contracts/Yi.Framework.FileManagement.Application.Contracts.csproj" />
+    <Project Path="module/file-management/Yi.Framework.FileManagement.Application/Yi.Framework.FileManagement.Application.csproj" />
+    <Project Path="module/file-management/Yi.Framework.FileManagement.Domain.Shared/Yi.Framework.FileManagement.Domain.Shared.csproj" />
+    <Project Path="module/file-management/Yi.Framework.FileManagement.Domain/Yi.Framework.FileManagement.Domain.csproj" />
+    <Project Path="module/file-management/Yi.Framework.FileManagement.SqlSugarCore/Yi.Framework.FileManagement.SqlSugarCore.csproj" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path="common.props" />
     <File Path="Dockerfile" />

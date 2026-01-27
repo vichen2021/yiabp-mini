@@ -9,10 +9,10 @@ import { Alert } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import {
-  ossConfigAdd,
-  ossConfigInfo,
-  ossConfigUpdate,
-} from '#/api/system/oss-config';
+  fileConfigAdd,
+  fileConfigInfo,
+  fileConfigUpdate,
+} from '#/api/system/file-config';
 import { defaultFormValueGetter, useBeforeCloseDiff } from '#/utils/popup';
 
 import { drawerSchema } from './data';
@@ -54,7 +54,7 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
     const { id } = drawerApi.getData() as { id?: number | string };
     isUpdate.value = !!id;
     if (isUpdate.value && id) {
-      const record = await ossConfigInfo(id);
+      const record = await fileConfigInfo(id);
       await formApi.setValues(record);
     }
     await markInitialized();
@@ -75,7 +75,7 @@ async function handleConfirm() {
       return;
     }
     const data = cloneDeep(await formApi.getValues());
-    await (isUpdate.value ? ossConfigUpdate(data) : ossConfigAdd(data));
+    await (isUpdate.value ? fileConfigUpdate(data) : fileConfigAdd(data));
     resetInitialized();
     emit('reload');
     drawerApi.close();

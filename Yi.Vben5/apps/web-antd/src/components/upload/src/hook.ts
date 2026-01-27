@@ -16,7 +16,7 @@ import type {
 } from './props';
 
 import type { AxiosProgressEvent, UploadResult } from '#/api';
-import type { OssFile } from '#/api/system/oss/model';
+import type { OssFile } from '#/api/system/file/model';
 
 import { computed, onUnmounted, ref, watch } from 'vue';
 
@@ -25,7 +25,7 @@ import { $t } from '@vben/locales';
 import { message, Modal } from 'ant-design-vue';
 import { isFunction, isString } from 'lodash-es';
 
-import { ossInfo } from '#/api/system/oss';
+import { ossInfo } from '#/api/system/file';
 
 /**
  * 图片预览hook

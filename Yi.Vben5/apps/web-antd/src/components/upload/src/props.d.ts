@@ -2,7 +2,7 @@ import type { UploadFile } from 'ant-design-vue';
 import type { RcFile } from 'ant-design-vue/es/vc-upload/interface';
 
 import type { UploadApi, UploadResult } from '#/api';
-import type { OssFile } from '#/api/system/oss/model';
+import type { OssFile } from '#/api/system/file/model';
 
 import { UploadChangeParam } from 'ant-design-vue';
 

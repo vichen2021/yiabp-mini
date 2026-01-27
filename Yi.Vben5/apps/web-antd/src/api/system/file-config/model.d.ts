@@ -1,16 +1,7 @@
-export interface OssFile {
-  ossId: string;
-  fileName: string;
-  originalName: string;
-  fileSuffix: string;
-  url: string;
-  createTime: string;
-  createBy: number;
-  createByName: string;
-  service: string;
-}
-
-export interface OssConfig {
+/**
+ * 文件存储配置 - 对应后端 OSS 配置实体属性名（接口仍调用 /resource/oss/config）
+ */
+export interface FileConfig {
   ossConfigId: number;
   configKey: string;
   accessKey: string;

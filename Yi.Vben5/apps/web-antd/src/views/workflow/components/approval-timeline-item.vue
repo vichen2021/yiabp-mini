@@ -8,7 +8,7 @@ import { DictEnum } from '@vben/constants';
 
 import { TimelineItem } from 'ant-design-vue';
 
-import { ossInfo } from '#/api/system/oss';
+import { ossInfo } from '#/api/system/file';
 import { renderDict } from '#/utils/render';
 
 defineOptions({

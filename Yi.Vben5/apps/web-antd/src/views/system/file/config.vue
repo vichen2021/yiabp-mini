@@ -3,9 +3,9 @@
 未修改文件名 而是新加了这个文件
 -->
 <script setup lang="ts">
-import OssConfigPage from '#/views/system/oss-config/index.vue';
+import FileConfigPage from '#/views/system/file-config/index.vue';
 </script>
 
 <template>
-  <OssConfigPage />
+  <FileConfigPage />
 </template>

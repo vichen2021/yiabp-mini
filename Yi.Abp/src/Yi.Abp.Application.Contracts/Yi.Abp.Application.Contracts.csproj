@@ -3,6 +3,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\framework\Yi.Framework.Ddd.Application.Contracts\Yi.Framework.Ddd.Application.Contracts.csproj" />
+    <ProjectReference Include="..\..\module\file-management\Yi.Framework.FileManagement.Application.Contracts\Yi.Framework.FileManagement.Application.Contracts.csproj" />
     <ProjectReference Include="..\..\module\rbac\Yi.Framework.Rbac.Application.Contracts\Yi.Framework.Rbac.Application.Contracts.csproj" />
     <ProjectReference Include="..\..\module\tenant-management\Yi.Framework.TenantManagement.Application.Contracts\Yi.Framework.TenantManagement.Application.Contracts.csproj" />
     <ProjectReference Include="..\Yi.Abp.Domain.Shared\Yi.Abp.Domain.Shared.csproj" />

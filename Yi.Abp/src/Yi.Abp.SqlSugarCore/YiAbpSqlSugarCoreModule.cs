@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.Modularity;
 using Yi.Abp.Domain;
 using Yi.Abp.SqlSugarCore;
 using Yi.Framework.AuditLogging.SqlSugarCore;
 using Yi.Framework.CodeGen.SqlSugarCore;
+using Yi.Framework.FileManagement.SqlSugarCore;
 using Yi.Framework.Mapster;
 using Yi.Framework.Rbac.SqlSugarCore;
 using Yi.Framework.SettingManagement.SqlSugarCore;
@@ -18,6 +19,7 @@ namespace Yi.Abp.SqlsugarCore
         typeof(YiFrameworkCodeGenSqlSugarCoreModule),
         typeof(YiFrameworkSettingManagementSqlSugarCoreModule),
         typeof(YiFrameworkAuditLoggingSqlSugarCoreModule),
+        typeof(YiFrameworkFileManagementSqlSugarCoreModule),
         typeof(YiFrameworkTenantManagementSqlSugarCoreModule),
         typeof(YiFrameworkMapsterModule),
         typeof(YiFrameworkSqlSugarCoreModule)

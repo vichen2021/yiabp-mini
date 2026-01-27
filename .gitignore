@@ -65,3 +65,5 @@ lefthook.yml
 *.user
 .docs
 *.db
+
+**/FileStorage

@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\module\audit-logging\Yi.Framework.AuditLogging.Domain.Shared\Yi.Framework.AuditLogging.Domain.Shared.csproj" />
+    <ProjectReference Include="..\..\module\file-management\Yi.Framework.FileManagement.Domain.Shared\Yi.Framework.FileManagement.Domain.Shared.csproj" />
     <ProjectReference Include="..\..\module\rbac\Yi.Framework.Rbac.Domain.Shared\Yi.Framework.Rbac.Domain.Shared.csproj" />
   </ItemGroup>
 

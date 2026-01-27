@@ -2,7 +2,7 @@
 import type { VbenFormProps } from '@vben/common-ui';
 
 import type { VxeGridProps } from '#/adapter/vxe-table';
-import type { OssConfig } from '#/api/system/oss-config/model';
+import type { FileConfig } from '#/api/system/file-config/model';
 
 import { useAccess } from '@vben/access';
 import { Page, useVbenDrawer } from '@vben/common-ui';
@@ -12,14 +12,14 @@ import { Modal, Popconfirm, Space } from 'ant-design-vue';
 
 import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
 import {
-  ossConfigChangeStatus,
-  ossConfigList,
-  ossConfigRemove,
-} from '#/api/system/oss-config';
+  fileConfigChangeStatus,
+  fileConfigList,
+  fileConfigRemove,
+} from '#/api/system/file-config';
 import { TableSwitch } from '#/components/table';
 
 import { columns, querySchema } from './data';
-import ossConfigDrawer from './oss-config-drawer.vue';
+import fileConfigDrawer from './file-config-drawer.vue';
 
 const formOptions: VbenFormProps = {
   schema: querySchema(),
@@ -48,7 +48,7 @@ const gridOptions: VxeGridProps = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await ossConfigList({
+        return await fileConfigList({
           SkipCount: page.currentPage,
           MaxResultCount: page.pageSize,
           ...formValues,
@@ -59,7 +59,7 @@ const gridOptions: VxeGridProps = {
   rowConfig: {
     keyField: 'ossConfigId',
   },
-  id: 'system-oss-config-index',
+  id: 'system-file-config-index',
 };
 
 const [BasicTable, tableApi] = useVbenVxeGrid({
@@ -67,8 +67,8 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
   gridOptions,
 });
 
-const [OssConfigDrawer, drawerApi] = useVbenDrawer({
-  connectedComponent: ossConfigDrawer,
+const [FileConfigDrawer, drawerApi] = useVbenDrawer({
+  connectedComponent: fileConfigDrawer,
 });
 
 function handleAdd() {
@@ -76,25 +76,25 @@ function handleAdd() {
   drawerApi.open();
 }
 
-async function handleEdit(record: OssConfig) {
+async function handleEdit(record: FileConfig) {
   drawerApi.setData({ id: record.ossConfigId });
   drawerApi.open();
 }
 
-async function handleDelete(row: OssConfig) {
-  await ossConfigRemove([row.ossConfigId]);
+async function handleDelete(row: FileConfig) {
+  await fileConfigRemove([row.ossConfigId]);
   await tableApi.query();
 }
 
 function handleMultiDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
-  const ids = rows.map((row: OssConfig) => row.ossConfigId);
+  const ids = rows.map((row: FileConfig) => row.ossConfigId);
   Modal.confirm({
     title: '提示',
     okType: 'danger',
     content: `确认删除选中的${ids.length}条记录吗？`,
     onOk: async () => {
-      await ossConfigRemove(ids);
+      await fileConfigRemove(ids);
       await tableApi.query();
     },
   });
@@ -105,21 +105,21 @@ const { hasAccessByCodes } = useAccess();
 
 <template>
   <Page :auto-content-height="true">
-    <BasicTable table-title="oss配置列表">
+    <BasicTable table-title="文件存储配置列表">
       <template #toolbar-tools>
         <Space>
           <a-button
             :disabled="!vxeCheckboxChecked(tableApi)"
             danger
             type="primary"
-            v-access:code="['system:ossConfig:remove']"
+            v-access:code="['system:fileConfig:remove']"
             @click="handleMultiDelete"
           >
             {{ $t('pages.common.delete') }}
           </a-button>
           <a-button
             type="primary"
-            v-access:code="['system:ossConfig:add']"
+            v-access:code="['system:fileConfig:add']"
             @click="handleAdd"
           >
             {{ $t('pages.common.add') }}
@@ -129,8 +129,8 @@ const { hasAccessByCodes } = useAccess();
       <template #status="{ row }">
         <TableSwitch
           v-model:value="row.status"
-          :api="() => ossConfigChangeStatus(row)"
-          :disabled="!hasAccessByCodes(['system:ossConfig:edit'])"
+          :api="() => fileConfigChangeStatus(row)"
+          :disabled="!hasAccessByCodes(['system:fileConfig:edit'])"
           checked-text="是"
           un-checked-text="否"
           @reload="tableApi.query()"
@@ -139,7 +139,7 @@ const { hasAccessByCodes } = useAccess();
       <template #action="{ row }">
         <Space>
           <ghost-button
-            v-access:code="['system:ossConfig:edit']"
+            v-access:code="['system:fileConfig:edit']"
             @click="handleEdit(row)"
           >
             {{ $t('pages.common.edit') }}
@@ -152,7 +152,7 @@ const { hasAccessByCodes } = useAccess();
           >
             <ghost-button
               danger
-              v-access:code="['system:ossConfig:remove']"
+              v-access:code="['system:fileConfig:remove']"
               @click.stop=""
             >
               {{ $t('pages.common.delete') }}
@@ -161,6 +161,6 @@ const { hasAccessByCodes } = useAccess();
         </Space>
       </template>
     </BasicTable>
-    <OssConfigDrawer @reload="tableApi.query()" />
+    <FileConfigDrawer @reload="tableApi.query()" />
   </Page>
 </template>
