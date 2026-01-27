@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using SqlSugar;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.BlobStoring;
-using Volo.Abp.Content;
 using Yi.Framework.Ddd.Application;
 using Yi.Framework.FileManagement.Application.Contracts;
 using Yi.Framework.FileManagement.Application.Contracts.Dtos;
@@ -114,10 +114,13 @@ public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutput
     /// <summary>
     /// 下载文件
     /// </summary>
-    public async Task<IRemoteStreamContent> DownloadAsync(Guid id)
+    public async Task<FileStreamResult> DownloadAsync(Guid id)
     {
         var fileObject = await _fileManager.GetAsync(id);
-        var file = await _blobContainer.GetAsync(id.ToString());
-        return new RemoteStreamContent(file, fileObject.FileName, fileObject.ContentType);
+        var stream = await _blobContainer.GetAsync(id.ToString());
+        return new FileStreamResult(stream, fileObject.ContentType)
+        {
+            FileDownloadName = fileObject.FileName
+        };
     }
 }

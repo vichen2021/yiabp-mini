@@ -58,16 +58,21 @@ export function fileUploadFiles(files: File[]) {
  * @param fileId 文件 id
  * @param onDownloadProgress 下载进度回调
  */
-export function fileDownload(
+export async function fileDownload(
   fileId: ID,
   onDownloadProgress?: AxiosRequestConfig['onDownloadProgress'],
-) {
-  return requestClient.post<Blob>(`${Api.root}/${fileId}/download`, undefined, {
-    isTransformResponse: false,
-    responseType: 'blob',
-    timeout: 60 * 1000,
-    onDownloadProgress,
-  });
+): Promise<Blob> {
+  const response = await requestClient.post<Blob>(
+    `${Api.root}/${fileId}/download`,
+    undefined,
+    {
+      isReturnNativeResponse: true,
+      responseType: 'blob',
+      timeout: 60 * 1000,
+      onDownloadProgress,
+    },
+  );
+  return response.data as unknown as Blob;
 }
 
 /**

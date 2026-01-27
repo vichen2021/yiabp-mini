@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Http;
-using Volo.Abp.Application.Services;
-using Volo.Abp.Content;
+using Microsoft.AspNetCore.Mvc;
 using Yi.Framework.Ddd.Application.Contracts;
 using Yi.Framework.FileManagement.Application.Contracts.Dtos.File;
 
@@ -19,5 +18,5 @@ public interface IFileService : IYiCrudAppService<FileGetListOutputDto, Guid, Fi
     /// <summary>
     /// 下载文件
     /// </summary>
-    Task<IRemoteStreamContent> DownloadAsync(Guid id);
+    Task<FileStreamResult> DownloadAsync(Guid id);
 }
