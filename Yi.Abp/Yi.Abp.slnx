@@ -1,0 +1,85 @@
+<Solution>
+  <Folder Name="/client/">
+    <Project Path="client/Yi.Abp.Client.Console/Yi.Abp.Client.Console.csproj" />
+    <Project Path="client/Yi.Abp.Client.WebApi/Yi.Abp.Client.WebApi.csproj" />
+    <Project Path="client/Yi.Abp.HttpApi.Client/Yi.Abp.HttpApi.Client.csproj" />
+  </Folder>
+  <Folder Name="/framework/">
+    <Project Path="framework/Yi.Framework.AspNetCore.Authentication.OAuth/Yi.Framework.AspNetCore.Authentication.OAuth.csproj" />
+    <Project Path="framework/Yi.Framework.AspNetCore/Yi.Framework.AspNetCore.csproj" />
+    <Project Path="framework/Yi.Framework.BackgroundWorkers.Hangfire/Yi.Framework.BackgroundWorkers.Hangfire.csproj" />
+    <Project Path="framework/Yi.Framework.Caching.FreeRedis/Yi.Framework.Caching.FreeRedis.csproj" />
+    <Project Path="framework/Yi.Framework.Core/Yi.Framework.Core.csproj" />
+    <Project Path="framework/Yi.Framework.Ddd.Application.Contracts/Yi.Framework.Ddd.Application.Contracts.csproj" />
+    <Project Path="framework/Yi.Framework.Ddd.Application/Yi.Framework.Ddd.Application.csproj" />
+    <Project Path="framework/Yi.Framework.Mapster/Yi.Framework.Mapster.csproj" />
+    <Project Path="framework/Yi.Framework.SqlSugarCore.Abstractions/Yi.Framework.SqlSugarCore.Abstractions.csproj" />
+    <Project Path="framework/Yi.Framework.SqlSugarCore/Yi.Framework.SqlSugarCore.csproj" />
+    <Project Path="framework/Yi.Framework.WeChat.MiniProgram/Yi.Framework.WeChat.MiniProgram.csproj" />
+  </Folder>
+  <Folder Name="/module/" />
+  <Folder Name="/module/audit-logging/">
+    <Project Path="module/audit-logging/Yi.Framework.AuditLogging.Domain.Shared/Yi.Framework.AuditLogging.Domain.Shared.csproj" />
+    <Project Path="module/audit-logging/Yi.Framework.AuditLogging.Domain/Yi.Framework.AuditLogging.Domain.csproj" />
+    <Project Path="module/audit-logging/Yi.Framework.AuditLogging.SqlSugarCore/Yi.Framework.AuditLogging.SqlSugarCore.csproj" />
+  </Folder>
+  <Folder Name="/module/code-gen/">
+    <Project Path="module/code-gen/Yi.Framework.CodeGen.Application.Contracts/Yi.Framework.CodeGen.Application.Contracts.csproj" />
+    <Project Path="module/code-gen/Yi.Framework.CodeGen.Application/Yi.Framework.CodeGen.Application.csproj" />
+    <Project Path="module/code-gen/Yi.Framework.CodeGen.Domain.Shared/Yi.Framework.CodeGen.Domain.Shared.csproj" />
+    <Project Path="module/code-gen/Yi.Framework.CodeGen.Domain/Yi.Framework.CodeGen.Domain.csproj" />
+    <Project Path="module/code-gen/Yi.Framework.CodeGen.SqlSugarCore/Yi.Framework.CodeGen.SqlSugarCore.csproj" />
+  </Folder>
+  <Folder Name="/module/rbac/">
+    <Project Path="module/rbac/Yi.Framework.Rbac.Application.Contracts/Yi.Framework.Rbac.Application.Contracts.csproj" />
+    <Project Path="module/rbac/Yi.Framework.Rbac.Application/Yi.Framework.Rbac.Application.csproj" />
+    <Project Path="module/rbac/Yi.Framework.Rbac.Domain.Shared/Yi.Framework.Rbac.Domain.Shared.csproj" />
+    <Project Path="module/rbac/Yi.Framework.Rbac.Domain/Yi.Framework.Rbac.Domain.csproj" />
+    <Project Path="module/rbac/Yi.Framework.Rbac.SqlSugarCore/Yi.Framework.Rbac.SqlSugarCore.csproj" />
+  </Folder>
+  <Folder Name="/module/setting-management/">
+    <Project Path="module/setting-management/Yi.Framework.SettingManagement.Application/Yi.Framework.SettingManagement.Application.csproj" />
+    <Project Path="module/setting-management/Yi.Framework.SettingManagement.Domain/Yi.Framework.SettingManagement.Domain.csproj" />
+    <Project Path="module/setting-management/Yi.Framework.SettingManagement.SqlSugarCore/Yi.Framework.SettingManagement.SqlSugarCore.csproj" />
+  </Folder>
+  <Folder Name="/module/tenant-management/">
+    <Project Path="module/tenant-management/Yi.Framework.TenantManagement.Application.Contracts/Yi.Framework.TenantManagement.Application.Contracts.csproj" />
+    <Project Path="module/tenant-management/Yi.Framework.TenantManagement.Application/Yi.Framework.TenantManagement.Application.csproj" />
+    <Project Path="module/tenant-management/Yi.Framework.TenantManagement.Domain/Yi.Framework.TenantManagement.Domain.csproj" />
+    <Project Path="module/tenant-management/Yi.Framework.TenantManagement.SqlSugarCore/Yi.Framework.TenantManagement.SqlSugarCore.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="common.props" />
+    <File Path="Dockerfile" />
+    <File Path="DockerfileFast" />
+    <File Path="end.sh" />
+    <File Path="logo.png" />
+    <File Path="publish.bat" />
+    <File Path="publish_Demo.bat" />
+    <File Path="start.sh" />
+    <File Path="tool.bat" />
+    <File Path="usings.props" />
+    <File Path="version.props" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Yi.Abp.Application.Contracts/Yi.Abp.Application.Contracts.csproj" />
+    <Project Path="src/Yi.Abp.Application/Yi.Abp.Application.csproj" />
+    <Project Path="src/Yi.Abp.Domain.Shared/Yi.Abp.Domain.Shared.csproj" />
+    <Project Path="src/Yi.Abp.Domain/Yi.Abp.Domain.csproj" />
+    <Project Path="src/Yi.Abp.SqlSugarCore/Yi.Abp.SqlSugarCore.csproj" />
+    <Project Path="src/Yi.Abp.Web/Yi.Abp.Web.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/Yi.Abp.Test/Yi.Abp.Test.csproj" />
+    <Project Path="test/Yi.Framework.Rbac.Test/Yi.Framework.Rbac.Test.csproj" />
+  </Folder>
+  <Folder Name="/tool/">
+    <Project Path="tool/Yi.Abp.Tool.Application.Contracts/Yi.Abp.Tool.Application.Contracts.csproj" />
+    <Project Path="tool/Yi.Abp.Tool.Application/Yi.Abp.Tool.Application.csproj" />
+    <Project Path="tool/Yi.Abp.Tool.Domain.Shared/Yi.Abp.Tool.Domain.Shared.csproj" />
+    <Project Path="tool/Yi.Abp.Tool.Domain/Yi.Abp.Tool.Domain.csproj" />
+    <Project Path="tool/Yi.Abp.Tool.HttpApi.Client/Yi.Abp.Tool.HttpApi.Client.csproj" />
+    <Project Path="tool/Yi.Abp.Tool.Web/Yi.Abp.Tool.Web.csproj" />
+    <Project Path="tool/Yi.Abp.Tool/Yi.Abp.Tool.csproj" />
+  </Folder>
+</Solution>

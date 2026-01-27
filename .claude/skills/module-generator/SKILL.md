@@ -47,7 +47,7 @@ Create the module root directory at: `src/WebApi/module/{kebab-module-name}/`
 
 Create 5 projects using `dotnet new classlib`:
 
-1. **Yi.Framework.{PascalModuleName}.Domain.Shared** (TFM: net8.0)
+1. **Yi.Framework.{PascalModuleName}.Domain.Shared** (TFM: net10.0)
 2. **Yi.Framework.{PascalModuleName}.Domain** (TFM: net10.0)
 3. **Yi.Framework.{PascalModuleName}.Application.Contracts** (TFM: net10.0)
 4. **Yi.Framework.{PascalModuleName}.Application** (TFM: net10.0)
@@ -83,7 +83,7 @@ namespace Yi.Framework.{PascalModuleName}.Domain.Shared
 <Project Sdk="Microsoft.NET.Sdk">
 	<Import Project="..\..\..\common.props" />
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>

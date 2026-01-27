@@ -11,9 +11,9 @@ echo start
 echo 1-build-start
 :: dotnet publish
 echo 1-build-end
-echo 2-zip-start
+echo 2-zip-start    
 
-%sevenzip_Path% a ./publish_02.zip ./src/Yi.Abp.Web/bin/Release/net8.0/linux-x64/publish/*
+%sevenzip_Path% a ./publish_02.zip ./src/Yi.Abp.Web/bin/Release/net10.0/linux-x64/publish/*
 :: tar -cvf publish_02.zip -C "dist" "*"
 echo 2-zip-end
 echo 3-publish-start
