@@ -139,12 +139,12 @@ const [FileUploadModal, fileUploadApi] = useVbenModal({
     <BasicTable table-title="文件列表">
       <template #toolbar-tools>
         <Space>
-          <a-button
+          <!-- <a-button
             v-access:code="['system:fileConfig:list']"
             @click="handleToSettings"
           >
             配置管理
-          </a-button>
+          </a-button> -->
           <a-button
             :disabled="!vxeCheckboxChecked(tableApi)"
             danger
