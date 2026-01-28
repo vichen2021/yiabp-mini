@@ -10,12 +10,12 @@ namespace Yi.Framework.FileManagement.Files;
 
 public class FileManager : DomainService
 {
-    private readonly IBlobContainer<YiFileManagementContainer> _blobContainer;
+    private readonly IBlobContainer<FileManagementContainer> _blobContainer;
     private readonly ISqlSugarRepository<FileAggregateRoot, Guid> _repository;
     private readonly ICurrentTenant _currentTenant;
 
     public FileManager(
-        IBlobContainer<YiFileManagementContainer> blobContainer,
+        IBlobContainer<FileManagementContainer> blobContainer,
         ISqlSugarRepository<FileAggregateRoot, Guid> repository,
         ICurrentTenant currentTenant)
     {

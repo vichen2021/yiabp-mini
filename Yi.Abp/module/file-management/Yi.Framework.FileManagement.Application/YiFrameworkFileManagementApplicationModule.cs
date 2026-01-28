@@ -19,7 +19,7 @@ namespace Yi.Framework.FileManagement.Application
         {
             Configure<AbpBlobStoringOptions>(options =>
             {
-                options.Containers.Configure<YiFileManagementContainer>(container =>
+                options.Containers.Configure<FileManagementContainer>(container =>
                 {
                     container.UseFileSystem(fileSystem =>
                     {

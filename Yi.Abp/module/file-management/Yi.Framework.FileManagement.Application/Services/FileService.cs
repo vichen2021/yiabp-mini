@@ -21,12 +21,12 @@ public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutput
 {
     private readonly ISqlSugarRepository<FileAggregateRoot, Guid> _repository;
     private readonly FileManager _fileManager;
-    private readonly IBlobContainer<YiFileManagementContainer> _blobContainer;
+    private readonly IBlobContainer<FileManagementContainer> _blobContainer;
 
     public FileService(
         ISqlSugarRepository<FileAggregateRoot, Guid> repository,
         FileManager fileManager,
-        IBlobContainer<YiFileManagementContainer> blobContainer)
+        IBlobContainer<FileManagementContainer> blobContainer)
         : base(repository)
     {
         _repository = repository;
