@@ -2,20 +2,19 @@
 
 ## 📖简介
 
-Yi.Mini 是基于橙子老哥的 [Yi.Admin](https://gitee.com/ccnetcore/Yi) 框架开发的精简版 RBAC 权限管理框架，采用若依风格设计。
+Yi.Mini 是基于橙子老哥的 [Yi.Admin](https://gitee.com/ccnetcore/Yi) 框架开发的精简版 RBAC 权限管理框架，使用Vben5 Admin重写前端，采用若依风格设计。
 
 本框架专注于 RBAC（基于角色的访问控制）功能，去除了其他业务模块，更适合快速搭建权限管理系统。
 
 
-## 📌后端与 Yi.Admin 差异
+## 📌后端
 
-- **模块精简**：Yi.Mini 只保留 **rbac** 相关模块，删除了 **ai-stock、bbs、chat-hub、digital-collectibles** 模块
+- **模块精简**：Yi.Mini 只保留了 Yi.Admin 的 **rbac** 相关模块，删除了 **ai-stock、bbs、chat-hub、digital-collectibles** 等模块
 
-- **数据优化**：增加并优化了部分种子数据，适配若依前端的数据结构
+- **接口优化**：新增部门树表、菜单树表等接口，新增文件管理模块
 
-- **接口扩展**：为兼容前端，新增了部门树表、菜单树表等接口
+- **前端重构**：使用vben5 & ant-design-vue 重写前端页面
 
-- **详细内容**：https://gitee.com/ccnetcore/Yi
 
   
 
@@ -39,9 +38,12 @@ pnpm install
 
 # 运行项目
 pnpm run dev:antd
+
+# 打包项目
+pnpm build:antd
 ```
 
-## 🤖 Claude Skills 使用指南
+## 🤖 引入Claude Skills
 
 本项目集成了三个 Claude Skills，帮助开发者快速生成代码和模块结构。这些 Skills 位于 `.claude/skills/` 目录下。
 
@@ -116,8 +118,6 @@ skill-name/
 ├── references/ (可选) - 参考文档
 └── assets/ (可选) - 输出资源文件
 ```
-
-
 
 
 ## 预览
