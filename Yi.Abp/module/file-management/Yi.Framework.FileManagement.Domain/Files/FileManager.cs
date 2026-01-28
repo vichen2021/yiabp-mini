@@ -32,7 +32,7 @@ public class FileManager : DomainService
         var entity = await _repository.FindAsync(x => x.Id == id);
         if (entity == null)
             throw new UserFriendlyException(FileManagementConsts.FileNotFound);
-        return ToDto(entity);
+        return EntityMapToDto(entity);
     }
 
     /// <summary>
@@ -62,7 +62,7 @@ public class FileManager : DomainService
         }
 
         await _blobContainer.SaveAsync(entity.Id.ToString(), content, overwrite);
-        return ToDto(entity);
+        return EntityMapToDto(entity);
     }
 
     /// <summary>
@@ -77,7 +77,7 @@ public class FileManager : DomainService
         await _blobContainer.DeleteAsync(id.ToString());
     }
 
-    private static FileDto ToDto(FileAggregateRoot entity)
+    private static FileDto EntityMapToDto(FileAggregateRoot entity)
     {
         return new FileDto
         {

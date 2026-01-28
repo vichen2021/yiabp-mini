@@ -29,11 +29,4 @@ public class FileDto
     /// 文件名称
     /// </summary>
     public string FileName { get; set; } = string.Empty;
-
-    private const string CacheKeyFormat = "i:{0}";
-
-    public static string CalculateCacheKey(Guid id)
-    {
-        return string.Format(CacheKeyFormat, id);
-    }
 }
