@@ -9,6 +9,7 @@ using Yi.Framework.FileManagement.Application.Contracts;
 using Yi.Framework.FileManagement.Application.Contracts.Dtos;
 using Yi.Framework.FileManagement.Application.Contracts.Dtos.File;
 using Yi.Framework.FileManagement.Files;
+using Yi.Framework.SqlSugarCore.Abstractions;
 
 namespace Yi.Framework.FileManagement.Application.Services;
 
@@ -18,12 +19,12 @@ namespace Yi.Framework.FileManagement.Application.Services;
 public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutputDto, Guid, FileGetListInputVo>,
     IFileService
 {
-    private readonly IFileRepository _repository;
+    private readonly ISqlSugarRepository<FileAggregateRoot, Guid> _repository;
     private readonly FileManager _fileManager;
     private readonly IBlobContainer<YiFileManagementContainer> _blobContainer;
 
     public FileService(
-        IFileRepository repository,
+        ISqlSugarRepository<FileAggregateRoot, Guid> repository,
         FileManager fileManager,
         IBlobContainer<YiFileManagementContainer> blobContainer)
         : base(repository)
