@@ -1,3 +1,4 @@
+using Volo.Abp;
 using Volo.Abp.BlobStoring;
 using Volo.Abp.Domain.Services;
 using Volo.Abp.MultiTenancy;
@@ -46,7 +47,7 @@ public class FileManager : DomainService
     {
         var entity = await _fileRepository.FindAsync(x => x.Id == id);
         if (entity == null)
-            throw new DomainFileManagementException(FileManagementConsts.FileNotFound);
+            throw new UserFriendlyException(FileManagementConsts.FileNotFound);
         return ToDto(entity);
     }
 
@@ -66,7 +67,7 @@ public class FileManager : DomainService
         if (entity != null)
         {
             if (!overwrite)
-                throw new DomainFileManagementException(FileManagementConsts.FileAlreadyExist);
+                throw new UserFriendlyException(FileManagementConsts.FileAlreadyExist);
             entity.Update(fileSize, contentType, fileName);
             await _fileRepository.UpdateAsync(entity);
         }
@@ -87,7 +88,7 @@ public class FileManager : DomainService
     {
         var entity = await _fileRepository.FindAsync(x => x.Id == id);
         if (entity == null)
-            throw new DomainFileManagementException(FileManagementConsts.FileNotFound);
+            throw new UserFriendlyException(FileManagementConsts.FileNotFound);
         await _fileRepository.DeleteAsync(entity);
         await _blobContainer.DeleteAsync(id.ToString());
     }
