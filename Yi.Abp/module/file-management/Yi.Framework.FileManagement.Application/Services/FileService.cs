@@ -7,7 +7,7 @@ using Volo.Abp.BlobStoring;
 using Yi.Framework.Ddd.Application;
 using Yi.Framework.FileManagement.Application.Contracts;
 using Yi.Framework.FileManagement.Application.Contracts.Dtos;
-using Yi.Framework.FileManagement.Application.Contracts.Dtos.File;
+using Yi.Framework.FileManagement.Domain.File;
 using Yi.Framework.FileManagement.Files;
 using Yi.Framework.SqlSugarCore.Abstractions;
 

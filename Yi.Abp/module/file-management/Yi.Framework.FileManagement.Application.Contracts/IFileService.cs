@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Yi.Framework.Ddd.Application.Contracts;
-using Yi.Framework.FileManagement.Application.Contracts.Dtos.File;
+using Yi.Framework.FileManagement.Application.Contracts.Dtos;
 
 namespace Yi.Framework.FileManagement.Application.Contracts;
 

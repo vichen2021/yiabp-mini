@@ -1,7 +1,7 @@
 using Volo.Abp.Application.Dtos;
 using Yi.Framework.FileManagement.Domain.Shared.Consts;
 
-namespace Yi.Framework.FileManagement.Application.Contracts.Dtos.File;
+namespace Yi.Framework.FileManagement.Application.Contracts.Dtos;
 
 /// <summary>
 /// 文件列表输出

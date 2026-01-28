@@ -2,8 +2,6 @@ namespace Yi.Framework.FileManagement.Domain.Shared.Consts;
 
 public static class FileManagementConsts
 {
-    /// <summary>名称空间</summary>
-
     public const int Kilobyte = 1024;
     public const int Megabyte = Kilobyte * 1024;
     public const long Gigabyte = Megabyte * 1024;

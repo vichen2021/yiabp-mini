@@ -4,9 +4,11 @@ using Volo.Abp.BlobStoring;
 using Volo.Abp.Domain.Services;
 using Volo.Abp.MultiTenancy;
 using Yi.Framework.FileManagement.Domain.Shared.Consts;
+using Yi.Framework.FileManagement.File;
+using Yi.Framework.FileManagement.Files;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
-namespace Yi.Framework.FileManagement.Files;
+namespace Yi.Framework.FileManagement.Domain.File;
 
 public class FileManager : DomainService
 {

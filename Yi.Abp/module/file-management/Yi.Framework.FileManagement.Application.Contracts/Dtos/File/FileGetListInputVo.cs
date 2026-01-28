@@ -1,6 +1,6 @@
 using Volo.Abp.Application.Dtos;
 
-namespace Yi.Framework.FileManagement.Application.Contracts.Dtos.File;
+namespace Yi.Framework.FileManagement.Application.Contracts.Dtos;
 
 /// <summary>
 /// 文件列表查询参数

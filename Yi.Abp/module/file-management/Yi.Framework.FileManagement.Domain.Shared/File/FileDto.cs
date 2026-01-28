@@ -1,4 +1,4 @@
-namespace Yi.Framework.FileManagement.Files;
+namespace Yi.Framework.FileManagement.File;
 
 /// <summary>
 /// 文件 DTO
