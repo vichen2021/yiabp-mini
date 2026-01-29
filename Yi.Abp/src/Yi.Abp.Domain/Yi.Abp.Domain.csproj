@@ -10,7 +10,6 @@
     <ProjectReference Include="..\..\framework\Yi.Framework.Mapster\Yi.Framework.Mapster.csproj" />
     <ProjectReference Include="..\..\framework\Yi.Framework.SqlSugarCore.Abstractions\Yi.Framework.SqlSugarCore.Abstractions.csproj" />
     <ProjectReference Include="..\..\module\audit-logging\Yi.Framework.AuditLogging.Domain\Yi.Framework.AuditLogging.Domain.csproj" />
-    <ProjectReference Include="..\..\module\file-management\Yi.Framework.FileManagement.Domain\Yi.Framework.FileManagement.Domain.csproj" />
     <ProjectReference Include="..\..\module\rbac\Yi.Framework.Rbac.Domain\Yi.Framework.Rbac.Domain.csproj" />
     <ProjectReference Include="..\..\module\setting-management\Yi.Framework.SettingManagement.Domain\Yi.Framework.SettingManagement.Domain.csproj" />
     <ProjectReference Include="..\..\module\tenant-management\Yi.Framework.TenantManagement.Domain\Yi.Framework.TenantManagement.Domain.csproj" />

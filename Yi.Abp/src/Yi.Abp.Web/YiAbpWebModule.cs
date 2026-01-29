@@ -43,7 +43,6 @@ using Yi.Framework.AspNetCore.UnifyResult;
 using Yi.Framework.BackgroundWorkers.Hangfire;
 using Yi.Framework.CodeGen.Application;
 using Yi.Framework.Core.Json;
-using Yi.Framework.FileManagement.Application;
 using Yi.Framework.Rbac.Application;
 using Yi.Framework.Rbac.Domain.Authorization;
 using Yi.Framework.Rbac.Domain.Shared.Consts;
@@ -85,8 +84,6 @@ namespace Yi.Abp.Web
                     options => options.RemoteServiceName = "tenant-management");
                 options.ConventionalControllers.Create(typeof(YiFrameworkCodeGenApplicationModule).Assembly,
                     options => options.RemoteServiceName = "code-gen");
-                options.ConventionalControllers.Create(typeof(YiFrameworkFileManagementApplicationModule).Assembly,
-                    options => options.RemoteServiceName = "file-management");//ps:新增模块有缓存不展示,swagger需要Ctrl+shift+R刷新
                 //统一前缀
                 options.ConventionalControllers.ConventionalControllerSettings.ForEach(x => x.RootPath = "api");
             });

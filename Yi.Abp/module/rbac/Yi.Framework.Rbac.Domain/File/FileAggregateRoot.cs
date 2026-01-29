@@ -4,7 +4,7 @@ using Volo.Abp.Domain.Entities;
 using Volo.Abp.MultiTenancy;
 using Yi.Framework.Core.Data;
 
-namespace Yi.Framework.FileManagement.Files;
+namespace Yi.Framework.Rbac.Domain.File;
 
 /// <summary>
 /// 文件

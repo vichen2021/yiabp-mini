@@ -5,13 +5,12 @@ using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.BlobStoring;
 using Yi.Framework.Ddd.Application;
-using Yi.Framework.FileManagement.Application.Contracts;
-using Yi.Framework.FileManagement.Application.Contracts.Dtos;
-using Yi.Framework.FileManagement.Domain.File;
-using Yi.Framework.FileManagement.Files;
+using Yi.Framework.Rbac.Application.Contracts.Dtos;
+using Yi.Framework.Rbac.Application.Contracts.IServices;
+using Yi.Framework.Rbac.Domain.File;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
-namespace Yi.Framework.FileManagement.Application.Services;
+namespace Yi.Framework.Rbac.Application.Services;
 
 /// <summary>
 /// 文件应用服务

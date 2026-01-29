@@ -1,22 +1,22 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Volo.Abp.Application.Services;
-using Yi.Framework.Rbac.Application.Contracts.Dtos.FileManager;
+using Yi.Framework.Ddd.Application.Contracts;
+using Yi.Framework.Rbac.Application.Contracts.Dtos;
 
-namespace Yi.Framework.Rbac.Application.Contracts.IServices
+namespace Yi.Framework.Rbac.Application.Contracts.IServices;
+
+/// <summary>
+/// 文件应用服务接口
+/// </summary>
+public interface IFileService : IYiCrudAppService<FileGetListOutputDto, Guid, FileGetListInputVo>
 {
-    public interface IFileService : IApplicationService
-    {
-        /// <summary>
-        /// 下载文件,支持缩略图
-        /// </summary>
-        /// <returns></returns>
-        Task<IActionResult> Get([FromRoute] Guid code, [FromRoute] bool? isThumbnail);
+    /// <summary>
+    /// 上传文件，返回创建的文件 id 列表（与入参 files 顺序一致）
+    /// </summary>
+    Task<List<Guid>> UploadAsync(List<IFormFile> files);
 
-        /// <summary>
-        /// 上传文件
-        /// </summary>
-        /// <returns></returns>
-        Task<List<FileGetListOutputDto>> Post([FromForm] IFormFileCollection file);
-    }
+    /// <summary>
+    /// 下载文件
+    /// </summary>
+    Task<FileStreamResult> DownloadAsync(Guid id);
 }

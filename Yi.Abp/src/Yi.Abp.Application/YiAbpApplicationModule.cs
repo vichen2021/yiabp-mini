@@ -3,7 +3,6 @@ using Yi.Abp.Application.Contracts;
 using Yi.Abp.Domain;
 using Yi.Framework.CodeGen.Application;
 using Yi.Framework.Ddd.Application;
-using Yi.Framework.FileManagement.Application;
 using Yi.Framework.Rbac.Application;
 using Yi.Framework.SettingManagement.Application;
 using Yi.Framework.TenantManagement.Application;
@@ -16,7 +15,6 @@ namespace Yi.Abp.Application
         typeof(YiFrameworkRbacApplicationModule),
         typeof(YiFrameworkTenantManagementApplicationModule),
         typeof(YiFrameworkCodeGenApplicationModule),
-        typeof(YiFrameworkFileManagementApplicationModule),
         typeof(YiFrameworkSettingManagementApplicationModule),
         typeof(YiFrameworkDddApplicationModule)
         )]

@@ -1,4 +1,4 @@
-namespace Yi.Framework.FileManagement.Domain.Shared.Consts;
+namespace Yi.Framework.Rbac.Domain.Shared.Consts;
 
 public static class FileManagementConsts
 {

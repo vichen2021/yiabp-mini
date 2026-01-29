@@ -1,9 +1,10 @@
-﻿using Medallion.Threading;
+using Medallion.Threading;
 using Medallion.Threading.Redis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 using Volo.Abp.AspNetCore.SignalR;
+using Volo.Abp.BlobStoring;
 using Volo.Abp.Caching;
 using Volo.Abp.DistributedLocking;
 using Volo.Abp.Domain;
@@ -26,7 +27,8 @@ namespace Yi.Framework.Rbac.Domain
         typeof(AbpDddDomainModule),
         typeof(AbpCachingModule),
         typeof(AbpImagingImageSharpModule),
-        typeof(AbpDistributedLockingModule)
+        typeof(AbpDistributedLockingModule),
+        typeof(AbpBlobStoringModule)
         )]
     public class YiFrameworkRbacDomainModule : AbpModule
     {

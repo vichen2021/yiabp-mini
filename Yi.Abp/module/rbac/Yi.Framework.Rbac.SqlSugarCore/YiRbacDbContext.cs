@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using SqlSugar;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
@@ -6,6 +6,7 @@ using Volo.Abp.Users;
 using Yi.Framework.Rbac.Domain.Authorization;
 using Yi.Framework.Rbac.Domain.Entities;
 using Yi.Framework.Rbac.Domain.Extensions;
+using Yi.Framework.Rbac.Domain.File;
 using Yi.Framework.Rbac.Domain.Shared.Consts;
 using Yi.Framework.Rbac.Domain.Shared.Enums;
 using Yi.Framework.SqlSugarCore;

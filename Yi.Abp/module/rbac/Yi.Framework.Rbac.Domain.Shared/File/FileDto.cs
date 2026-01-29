@@ -1,4 +1,4 @@
-namespace Yi.Framework.FileManagement.File;
+namespace Yi.Framework.Rbac.Domain.Shared.File;
 
 /// <summary>
 /// 文件 DTO
