@@ -9,7 +9,7 @@ using Yi.Framework.Core.Enums;
 using Yi.Framework.Core.Helper;
 using Yi.Framework.Rbac.Domain.Shared.Consts;
 using Yi.Framework.Rbac.Domain.Shared.File;
-using Yi.Framework.Rbac.Domain.File;
+using Yi.Framework.Rbac.Domain.Entities;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
 namespace Yi.Framework.Rbac.Domain.File;

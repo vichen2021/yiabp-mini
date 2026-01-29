@@ -3,14 +3,17 @@ using Volo.Abp.Auditing;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.MultiTenancy;
 using Yi.Framework.Core.Data;
+using Yi.Framework.Core.Enums;
+using Yi.Framework.Core.Helper;
+using Yi.Framework.Rbac.Domain.Shared.File;
 
-namespace Yi.Framework.Rbac.Domain.File;
+namespace Yi.Framework.Rbac.Domain.Entities;
 
 /// <summary>
 /// 文件
 /// </summary>
 [SugarTable("File")]
-public class FileAggregateRoot : AggregateRoot<Guid>,  IAuditedObject
+public class FileAggregateRoot : AggregateRoot<Guid>, IAuditedObject
 {
     public FileAggregateRoot()
     {
@@ -32,7 +35,7 @@ public class FileAggregateRoot : AggregateRoot<Guid>,  IAuditedObject
 
     [SugarColumn(IsPrimaryKey = true)]
     public override Guid Id { get; protected set; }
-    
+
 
     /// <summary>
     /// 文件名称
@@ -90,5 +93,21 @@ public class FileAggregateRoot : AggregateRoot<Guid>,  IAuditedObject
         SetFileSize(fileSize);
         SetContentType(contentType);
         SetFileName(fileName);
+    }
+
+    /// <summary>
+    /// 获取文件类型
+    /// </summary>
+    public FileTypeEnum GetFileType()
+    {
+        return MimeHelper.GetFileType(FileName);
+    }
+
+    /// <summary>
+    /// 获取 MIME 类型映射
+    /// </summary>
+    public string GetMimeMapping()
+    {
+        return MimeHelper.GetMimeMapping(FileName);
     }
 }

@@ -7,6 +7,7 @@ using Volo.Abp.BlobStoring;
 using Yi.Framework.Ddd.Application;
 using Yi.Framework.Rbac.Application.Contracts.Dtos;
 using Yi.Framework.Rbac.Application.Contracts.IServices;
+using Yi.Framework.Rbac.Domain.Entities;
 using Yi.Framework.Rbac.Domain.File;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
