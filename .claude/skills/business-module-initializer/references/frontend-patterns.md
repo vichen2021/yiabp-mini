@@ -4,22 +4,28 @@ This document provides detailed code patterns for frontend implementation.
 
 ## API File Patterns
 
-### Basic API Structure
+### Basic API Structure (with Pagination)
 
 ```typescript
 import type { {EntityName} } from './model';
 
-import type { ID } from '#/api/common';
+import type { ID, IDS, PageQuery, PageResult } from '#/api/common';
 
 import { requestClient } from '#/api/request';
 
 enum Api {
   {entityName}List = '/{entity-name}/list',
+  {entityName}Select = '/{entity-name}/select-data-list',
   root = '/{entity-name}',
 }
 
-export function {entityName}List(params?: { /* filters */ }) {
-  return requestClient.get<{EntityName}[]>(Api.{entityName}List, { params });
+/**
+ * {Entity name}分页列表
+ * @param params 请求参数
+ * @returns 列表
+ */
+export function {entityName}List(params?: PageQuery) {
+  return requestClient.get<PageResult<{EntityName}>>(Api.root, { params });
 }
 
 export function {entityName}Info({entityName}Id: ID) {
@@ -34,10 +40,19 @@ export function {entityName}Update(data: Partial<{EntityName}>) {
   return requestClient.putWithMsg<void>(`${Api.root}/${data.id}`, data);
 }
 
-export function {entityName}Remove({entityName}Id: ID) {
+export function {entityName}Remove({entityName}Ids: IDS) {
   return requestClient.deleteWithMsg<void>(Api.root, {
-    params: { ids: {entityName}Id },
+    params: { ids: {entityName}Ids.join(',') },
   });
+}
+
+/**
+ * 获取{Entity name}下拉列表
+ * @param keywords 关键词（可选）
+ * @returns {Entity name}列表
+ */
+export function {entityName}OptionSelect(keywords?: string) {
+  return requestClient.get<{EntityName}[]>(`${Api.{entityName}Select}?keywords=${keywords || ''}`);
 }
 ```
 
@@ -67,7 +82,7 @@ import type { {EntityName} } from '#/api/system/{entity-name}/model';
 import { nextTick } from 'vue';
 
 import { Page, useVbenDrawer } from '@vben/common-ui';
-import { eachTree, getVxePopupContainer } from '@vben/utils';
+import { getVxePopupContainer } from '@vben/utils';
 
 import { Popconfirm, Space } from 'ant-design-vue';
 
@@ -86,20 +101,33 @@ const formOptions: VbenFormProps = {
   },
   schema: querySchema(),
   wrapperClass: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
+  // 日期选择格式化（如果使用日期范围查询）
+  fieldMappingTime: [
+    [
+      'creationTime',
+      ['startTime', 'endTime'],
+      ['YYYY-MM-DD 00:00:00', 'YYYY-MM-DD 23:59:59'],
+    ],
+  ],
 };
 
 const gridOptions: VxeGridProps = {
+  checkboxConfig: {
+    highlight: true,
+    reserve: true,
+  },
   columns,
   height: 'auto',
   keepSource: true,
-  pagerConfig: {
-    enabled: false,
-  },
+  pagerConfig: {},
   proxyConfig: {
     ajax: {
-      query: async (_, formValues = {}) => {
-        const resp = await {entityName}List(formValues);
-        return { items: resp };
+      query: async ({ page }, formValues = {}) => {
+        return await {entityName}List({
+          SkipCount: page.currentPage,
+          MaxResultCount: page.pageSize,
+          ...formValues,
+        });
       },
     },
   },
@@ -226,54 +254,67 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 import { DictEnum } from '@vben/constants';
 import { getPopupContainer } from '@vben/utils';
 
+import { getDictOptions } from '#/utils/dict';
 import { renderDict } from '#/utils/render';
 
 export const querySchema: FormSchemaGetter = () => [
   {
     component: 'Input',
-    fieldName: 'name',
-    label: '名称',
+    fieldName: 'configName',
+    label: '参数名称',
+  },
+  {
+    component: 'Input',
+    fieldName: 'configKey',
+    label: '参数键名',
   },
   {
     component: 'Select',
     componentProps: {
       getPopupContainer,
-      options: [
-        { label: '启用', value: true },
-        { label: '禁用', value: false },
-      ],
+      options: getDictOptions(DictEnum.SYS_YES_NO),
     },
-    fieldName: 'state',
-    label: '状态',
+    fieldName: 'configType',
+    label: '系统内置',
+  },
+  {
+    component: 'RangePicker',
+    fieldName: 'creationTime',
+    label: '创建时间',
   },
 ];
 
 export const columns: VxeGridProps['columns'] = [
+  { type: 'checkbox', width: 60 },
   {
-    field: 'name',
-    title: '名称',
-    treeNode: true, // If tree structure
+    title: '参数名称',
+    field: 'configName',
   },
   {
-    field: 'code',
-    title: '编码',
+    title: '参数KEY',
+    field: 'configKey',
   },
   {
-    field: 'orderNum',
-    title: '排序',
+    title: '参数Value',
+    field: 'configValue',
   },
   {
-    field: 'state',
-    title: '状态',
+    title: '系统内置',
+    field: 'configType',
+    width: 120,
     slots: {
       default: ({ row }) => {
-        return renderDict(String(row.state), DictEnum.SYS_NORMAL_DISABLE);
+        return renderDict(row.configType, DictEnum.SYS_YES_NO);
       },
     },
   },
   {
-    field: 'creationTime',
+    title: '备注',
+    field: 'remark',
+  },
+  {
     title: '创建时间',
+    field: 'creationTime',
   },
   {
     field: 'action',
@@ -295,44 +336,44 @@ export const drawerSchema: FormSchemaGetter = () => [
     fieldName: 'id',
   },
   {
-    component: 'TreeSelect',
-    componentProps: {
-      getPopupContainer,
-    },
-    dependencies: {
-      show: (model) => model.parentId !== '00000000-0000-0000-0000-000000000000',
-      triggerFields: ['parentId'],
-    },
-    fieldName: 'parentId',
-    label: '上级',
-    rules: 'selectRequired',
+    component: 'Input',
+    fieldName: 'configName',
+    label: '参数名称',
+    rules: 'required',
   },
   {
     component: 'Input',
-    fieldName: 'name',
-    label: '名称',
+    fieldName: 'configKey',
+    label: '参数键名',
     rules: 'required',
   },
   {
-    component: 'InputNumber',
-    fieldName: 'orderNum',
-    label: '显示排序',
+    component: 'Textarea',
+    formItemClass: 'items-start',
+    fieldName: 'configValue',
+    label: '参数键值',
+    componentProps: {
+      autoSize: true,
+    },
     rules: 'required',
-    defaultValue: 0,
   },
   {
     component: 'RadioGroup',
     componentProps: {
       buttonStyle: 'solid',
-      options: [
-        { label: '启用', value: true },
-        { label: '禁用', value: false },
-      ],
+      options: getDictOptions(DictEnum.SYS_YES_NO),
       optionType: 'button',
     },
-    defaultValue: true,
-    fieldName: 'state',
-    label: '状态',
+    defaultValue: 'N',
+    fieldName: 'configType',
+    label: '是否内置',
+    rules: 'required',
+  },
+  {
+    component: 'Textarea',
+    fieldName: 'remark',
+    formItemClass: 'items-start',
+    label: '备注',
   },
 ];
 ```
@@ -464,3 +505,4 @@ async function handleClosed() {
 - `cloneDeep` - For deep cloning objects
 - `listToTree` - Convert flat list to tree structure
 - `addFullName` - Add full path name for tree nodes
+

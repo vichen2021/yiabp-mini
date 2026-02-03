@@ -1,6 +1,6 @@
 ---
 name: business-module-initializer
-description: Initialize complete business module scaffolding for both backend (C# .NET with ABP framework) and frontend (Vue3 + Vben5 + Ant Design Vue). Creates entity classes, DTOs, service interfaces, service implementations, repositories, API files, and view components following the project's established patterns. Use when user needs to create a new business feature like department management, user management, or any CRUD module that requires full-stack implementation.
+description: Initialize complete business module scaffolding for both backend (C# .NET with ABP framework) and frontend (Vue3 + Vben5 + Ant Design Vue). Creates entity classes, DTOs, service interfaces, service implementations, menu seed data, API files, and view components following the project's established patterns. Use when user needs to create a new business feature or CRUD module that requires full-stack implementation, such as: (1) Creating a new entity with complete backend and frontend, (2) Adding a new business module to an existing system, (3) Generating scaffolding for department management, user management, product management, or similar business entities, (4) Setting up menu permissions and seed data for a new module.
 ---
 
 # Business Module Initializer
@@ -16,8 +16,6 @@ When initializing a business module (e.g., "Department", "Product", "Order"), yo
 2. DTO classes in `Application.Contracts/Dtos/{EntityName}/`
 3. Service interface in `Application.Contracts/IServices/`
 4. Service implementation in `Application/Services/`
-5. Repository interface in `Domain/Repositories/` (if custom methods needed)
-6. Repository implementation in `SqlSugarCore/Repositories/` (if custom methods needed)
 
 **Frontend (@src/Admin/apps/web-antd):**
 1. API files in `api/system/{entity-name}/`
@@ -219,7 +217,7 @@ using Yi.Framework.Ddd.Application;
 using Yi.Framework.{ModuleName}.Application.Contracts.Dtos.{EntityName};
 using Yi.Framework.{ModuleName}.Application.Contracts.IServices;
 using Yi.Framework.{ModuleName}.Domain.Entities;
-using Yi.Framework.{ModuleName}.Domain.Repositories;
+using Yi.Framework.SqlSugarCore.Abstractions;
 
 namespace Yi.Framework.{ModuleName}.Application.Services
 {
@@ -229,9 +227,9 @@ namespace Yi.Framework.{ModuleName}.Application.Services
     public class {EntityName}Service : YiCrudAppService<{EntityName}AggregateRoot, {EntityName}GetOutputDto, {EntityName}GetListOutputDto, Guid,
         {EntityName}GetListInputVo, {EntityName}CreateInputVo, {EntityName}UpdateInputVo>, I{EntityName}Service
     {
-        private I{EntityName}Repository _repository;
+        private ISqlSugarRepository<{EntityName}AggregateRoot, Guid> _repository;
 
-        public {EntityName}Service(I{EntityName}Repository repository) : base(repository)
+        public {EntityName}Service(ISqlSugarRepository<{EntityName}AggregateRoot, Guid> repository) : base(repository)
         {
             _repository = repository;
         }
@@ -244,42 +242,149 @@ namespace Yi.Framework.{ModuleName}.Application.Services
 }
 ```
 
-#### 2.5 Create Repository (if custom methods needed)
+#### 2.5 Create Menu Seed Data
 
-**Interface:** `src/WebApi/module/{module-name}/Yi.Framework.{ModuleName}.Domain/Repositories/I{EntityName}Repository.cs`
+After creating the service, you need to add menu seed data for the new module.
+
+**Location:** `src/WebApi/module/rbac/Yi.Framework.Rbac.SqlSugarCore/DataSeeds/MenuDataSeed/{ModuleName}MenuDataSeed.cs`
+
+**Template pattern:**
 ```csharp
-using Yi.Framework.{ModuleName}.Domain.Entities;
-using Yi.Framework.SqlSugarCore.Abstractions;
-
-namespace Yi.Framework.{ModuleName}.Domain.Repositories
-{
-    public interface I{EntityName}Repository : ISqlSugarRepository<{EntityName}AggregateRoot, Guid>
-    {
-        // Add custom repository methods if needed
-    }
-}
-```
-
-**Implementation:** `src/WebApi/module/{module-name}/Yi.Framework.{ModuleName}.SqlSugarCore/Repositories/{EntityName}Repository.cs`
-```csharp
+using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
-using Yi.Framework.{ModuleName}.Domain.Entities;
-using Yi.Framework.{ModuleName}.Domain.Repositories;
+using Volo.Abp.Guids;
+using Yi.Framework.Rbac.Domain.Entities;
+using Yi.Framework.Rbac.Domain.Shared.Enums;
 using Yi.Framework.SqlSugarCore.Abstractions;
-using Yi.Framework.SqlSugarCore.Repositories;
 
-namespace Yi.Framework.{ModuleName}.SqlSugarCore.Repositories
+namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
 {
-    public class {EntityName}Repository : SqlSugarRepository<{EntityName}AggregateRoot, Guid>, I{EntityName}Repository, ITransientDependency
+    public class {ModuleName}MenuDataSeed : IDataSeedContributor, ITransientDependency
     {
-        public {EntityName}Repository(ISugarDbContextProvider<ISqlSugarDbContext> sugarDbContextProvider) : base(sugarDbContextProvider)
+        private ISqlSugarRepository<MenuAggregateRoot> _repository;
+        private IGuidGenerator _guidGenerator;
+
+        public {ModuleName}MenuDataSeed(ISqlSugarRepository<MenuAggregateRoot> repository, IGuidGenerator guidGenerator)
         {
+            _repository = repository;
+            _guidGenerator = guidGenerator;
         }
 
-        // Implement custom methods if needed
+        public async Task SeedAsync(DataSeedContext context)
+        {
+            if (!await _repository.IsAnyAsync(x => x.MenuName == "{Module Display Name}"))
+            {
+                await _repository.InsertManyAsync(GetSeedData());
+            }
+        }
+
+        public List<MenuAggregateRoot> GetSeedData()
+        {
+            List<MenuAggregateRoot> entities = new List<MenuAggregateRoot>();
+
+            // {Module Display Name}（顶级菜单，和系统管理平级）
+            MenuAggregateRoot {moduleName} = new MenuAggregateRoot(_guidGenerator.Create(), Guid.Empty)
+            {
+                MenuName = "{Module Display Name}",
+                MenuType = MenuTypeEnum.Catalogue,
+                Router = "/{module-name}",
+                IsShow = true,
+                IsLink = false,
+                MenuIcon = "{icon-name}",
+                OrderNum = 95,
+                IsDeleted = false
+            };
+            entities.Add({moduleName});
+
+            // {Entity Name}管理
+            MenuAggregateRoot {entityName} = new MenuAggregateRoot(_guidGenerator.Create(), {moduleName}.Id)
+            {
+                MenuName = "{Entity Display Name}",
+                PermissionCode = "{module-name}:{entity-name}:list",
+                MenuType = MenuTypeEnum.Menu,
+                Router = "{entity-name}",
+                IsShow = true,
+                IsLink = false,
+                IsCache = true,
+                Component = "{module-name}/{entity-name}/index",
+                MenuIcon = "{icon-name}",
+                OrderNum = 100,
+                IsDeleted = false
+            };
+            entities.Add({entityName});
+
+            // {Entity Name}查询
+            MenuAggregateRoot {entityName}Query = new MenuAggregateRoot(_guidGenerator.Create())
+            {
+                MenuName = "{Entity Display Name}查询",
+                PermissionCode = "{module-name}:{entity-name}:query",
+                MenuType = MenuTypeEnum.Component,
+                OrderNum = 100,
+                ParentId = {entityName}.Id,
+                IsDeleted = false
+            };
+            entities.Add({entityName}Query);
+
+            // {Entity Name}新增
+            MenuAggregateRoot {entityName}Add = new MenuAggregateRoot(_guidGenerator.Create())
+            {
+                MenuName = "{Entity Display Name}新增",
+                PermissionCode = "{module-name}:{entity-name}:add",
+                MenuType = MenuTypeEnum.Component,
+                OrderNum = 100,
+                ParentId = {entityName}.Id,
+                IsDeleted = false
+            };
+            entities.Add({entityName}Add);
+
+            // {Entity Name}修改
+            MenuAggregateRoot {entityName}Edit = new MenuAggregateRoot(_guidGenerator.Create())
+            {
+                MenuName = "{Entity Display Name}修改",
+                PermissionCode = "{module-name}:{entity-name}:edit",
+                MenuType = MenuTypeEnum.Component,
+                OrderNum = 100,
+                ParentId = {entityName}.Id,
+                IsDeleted = false
+            };
+            entities.Add({entityName}Edit);
+
+            // {Entity Name}删除
+            MenuAggregateRoot {entityName}Remove = new MenuAggregateRoot(_guidGenerator.Create())
+            {
+                MenuName = "{Entity Display Name}删除",
+                PermissionCode = "{module-name}:{entity-name}:remove",
+                MenuType = MenuTypeEnum.Component,
+                OrderNum = 100,
+                ParentId = {entityName}.Id,
+                IsDeleted = false
+            };
+            entities.Add({entityName}Remove);
+
+            // 统一设置菜单属性
+            entities.ForEach(m =>
+            {
+                m.IsDeleted = false;
+                m.State = true;
+                m.MenuSource = MenuSourceEnum.Ruoyi;
+                m.IsShow = true;
+            });
+
+            return entities;
+        }
     }
 }
 ```
+
+**Key points:**
+- Each module should have its own menu seed data file (e.g., `VideoMenuDataSeed.cs` for video module)
+- Create a top-level catalogue menu (ParentId = Guid.Empty)
+- Create menu items for each entity with CRUD permissions (query, add, edit, remove)
+- Use consistent permission code format: `{module-name}:{entity-name}:{action}`
+- Set default properties at the end for all menus
+
+**Reference example:**
+- Video module: `src/WebApi/module/rbac/Yi.Framework.Rbac.SqlSugarCore/DataSeeds/MenuDataSeed/VideoMenuDataSeed.cs`
 
 ### Step 3: Frontend Implementation
 
@@ -376,11 +481,11 @@ Location: `src/Admin/apps/web-antd/src/views/system/{entity-name}/`
 - Handles create and update operations
 - Manages form state and validation
 
-**Key patterns from dept example:**
-- Tree structure support with `treeConfig` in grid
-- Parent-child relationships with TreeSelect
+**Key patterns from config example:**
+- Pagination support with `pagerConfig` in grid
 - Form validation and error handling
 - Loading states and user feedback
+- Date range filtering with `fieldMappingTime`
 
 ## Naming Conventions
 
@@ -394,12 +499,13 @@ Location: `src/Admin/apps/web-antd/src/views/system/{entity-name}/`
 
 ### Tree Structure Entities
 
-If the entity has parent-child relationships (like Department):
+If the entity has parent-child relationships:
 - Add `ParentId` property (Guid, default to `Guid.Empty` for root)
 - Add `Children` property (List<EntityType>?) for tree building
 - Use `TreeHelper.SetTree()` for backend tree building
 - Use `listToTree()` and `addFullName()` for frontend tree display
 - Implement tree-specific methods in service (e.g., `GetTreeAsync()`, `GetListExcludeAsync()`)
+- Add `treeConfig` in frontend grid options
 
 ### Validation
 
@@ -415,15 +521,16 @@ If the entity has parent-child relationships (like Department):
 
 ## Examples
 
-Reference the `Dept` (Department) module implementation:
-- Backend: `src/WebApi/module/rbac/Yi.Framework.Rbac.Domain/Entities/DeptAggregateRoot.cs`
-- DTOs: `src/WebApi/module/rbac/Yi.Framework.Rbac.Application.Contracts/Dtos/Dept/`
-- Service: `src/WebApi/module/rbac/Yi.Framework.Rbac.Application/Services/System/DeptService.cs`
-- Frontend API: `src/Admin/apps/web-antd/src/api/system/dept/`
-- Frontend Views: `src/Admin/apps/web-antd/src/views/system/dept/`
+Reference the `Config` (Configuration) module implementation:
+- Backend: `src/WebApi/module/rbac/Yi.Framework.Rbac.Domain/Entities/ConfigAggregateRoot.cs`
+- DTOs: `src/WebApi/module/rbac/Yi.Framework.Rbac.Application.Contracts/Dtos/Config/`
+- Service: `src/WebApi/module/rbac/Yi.Framework.Rbac.Application/Services/System/ConfigService.cs`
+- Frontend API: `src/Admin/apps/web-antd/src/api/system/config/`
+- Frontend Views: `src/Admin/apps/web-antd/src/views/system/config/`
 
 ## Resources
 
 See `references/backend-patterns.md` for detailed backend code patterns.
 See `references/frontend-patterns.md` for detailed frontend code patterns.
+See `references/menu-seed-patterns.md` for menu seed data patterns.
 See `assets/` for code templates if needed.

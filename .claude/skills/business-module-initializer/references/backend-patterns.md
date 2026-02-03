@@ -119,16 +119,16 @@ using Yi.Framework.Ddd.Application;
 using Yi.Framework.{ModuleName}.Application.Contracts.Dtos.{EntityName};
 using Yi.Framework.{ModuleName}.Application.Contracts.IServices;
 using Yi.Framework.{ModuleName}.Domain.Entities;
-using Yi.Framework.{ModuleName}.Domain.Repositories;
+using Yi.Framework.SqlSugarCore.Abstractions;
 
 namespace Yi.Framework.{ModuleName}.Application.Services
 {
     public class {EntityName}Service : YiCrudAppService<{EntityName}AggregateRoot, {EntityName}GetOutputDto, {EntityName}GetListOutputDto, Guid,
         {EntityName}GetListInputVo, {EntityName}CreateInputVo, {EntityName}UpdateInputVo>, I{EntityName}Service
     {
-        private I{EntityName}Repository _repository;
+        private ISqlSugarRepository<{EntityName}AggregateRoot, Guid> _repository;
 
-        public {EntityName}Service(I{EntityName}Repository repository) : base(repository)
+        public {EntityName}Service(ISqlSugarRepository<{EntityName}AggregateRoot, Guid> repository) : base(repository)
         {
             _repository = repository;
         }
@@ -139,7 +139,7 @@ namespace Yi.Framework.{ModuleName}.Application.Services
 ### Custom List Query with Joins
 
 ```csharp
-[Route("{entity-name}/list")]
+[Route("{entity-name}/，")]
 public async Task<List<{EntityName}GetListOutputDto>> GetListAsync({EntityName}GetListInputVo input)
 {
     var result = await _repository._DbQueryable
@@ -220,34 +220,16 @@ public async Task<List<{EntityName}GetListOutputDto>> GetListExcludeAsync(Guid i
 }
 ```
 
-## Repository Patterns
+## Repository Usage
 
-### Basic Repository
+Services use `ISqlSugarRepository<{EntityName}AggregateRoot, Guid>` directly from `Yi.Framework.SqlSugarCore.Abstractions`. No custom repository interface or implementation is needed unless you have complex custom query methods that cannot be handled through the service layer.
 
-```csharp
-using Volo.Abp.DependencyInjection;
-using Yi.Framework.{ModuleName}.Domain.Entities;
-using Yi.Framework.{ModuleName}.Domain.Repositories;
-using Yi.Framework.SqlSugarCore.Abstractions;
-using Yi.Framework.SqlSugarCore.Repositories;
-
-namespace Yi.Framework.{ModuleName}.SqlSugarCore.Repositories
-{
-    public class {EntityName}Repository : SqlSugarRepository<{EntityName}AggregateRoot, Guid>, I{EntityName}Repository, ITransientDependency
-    {
-        public {EntityName}Repository(ISugarDbContextProvider<ISqlSugarDbContext> sugarDbContextProvider) : base(sugarDbContextProvider)
-        {
-        }
-    }
-}
-```
-
-### Custom Repository Methods
+For custom query methods, implement them directly in the service using `_repository._DbQueryable`:
 
 ```csharp
 public async Task<List<Guid>> GetChildListAsync(Guid parentId)
 {
-    var entities = await _DbQueryable.ToChildListAsync(x => x.ParentId, parentId);
+    var entities = await _repository._DbQueryable.ToChildListAsync(x => x.ParentId, parentId);
     return entities.Select(x => x.Id).ToList();
 }
 ```
