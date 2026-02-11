@@ -235,7 +235,7 @@ function createRequestClient(baseURL: string) {
       }
 
       console.log('axiosResponseData', axiosResponseData);
-      // 适配新的后端数据结构: { statusCode, data, succeeded, errors, extras, timestamp }
+      // 适配后端数据结构: { statusCode, data, succeeded, errors, extras, timestamp }
       const { statusCode, data, succeeded, errors, extras, timestamp } =
         axiosResponseData;
 
@@ -261,13 +261,15 @@ function createRequestClient(baseURL: string) {
       // 如果不希望中断当前请求，请return数据，否则直接抛出异常即可
       let timeoutMsg = '';
       switch (statusCode) {
-        case 401: {
+        case 401:
+        case 403: {
           // 已经在登出过程中 不再执行
           if (isLogoutProcessing) {
             throw new UnauthorizedException(timeoutMsg);
           }
           isLogoutProcessing = true;
-          const _msg = $t('http.loginTimeout');
+          const _msg =
+            typeof errors === 'string' ? errors : $t('http.loginTimeout');
           const userStore = useAuthStore();
           userStore.logout().finally(() => {
             message.error(_msg);
