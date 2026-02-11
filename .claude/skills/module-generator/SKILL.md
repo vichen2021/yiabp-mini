@@ -1,6 +1,6 @@
 ---
 name: module-generator
-description: Generate ABP framework module structure following the project's established patterns. Creates all necessary project files, module classes, directory structures, and updates main module references. Use when user needs to create a new module in the src/WebApi/module directory.
+description: Generate ABP framework module structure following the project's established patterns. Creates all necessary project files, module classes, directory structures, updates main module references, and configures dynamic API. Use when user needs to create a new module in the module directory.
 ---
 
 # Module Generator
@@ -17,6 +17,7 @@ When generating a new module (e.g., "Content", "PersonManagement", "Collection")
 4. **Create directory structures** (Entities, Dtos, IServices, Services, Repositories)
 5. **Update main module files** to include the new module
 6. **Update solution file** (.slnx) to include all projects
+7. **Configure dynamic API** in YiAbpWebModule.cs
 
 ## Workflow
 
@@ -39,7 +40,7 @@ Convert the module name to appropriate formats:
 
 ### Step 2: Create Module Directory Structure
 
-Create the module root directory at: `src/WebApi/module/{kebab-module-name}/`
+Create the module root directory at: `module/{kebab-module-name}/`
 
 **Check if module already exists** - if it does, inform the user and stop.
 
@@ -265,7 +266,7 @@ namespace Yi.Framework.{PascalModuleName}.SqlSugarCore
 
 ### Step 5: Update Main Module Files
 
-Update the main module files in `src/WebApi/src/` to include references to the new module.
+Update the main module files in `src/` to include references to the new module.
 
 #### 5.1 Update Module Classes
 
@@ -323,7 +324,7 @@ For each layer, update the corresponding main project file to add a ProjectRefer
 
 ### Step 6: Update Solution File
 
-Update the solution file: `src/WebApi/Yi.Abp.slnx`
+Update the solution file: `Yi.Abp.slnx`
 
 The solution file is an XML file. You need to:
 
@@ -349,6 +350,41 @@ The solution file is an XML file. You need to:
 </Folder>
 ```
 
+### Step 7: Configure Dynamic API
+
+Update the `YiAbpWebModule.cs` file to add dynamic API configuration for the new module.
+
+**File**: `src/Yi.Abp.Web/YiAbpWebModule.cs`
+
+In the `PreConfigureServices` method, add a new `ConventionalControllers.Create` call:
+
+1. **Add using statement** (if not already present):
+   - Add `using Yi.Framework.{PascalModuleName}.Application;` at the top of the file
+   - Add using statements in alphabetical order
+
+2. **Add dynamic API configuration** in the `PreConfigureServices` method:
+   - Find the `PreConfigure<AbpAspNetCoreMvcOptions>` block
+   - Add a new `options.ConventionalControllers.Create` call before the `//统一前缀` comment
+   - Use the following pattern:
+
+```csharp
+options.ConventionalControllers.Create(typeof(YiFramework{PascalModuleName}ApplicationModule).Assembly,
+    options => options.RemoteServiceName = "{kebab-module-name}");
+```
+
+**Example:**
+For a module named "Video" (PascalCase: "Video", KebabCase: "video"):
+```csharp
+options.ConventionalControllers.Create(typeof(YiFrameworkVideoApplicationModule).Assembly,
+    options => options.RemoteServiceName = "video");
+```
+
+**Important Notes:**
+- Add the `ConventionalControllers.Create` call in alphabetical order based on RemoteServiceName
+- The RemoteServiceName should be in kebab-case format (e.g., "video", "content-management")
+- Place the new entry before the `//统一前缀` comment line
+- Maintain proper indentation (4 spaces)
+
 ## Naming Conventions
 
 - **Module name input**: PascalCase or kebab-case
@@ -363,9 +399,10 @@ All generated files should use **UTF-8 without BOM** encoding.
 
 ## Error Handling
 
-- **Module already exists**: Check if `src/WebApi/module/{kebab-module-name}/` exists before creating
+- **Module already exists**: Check if `module/{kebab-module-name}/` exists before creating
 - **Main module files not found**: If main module files don't exist, inform the user but continue
 - **Solution file update fails**: Inform the user to manually add projects to the solution
+- **Dynamic API configuration fails**: If YiAbpWebModule.cs cannot be updated, inform the user to manually add the configuration
 
 ## Examples
 
@@ -373,29 +410,31 @@ All generated files should use **UTF-8 without BOM** encoding.
 **Input**: "Content"
 - PascalCase: "Content"
 - KebabCase: "content"
-- Module path: `src/WebApi/module/content/`
+- Module path: `module/content/`
 - Projects: `Yi.Framework.Content.Domain.Shared`, `Yi.Framework.Content.Domain`, etc.
+- Dynamic API RemoteServiceName: "content"
 
 ### Example 2: Compound Module Name
 **Input**: "ContentManagement"
 - PascalCase: "ContentManagement"
 - KebabCase: "content-management"
-- Module path: `src/WebApi/module/content-management/`
+- Module path: `module/content-management/`
 - Projects: `Yi.Framework.ContentManagement.Domain.Shared`, etc.
+- Dynamic API RemoteServiceName: "content-management"
 
 ### Example 3: Kebab-Case Input
 **Input**: "content-management"
 - PascalCase: "ContentManagement"
 - KebabCase: "content-management"
-- Module path: `src/WebApi/module/content-management/`
+- Module path: `module/content-management/`
 - Projects: `Yi.Framework.ContentManagement.Domain.Shared`, etc.
+- Dynamic API RemoteServiceName: "content-management"
 
 ## Reference Implementation
 
 See existing modules for reference:
-- `src/WebApi/module/content/` - Simple module example
-- `src/WebApi/module/setting-management/` - Kebab-case module example
-- `src/WebApi/module/rbac/` - Complex module example
+- `module/setting-management/` - Kebab-case module example
+- `module/rbac/` - Complex module example with dynamic API configured
 
 ## Next Steps After Module Generation
 

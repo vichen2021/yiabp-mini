@@ -138,15 +138,21 @@ namespace Yi.Framework.{ModuleName}.Application.Services
 
 ### Custom List Query with Joins
 
+Override `GetListAsync()` when you need joins or complex filtering. ABP automatically generates the route, no `[Route]` attribute needed.
+
 ```csharp
-[Route("{entity-name}/，")]
-public async Task<List<{EntityName}GetListOutputDto>> GetListAsync({EntityName}GetListInputVo input)
+public override async Task<PagedResultDto<{EntityName}GetListOutputDto>> GetListAsync({EntityName}GetListInputVo input)
 {
-    var result = await _repository._DbQueryable
+    RefAsync<int> total = 0;
+    var query = _repository._DbQueryable;
+
+    query = query
         .WhereIF(!string.IsNullOrEmpty(input.Name), u => u.Name.Contains(input.Name!))
         .WhereIF(input.State is not null, u => u.State == input.State)
         .LeftJoin<RelatedEntity>((main, related) => main.RelatedId == related.Id)
-        .OrderBy((main, related) => main.OrderNum, OrderByType.Asc)
+        .OrderBy((main, related) => main.OrderNum, OrderByType.Asc);
+
+    var entities = await query
         .Select((main, related) => new {EntityName}GetListOutputDto
         {
             Id = main.Id,
@@ -156,9 +162,9 @@ public async Task<List<{EntityName}GetListOutputDto>> GetListAsync({EntityName}G
             RelatedEntityName = related.Name,
             // Map other properties
         })
-        .ToListAsync();
-    
-    return result;
+        .ToPageListAsync(input.SkipCount, input.MaxResultCount, total);
+
+    return new PagedResultDto<{EntityName}GetListOutputDto>(total, entities);
 }
 ```
 
