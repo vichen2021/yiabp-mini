@@ -25,7 +25,7 @@ features:
   - icon: 🚀
     title: 最新技术栈
     details: 后端基于 .NET 10 + ABP Framework 10，前端基于 Vue 3 + Vben5 + Ant Design Vue 4
-    link: /guide/tech-stack/backend
+    link: /guide/backend/tech-stack
     linkText: 查看技术栈
   - icon: 🏗️
     title: DDD 分层架构

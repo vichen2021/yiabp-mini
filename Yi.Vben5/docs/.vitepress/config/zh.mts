@@ -69,15 +69,9 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
       ],
     },
     {
-      text: '技术栈',
-      items: [
-        { link: 'tech-stack/backend', text: '后端技术栈' },
-        { link: 'tech-stack/frontend', text: '前端技术栈' },
-      ],
-    },
-    {
       text: '后端开发',
       items: [
+        { link: 'backend/tech-stack', text: '后端技术栈' },
         { link: 'backend/architecture', text: '架构设计' },
         { link: 'backend/naming', text: '命名规范' },
         { link: 'backend/entity', text: '实体定义' },
@@ -92,6 +86,7 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
     {
       text: '前端开发',
       items: [
+        { link: 'frontend/tech-stack', text: '前端技术栈' },
         { link: 'frontend/development', text: '本地开发' },
         { link: 'frontend/route', text: '路由和菜单' },
         { link: 'frontend/api', text: 'API 调用' },
