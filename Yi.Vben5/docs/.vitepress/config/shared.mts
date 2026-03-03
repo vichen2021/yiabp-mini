@@ -44,12 +44,12 @@ export const shared = defineConfig({
       },
       provider: 'local',
     },
-    siteTitle: 'Vben Admin',
+    siteTitle: 'Yi.Mini',
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/vbenjs/vue-vben-admin' },
+      { icon: 'gitee', link: 'https://gitee.com/vichen2021/yiabp-mini' },
     ],
   },
-  title: 'Vben Admin',
+  title: 'Yi.Mini',
   vite: {
     build: {
       chunkSizeWarningLimit: Infinity,
@@ -73,22 +73,8 @@ export const shared = defineConfig({
     },
     plugins: [
       GitChangelog({
-        mapAuthors: [
-          {
-            mapByNameAliases: ['Vben'],
-            name: 'vben',
-            username: 'anncwb',
-          },
-          {
-            name: 'vince',
-            username: 'vince292007',
-          },
-          {
-            name: 'Li Kui',
-            username: 'likui628',
-          },
-        ],
-        repoURL: () => 'https://github.com/vbenjs/vue-vben-admin',
+        mapAuthors: [],
+        repoURL: () => 'https://gitee.com/vichen2021/yiabp-mini',
       }),
       GitChangelogMarkdownSection(),
       viteArchiverPlugin({ outputDir: '.vitepress' }),
@@ -111,11 +97,11 @@ export const shared = defineConfig({
 
 function head(): HeadConfig[] {
   return [
-    ['meta', { content: 'Vbenjs Team', name: 'author' }],
+    ['meta', { content: 'Yi.Mini Team', name: 'author' }],
     [
       'meta',
       {
-        content: 'vben, vitejs, vite, shacdn-ui, vue',
+        content: 'yiabp, abp, .net, vue3, vben5, rbac, 权限管理',
         name: 'keywords',
       },
     ],
@@ -128,7 +114,7 @@ function head(): HeadConfig[] {
         name: 'viewport',
       },
     ],
-    ['meta', { content: 'vben admin docs', name: 'keywords' }],
+    ['meta', { content: 'Yi.Mini 文档', name: 'keywords' }],
     ['link', { href: '/favicon.ico', rel: 'icon' }],
     // [
     //   'script',
@@ -144,7 +130,7 @@ function pwa(): PwaOptions {
     includeManifestIcons: false,
     manifest: {
       description:
-        'Vben Admin is a modern admin dashboard template based on Vue 3. ',
+        'Yi.Mini 是基于 ABP Framework 和 Vben5 的精简版 RBAC 权限管理框架',
       icons: [
         {
           sizes: '192x192',
@@ -158,8 +144,8 @@ function pwa(): PwaOptions {
         },
       ],
       id: '/',
-      name: 'Vben Admin Doc',
-      short_name: 'vben_admin_doc',
+      name: 'Yi.Mini 文档',
+      short_name: 'yi_mini_doc',
       theme_color: '#ffffff',
     },
     outDir: resolve(process.cwd(), '.vitepress/dist'),

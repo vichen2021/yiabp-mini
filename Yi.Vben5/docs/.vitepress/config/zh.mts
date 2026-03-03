@@ -5,7 +5,7 @@ import { defineConfig } from 'vitepress';
 import { version } from '../../../package.json';
 
 export const zh = defineConfig({
-  description: 'Vben Admin & 企业级管理系统框架',
+  description: 'Yi.Mini - 基于 ABP Framework 和 Vben5 的精简版 RBAC 权限管理框架',
   lang: 'zh-Hans',
   themeConfig: {
     darkModeSwitchLabel: '主题',
@@ -16,11 +16,11 @@ export const zh = defineConfig({
     },
     editLink: {
       pattern:
-        'https://github.com/vbenjs/vue-vben-admin/edit/main/docs/src/:path',
-      text: '在 GitHub 上编辑此页面',
+        'https://gitee.com/vichen2021/yiabp-mini/edit/main/Yi.Vben5/docs/src/:path',
+      text: '在 Gitee 上编辑此页面',
     },
     footer: {
-      copyright: `Copyright © 2020-${new Date().getFullYear()} Vben`,
+      copyright: `Copyright © ${new Date().getFullYear()} Yi.Mini`,
       message: '基于 MIT 许可发布.',
     },
     langMenuLabel: '多语言',
@@ -55,68 +55,72 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
       text: '简介',
       items: [
         {
-          link: 'introduction/vben',
-          text: '关于 Vben Admin',
+          link: 'introduction/about',
+          text: '关于 Yi.Mini',
         },
         {
-          link: 'introduction/why',
-          text: '为什么选择我们?',
+          link: 'introduction/quick-start',
+          text: '快速开始',
         },
-        { link: 'introduction/quick-start', text: '快速开始' },
-        { link: 'introduction/thin', text: '精简版本' },
         {
-          base: '/',
-          link: 'components/introduction',
-          text: '组件文档',
+          link: 'introduction/features',
+          text: '核心特性',
         },
       ],
     },
     {
-      text: '基础',
+      text: '技术栈',
       items: [
-        { link: 'essentials/concept', text: '基础概念' },
-        { link: 'essentials/development', text: '本地开发' },
-        { link: 'essentials/route', text: '路由和菜单' },
-        { link: 'essentials/settings', text: '配置' },
-        { link: 'essentials/icons', text: '图标' },
-        { link: 'essentials/styles', text: '样式' },
-        { link: 'essentials/external-module', text: '外部模块' },
-        { link: 'essentials/build', text: '构建与部署' },
-        { link: 'essentials/server', text: '服务端交互与数据Mock' },
+        { link: 'tech-stack/backend', text: '后端技术栈' },
+        { link: 'tech-stack/frontend', text: '前端技术栈' },
       ],
     },
     {
-      text: '深入',
+      text: '后端开发',
       items: [
-        { link: 'in-depth/login', text: '登录' },
-        // { link: 'in-depth/layout', text: '布局' },
-        { link: 'in-depth/theme', text: '主题' },
-        { link: 'in-depth/access', text: '权限' },
-        { link: 'in-depth/locale', text: '国际化' },
-        { link: 'in-depth/features', text: '常用功能' },
-        { link: 'in-depth/check-updates', text: '检查更新' },
-        { link: 'in-depth/loading', text: '全局loading' },
-        { link: 'in-depth/ui-framework', text: '组件库切换' },
+        { link: 'backend/architecture', text: '架构设计' },
+        { link: 'backend/naming', text: '命名规范' },
+        { link: 'backend/entity', text: '实体定义' },
+        { link: 'backend/enum', text: '枚举使用' },
+        { link: 'backend/service', text: '应用服务' },
+        { link: 'backend/api', text: 'API 模式' },
+        { link: 'backend/permission', text: '权限与日志' },
+        { link: 'backend/query', text: '查询模式' },
+        { link: 'backend/module', text: '模块开发' },
       ],
     },
     {
-      text: '工程',
+      text: '前端开发',
       items: [
-        { link: 'project/standard', text: '规范' },
-        { link: 'project/cli', text: 'CLI' },
-        { link: 'project/dir', text: '目录说明' },
-        { link: 'project/test', text: '单元测试' },
-        { link: 'project/tailwindcss', text: 'Tailwind CSS' },
-        { link: 'project/changeset', text: 'Changeset' },
-        { link: 'project/vite', text: 'Vite Config' },
+        { link: 'frontend/development', text: '本地开发' },
+        { link: 'frontend/route', text: '路由和菜单' },
+        { link: 'frontend/api', text: 'API 调用' },
+        { link: 'frontend/components', text: '组件使用' },
+        { link: 'frontend/build', text: '构建与部署' },
+      ],
+    },
+    {
+      text: 'Claude Skills',
+      items: [
+        { link: 'skills/module-generator', text: '模块生成器' },
+        { link: 'skills/crud-generator', text: 'CRUD 生成器' },
+        { link: 'skills/field-sync', text: '字段同步器' },
+        { link: 'skills/skill-creator', text: '技能创建器' },
+      ],
+    },
+    {
+      text: '开发规范',
+      items: [
+        { link: 'standards/coding', text: '编码规范' },
+        { link: 'standards/git', text: 'Git 提交规范' },
+        { link: 'standards/testing', text: '测试规范' },
       ],
     },
     {
       text: '其他',
       items: [
-        { link: 'other/project-update', text: '项目更新' },
-        { link: 'other/remove-code', text: '移除代码' },
         { link: 'other/faq', text: '常见问题' },
+        { link: 'other/contact', text: '联系方式' },
       ],
     },
   ];
@@ -204,112 +208,23 @@ function sidebarComponents(): DefaultTheme.SidebarItem[] {
 function nav(): DefaultTheme.NavItem[] {
   return [
     {
-      activeMatch: '^/(guide|components)/',
+      activeMatch: '^/guide/',
       text: '文档',
-      items: [
-        {
-          activeMatch: '^/guide/',
-          link: '/guide/introduction/vben',
-          text: '指南',
-        },
-        {
-          activeMatch: '^/components/',
-          link: '/components/introduction',
-          text: '组件',
-        },
-        {
-          text: '历史版本',
-          items: [
-            {
-              link: 'https://doc.vvbin.cn',
-              text: '2.x版本文档',
-            },
-          ],
-        },
-      ],
+      link: '/guide/introduction/about',
     },
     {
-      text: '演示',
-      items: [
-        {
-          text: 'Vben Admin',
-          items: [
-            {
-              link: 'https://www.vben.pro',
-              text: '演示版本',
-            },
-            {
-              link: 'https://ant.vben.pro',
-              text: 'Ant Design Vue 版本',
-            },
-            {
-              link: 'https://naive.vben.pro',
-              text: 'Naive 版本',
-            },
-            {
-              link: 'https://ele.vben.pro',
-              text: 'Element Plus版本',
-            },
-          ],
-        },
-        {
-          text: '其他',
-          items: [
-            {
-              link: 'https://vben.vvbin.cn',
-              text: 'Vben Admin 2.x',
-            },
-          ],
-        },
-      ],
+      text: '在线预览',
+      link: 'https://yi.wjys.top',
     },
     {
       text: version,
       items: [
         {
-          link: 'https://github.com/vbenjs/vue-vben-admin/releases',
-          text: '更新日志',
-        },
-        {
-          link: 'https://github.com/orgs/vbenjs/projects/5',
-          text: '路线图',
-        },
-        {
-          link: 'https://github.com/vbenjs/vue-vben-admin/blob/main/.github/contributing.md',
-          text: '贡献',
+          link: 'https://gitee.com/vichen2021/yiabp-mini',
+          text: 'Gitee',
         },
       ],
     },
-    {
-      link: '/commercial/technical-support',
-      text: '🦄 技术支持',
-    },
-    {
-      link: '/sponsor/personal',
-      text: '✨ 赞助',
-    },
-    {
-      link: '/commercial/community',
-      text: '👨‍👦‍👦 交流群',
-      // items: [
-      //   {
-      //     link: 'https://qun.qq.com/qqweb/qunpro/share?_wv=3&_wwv=128&appChannel=share&inviteCode=22ySzj7pKiw&businessType=9&from=246610&biz=ka&mainSourceId=share&subSourceId=others&jumpsource=shorturl#/pc',
-      //     text: 'QQ频道',
-      //   },
-      //   {
-      //     link: 'https://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=mjZmlhgVzzUxvdxllB6C1vHpX8O8QRL0&authKey=DBdFbBwERmfaKY95JvRWqLCJIRGJAmKyZbrpzZ41EKDMZ5SR6MfbjOBaaNRN73fr&noverify=0&group_code=4286109',
-      //     text: 'QQ群',
-      //   },
-      //   {
-      //     link: 'https://discord.gg/VU62jTecad',
-      //     text: 'Discord',
-      //   },
-      // ],
-    },
-    // {
-    //   link: '/friend-links/',
-    //   text: '🤝 友情链接',
-    // },
   ];
 }
 
