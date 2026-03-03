@@ -77,7 +77,7 @@ export interface {EntityName} {
 <script setup lang="ts">
 import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeGridProps } from '#/adapter/vxe-table';
-import type { {EntityName} } from '#/api/system/{entity-name}/model';
+import type { {EntityName} } from '#/api/{module-name}/{entity-name}/model';
 
 import { nextTick } from 'vue';
 
@@ -87,7 +87,7 @@ import { getVxePopupContainer } from '@vben/utils';
 import { Popconfirm, Space } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { {entityName}List, {entityName}Remove } from '#/api/system/{entity-name}';
+import { {entityName}List, {entityName}Remove } from '#/api/{module-name}/{entity-name}';
 
 import { columns, querySchema } from './data';
 import {entityName}Drawer from './{entity-name}-drawer.vue';
@@ -168,7 +168,7 @@ async function handleDelete(row: {EntityName}) {
         <Space>
           <a-button
             type="primary"
-            v-access:code="['system:{entity-name}:add']"
+            v-access:code="['{module-name}:{entity-name}:add']"
             @click="handleAdd"
           >
             {{ $t('pages.common.add') }}
@@ -178,7 +178,7 @@ async function handleDelete(row: {EntityName}) {
       <template #action="{ row }">
         <Space>
           <ghost-button
-            v-access:code="['system:{entity-name}:edit']"
+            v-access:code="['{module-name}:{entity-name}:edit']"
             @click="handleEdit(row)"
           >
             {{ $t('pages.common.edit') }}
@@ -191,7 +191,7 @@ async function handleDelete(row: {EntityName}) {
           >
             <ghost-button
               danger
-              v-access:code="['system:{entity-name}:remove']"
+              v-access:code="['{module-name}:{entity-name}:remove']"
               @click.stop=""
             >
               {{ $t('pages.common.delete') }}
@@ -382,7 +382,7 @@ export const drawerSchema: FormSchemaGetter = () => [
 
 ```vue
 <script setup lang="ts">
-import type { {EntityName} } from '#/api/system/{entity-name}/model';
+import type { {EntityName} } from '#/api/{module-name}/{entity-name}/model';
 
 import { computed, ref } from 'vue';
 
@@ -395,7 +395,7 @@ import {
   {entityName}Add,
   {entityName}Info,
   {entityName}Update,
-} from '#/api/system/{entity-name}';
+} from '#/api/{module-name}/{entity-name}';
 import { defaultFormValueGetter, useBeforeCloseDiff } from '#/utils/popup';
 
 import { drawerSchema } from './data';

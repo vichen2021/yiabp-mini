@@ -62,7 +62,7 @@ using Yi.Framework.Ddd.Application.Contracts;
 
 **Solution**: Ensure consistent format:
 - Backend: `{module-name}:{entity-name}:{action}`
-- Frontend: `v-access:code="['app:app-nav:add']"`
+- Frontend: `v-access:code="['{module-name}:{entity-name}:add']"`
 
 ## Frontend Issues
 
@@ -73,7 +73,7 @@ using Yi.Framework.Ddd.Application.Contracts;
 **Solution**: Check API root path matches backend route:
 ```typescript
 enum Api {
-  root = '/app/app-nav',  // Must match backend route
+  root = '/{module-name}/{entity-name}',  // Must match backend route
 }
 ```
 
@@ -83,7 +83,7 @@ enum Api {
 
 **Solution**: Ensure query uses correct parameter names:
 ```typescript
-return await appNavList({
+return await {entityName}List({
   SkipCount: page.currentPage,
   MaxResultCount: page.pageSize,
   ...formValues,
@@ -97,11 +97,11 @@ return await appNavList({
 **Solution**: Transform data in `onOpenChange`:
 ```typescript
 if (isUpdate.value && id) {
-  const record = await appNavInfo(id);
+  const record = await {entityName}Info(id);
   // Transform if needed (e.g., string to array)
   const formValues = {
     ...record,
-    moduleIds: record.moduleIds?.split(',') || [],
+    relatedIds: record.relatedIds?.split(',') || [],
   };
   await formApi.setValues(formValues);
 }
@@ -126,9 +126,9 @@ if (isUpdate.value && id) {
 **Symptom**: Routes don't match, API calls fail.
 
 **Fix**: Follow naming conventions:
-- Entity: PascalCase (`AppNav`)
-- API paths: kebab-case (`/app-nav`)
-- Frontend dirs: kebab-case (`api/app/app-nav/`)
+- Entity: PascalCase (`UserConfig`)
+- API paths: kebab-case (`/user-config`)
+- Frontend dirs: kebab-case (`api/system/user-config/`)
 
 ### 4. Missing Build Verification
 
@@ -168,7 +168,7 @@ if (isUpdate.value && id) {
 ## Getting Help
 
 If issues persist:
-1. Check existing modules for reference (AppChannel, Config)
+1. Check existing modules for reference (Config, Role, Dept in rbac module)
 2. Review reference files in `references/` directory
 3. Verify all checklist items are completed
 4. Check git diff to see what changed

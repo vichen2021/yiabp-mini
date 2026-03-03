@@ -177,18 +177,17 @@ Use consistent permission code format:
 - Remove: `{module-name}:{entity-name}:remove`
 
 **Examples:**
-- `video:vod:list` - Video list permission
-- `video:category:add` - Category add permission
-- `system:user:edit` - User edit permission
+- `{module-name}:{entity-name}:list` - 列表查询权限
+- `{module-name}:{entity-name}:add` - 新增权限
+- `system:user:edit` - 用户修改权限（系统模块示例）
 
 ## Menu Icons
 
 Use icon names from the icon library (e.g., Material Symbols, Tabler Icons):
-- `material-symbols:video-library-outline` - Video library icon
-- `material-symbols:category-outline` - Category icon
-- `material-symbols:movie-outline` - Movie icon
-- `eos-icons:system-group` - System group icon
-- `tabler:code` - Code icon
+- `material-symbols:list-alt-outline` - 列表图标
+- `material-symbols:category-outline` - 分类图标
+- `eos-icons:system-group` - 系统图标
+- `tabler:code` - 代码图标
 
 ## Order Numbers
 
@@ -198,9 +197,8 @@ Use icon names from the icon library (e.g., Material Symbols, Tabler Icons):
 
 ## Examples
 
-Reference the Video module menu seed:
-- File: `Yi.Abp/module/rbac/Yi.Framework.Rbac.SqlSugarCore/DataSeeds/MenuDataSeed/VideoMenuDataSeed.cs`
-- Contains: Video management catalogue, Category menu, Vod menu, and their CRUD permissions
+Reference existing menu seed data files in:
+`Yi.Abp/module/rbac/Yi.Framework.Rbac.SqlSugarCore/DataSeeds/MenuDataSeed/`
 
 ## Notes
 

@@ -43,7 +43,7 @@ When creating a module, you need:
 - [ ] Frontend: Run TypeScript type check - MUST SUCCEED
 - [ ] Frontend: Fix any type errors
 - [ ] Frontend: Run lint check (recommended)
-- [ ] Documentation: Document the module in `.docs/`
+- [ ] Documentation: Document the module in `.docs/`（目录不存在则创建）
 
 **Completion Check:** ⚠️ VERIFY BEFORE MARKING DONE
 - [ ] All backend files created and verified
@@ -220,6 +220,8 @@ Document the module in `.docs/{ModuleName}模块开发文档.md` with:
 - Entity structure
 - API endpoints
 - Frontend routes and permissions
+
+**Note**: If `.docs/` directory does not exist, create it first.
 
 **FINAL CHECKPOINT - TASK COMPLETION VERIFICATION:**
 - [ ] Backend build: `dotnet build` passes without errors

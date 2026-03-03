@@ -188,36 +188,46 @@ cd Yi.Vben5/apps/web-antd
 npm run typecheck
 ```
 
-## Example: Adding ParseApiId to Player Entity
+## Example: Adding Remark and PhoneNumber Fields to Role Entity
 
-This example shows the actual changes made for adding `ParseApiId` (Guid) and changing `IsServerParser` (bool) to `ParserType` (ParserTypeEnum) to the Player entity.
+This example shows the changes needed for adding `Remark` (string) and `PhoneNumber` (string?) to the RoleAggregateRoot entity.
 
 ### Backend Changes:
 
-**PlayerGetOutputDto.cs:**
-- Add: `public Guid? ParseApiId { get; set; }`
-- Change: `public bool IsParse { get; set; }` (was int)
-- Change: `public ParserTypeEnum ParserType { get; set; }` (was bool IsServerParser)
-- Add import: `using Yi.Framework.Video.Domain.Shared.Enums;`
+**RoleGetOutputDto.cs:**
+- Add: `public string? Remark { get; set; }`
+- Add: `public string? PhoneNumber { get; set; }`
 
-**PlayerService.cs:**
-- Change WhereIF: `input.IsParse.HasValue` (was `input.IsServerParser`)
-- Add to Select: `ParseApiId = x.ParseApiId`
-- Change Select: `ParserType = x.ParserType` (was `IsServerParser = x.IsServerParser`)
+**RoleGetListOutputDto.cs:**
+- Add: `public string? Remark { get; set; }`
+
+**RoleCreateInputVo.cs / RoleUpdateInputVo.cs:**
+- Add: `public string? Remark { get; set; }`
+- Add: `public string? PhoneNumber { get; set; }`
+
+**RoleGetListInputVo.cs:**
+- Add (if needed for filtering): `public string? Remark { get; set; }`
+
+**RoleService.cs:**
+- Add WhereIF: `.WhereIF(!string.IsNullOrEmpty(input.Remark), x => x.Remark.Contains(input.Remark!))`
+- Add to Select mapping: `Remark = x.Remark, PhoneNumber = x.PhoneNumber`
 
 ### Frontend Changes:
 
-**api/video/player/model.d.ts:**
-- Add: `parseApiId?: string | null;`
-- Change: `isParse: boolean` (was `isParse: number`)
-- Change: `parserType: number` (was `isServerParser: boolean`)
+**api/system/role/model.d.ts:**
+- Add: `remark?: string | null;`
+- Add: `phoneNumber?: string | null;`
 
-**views/video/player/data.ts:**
-- Change isParse formatter: `cellValue ? '是' : '否'` (was `cellValue === 1`)
-- Change isParse component: `Switch` with `defaultValue: false` (was `Select` with options)
-- Add ParseApiId field in drawerSchema
-- Change isServerParser to parserType: Select with options [{label: '客户端解析', value: 0}, {label: '服务端解析', value: 1}]
+**views/system/role/data.ts:**
+- Add columns entry:
+  ```typescript
+  { field: 'remark', title: '备注' }
+  ```
+- Add drawerSchema entry:
+  ```typescript
+  { component: 'Input', fieldName: 'remark', label: '备注' }
+  ```
 
 ### Dictionary Seeds (Not needed for this example):
 
-No dictionary seeds were added as the parserType uses a backend enum directly.
+No dictionary seeds required as both fields are plain strings.
