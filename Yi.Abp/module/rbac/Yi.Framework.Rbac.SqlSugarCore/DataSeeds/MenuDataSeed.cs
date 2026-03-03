@@ -193,23 +193,9 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 IsDeleted = false
             };
             entities.Add(task);
-
-
-            //系统工具
-            MenuAggregateRoot tool = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-                MenuName = "系统工具",
-                MenuType = MenuTypeEnum.Catalogue,
-                Router = "/tool",
-                IsShow = true,
-                IsLink = false,
-                MenuIcon = "ant-design:tool-outlined",
-                OrderNum = 98,
-                IsDeleted = false
-            };
-            entities.Add(tool);
+            
             //swagger文档
-            MenuAggregateRoot swagger = new MenuAggregateRoot(_guidGenerator.Create(), tool.Id)
+            MenuAggregateRoot swagger = new MenuAggregateRoot(_guidGenerator.Create(), monitoring.Id)
             {
                 MenuName = "接口文档",
                 MenuType = MenuTypeEnum.Menu,
@@ -222,22 +208,6 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 IsDeleted = false,
             };
             entities.Add(swagger);
-            
-            //表单构建
-            MenuAggregateRoot builder = new MenuAggregateRoot(_guidGenerator.Create(), tool.Id)
-            {
-                MenuName = "表单生成器",
-                MenuType = MenuTypeEnum.Menu,
-                Router = "build",
-                IsShow = true,
-                IsLink = false,
-                MenuIcon = "tabler:forms",
-                Component = "tool/build/index",
-				IsCache = true,
-				OrderNum = 101,
-                IsDeleted = false,
-            };
-            entities.Add(builder);
 
 
             //租户管理

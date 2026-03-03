@@ -39,6 +39,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 ConfigKey = "sys.user.initPassword",
                 ConfigValue = "123456",
                 OrderNum = 1,
+                ConfigType = "Y",
                 IsDeleted = false,
                 Remark = "初始密码"
             };
