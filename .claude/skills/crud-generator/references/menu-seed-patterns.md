@@ -5,7 +5,7 @@ This document provides detailed patterns for creating menu seed data files.
 ## File Structure
 
 Each module should have its own menu seed data file located at:
-`src/WebApi/module/rbac/Yi.Framework.Rbac.SqlSugarCore/DataSeeds/MenuDataSeed/{ModuleName}MenuDataSeed.cs`
+`Yi.Abp/module/rbac/Yi.Framework.Rbac.SqlSugarCore/DataSeeds/MenuDataSeed/{ModuleName}MenuDataSeed.cs`
 
 ## Basic Structure
 
@@ -199,7 +199,7 @@ Use icon names from the icon library (e.g., Material Symbols, Tabler Icons):
 ## Examples
 
 Reference the Video module menu seed:
-- File: `src/WebApi/module/rbac/Yi.Framework.Rbac.SqlSugarCore/DataSeeds/MenuDataSeed/VideoMenuDataSeed.cs`
+- File: `Yi.Abp/module/rbac/Yi.Framework.Rbac.SqlSugarCore/DataSeeds/MenuDataSeed/VideoMenuDataSeed.cs`
 - Contains: Video management catalogue, Category menu, Vod menu, and their CRUD permissions
 
 ## Notes
