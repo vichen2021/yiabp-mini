@@ -45,7 +45,7 @@ pnpm build:antd
 
 ## 🤖 引入Claude Skills
 
-本项目集成了三个 Claude Skills，帮助开发者快速生成代码和模块结构。这些 Skills 位于 `.claude/skills/` 目录下。
+本项目集成了四个 Claude Skills，帮助开发者快速生成代码和模块结构。这些 Skills 位于 `.claude/skills/` 目录下。
 
 ### 1. Module Generator（模块生成器）
 
@@ -64,9 +64,9 @@ pnpm build:antd
 - 目录结构（Entities、Dtos、IServices、Services、Repositories）
 - 自动更新主模块文件和解决方案文件
 
-### 2. Business Module Initializer（业务模块初始化器）
+### 2. CRUD Generator（CRUD代码生成器）
 
-**功能说明**：初始化完整的业务模块脚手架，包括后端（C# .NET with ABP framework）和前端（Vue3 + Vben5 + Ant Design Vue）。创建实体类、DTOs、服务接口、服务实现、仓储、API 文件和视图组件。
+**功能说明**：初始化完整的业务模块脚手架，包括后端（C# .NET with ABP framework）和前端（Vue3 + Vben5 + Ant Design Vue）。创建实体类、DTOs、服务接口、服务实现、菜单种子数据、API 文件和视图组件。
 
 **使用场景**：当你需要创建新的业务功能（如部门管理、用户管理）或任何需要全栈实现的 CRUD 模块时使用。
 
@@ -74,7 +74,7 @@ pnpm build:antd
 
 - `初始化 Product 业务模块，包含实体、服务和前端页面`
 - `帮我生成 Order 模块的完整业务代码`
-- `使用 business-module-initializer 创建用户管理功能`
+- `使用 crud-generator 创建用户管理功能`
 
 **生成内容**：
 
@@ -83,14 +83,32 @@ pnpm build:antd
 - DTO 类（`Application.Contracts/Dtos/`）
 - 服务接口（`Application.Contracts/IServices/`）
 - 服务实现（`Application/Services/`）
-- 仓储接口和实现（如需要）
+- 菜单种子数据（`SqlSugarCore/DataSeeds/MenuDataSeed/`）
+- 仓储接口和实现（非必要不生成）
 
 **前端**：
-- API 文件（`api/system/{entity-name}/`）
-- 视图文件（`views/system/{entity-name}/`）
+- API 文件（`api/{module-name}/{entity-name}/`）
+- 视图文件（`views/{module-name}/{entity-name}/`）
 - 表单和表格配置
 
-### 3. Skill Creator（技能创建器）
+### 3. Field Sync（字段同步器）
+
+**功能说明**：同步实体字段变更到整个代码库，包括 DTOs、服务实现、前端 API 和视图、以及字典种子数据。
+
+**使用场景**：当你需要添加、删除或修改实体字段时使用。
+
+**提示词示例**：
+
+- `使用 field-sync 同步 @*AggregateRoot.cs 实体的字段变更`
+
+**同步内容**：
+- 后端 DTO（5个文件）
+- 后端服务实现
+- 前端 API Model
+- 前端 View Data（表格列、表单、查询条件）
+- 字典种子数据（如需要）
+
+### 4. Skill Creator（技能创建器）
 
 **功能说明**：创建有效技能的指南。当你想创建新技能（或更新现有技能）来扩展 Claude 的专业知识、工作流程或工具集成时使用。
 
@@ -100,7 +118,6 @@ pnpm build:antd
 - `我想创建一个 PDF 处理技能，应该怎么做？`
 - `帮我创建一个用于处理 Excel 文件的技能`
 - `使用 skill-creator 创建一个 API 文档生成技能`
-- `如何创建一个自定义的业务规则验证技能？`
 
 **创建流程**：
 1. 理解技能的具体使用示例
