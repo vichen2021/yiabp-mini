@@ -6,7 +6,7 @@ sidebar: false
 hero:
   name: Yi.Mini
   text: 精简版 RBAC 权限管理框架
-  tagline: 基于 ABP Framework 和 Vben5，开箱即用，简单高效
+  tagline: 基于 Yi.Admin & ABPvNext & Vben5，开箱即用，简单高效
   image:
     src: https://unpkg.com/@vbenjs/static-source@0.1.7/source/logo-v1.webp
     alt: Yi.Mini
@@ -24,7 +24,7 @@ hero:
 features:
   - icon: 🚀
     title: 最新技术栈
-    details: 后端基于 .NET 10 + ABP Framework 10，前端基于 Vue 3 + Vben5 + Ant Design Vue 4
+    details: 后端基于 .NET 10 + ABPvNext，前端基于 Vue 3 + Vben5 + Ant Design Vue 4
     link: /guide/backend/tech-stack
     linkText: 查看技术栈
   - icon: 🏗️
@@ -54,20 +54,19 @@ features:
     linkText: 开发指南
   - title: ABP Framework
     icon:
-      src: /logos/vite.svg
-    details: 基于 ABP Framework 10，提供企业级应用开发能力
-    link: https://abp.io/
-    linkText: 官方站点
-  - title: Vben5
+      src: https://ccnetcore.com/prod-api/file/3a17ebb6-5896-50d5-0130-f383b91d49cc
+    details: 基于 Yi框架 + ABP Framework 10，提供企业级应用开发能力
+    link: https://gitee.com/ccnetcore/Yi
+    linkText: Yi框架Gitee仓库
+  - title: Vben5 Admin
     icon:
-      src: /logos/shadcn-ui.svg
+      src: https://unpkg.com/@vbenjs/static-source@0.1.7/source/logo-v1.webp
     details: 基于 Vben Admin v5，现代化的前端管理模板
     link: https://github.com/vbenjs/vue-vben-admin
     linkText: 官方站点
   - title: SqlSugar
-    icon:
-      src: /logos/turborepo.svg
+    icon: 🍬
     details: 使用 SqlSugar 5 作为 ORM 框架，性能优异
-    link: https://www.donet5.com/
+    link: https://www.donet5.com/Home/Doc
     linkText: 官方站点
 ---
