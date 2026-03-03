@@ -212,13 +212,8 @@ function nav(): DefaultTheme.NavItem[] {
       link: 'https://yi.wjys.top',
     },
     {
-      text: version,
-      items: [
-        {
-          link: 'https://gitee.com/vichen2021/yiabp-mini',
-          text: 'Gitee',
-        },
-      ],
+      text: '欢迎 Star ⭐️',
+      link: 'https://gitee.com/vichen2021/yiabp-mini',
     },
   ];
 }
