@@ -1,12 +1,10 @@
 import { defineConfig } from '@vben/vite-config';
-import { loadEnv } from "vite";
+
 // 自行取消注释来启用按需导入功能
 // import { AntDesignVueResolver } from 'unplugin-vue-components/resolvers';
 // import Components from 'unplugin-vue-components/vite';
 
-const config: Awaited<ReturnType<typeof defineConfig>> = defineConfig(async (configEnv) => {
-  const { command, mode = 'development' } = configEnv ?? { command: 'serve', mode: 'development' };
-  const env = loadEnv(mode, process.cwd(), "");
+export default defineConfig(async () => {
   return {
     application: {},
     vite: {
@@ -25,40 +23,15 @@ const config: Awaited<ReturnType<typeof defineConfig>> = defineConfig(async (con
       ],
       server: {
         proxy: {
-          [env.VITE_GLOB_API_URL as string]: {
-            target: env.VITE_APP_URL,
+          '/api': {
             changeOrigin: true,
-            rewrite: (path) => path.replace(`${[env.VITE_GLOB_API_URL]}`, ""),
-
-            //查看真实代理url
-            bypass(req, res, options) {
-              const rewrittenPath = options.rewrite?.(req.url ?? '') ?? req.url ?? '';
-              const proxyUrl = (options.target ?? '') + rewrittenPath;
-              console.log(proxyUrl);
-              req.headers['X-req-proxyURL'] = proxyUrl;
-              res?.setHeader('X-req-proxyURL', proxyUrl);
-            }
-          },
-          [env.VITE_APP_BASE_WS as string]: {
-            target: env.VITE_APP_BASE_URL_WS,
-            changeOrigin: true,
-            rewrite: (p) => p.replace( `${[env.VITE_APP_BASE_WS]}`, ""),
+            rewrite: (path) => path.replace(/^\/api/, ''),
+            // mock代理目标地址
+            target: 'http://127.0.0.1:19002/api',
             ws: true,
-            //查看真实代理url
-            bypass(req, res, options) {
-
-              const rewrittenPath = options.rewrite?.(req.url ?? '') ?? req.url ?? '';
-              const proxyUrl = (options.target ?? '') + rewrittenPath;
-              // console.log(proxyUrl);
-              req.headers['X-req-proxyURL'] = proxyUrl;
-              res?.setHeader('X-req-proxyURL', proxyUrl);
-
-            }
           },
         },
       },
     },
   };
 });
-
-export default config;
