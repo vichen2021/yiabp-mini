@@ -74,12 +74,12 @@ namespace Yi.Framework.Rbac.Domain.Entities
         /// <summary>
         /// 状态
         /// </summary>
-        public bool State { get; set; }
+        public bool State { get; set; } = true;
 
         /// <summary>
         /// 菜单名
         /// </summary>
-        public string MenuName { get; set; } 
+        public string MenuName { get; set; }
 
         /// <summary>
         /// 路由名称
@@ -187,14 +187,14 @@ namespace Yi.Framework.Rbac.Domain.Entities
                 r.Hidden = !m.IsShow;
 
                 // 检测是否为 URL 链接（http:// 或 https:// 开头）
-                bool isUrl = !string.IsNullOrEmpty(m.Router) && 
-                    (m.Router.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
+                bool isUrl = !string.IsNullOrEmpty(m.Router) &&
+                    (m.Router.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
                      m.Router.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
 
                 // 判断是否为内嵌 iframe：
                 // 1. Component 明确设置为 "InnerLink"（优先级最高）
                 // 2. 或者检测到是 URL 且 isLink = false（自动识别为内嵌）
-                bool isInnerLink = (!string.IsNullOrEmpty(m.Component) && 
+                bool isInnerLink = (!string.IsNullOrEmpty(m.Component) &&
                     m.Component.Equals("InnerLink", StringComparison.OrdinalIgnoreCase)) ||
                     (isUrl && !m.IsLink);
 
@@ -254,10 +254,10 @@ namespace Yi.Framework.Rbac.Domain.Entities
                     r.Redirect = "noRedirect";
                     r.AlwaysShow = false;
                     r.Component = "InnerLink";
-                    
+
                     // meta.link 应该包含完整的 iframe 地址，优先使用 Router
                     string iframeUrl = !string.IsNullOrEmpty(m.Router) ? m.Router : m.Component ?? string.Empty;
-                    
+
                     // 清理 path：去除协议和特殊字符，避免前端路由拼接时出现问题
                     string cleanedPath = m.Router ?? m.Component ?? string.Empty;
                     if (!string.IsNullOrEmpty(cleanedPath))
@@ -271,10 +271,10 @@ namespace Yi.Framework.Rbac.Domain.Entities
                         // 去除 ? 和 &
                         cleanedPath = cleanedPath.Replace("?", "").Replace("&", "");
                     }
-                    
+
                     // 使用清理后的 path，用于前端路由匹配
                     r.Path = cleanedPath;
-                    
+
                     r.Meta = new Meta
                     {
                         Title = m.MenuName!,
@@ -290,7 +290,7 @@ namespace Yi.Framework.Rbac.Domain.Entities
                     // 外链：path 保持原样，component 为 Layout 或 ParentView，meta.link 包含完整外链地址
                     r.Redirect = "noRedirect";
                     r.AlwaysShow = false;
-                    
+
                     // 判断是否为最顶层的路由
                     if (Guid.Empty == m.ParentId)
                     {
@@ -300,7 +300,7 @@ namespace Yi.Framework.Rbac.Domain.Entities
                     {
                         r.Component = "ParentView";
                     }
-                    
+
                     r.Meta = new Meta
                     {
                         Title = m.MenuName!,
@@ -340,7 +340,7 @@ namespace Yi.Framework.Rbac.Domain.Entities
                         Icon = m.MenuIcon ?? string.Empty,
                         NoCache = !m.IsCache
                     };
-                    
+
                     // 如果 IsLink 为 true 但不是外链，则可能是其他类型的链接
                     if (m.IsLink && !string.IsNullOrEmpty(m.Router))
                     {

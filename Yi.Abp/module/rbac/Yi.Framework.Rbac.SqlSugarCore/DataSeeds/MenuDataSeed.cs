@@ -1005,14 +1005,6 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
             };
             entities.Add(loginLogRemove);
 
-            //默认值
-            entities.ForEach(m =>
-            {
-                m.IsDeleted = false;
-                m.State = true;
-                m.MenuSource = MenuSourceEnum.Ruoyi;
-                m.IsShow = true;
-            });
 
             var p = entities.GroupBy(x => x.Id);
             foreach (var k in p)
