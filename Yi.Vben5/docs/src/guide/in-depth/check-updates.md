@@ -22,7 +22,7 @@ export const overridesPreferences = defineOverridesPreferences({
 
 检测到更新时，会弹出提示框，询问用户是否刷新页面：
 
-![check-updates](/guide/update-notice.png)
+<!-- ![check-updates](/guide/update-notice.png) -->
 
 ## 替换为其他检查更新方式
 

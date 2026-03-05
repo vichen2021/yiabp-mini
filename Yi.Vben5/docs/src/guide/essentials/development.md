@@ -233,7 +233,7 @@ VITE_DEVTOOLS=true
 
 开启后，项目运行会在页面底部显示一个 Vue DevTools 的图标，点击即可打开 DevTools。
 
-![Vue DevTools](/guide/devtools.png)
+<!-- ![Vue DevTools](/guide/devtools.png) -->
 
 ## 本地运行文档
 

@@ -25,7 +25,7 @@ export const overridesPreferences = defineOverridesPreferences({
 
 登录超时会打开登录弹窗
 
-![](/guide/login-expired.png)
+<!-- ![](/guide/login-expired.png) -->
 
 配置：
 

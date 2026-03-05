@@ -174,7 +174,7 @@ const { otherApiURL } = useAppConfig(import.meta.env, import.meta.env.PROD);
 
 项目提供了非常丰富的偏好设置，用于动态配置项目的各种功能：
 
-![](/guide/preferences.png)
+<!-- ![](/guide/preferences.png) -->
 
 如果你找不到文档说明，可以尝试自己配置好以后，点击`复制偏好设置`，覆盖项目默认即可。配置文件位于应用目录下的`preferences.ts`，在这里，你可以覆盖框架默认的配置，实现自定义配置。
 

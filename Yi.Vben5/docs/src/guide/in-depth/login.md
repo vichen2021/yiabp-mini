@@ -10,7 +10,7 @@ outline: deep
 
 如果你想调整登录页面的标题、描述和图标以及工具栏，你可以通过配置 `AuthPageLayout` 组件的参数来实现。
 
-![login](/guide/login.png)
+<!-- ![login](/guide/login.png) -->
 
 只需要在应用下的 `src/layouts/auth.vue` 内，配置`AuthPageLayout`的 `props`参数即可：
 

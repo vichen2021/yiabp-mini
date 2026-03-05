@@ -6,7 +6,7 @@
 
 如果你使用的 vscode 开发工具，则推荐安装 [i18n Ally](https://marketplace.visualstudio.com/items?itemName=Lokalise.i18n-ally) 这个插件。它可以帮助你更方便的管理国际化的文案，安装了该插件后，你的代码内可以实时看到对应的语言内容：
 
-![](/public/guide/locale.png)
+<!-- ![](/guide/locale.png) -->
 
 ## 配置默认语言
 

@@ -34,7 +34,6 @@ export const shared = defineConfig({
   pwa: pwa(),
   srcDir: 'src',
   themeConfig: {
-    i18nRouting: true,
     logo: 'https://unpkg.com/@vbenjs/static-source@0.1.7/source/logo-v1.webp',
     search: {
       options: {
@@ -75,11 +74,11 @@ export const shared = defineConfig({
       GitChangelog({
         mapAuthors: [],
         repoURL: () => 'https://gitee.com/vichen2021/yiabp-mini',
-      }),
-      GitChangelogMarkdownSection(),
-      viteArchiverPlugin({ outputDir: '.vitepress' }),
-      groupIconVitePlugin(),
-      await viteVxeTableImportsPlugin(),
+      }) as any,
+      GitChangelogMarkdownSection() as any,
+      viteArchiverPlugin({ outputDir: '.vitepress' }) as any,
+      groupIconVitePlugin() as any,
+      (await viteVxeTableImportsPlugin()) as any,
     ],
     server: {
       fs: {

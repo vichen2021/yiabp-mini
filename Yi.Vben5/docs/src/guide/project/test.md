@@ -30,4 +30,4 @@ pnpm test:unit
 
 现有单元测试情况：
 
-![](/guide/test.png)
+<!-- ![](/guide/test.png) -->
