@@ -253,3 +253,4 @@ scripts/package_skill.py <path/to/skill-folder> ./dist
 
 - [模块生成器](/guide/skills/module-generator) - 了解模块生成器
 - [字段同步器](/guide/skills/field-sync) - 了解字段同步器
+- [Skill-Creator](https://github.com/anthropics/claude-plugins-official/blob/main/plugins/skill-creator/skills/skill-creator/SKILL.md) - Skill-Creator官方仓库

@@ -101,6 +101,7 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
     {
       text: 'Claude Skills',
       items: [
+        { link: 'skills/what-is-skill', text: '什么是 Skill？' },
         { link: 'skills/module-generator', text: '模块生成器' },
         { link: 'skills/crud-generator', text: 'CRUD 生成器' },
         { link: 'skills/field-sync', text: '字段同步器' },
