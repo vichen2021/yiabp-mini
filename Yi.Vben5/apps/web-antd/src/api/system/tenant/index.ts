@@ -11,6 +11,7 @@ enum Api {
   tenantDynamic = '/tenant/dynamic',
   tenantDynamicClear = '/tenant/dynamic/clear',
   tenantExport = '/tenant/export',
+  tenantInit = '/tenant/init',
   tenantSyncPackage = '/tenant/syncTenantPackage',
 }
 
@@ -108,6 +109,19 @@ export function tenantSyncPackage(tenantId: string, packageId: string) {
 export function dictSyncTenant(tenantId?: string) {
   return requestClient.get<void>(Api.dictSync, {
     params: { tenantId },
+    successMessageMode: 'message',
+  });
+}
+
+/**
+ * 初始化租户
+ * @param id 租户ID
+ * @param isForce 是否强制初始化
+ * @returns void
+ */
+export function tenantInit(id: ID, isForce = false) {
+  return requestClient.putWithMsg<void>(`${Api.tenantInit}/${id}`, null, {
+    params: { isForce },
     successMessageMode: 'message',
   });
 }

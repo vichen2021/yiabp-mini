@@ -2,8 +2,6 @@
 import type { MessageType } from 'ant-design-vue/es/message';
 import type { SelectHandler } from 'ant-design-vue/es/vc-select/Select';
 
-import type { TenantOption } from '#/api';
-
 import { computed, onMounted, ref, shallowRef, unref } from 'vue';
 import { useRoute } from 'vue-router';
 
@@ -87,7 +85,7 @@ const onSelected: SelectHandler = async (tenantId: string, option: any) => {
     // 关闭之前的message 只保留一条
     messageInstance.value?.();
     messageInstance.value = message.success(
-      `${$t('component.tenantToggle.switch')} ${option.companyName}`,
+      `${$t('component.tenantToggle.switch')} ${option.name}`,
     );
 
     close(true);
@@ -125,8 +123,8 @@ async function onDeselect() {
  * @param input 输入内容
  * @param option 选项
  */
-function filterOption(input: string, option: TenantOption) {
-  return option.companyName.toLowerCase().includes(input.toLowerCase());
+function filterOption(input: string, option: any) {
+  return option?.name?.toLowerCase().includes(input.toLowerCase()) ?? false;
 }
 </script>
 
@@ -135,7 +133,7 @@ function filterOption(input: string, option: TenantOption) {
     <Select
       v-model:value="selected"
       :disabled="loading"
-      :field-names="{ label: 'companyName', value: 'tenantId' }"
+      :field-names="{ label: 'name', value: 'id' }"
       :filter-option="filterOption"
       :options="tenantList"
       :placeholder="$t('component.tenantToggle.placeholder')"

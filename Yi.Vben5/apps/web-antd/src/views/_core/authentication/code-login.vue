@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { LoginCodeParams, VbenFormSchema } from '@vben/common-ui';
 
-import type { TenantResp } from '#/api';
+import type { TenantResp } from '#/api/core/auth';
 
 import { computed, onMounted, ref, useTemplateRef } from 'vue';
 
@@ -11,7 +11,7 @@ import { $t } from '@vben/locales';
 
 import { Alert, message } from 'ant-design-vue';
 
-import { tenantList } from '#/api';
+import { tenantList } from '#/api/core/auth';
 import { sendSmsCode } from '#/api/core/captcha';
 import { useAuthStore } from '#/store';
 
@@ -20,18 +20,15 @@ defineOptions({ name: 'CodeLogin' });
 const loading = ref(false);
 const CODE_LENGTH = 4;
 
-const tenantInfo = ref<TenantResp>({
-  tenantEnabled: false,
-  voList: [],
-});
+const tenantInfo = ref<TenantResp[]>([]);
 
 const codeLoginRef = useTemplateRef('codeLoginRef');
 async function loadTenant() {
   const resp = await tenantList();
   tenantInfo.value = resp;
   // 选中第一个租户
-  if (resp.tenantEnabled && resp.voList.length > 0) {
-    const firstTenantId = resp.voList[0]!.tenantId;
+  if (resp.length > 0) {
+    const firstTenantId = resp[0]!.id;
     codeLoginRef.value?.getFormApi().setFieldValue('tenantId', firstTenantId);
   }
 }
@@ -45,15 +42,15 @@ const formSchema = computed((): VbenFormSchema[] => {
       componentProps: {
         class: 'bg-background h-[40px] focus:border-primary',
         contentClass: 'max-h-[256px] overflow-y-auto',
-        options: tenantInfo.value.voList?.map((item) => ({
-          label: item.companyName,
-          value: item.tenantId,
+        options: tenantInfo.value?.map((item) => ({
+          label: item.name,
+          value: item.id,
         })),
         placeholder: $t('authentication.selectAccount'),
       },
       defaultValue: DEFAULT_TENANT_ID,
       dependencies: {
-        if: () => tenantInfo.value.tenantEnabled,
+        if: () => tenantInfo.value.length > 0,
         triggerFields: [''],
       },
       fieldName: 'tenantId',

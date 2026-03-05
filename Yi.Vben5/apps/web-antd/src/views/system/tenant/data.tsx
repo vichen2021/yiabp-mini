@@ -49,6 +49,16 @@ export const columns: VxeGridProps['columns'] = [
     field: 'contactPhone',
   },
   {
+    title: '数据库类型',
+    field: 'dbType',
+    slots: { default: 'dbType' },
+  },
+  {
+    title: '连接字符串',
+    field: 'tenantConnectionString',
+    showOverflow: true,
+  },
+  {
     title: '到期时间',
     field: 'expireTime',
     formatter: ({ cellValue }) => {
@@ -173,6 +183,28 @@ export const drawerSchema: FormSchemaGetter = () => [
     renderComponentContent: () => ({
       default: () => '租户设置',
     }),
+  },
+  {
+    component: 'Select',
+    componentProps: {
+      options: [
+        { label: 'SQLite', value: 0 },
+        { label: 'MySQL', value: 1 },
+        { label: 'SqlServer', value: 2 },
+        { label: 'Oracle', value: 3 },
+        { label: 'PostgreSQL', value: 4 },
+      ],
+    },
+    fieldName: 'dbType',
+    label: '数据库类型',
+    rules: 'required',
+  },
+  {
+    component: 'Input',
+    fieldName: 'tenantConnectionString',
+    help: '连接字符串，如：DataSource=tenant.db',
+    label: '连接字符串',
+    rules: 'required',
   },
   // {
   //   component: 'Select',

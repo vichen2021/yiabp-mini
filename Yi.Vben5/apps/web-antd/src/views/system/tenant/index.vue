@@ -4,7 +4,7 @@ import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { Tenant } from '#/api/system/tenant/model';
 
-import { computed } from 'vue';
+import { computed, h } from 'vue';
 
 import { useAccess } from '@vben/access';
 import { Fallback, Page, useVbenDrawer } from '@vben/common-ui';
@@ -16,6 +16,7 @@ import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
 import {
   dictSyncTenant,
   tenantExport,
+  tenantInit,
   tenantList,
   tenantRemove,
   tenantUpdate,
@@ -132,6 +133,14 @@ function handleDownloadExcel() {
  */
 const { hasAccessByCodes, hasAccessByRoles } = useAccess();
 
+const dbTypeMap: Record<number, string> = {
+  0: 'SQLite',
+  1: 'MySQL',
+  2: 'SqlServer',
+  3: 'Oracle',
+  4: 'PostgreSQL',
+};
+
 const isSuperAdmin = computed(() => {
   return hasAccessByRoles(['superadmin']);
 });
@@ -143,6 +152,27 @@ function handleSyncTenantDict() {
     content: '确认同步租户字典？',
     onOk: async () => {
       await dictSyncTenant();
+      await tableApi.query();
+    },
+  });
+}
+
+async function handleInit(row: Tenant) {
+  Modal.confirm({
+    title: '提示',
+    iconType: 'warning',
+    content: h('div', [
+      h('div', { style: 'margin-bottom: 8px' }, `确认初始化租户[${row.name || row.companyName}]？此操作将创建数据库并初始化数据，请谨慎操作！`),
+      h('div', { style: 'margin-top: 12px' }, [
+        h('label', [
+          h('input', { type: 'checkbox', onChange: (e: Event) => (window as any).__initForce = (e.target as HTMLInputElement).checked }),
+          h('span', { style: 'margin-left: 8px' }, '强制初始化（当数据库已存在时）'),
+        ]),
+      ]),
+    ]),
+    onOk: async () => {
+      const isForce = (window as any).__initForce || false;
+      await tenantInit(row.id, isForce);
       await tableApi.query();
     },
   });
@@ -192,6 +222,9 @@ function handleSyncTenantDict() {
           @reload="tableApi.query()"
         />
       </template>
+      <template #dbType="{ row }">
+        {{ dbTypeMap[row.dbType] || '未知' }}
+      </template>
       <template #action="{ row }">
         <Space v-if="row.id !== '00000000-0000-0000-0000-000000000001'">
           <ghost-button
@@ -199,6 +232,13 @@ function handleSyncTenantDict() {
             @click="handleEdit(row)"
           >
             {{ $t('pages.common.edit') }}
+          </ghost-button>
+          <ghost-button
+            class="btn-success"
+            v-access:code="['system:tenant:edit']"
+            @click="handleInit(row)"
+          >
+            初始化
           </ghost-button>
           <!-- <Popconfirm
             :get-popup-container="getVxePopupContainer"

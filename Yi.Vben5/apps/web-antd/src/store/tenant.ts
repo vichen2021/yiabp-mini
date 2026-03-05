@@ -1,4 +1,4 @@
-import type { TenantOption } from '#/api/core/auth';
+import type { TenantResp } from '#/api/core/auth';
 
 import { ref } from 'vue';
 
@@ -14,13 +14,14 @@ export const useTenantStore = defineStore('app-tenant', () => {
   const checked = ref(false);
   // 是否开启租户功能
   const tenantEnable = ref(true);
-  const tenantList = ref<TenantOption[]>([]);
+  const tenantList = ref<TenantResp[]>([]);
 
   // 初始化 获取租户信息
   async function initTenant() {
-    const { tenantEnabled, voList } = await tenantListApi();
-    tenantEnable.value = tenantEnabled;
-    tenantList.value = voList;
+    const list = await tenantListApi();
+    tenantList.value = list;
+    // 如果有租户数据则启用
+    tenantEnable.value = list.length > 0;
   }
 
   async function setChecked(_checked: boolean) {
