@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using SqlSugar;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
+using Volo.Abp.Caching;
 using Volo.Abp.Data;
 using Volo.Abp.Modularity;
 using Volo.Abp.Uow;
@@ -27,14 +28,16 @@ namespace Yi.Framework.TenantManagement.Application
         private ISqlSugarRepository<TenantAggregateRoot, Guid> _repository;
         private IDataSeeder _dataSeeder;
         private readonly DbConnOptions _dbConnOptions;
+        private readonly IDistributedCache<TenantCacheItem> _tenantCache;
 
         public TenantService(ISqlSugarRepository<TenantAggregateRoot, Guid> repository, IDataSeeder dataSeeder,
-            IOptions<DbConnOptions> dbConnOptions) :
+            IOptions<DbConnOptions> dbConnOptions, IDistributedCache<TenantCacheItem> tenantCache) :
             base(repository)
         {
             _repository = repository;
             _dataSeeder = dataSeeder;
             _dbConnOptions = dbConnOptions.Value;
+            _tenantCache = tenantCache;
         }
 
         /// <summary>
@@ -103,12 +106,19 @@ namespace Yi.Framework.TenantManagement.Application
         /// <returns></returns>
         public override async Task<TenantGetOutputDto> UpdateAsync(Guid id, TenantUpdateInput input)
         {
-            if (await _repository.IsAnyAsync(x => x.Name == input.Name && x.Id != id))
+            var oldTenant = await _repository.GetByIdAsync(id);
+
+            if (oldTenant.Name != input.Name && await _repository.IsAnyAsync(x => x.Name == input.Name))
             {
-                throw new UserFriendlyException("更新后租户名已经存在");
+                throw new UserFriendlyException("租户名已经存在");
             }
 
-            return await base.UpdateAsync(id, input);
+            var result = await base.UpdateAsync(id, input);
+
+            await _tenantCache.RemoveAsync(TenantCacheItem.CalculateCacheKey(id, null));
+            await _tenantCache.RemoveAsync(TenantCacheItem.CalculateCacheKey(null, oldTenant.Name));
+
+            return result;
         }
 
 
