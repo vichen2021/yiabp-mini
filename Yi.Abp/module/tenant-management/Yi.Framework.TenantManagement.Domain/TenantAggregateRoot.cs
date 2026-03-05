@@ -5,13 +5,14 @@ using Volo.Abp.Auditing;
 using Volo.Abp.Data;
 using Volo.Abp.Domain.Entities.Auditing;
 using Volo.Abp.TenantManagement;
+using Yi.Framework.Core.Data;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
 namespace Yi.Framework.TenantManagement.Domain
 {
     [SugarTable("YiTenant")]
     [DefaultTenantTable]
-    public class TenantAggregateRoot : FullAuditedAggregateRoot<Guid>, IHasEntityVersion
+    public class TenantAggregateRoot : FullAuditedAggregateRoot<Guid>, IHasEntityVersion, IState
     {
         public TenantAggregateRoot()
         {
@@ -31,6 +32,8 @@ namespace Yi.Framework.TenantManagement.Domain
         public string TenantConnectionString { get; protected set; }
 
         public DbType DbType { get; protected set; }
+
+        public bool State { get; set; } = true;
 
         [SugarColumn(IsIgnore = true)]
         public override ExtraPropertyDictionary ExtraProperties { get => base.ExtraProperties; protected set => base.ExtraProperties = value; }

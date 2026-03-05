@@ -4,6 +4,7 @@ export interface Tenant {
   entityVersion: number;
   tenantConnectionString: string;
   dbType: number;
+  state: boolean;
   isDeleted: boolean;
   creationTime: string;
   creatorId: string | null;
@@ -21,6 +22,5 @@ export interface Tenant {
   licenseNumber?: any;
   packageId?: string;
   remark?: string;
-  status?: string | boolean;
   tenantId?: string;
 }

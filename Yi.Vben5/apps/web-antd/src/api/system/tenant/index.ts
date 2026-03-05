@@ -117,11 +117,10 @@ export function dictSyncTenant(tenantId?: string) {
  * 初始化租户
  * @param id 租户ID
  * @param isForce 是否强制初始化
- * @returns void
+ * @returns { needForce } needForce=true 表示数据库已有数据，需确认强制初始化
  */
 export function tenantInit(id: ID, isForce = false) {
-  return requestClient.putWithMsg<void>(`${Api.tenantInit}/${id}`, null, {
+  return requestClient.put<{ needForce: boolean }>(`${Api.tenantInit}/${id}`, null, {
     params: { isForce },
-    successMessageMode: 'message',
   });
 }

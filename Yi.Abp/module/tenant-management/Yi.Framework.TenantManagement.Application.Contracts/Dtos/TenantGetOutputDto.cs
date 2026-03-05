@@ -17,6 +17,8 @@ namespace Yi.Framework.TenantManagement.Application.Contracts.Dtos
 
         public SqlSugar.DbType DbType { get;  set; }
 
+        public bool State { get; set; }
+
         public DateTime CreationTime { get; set; }
     }
 }

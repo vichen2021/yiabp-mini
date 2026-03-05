@@ -70,7 +70,7 @@ export const columns: VxeGridProps['columns'] = [
   },
   {
     title: '租户状态',
-    field: 'status',
+    field: 'state',
     slots: { default: 'status' },
   },
   {

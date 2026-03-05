@@ -4,7 +4,7 @@ import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { Tenant } from '#/api/system/tenant/model';
 
-import { computed, h } from 'vue';
+import { computed } from 'vue';
 
 import { useAccess } from '@vben/access';
 import { Fallback, Page, useVbenDrawer } from '@vben/common-ui';
@@ -158,24 +158,21 @@ function handleSyncTenantDict() {
 }
 
 async function handleInit(row: Tenant) {
-  Modal.confirm({
-    title: '提示',
-    iconType: 'warning',
-    content: h('div', [
-      h('div', { style: 'margin-bottom: 8px' }, `确认初始化租户[${row.name || row.companyName}]？此操作将创建数据库并初始化数据，请谨慎操作！`),
-      h('div', { style: 'margin-top: 12px' }, [
-        h('label', [
-          h('input', { type: 'checkbox', onChange: (e: Event) => (window as any).__initForce = (e.target as HTMLInputElement).checked }),
-          h('span', { style: 'margin-left: 8px' }, '强制初始化（当数据库已存在时）'),
-        ]),
-      ]),
-    ]),
-    onOk: async () => {
-      const isForce = (window as any).__initForce || false;
-      await tenantInit(row.id, isForce);
-      await tableApi.query();
-    },
-  });
+  const result = await tenantInit(row.id, false);
+  if (result?.needForce) {
+    Modal.confirm({
+      title: '提示',
+      iconType: 'warning',
+      content: '数据库有数据，是否清除所有数据强制初始化？',
+      okType: 'danger',
+      onOk: async () => {
+        await tenantInit(row.id, true);
+        await tableApi.query();
+      },
+    });
+  } else {
+    await tableApi.query();
+  }
 }
 </script>
 
@@ -216,7 +213,7 @@ async function handleInit(row: Tenant) {
       </template>
       <template #status="{ row }">
         <TableSwitch
-          v-model:value="row.status"
+          v-model:value="row.state"
           :api="() => tenantUpdate(row)"
           :disabled="row.id === '00000000-0000-0000-0000-000000000001' || !hasAccessByCodes(['system:tenant:edit'])"
           @reload="tableApi.query()"

@@ -10,5 +10,7 @@ namespace Yi.Framework.TenantManagement.Application.Contracts.Dtos
         public string? TenantConnectionString { get;  set; }
 
         public SqlSugar.DbType? DbType { get;  set; }
+
+        public bool State { get; set; }
     }
 }
