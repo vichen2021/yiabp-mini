@@ -133,5 +133,11 @@ namespace Yi.Framework.TenantManagement.Domain
         {
             return TenantCacheItem.CalculateCacheKey(id, name);
         }
+
+        public async Task RemoveCacheAsync(Guid id, string name)
+        {
+            await Cache.RemoveAsync(TenantCacheItem.CalculateCacheKey(id, null));
+            await Cache.RemoveAsync(TenantCacheItem.CalculateCacheKey(null, name));
+        }
     }
 }

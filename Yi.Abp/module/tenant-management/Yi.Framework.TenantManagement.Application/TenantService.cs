@@ -6,7 +6,6 @@ using Microsoft.Extensions.Options;
 using SqlSugar;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
-using Volo.Abp.Caching;
 using Volo.Abp.Data;
 using Volo.Abp.Modularity;
 using Volo.Abp.Uow;
@@ -28,16 +27,16 @@ namespace Yi.Framework.TenantManagement.Application
         private ISqlSugarRepository<TenantAggregateRoot, Guid> _repository;
         private IDataSeeder _dataSeeder;
         private readonly DbConnOptions _dbConnOptions;
-        private readonly IDistributedCache<TenantCacheItem> _tenantCache;
+        private readonly SqlSugarAndConfigurationTenantStore _tenantStore;
 
         public TenantService(ISqlSugarRepository<TenantAggregateRoot, Guid> repository, IDataSeeder dataSeeder,
-            IOptions<DbConnOptions> dbConnOptions, IDistributedCache<TenantCacheItem> tenantCache) :
+            IOptions<DbConnOptions> dbConnOptions, SqlSugarAndConfigurationTenantStore tenantStore) :
             base(repository)
         {
             _repository = repository;
             _dataSeeder = dataSeeder;
             _dbConnOptions = dbConnOptions.Value;
-            _tenantCache = tenantCache;
+            _tenantStore = tenantStore;
         }
 
         /// <summary>
@@ -115,8 +114,7 @@ namespace Yi.Framework.TenantManagement.Application
 
             var result = await base.UpdateAsync(id, input);
 
-            await _tenantCache.RemoveAsync(TenantCacheItem.CalculateCacheKey(id, null));
-            await _tenantCache.RemoveAsync(TenantCacheItem.CalculateCacheKey(null, oldTenant.Name));
+            await _tenantStore.RemoveCacheAsync(id, oldTenant.Name);
 
             return result;
         }
