@@ -66,6 +66,10 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
           link: 'introduction/features',
           text: '核心特性',
         },
+        {
+          link: 'introduction/ai-development',
+          text: '全栈+AI开发指南',
+        },
       ],
     },
     {
