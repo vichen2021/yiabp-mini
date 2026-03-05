@@ -142,7 +142,7 @@ export function seeConnectionClose() {
  * @param domain 绑定域名(不带http(s)://) 可选
  * @param id 租户id
  */
-export interface TenantOption {
+export interface TenantResp {
   name: string;
   domain?: string;
   id: string;
