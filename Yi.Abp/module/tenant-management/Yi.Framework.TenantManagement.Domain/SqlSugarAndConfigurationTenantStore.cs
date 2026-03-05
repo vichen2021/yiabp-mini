@@ -116,9 +116,9 @@ namespace Yi.Framework.TenantManagement.Domain
         {
             var tenantConfiguration = new TenantConfiguration();
             tenantConfiguration.Id = tenantAggregateRoot.Id;
-            tenantConfiguration.Name = tenantAggregateRoot.Name;
+            tenantConfiguration.Name = $"{tenantAggregateRoot.Name}@{tenantAggregateRoot.DbType}";
             tenantConfiguration.ConnectionStrings = MaptoString(tenantAggregateRoot.TenantConnectionString);
-            tenantConfiguration.IsActive = true;
+            tenantConfiguration.IsActive = tenantAggregateRoot.State;
             return tenantConfiguration;
         }
 

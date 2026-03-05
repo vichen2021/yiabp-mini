@@ -1,6 +1,8 @@
-﻿using System.Reflection;
+using System.Linq;
+using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using SqlSugar;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
@@ -24,12 +26,15 @@ namespace Yi.Framework.TenantManagement.Application
     {
         private ISqlSugarRepository<TenantAggregateRoot, Guid> _repository;
         private IDataSeeder _dataSeeder;
+        private readonly DbConnOptions _dbConnOptions;
 
-        public TenantService(ISqlSugarRepository<TenantAggregateRoot, Guid> repository, IDataSeeder dataSeeder) :
+        public TenantService(ISqlSugarRepository<TenantAggregateRoot, Guid> repository, IDataSeeder dataSeeder,
+            IOptions<DbConnOptions> dbConnOptions) :
             base(repository)
         {
             _repository = repository;
             _dataSeeder = dataSeeder;
+            _dbConnOptions = dbConnOptions.Value;
         }
 
         /// <summary>
@@ -77,6 +82,11 @@ namespace Yi.Framework.TenantManagement.Application
         /// <returns></returns>
         public override async Task<TenantGetOutputDto> CreateAsync(TenantCreateInput input)
         {
+            if (!_dbConnOptions.EnabledSaasMultiTenancy)
+            {
+                throw new UserFriendlyException("创建失败，系统未开启多租户功能，请在配置文件中启用");
+            }
+
             if (await _repository.IsAnyAsync(x => x.Name == input.Name))
             {
                 throw new UserFriendlyException("创建失败，当前租户已存在");
@@ -117,19 +127,50 @@ namespace Yi.Framework.TenantManagement.Application
         /// 初始化租户
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="isForce">是否强制初始化</param>
         /// <returns></returns>
         [HttpPut("tenant/init/{id}")]
-        public async Task InitAsync([FromRoute] Guid id)
+        public async Task<TenantInitOutputDto> InitAsync([FromRoute] Guid id, [FromQuery] bool isForce = false)
         {
+            var tenant = await _repository.GetByIdAsync(id);
+            if (tenant is null)
+            {
+                throw new UserFriendlyException("租户不存在");
+            }
+
             await CurrentUnitOfWork.SaveChangesAsync();
             using (CurrentTenant.Change(id))
             {
-                await CodeFirst(this.LazyServiceProvider);
-                 await _dataSeeder.SeedAsync(id);
+                ISqlSugarClient db = await _repository.GetDbContextAsync();
+
+                bool databaseExists = false;
+                try
+                {
+                    var dbs = db.DbMaintenance.GetDataBaseList();
+                    databaseExists = dbs.Any(x => x?.ToString() == tenant.Name);
+                }
+                catch
+                {
+                    databaseExists = false;
+                }
+
+                if (databaseExists)
+                {
+                    var tables = db.DbMaintenance.GetTableInfoList();
+                    if (tables.Count > 0 && !isForce)
+                    {
+                        return new TenantInitOutputDto { NeedForce = true };
+                    }
+                }
+
+                await CodeFirst(this.LazyServiceProvider, tenant.Name);
+                await _dataSeeder.SeedAsync(id);
             }
+
+            return new TenantInitOutputDto { NeedForce = false };
         }
 
-        private async Task CodeFirst(IServiceProvider service)
+        private async Task CodeFirst(IServiceProvider service, string databaseName)
         {
             var moduleContainer = service.GetRequiredService<IModuleContainer>();
 
@@ -137,8 +178,7 @@ namespace Yi.Framework.TenantManagement.Application
             using (var uow = UnitOfWorkManager.Begin(requiresNew: true, isTransactional: false))
             {
                 ISqlSugarClient db = await _repository.GetDbContextAsync();
-                //尝试创建数据库
-                db.DbMaintenance.CreateDatabase();
+                db.DbMaintenance.CreateDatabase(databaseName);
 
                 List<Type> types = new List<Type>();
                 foreach (var module in moduleContainer.Modules)
