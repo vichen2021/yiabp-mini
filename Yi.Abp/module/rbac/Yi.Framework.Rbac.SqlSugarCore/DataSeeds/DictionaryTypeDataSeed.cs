@@ -142,6 +142,18 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
                 State = true
             };
             entities.Add(dict10);
+
+            DictionaryTypeAggregateRoot dict11 = new DictionaryTypeAggregateRoot()
+            {
+                DictName = "数据库类型",
+                DictType = "sys_db_type",
+                OrderNum = 100,
+                Remark = "数据库类型列表",
+                IsDeleted = false,
+                State = true
+            };
+            entities.Add(dict11);
+
             return entities;
         }
     }

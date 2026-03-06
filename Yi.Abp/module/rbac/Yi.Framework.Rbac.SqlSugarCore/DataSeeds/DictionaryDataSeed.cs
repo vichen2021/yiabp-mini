@@ -416,6 +416,71 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
             };
             entities.Add(dictInfo21);
 
+            DictionaryEntity dictInfo29 = new DictionaryEntity()
+            {
+                DictLabel = "MySQL",
+                DictValue = "0",
+                DictType = "sys_db_type",
+                OrderNum = 100,
+                Remark = "MySQL",
+                IsDeleted = false,
+                State = true,
+                ListClass = "default"
+            };
+            entities.Add(dictInfo29);
+
+            DictionaryEntity dictInfo30 = new DictionaryEntity()
+            {
+                DictLabel = "SqlServer",
+                DictValue = "1",
+                DictType = "sys_db_type",
+                OrderNum = 99,
+                Remark = "SqlServer",
+                IsDeleted = false,
+                State = true,
+                ListClass = "default"
+            };
+            entities.Add(dictInfo30);
+
+            DictionaryEntity dictInfo31 = new DictionaryEntity()
+            {
+                DictLabel = "SQLite",
+                DictValue = "2",
+                DictType = "sys_db_type",
+                OrderNum = 98,
+                Remark = "SQLite",
+                IsDeleted = false,
+                State = true,
+                ListClass = "default"
+            };
+            entities.Add(dictInfo31);
+
+            DictionaryEntity dictInfo32 = new DictionaryEntity()
+            {
+                DictLabel = "Oracle",
+                DictValue = "3",
+                DictType = "sys_db_type",
+                OrderNum = 97,
+                Remark = "Oracle",
+                IsDeleted = false,
+                State = true,
+                ListClass = "default"
+            };
+            entities.Add(dictInfo32);
+
+            DictionaryEntity dictInfo33 = new DictionaryEntity()
+            {
+                DictLabel = "PostgreSQL",
+                DictValue = "4",
+                DictType = "sys_db_type",
+                OrderNum = 96,
+                Remark = "PostgreSQL",
+                IsDeleted = false,
+                State = true,
+                ListClass = "default"
+            };
+            entities.Add(dictInfo33);
+
             return entities;
         }
     }
