@@ -375,6 +375,21 @@ export const drawerSchema: FormSchemaGetter = () => [
     formItemClass: 'items-start',
     label: '备注',
   },
+  {
+    component: 'RadioGroup',
+    componentProps: {
+      buttonStyle: 'solid',
+      options: [
+        { label: '启用', value: true },
+        { label: '禁用', value: false },
+      ],
+      optionType: 'button',
+    },
+    defaultValue: true,
+    fieldName: 'state',
+    formItemClass: 'col-span-2 lg:col-span-1',
+    label: '状态',
+  },
 ];
 ```
 
