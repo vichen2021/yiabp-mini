@@ -153,30 +153,45 @@ namespace Yi.Framework.TenantManagement.Application
             }
 
             await CurrentUnitOfWork.SaveChangesAsync();
+
+            bool databaseExists = false;
+            int tableCount = 0;
+
+            // 检查数据库状态（在租户上下文中）
             using (CurrentTenant.Change(id))
             {
-                ISqlSugarClient db = await _repository.GetDbContextAsync();
-
-                bool databaseExists = false;
-                try
+                using (var checkUow = UnitOfWorkManager.Begin(requiresNew: true, isTransactional: false))
                 {
-                    var dbs = db.DbMaintenance.GetDataBaseList();
-                    databaseExists = dbs.Any(x => x?.ToString() == tenant.Name);
-                }
-                catch
-                {
-                    databaseExists = false;
-                }
-
-                if (databaseExists)
-                {
-                    var tables = db.DbMaintenance.GetTableInfoList();
-                    if (tables.Count > 0 && !input.IsForce)
+                    ISqlSugarClient db = await _repository.GetDbContextAsync();
+                    try
                     {
-                        return new TenantInitOutputDto { NeedForce = true };
+                        var dbs = db.DbMaintenance.GetDataBaseList();
+                        databaseExists = dbs.Any(x => x?.ToString() == tenant.Name);
                     }
-                }
+                    catch
+                    {
+                        databaseExists = false;
+                    }
 
+                    if (databaseExists)
+                    {
+                        var tables = db.DbMaintenance.GetTableInfoList();
+                        tableCount = tables.Count;
+                    }
+
+                    await checkUow.CompleteAsync();
+                }
+            }
+
+            // 如果数据库有数据且不是强制初始化，返回需要确认
+            if (databaseExists && tableCount > 0 && !input.IsForce)
+            {
+                return new TenantInitOutputDto { NeedForce = true };
+            }
+
+            // 执行初始化（在新的租户上下文中）
+            using (CurrentTenant.Change(id))
+            {
                 await CodeFirst(this.LazyServiceProvider, tenant.Name);
                 await _dataSeeder.SeedAsync(id);
 
