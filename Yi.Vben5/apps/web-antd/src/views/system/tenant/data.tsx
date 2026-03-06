@@ -1,11 +1,14 @@
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
+import { DictEnum } from '@vben/constants';
 import { getPopupContainer } from '@vben/utils';
 
 import dayjs from 'dayjs';
 
 import { z } from '#/adapter/form';
+import { getDictOptions } from '#/utils/dict';
+import { renderDict } from '#/utils/render';
 
 export const querySchema: FormSchemaGetter = () => [
   {
@@ -51,7 +54,7 @@ export const columns: VxeGridProps['columns'] = [
   {
     title: '数据库类型',
     field: 'dbType',
-    slots: { default: 'dbType' },
+    slots: { default: ({ row }) => renderDict(row.dbType, DictEnum.SYS_DB_TYPE) },
   },
   {
     title: '连接字符串',
@@ -143,41 +146,6 @@ export const drawerSchema: FormSchemaGetter = () => [
     componentProps: {
       orientation: 'center',
     },
-    fieldName: 'divider2',
-    hideLabel: true,
-    renderComponentContent: () => ({
-      default: () => '管理员信息',
-    }),
-    dependencies: {
-      if: (values) => !values?.tenantId,
-      triggerFields: ['tenantId'],
-    },
-  },
-  {
-    component: 'Input',
-    fieldName: 'username',
-    label: '用户账号',
-    rules: 'required',
-    dependencies: {
-      if: (values) => !values?.tenantId,
-      triggerFields: ['tenantId'],
-    },
-  },
-  {
-    component: 'InputPassword',
-    fieldName: 'password',
-    label: '用户密码',
-    rules: 'required',
-    dependencies: {
-      if: (values) => !values?.tenantId,
-      triggerFields: ['tenantId'],
-    },
-  },
-  {
-    component: 'Divider',
-    componentProps: {
-      orientation: 'center',
-    },
     fieldName: 'divider3',
     hideLabel: true,
     renderComponentContent: () => ({
@@ -187,13 +155,11 @@ export const drawerSchema: FormSchemaGetter = () => [
   {
     component: 'Select',
     componentProps: {
-      options: [
-        { label: 'SQLite', value: 0 },
-        { label: 'MySQL', value: 1 },
-        { label: 'SqlServer', value: 2 },
-        { label: 'Oracle', value: 3 },
-        { label: 'PostgreSQL', value: 4 },
-      ],
+      getPopupContainer,
+      options: getDictOptions(DictEnum.SYS_DB_TYPE).map((o) => ({
+        ...o,
+        value: Number(o.value),
+      })),
     },
     fieldName: 'dbType',
     label: '数据库类型',
@@ -296,5 +262,20 @@ export const drawerSchema: FormSchemaGetter = () => [
     fieldName: 'remark',
     formItemClass: 'items-start',
     label: '备注',
+  },
+  {
+    component: 'RadioGroup',
+    componentProps: {
+      buttonStyle: 'solid',
+      options: [
+        { label: '启用', value: true },
+        { label: '禁用', value: false },
+      ],
+      optionType: 'button',
+    },
+    defaultValue: true,
+    fieldName: 'state',
+    formItemClass: 'col-span-2 lg:col-span-1',
+    label: '状态',
   },
 ];

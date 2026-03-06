@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\rbac\Yi.Framework.Rbac.Domain\Yi.Framework.Rbac.Domain.csproj" />
     <ProjectReference Include="..\..\..\framework\Yi.Framework.Ddd.Application\Yi.Framework.Ddd.Application.csproj" />
     <ProjectReference Include="..\Yi.Framework.TenantManagement.Application.Contracts\Yi.Framework.TenantManagement.Application.Contracts.csproj" />
     <ProjectReference Include="..\Yi.Framework.TenantManagement.Domain\Yi.Framework.TenantManagement.Domain.csproj" />

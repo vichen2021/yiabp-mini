@@ -10,17 +10,17 @@ export interface Tenant {
   creatorId: string | null;
   lastModifierId: string | null;
   lastModificationTime: string | null;
-  // 以下字段可能来自 ExtraProperties 或后端扩展
-  accountCount?: number;
-  address?: string;
-  companyName?: string;
-  contactPhone?: string;
   contactUserName?: string;
-  domain?: string;
+  contactPhone?: string;
   expireTime?: string;
+  accountCount?: number;
+  domain?: string;
+  address?: string;
+  licenseNumber?: string;
   intro?: string;
-  licenseNumber?: any;
-  packageId?: string;
   remark?: string;
+  // 表单专用（新建租户时的初始管理员）
+  username?: string;
+  password?: string;
   tenantId?: string;
 }

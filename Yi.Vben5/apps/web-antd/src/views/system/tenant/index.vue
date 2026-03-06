@@ -4,13 +4,13 @@ import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { Tenant } from '#/api/system/tenant/model';
 
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 import { useAccess } from '@vben/access';
 import { Fallback, Page, useVbenDrawer } from '@vben/common-ui';
 import { getVxePopupContainer } from '@vben/utils';
 
-import { Modal, Popconfirm, Space } from 'ant-design-vue';
+import { Form, Input, Modal, Popconfirm, Space } from 'ant-design-vue';
 
 import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
 import {
@@ -133,14 +133,6 @@ function handleDownloadExcel() {
  */
 const { hasAccessByCodes, hasAccessByRoles } = useAccess();
 
-const dbTypeMap: Record<number, string> = {
-  0: 'SQLite',
-  1: 'MySQL',
-  2: 'SqlServer',
-  3: 'Oracle',
-  4: 'PostgreSQL',
-};
-
 const isSuperAdmin = computed(() => {
   return hasAccessByRoles(['superadmin']);
 });
@@ -157,8 +149,32 @@ function handleSyncTenantDict() {
   });
 }
 
-async function handleInit(row: Tenant) {
-  const result = await tenantInit(row.id, false);
+const initModalVisible = ref(false);
+const initTenantId = ref('');
+const initUsername = ref('');
+const initPassword = ref('');
+
+function handleInit(row: Tenant) {
+  initTenantId.value = row.id;
+  initUsername.value = '';
+  initPassword.value = '';
+  initModalVisible.value = true;
+}
+
+async function handleInitConfirm() {
+  if (!initUsername.value || !initPassword.value) {
+    Modal.error({ title: '错误', content: '请输入管理员账号和密码' });
+    return;
+  }
+
+  initModalVisible.value = false;
+
+  const result = await tenantInit(initTenantId.value, {
+    isForce: false,
+    username: initUsername.value,
+    password: initPassword.value,
+  });
+
   if (result?.needForce) {
     Modal.confirm({
       title: '提示',
@@ -166,7 +182,11 @@ async function handleInit(row: Tenant) {
       content: '数据库有数据，是否清除所有数据强制初始化？',
       okType: 'danger',
       onOk: async () => {
-        await tenantInit(row.id, true);
+        await tenantInit(initTenantId.value, {
+          isForce: true,
+          username: initUsername.value,
+          password: initPassword.value,
+        });
         await tableApi.query();
       },
     });
@@ -219,9 +239,6 @@ async function handleInit(row: Tenant) {
           @reload="tableApi.query()"
         />
       </template>
-      <template #dbType="{ row }">
-        {{ dbTypeMap[row.dbType] || '未知' }}
-      </template>
       <template #action="{ row }">
         <Space v-if="row.id !== '00000000-0000-0000-0000-000000000001'">
           <ghost-button
@@ -268,6 +285,21 @@ async function handleInit(row: Tenant) {
       </template>
     </BasicTable>
     <TenantDrawer @reload="tableApi.query()" />
+    <Modal
+      v-model:open="initModalVisible"
+      title="初始化租户"
+      @ok="handleInitConfirm"
+    >
+      <p style="margin-bottom: 16px; color: #666;">请输入租户管理员账号信息：</p>
+      <Form layout="vertical">
+        <Form.Item label="管理员账号" required>
+          <Input v-model:value="initUsername" placeholder="请输入管理员账号" />
+        </Form.Item>
+        <Form.Item label="管理员密码" required>
+          <Input.Password v-model:value="initPassword" placeholder="请输入管理员密码" />
+        </Form.Item>
+      </Form>
+    </Modal>
   </Page>
   <Fallback v-else description="您没有租户的访问权限" status="403" />
 </template>

@@ -13,6 +13,6 @@ namespace Yi.Framework.TenantManagement.Application.Contracts
         /// <summary>
         /// 初始化租户
         /// </summary>
-        Task<TenantInitOutputDto> InitAsync(Guid id, bool isForce = false);
+        Task<TenantInitOutputDto> InitAsync(Guid id, TenantInitInput input);
     }
 }

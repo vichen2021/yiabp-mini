@@ -116,11 +116,9 @@ export function dictSyncTenant(tenantId?: string) {
 /**
  * 初始化租户
  * @param id 租户ID
- * @param isForce 是否强制初始化
+ * @param data 初始化参数（包含管理员账号密码和是否强制初始化）
  * @returns { needForce } needForce=true 表示数据库已有数据，需确认强制初始化
  */
-export function tenantInit(id: ID, isForce = false) {
-  return requestClient.put<{ needForce: boolean }>(`${Api.tenantInit}/${id}`, null, {
-    params: { isForce },
-  });
+export function tenantInit(id: ID, data: { isForce: boolean; username: string; password: string }) {
+  return requestClient.put<{ needForce: boolean }>(`${Api.tenantInit}/${id}`, data);
 }

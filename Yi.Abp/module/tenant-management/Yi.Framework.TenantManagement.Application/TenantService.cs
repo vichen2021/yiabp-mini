@@ -10,6 +10,8 @@ using Volo.Abp.Data;
 using Volo.Abp.Modularity;
 using Volo.Abp.Uow;
 using Yi.Framework.Ddd.Application;
+using Yi.Framework.Rbac.Domain.Entities;
+using Yi.Framework.Rbac.Domain.Managers;
 using Yi.Framework.SqlSugarCore.Abstractions;
 using Yi.Framework.TenantManagement.Application.Contracts;
 using Yi.Framework.TenantManagement.Application.Contracts.Dtos;
@@ -28,15 +30,17 @@ namespace Yi.Framework.TenantManagement.Application
         private IDataSeeder _dataSeeder;
         private readonly DbConnOptions _dbConnOptions;
         private readonly SqlSugarAndConfigurationTenantStore _tenantStore;
+        private readonly UserManager _userManager;
 
         public TenantService(ISqlSugarRepository<TenantAggregateRoot, Guid> repository, IDataSeeder dataSeeder,
-            IOptions<DbConnOptions> dbConnOptions, SqlSugarAndConfigurationTenantStore tenantStore) :
+            IOptions<DbConnOptions> dbConnOptions, SqlSugarAndConfigurationTenantStore tenantStore, UserManager userManager) :
             base(repository)
         {
             _repository = repository;
             _dataSeeder = dataSeeder;
             _dbConnOptions = dbConnOptions.Value;
             _tenantStore = tenantStore;
+            _userManager = userManager;
         }
 
         /// <summary>
@@ -60,6 +64,8 @@ namespace Yi.Framework.TenantManagement.Application
 
             var entities = await _repository._DbQueryable
                 .WhereIF(!string.IsNullOrEmpty(input.Name), x => x.Name.Contains(input.Name!))
+                .WhereIF(!string.IsNullOrEmpty(input.ContactUserName), x => x.ContactUserName!.Contains(input.ContactUserName!))
+                .WhereIF(!string.IsNullOrEmpty(input.ContactPhone), x => x.ContactPhone!.Contains(input.ContactPhone!))
                 .WhereIF(input.StartTime is not null && input.EndTime is not null,
                     x => x.CreationTime >= input.StartTime && x.CreationTime <= input.EndTime)
                 .ToPageListAsync(input.SkipCount, input.MaxResultCount, total);
@@ -135,10 +141,10 @@ namespace Yi.Framework.TenantManagement.Application
         /// 初始化租户
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="isForce">是否强制初始化</param>
+        /// <param name="input">初始化参数（包含管理员账号密码）</param>
         /// <returns></returns>
         [HttpPut("tenant/init/{id}")]
-        public async Task<TenantInitOutputDto> InitAsync([FromRoute] Guid id, [FromQuery] bool isForce = false)
+        public async Task<TenantInitOutputDto> InitAsync([FromRoute] Guid id, [FromBody] TenantInitInput input)
         {
             var tenant = await _repository.GetByIdAsync(id);
             if (tenant is null)
@@ -165,7 +171,7 @@ namespace Yi.Framework.TenantManagement.Application
                 if (databaseExists)
                 {
                     var tables = db.DbMaintenance.GetTableInfoList();
-                    if (tables.Count > 0 && !isForce)
+                    if (tables.Count > 0 && !input.IsForce)
                     {
                         return new TenantInitOutputDto { NeedForce = true };
                     }
@@ -173,6 +179,14 @@ namespace Yi.Framework.TenantManagement.Application
 
                 await CodeFirst(this.LazyServiceProvider, tenant.Name);
                 await _dataSeeder.SeedAsync(id);
+
+                // 创建租户管理员账号
+                if (!string.IsNullOrEmpty(input.Username) && !string.IsNullOrEmpty(input.Password))
+                {
+                    var adminUser = new UserAggregateRoot(input.Username, input.Password, null, "租户管理员");
+                    await _userManager.CreateAsync(adminUser);
+                    await _userManager.SetDefautRoleAsync(adminUser.Id);
+                }
             }
 
             return new TenantInitOutputDto { NeedForce = false };
