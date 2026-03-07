@@ -1,4 +1,9 @@
 using Microsoft.Extensions.Logging;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.Formats.Webp;
+using SixLabors.ImageSharp.Processing;
 using SqlSugar;
 using Volo.Abp;
 using Volo.Abp.BlobStoring;
@@ -88,48 +93,94 @@ public class FileManager : DomainService
     }
 
     /// <summary>
-    /// 压缩图片
+    /// 压缩图片（使用 ImageSharp 直接压缩，性能更好）
     /// </summary>
     private async Task<byte[]> CompressImageAsync(FileAggregateRoot file, byte[] originalContent)
     {
+        // 小于 100KB 的图片不压缩，避免浪费时间
+        const int minSizeForCompression = 100 * 1024; // 100KB
+        if (originalContent.Length < minSizeForCompression)
+        {
+            Logger.LogInformation("图片大小小于100KB，跳过压缩,文件id：{FileId}, 大小：{Size}字节",
+                file.Id, originalContent.Length);
+            return originalContent;
+        }
+
         try
         {
-            using var fileStream = new MemoryStream(originalContent);
-            // 压缩图片
-            var compressResult = await _imageCompressor.CompressAsync(fileStream, file.GetMimeMapping());
-            
-            if (compressResult.State == ImageProcessState.Done)
+            // 使用 Task.Run 将 CPU 密集型压缩操作放到后台线程
+            var compressTask = Task.Run(() =>
             {
-                // 读取压缩后的流
-                using var compressedStream = compressResult.Result;
-                compressedStream.Position = 0;
-                var compressedBytes = new byte[compressedStream.Length];
-                await compressedStream.ReadAsync(compressedBytes, 0, compressedBytes.Length);
-                
-                Logger.LogInformation("图片压缩成功,文件id：{FileId}, 原始大小：{OriginalSize}字节, 压缩后大小：{CompressedSize}字节", 
-                    file.Id, originalContent.Length, compressedBytes.Length);
-                
-                return compressedBytes;
-            }
-            else if (compressResult.State == ImageProcessState.Canceled)
+                using var inputStream = new MemoryStream(originalContent);
+                using var image = Image.Load(inputStream);
+                using var outputStream = new MemoryStream();
+
+                // 根据文件类型选择压缩格式
+                var mimeType = file.GetMimeMapping().ToLowerInvariant();
+
+                if (mimeType.Contains("jpeg") || mimeType.Contains("jpg"))
+                {
+                    // JPEG 压缩，质量 75（平衡质量和大小）
+                    image.SaveAsJpeg(outputStream, new JpegEncoder { Quality = 75 });
+                }
+                else if (mimeType.Contains("png"))
+                {
+                    // PNG 压缩，使用最佳压缩级别
+                    image.SaveAsPng(outputStream, new PngEncoder
+                    {
+                        CompressionLevel = PngCompressionLevel.BestCompression
+                    });
+                }
+                else if (mimeType.Contains("webp"))
+                {
+                    // WebP 压缩，质量 75
+                    image.SaveAsWebp(outputStream, new WebpEncoder { Quality = 75 });
+                }
+                else
+                {
+                    // 不支持的格式，返回 null
+                    return null;
+                }
+
+                return outputStream.ToArray();
+            });
+
+            // 设置 5 秒超时
+            var completedTask = await Task.WhenAny(compressTask, Task.Delay(5000));
+
+            if (completedTask == compressTask)
             {
-                Logger.LogInformation("当前图片无法再进行压缩,文件id：{FileId}", file.Id);
+                var compressedBytes = await compressTask;
+
+                if (compressedBytes != null && compressedBytes.Length < originalContent.Length)
+                {
+                    Logger.LogInformation("图片压缩成功,文件id：{FileId}, 原始大小：{OriginalSize}字节, 压缩后大小：{CompressedSize}字节, 压缩率：{Ratio:P2}",
+                        file.Id, originalContent.Length, compressedBytes.Length,
+                        1.0 - (double)compressedBytes.Length / originalContent.Length);
+
+                    return compressedBytes;
+                }
+                else
+                {
+                    Logger.LogInformation("压缩后图片更大，使用原始图片,文件id：{FileId}", file.Id);
+                }
             }
             else
             {
-                Logger.LogInformation("当前图片不支持压缩,文件id：{FileId}", file.Id);
+                Logger.LogWarning("图片压缩超时（5秒），使用原始图片,文件id：{FileId}, 大小：{Size}字节",
+                    file.Id, originalContent.Length);
             }
         }
-        catch (NotSupportedException exception)
+        catch (UnknownImageFormatException exception)
         {
-            Logger.LogInformation(exception, "图片压缩失败,文件id：{FileId}", file.Id);
+            Logger.LogInformation(exception, "不支持的图片格式,文件id：{FileId}", file.Id);
         }
         catch (Exception exception)
         {
             Logger.LogError(exception, "图片压缩异常,文件id：{FileId}", file.Id);
         }
-        
-        // 压缩失败，返回原始内容
+
+        // 压缩失败或超时，返回原始内容
         return originalContent;
     }
 
