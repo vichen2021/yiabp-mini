@@ -18,6 +18,16 @@ export interface UploadResult {
 }
 
 /**
+ * 从文件访问 URL 中提取文件 ID
+ * @param url 文件访问 URL，格式如 http://host/api/file/get/{id}
+ * @returns 文件 ID
+ */
+function extractFileIdFromUrl(url: string): string {
+  const matches = url.match(/\/api\/file\/get\/([a-fA-F0-9-]+)/);
+  return matches?.[1] ?? '';
+}
+
+/**
  * 通过单文件上传接口（对接文件管理 /file/upload，返回 ossId 等供上传组件绑定）
  * @param file 上传的文件
  * @param options 一些配置项
@@ -37,23 +47,22 @@ export function uploadApi(
   const { onUploadProgress, signal, otherData = {} } = options ?? {};
   const fileName = file instanceof File ? file.name : '';
   const formData = new FormData();
-  formData.append('files', file);
+  formData.append('file', file);
   Object.entries(otherData).forEach(([k, v]) => {
     if (v != null) formData.append(k, v);
   });
   return requestClient
-    .post<string[] | { data?: string[] }>('/file/upload', formData, {
+    .post<string>('/file/upload', formData, {
       headers: { 'Content-Type': ContentTypeEnum.FORM_DATA },
       onUploadProgress,
       signal,
       timeout: 60_000,
     })
-    .then((res) => {
-      const ids = Array.isArray(res) ? res : (res?.data ?? []);
-      const firstId = typeof ids[0] === 'string' ? ids[0] : String(ids[0] ?? '');
+    .then((url) => {
+      const ossId = extractFileIdFromUrl(url);
       return {
-        ossId: firstId,
-        url: '', // 文件管理无直链，预览/下载走 fileDownload
+        ossId,
+        url,
         fileName,
       };
     });

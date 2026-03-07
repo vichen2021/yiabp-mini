@@ -9,6 +9,7 @@ import { requestClient } from '#/api/request';
 
 enum Api {
   fileUpload = '/file/upload',
+  fileBatchUpload = '/file/batch-upload',
   root = '/file',
 }
 
@@ -39,15 +40,31 @@ export function fileRemove(fileIds: IDS) {
 }
 
 /**
- * 上传文件 - 对应 UploadAsync(List<IFormFile> files)
- * @param files 文件列表
+ * 上传单个文件 - 对应 UploadAsync(IFormFile file)
+ * @param file 文件
+ * @returns 文件访问完整 URL
  */
-export function fileUploadFiles(files: File[]) {
+export function fileUpload(file: File, config?: AxiosRequestConfig) {
+  const formData = new FormData();
+  formData.append('file', file);
+  return requestClient.post<string>(Api.fileUpload, formData, {
+    headers: { 'Content-Type': ContentTypeEnum.FORM_DATA },
+    timeout: 60 * 1000,
+    ...config,
+  });
+}
+
+/**
+ * 批量上传文件 - 对应 BatchUploadAsync(List<IFormFile> files)
+ * @param files 文件列表
+ * @returns 文件 id 列表
+ */
+export function fileBatchUpload(files: File[]) {
   const formData = new FormData();
   for (const file of files) {
     formData.append('files', file);
   }
-  return requestClient.postWithMsg<void>(Api.fileUpload, formData, {
+  return requestClient.postWithMsg<string[]>(Api.fileBatchUpload, formData, {
     headers: { 'Content-Type': ContentTypeEnum.FORM_DATA },
     timeout: 60 * 1000,
   });
@@ -62,17 +79,24 @@ export async function fileDownload(
   fileId: ID,
   onDownloadProgress?: AxiosRequestConfig['onDownloadProgress'],
 ): Promise<Blob> {
-  const response = await requestClient.post<Blob>(
+  return requestClient.post<Blob>(
     `${Api.root}/${fileId}/download`,
     undefined,
     {
-      isReturnNativeResponse: true,
       responseType: 'blob',
       timeout: 60 * 1000,
       onDownloadProgress,
     },
   );
-  return response.data as unknown as Blob;
+}
+
+/**
+ * 获取文件访问 URL
+ * @param fileId 文件 id
+ * @returns 文件访问 URL（相对路径）
+ */
+export function getFileUrl(fileId: ID): string {
+  return `/api/file/get/${fileId}`;
 }
 
 /**
@@ -86,6 +110,6 @@ export async function ossInfo(ids: ID | IDS): Promise<OssFile[]> {
     ...item,
     ossId: item.id,
     originalName: item.fileName,
-    url: '', // File 管理无直链，预览/下载需走 fileDownload
+    url: getFileUrl(item.id),
   }));
 }
