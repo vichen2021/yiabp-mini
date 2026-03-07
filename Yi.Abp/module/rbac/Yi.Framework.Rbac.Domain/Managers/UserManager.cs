@@ -234,7 +234,7 @@ namespace Yi.Framework.Rbac.Domain.Managers
             if (user is null)
             {
                 //为了解决token前端缓存，后端数据库重新dbseed
-                throw new UserFriendlyException($"数据错误，查询用户不存在，请重新登录");
+                throw new UserFriendlyException($"数据错误，查询用户不存在，请重新登录","401");
             }
             user.EncryPassword.Password = string.Empty;
             user.EncryPassword.Salt = string.Empty;

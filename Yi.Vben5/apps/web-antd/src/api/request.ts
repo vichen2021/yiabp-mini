@@ -273,8 +273,7 @@ function createRequestClient(baseURL: string) {
       // 如果不希望中断当前请求，请return数据，否则直接抛出异常即可
       let timeoutMsg = '';
       switch (statusCode) {
-        case 401:
-        case 403: {
+        case 401:{
           // 已经在登出过程中 不再执行
           if (isLogoutProcessing) {
             throw new UnauthorizedException(timeoutMsg);
