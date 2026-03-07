@@ -8,7 +8,7 @@ import { onMounted } from 'vue';
 import { DictEnum } from '@vben/constants';
 import { useUserStore } from '@vben/stores';
 
-import { pick } from 'lodash-es';
+import { cloneDeep } from 'lodash-es';
 
 import { useVbenForm, z } from '#/adapter/form';
 import { userProfileUpdate } from '#/api/system/profile';
@@ -52,7 +52,7 @@ const [BasicForm, formApi] = useVbenForm({
       component: 'Input',
       fieldName: 'email',
       label: '邮箱',
-      rules: z.string().email('请输入正确的邮箱'),
+      rules: z.string().email('请输入正确的邮箱').optional().or(z.literal('')),
     },
     {
       component: 'RadioGroup',
@@ -70,7 +70,12 @@ const [BasicForm, formApi] = useVbenForm({
       component: 'Input',
       fieldName: 'phone',
       label: '电话',
-      rules: z.string().regex(/^1[3-9]\d{9}$/, '请输入正确的电话'),
+      rules: z
+        .union([
+          z.literal(''),
+          z.string().regex(/^1[3-9]\d{9}$/, '请输入正确的电话'),
+        ])
+        .optional(),
     },
   ],
   submitButtonOptions: {
@@ -88,11 +93,13 @@ function buttonLoading(loading: boolean) {
 async function handleSubmit(values: Recordable<any>) {
   try {
     buttonLoading(true);
-    await userProfileUpdate(values);
-    // 更新store
+    const data = cloneDeep(values);
+    if (data.phone) {
+      data.phone = Number(data.phone);
+    }
+    await userProfileUpdate(data);
     const userInfo = await authStore.fetchUserInfo();
     userStore.setUserInfo(userInfo);
-    // 左边reload
     emitter.emit('updateProfile');
   } catch (error) {
     console.error(error);
@@ -102,13 +109,14 @@ async function handleSubmit(values: Recordable<any>) {
 }
 
 onMounted(() => {
-  const data = pick(props.profile.user, [
-    'userId',
-    'nick',
-    'email',
-    'phone',
-    'sex',
-  ]);
+  const user = props.profile.user;
+  const data = {
+    userId: user.userId,
+    nick: user.nick,
+    email: user.email,
+    phone: user.phone != null ? String(user.phone) : '',
+    sex: user.sex,
+  };
   formApi.setValues(data);
 });
 </script>

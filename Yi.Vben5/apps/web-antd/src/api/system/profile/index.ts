@@ -32,7 +32,7 @@ export async function userProfile(): Promise<UserInfoResp> {
  * @returns void
  */
 export function userProfileUpdate(data: any) {
-  return requestClient.putWithMsg<void>(`${Api.root}/${data.id}`, data);
+  return requestClient.putWithMsg<void>(`${Api.root}`, data);
 }
 
 /**
