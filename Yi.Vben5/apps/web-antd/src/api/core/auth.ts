@@ -67,7 +67,8 @@ export namespace AuthApi {
 
   /** 登录接口返回值 */
   export interface LoginResult {
-    access_token: string;
+    token: string;
+    refreshToken: string;
     client_id: string;
     expire_in: number;
   }
@@ -104,7 +105,7 @@ export async function doLogout() {
     },
   );
   // 无奈之举 对错误用法的提示
-  if (resp.code === 401 && import.meta.env.DEV) {
+  if (resp.statusCode === 401 && import.meta.env.DEV) {
     Modal.destroyAll();
     Modal.warn({
       title: '后端配置出现错误',

@@ -24,7 +24,7 @@ defineEmits<{
 }>();
 
 const avatar = computed(
-  () => props.profile?.user.avatar || preferences.app.defaultAvatar,
+  () => props.profile?.user.icon || preferences.app.defaultAvatar,
 );
 
 const { isDark } = usePreferences();
@@ -77,7 +77,7 @@ const poetrySrc = computed(() => {
             </Tag>
           </DescriptionsItem>
           <DescriptionsItem label="注册时间">
-            {{ profile.user.creationTime }}
+            {{ profile.user.createTime }}
           </DescriptionsItem>
         </Descriptions>
       </div>

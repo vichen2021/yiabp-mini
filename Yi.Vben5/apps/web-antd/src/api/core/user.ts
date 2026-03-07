@@ -12,7 +12,7 @@ export interface Role {
 }
 
 export interface User {
-  avatar: string;
+  icon: string;
   createTime: string;
   deptId: number;
   deptName: string;
