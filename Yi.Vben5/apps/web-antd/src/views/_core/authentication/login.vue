@@ -50,14 +50,24 @@ async function loadCaptcha() {
 }
 
 const tenantInfo = ref<TenantResp[]>([]);
+const hasTenants = ref(false);
 
 async function loadTenant() {
   const resp = await tenantList();
-  tenantInfo.value = resp;
-  // 选中第一个租户
-  if (resp.length > 0) {
-    const firstTenantId = resp[0]!.id;
-    loginFormRef.value?.getFormApi().setFieldValue('tenantId', firstTenantId);
+  hasTenants.value = resp.length > 0;
+
+  // 只有当有租户数据时才添加默认租户选项
+  if (hasTenants.value) {
+    // 在租户列表前添加"主租户"选项
+    tenantInfo.value = [
+      {
+        id: DEFAULT_TENANT_ID,
+        name: '默认租户',
+      } as TenantResp,
+      ...resp,
+    ];
+    // 默认选中主租户
+    loginFormRef.value?.getFormApi().setFieldValue('tenantId', DEFAULT_TENANT_ID);
   }
 }
 
@@ -82,7 +92,7 @@ const formSchema = computed((): VbenFormSchema[] => {
       },
       defaultValue: DEFAULT_TENANT_ID,
       dependencies: {
-        if: () => tenantInfo.value.length > 0,
+        if: () => hasTenants.value,
         // 可以把这里当做watch
         trigger: (model) => {
           // 给oauth登录使用

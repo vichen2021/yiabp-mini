@@ -17,7 +17,10 @@ import { useAccessStore } from '@vben/stores';
 
 import { message, Modal } from 'ant-design-vue';
 
+import { DEFAULT_TENANT_ID } from '@vben/constants';
+
 import { useAuthStore } from '#/store';
+import { useLoginTenantId } from '#/views/_core/oauth-common';
 import {
   decryptBase64,
   decryptWithAes,
@@ -122,6 +125,15 @@ function createRequestClient(baseURL: string) {
       const accessStore = useAccessStore();
       // 添加token
       config.headers.Authorization = formatToken(accessStore.accessToken);
+      /**
+       * 添加租户请求头
+       * ABP 框架通过 __tenant 请求头识别租户
+       * 如果是默认租户ID（主租户），则不添加请求头，让后端在Host上下文中执行
+       */
+      const { loginTenantId } = useLoginTenantId();
+      if (loginTenantId.value && loginTenantId.value !== DEFAULT_TENANT_ID) {
+        config.headers.__tenant = loginTenantId.value;
+      }
       /**
        * locale跟后台不一致 需要转换
        */

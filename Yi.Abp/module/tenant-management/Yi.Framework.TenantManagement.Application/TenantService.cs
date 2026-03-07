@@ -131,9 +131,9 @@ namespace Yi.Framework.TenantManagement.Application
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public override Task DeleteAsync(IEnumerable<Guid> id)
+        public override Task DeleteAsync(IEnumerable<Guid> ids)
         {
-            return base.DeleteAsync(id);
+            return base.DeleteAsync(ids);
         }
 
 
