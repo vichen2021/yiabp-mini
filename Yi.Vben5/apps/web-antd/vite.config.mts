@@ -30,6 +30,11 @@ export default defineConfig(async () => {
             target: 'http://127.0.0.1:19002/api',
             ws: true,
           },
+          '/hub': {
+            changeOrigin: true,
+            target: 'http://127.0.0.1:19002',
+            ws: true,
+          },
         },
       },
     },

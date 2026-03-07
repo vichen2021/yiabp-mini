@@ -13,6 +13,7 @@ import { defineStore } from 'pinia';
 
 import { doLogout, getUserInfoApi, loginApi, seeConnectionClose } from '#/api';
 import { $t } from '#/locales';
+import { startSignalRConnection, stopSignalRConnection } from '#/utils/signalr';
 
 import { useDictStore } from './dict';
 
@@ -68,6 +69,8 @@ export const useAuthStore = defineStore('auth', () => {
           message: $t('authentication.loginSuccess'),
         });
       }
+
+      startSignalRConnection();
     } finally {
       loginLoading.value = false;
     }
@@ -79,6 +82,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function logout(redirect: boolean = true) {
     try {
+      await stopSignalRConnection();
       await seeConnectionClose();
       await doLogout();
     } catch (error) {

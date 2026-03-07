@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
+    "@microsoft/signalr": "^10.0.0",
     "@tinymce/tinymce-vue": "^6.0.1",
     "@vben/access": "workspace:*",
     "@vben/common-ui": "workspace:*",

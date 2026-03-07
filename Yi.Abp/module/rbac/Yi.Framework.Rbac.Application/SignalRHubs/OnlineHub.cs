@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
@@ -10,33 +10,30 @@ using Yi.Framework.Rbac.Domain.Shared.Model;
 namespace Yi.Framework.Rbac.Application.SignalRHubs
 {
     [HubRoute("/hub/main")]
-    //开放不需要授权
-    //[Authorize]
     public class OnlineHub : AbpHub
     {
         public static ConcurrentDictionary<string, OnlineUserModel> ClientUsersDic { get; set; } = new();
 
-        private readonly HttpContext? _httpContext;
-        private ILogger<OnlineHub> _logger => LoggerFactory.CreateLogger<OnlineHub>();
+        private readonly ILogger<OnlineHub> _logger;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public OnlineHub(IHttpContextAccessor httpContextAccessor)
+        public OnlineHub(ILogger<OnlineHub> logger, IHttpContextAccessor httpContextAccessor)
         {
-            _httpContext = httpContextAccessor?.HttpContext;
+            _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-
-        /// <summary>
-        /// 成功连接
-        /// </summary>
-        /// <returns></returns>
         public override Task OnConnectedAsync()
         {
-            if (_httpContext is null)
+            var httpContext = Context.GetHttpContext() ?? _httpContextAccessor?.HttpContext;
+            
+            if (httpContext is null)
             {
                 return Task.CompletedTask;
             }
+
             var name = CurrentUser.UserName;
-            var loginUser = new LoginLogAggregateRoot().GetInfoByHttpContext(_httpContext);
+            var loginUser = new LoginLogAggregateRoot().GetInfoByHttpContext(httpContext);
 
             OnlineUserModel user = new(Context.ConnectionId)
             {
@@ -49,35 +46,26 @@ namespace Yi.Framework.Rbac.Application.SignalRHubs
                 UserId = CurrentUser.Id ?? Guid.Empty
             };
 
-            //已登录
             if (CurrentUser.IsAuthenticated)
             {
                 ClientUsersDic.RemoveAll(u => u.Value.UserId == CurrentUser.Id);
                 _logger.LogDebug(
-                    $"{DateTime.Now}：{name},{Context.ConnectionId}连接服务端success，当前已连接{ClientUsersDic.Count}个");
+                    "{Time}：{Name},{ConnectionId}连接服务端success，当前已连接{Count}个",
+                    DateTime.Now, name, Context.ConnectionId, ClientUsersDic.Count);
             }
 
             ClientUsersDic.AddOrUpdate(Context.ConnectionId, user, (_, _) => user);
-
-            //当有人加入，向全部客户端发送当前总数
             Clients.All.SendAsync("onlineNum", ClientUsersDic.Count);
 
             return base.OnConnectedAsync();
         }
 
-
-        /// <summary>
-        /// 断开连接
-        /// </summary>
-        /// <param name="exception"></param>
-        /// <returns></returns>
         public override Task OnDisconnectedAsync(Exception? exception)
         {
-            //已登录
             if (CurrentUser.IsAuthenticated)
             {
                 ClientUsersDic.RemoveAll(u => u.Value.UserId == CurrentUser.Id);
-                _logger.LogDebug($"用户{CurrentUser?.UserName}离开了，当前已连接{ClientUsersDic.Count}个");
+                _logger.LogDebug("用户{UserName}离开了，当前已连接{Count}个", CurrentUser?.UserName, ClientUsersDic.Count);
             }
             ClientUsersDic.Remove(Context.ConnectionId, out _);
             Clients.All.SendAsync("onlineNum", ClientUsersDic.Count);
