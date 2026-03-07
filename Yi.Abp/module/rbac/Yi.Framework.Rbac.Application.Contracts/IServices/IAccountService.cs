@@ -45,5 +45,12 @@ namespace Yi.Framework.Rbac.Application.Contracts.IServices
         /// </summary>
         /// <param name="input"></param>
         Task PostTempRegisterAsync(RegisterDto input);
+
+        /// <summary>
+        /// 更新头像
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        Task<bool> UpdateIconAsync(UpdateIconDto input);
     }
 }

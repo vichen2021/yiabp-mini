@@ -8,8 +8,10 @@ import { getUserInfoApi } from '#/api/core/user';
 
 enum Api {
   root = '/user/profile',
-  updateAvatar = '/user/profile/avatar',
   updatePassword = '/account/password',
+  updateIcon = '/account/icon',
+  uploadFile = '/file/upload',
+  downloadFile = '/file/download',
 }
 
 /**
@@ -49,7 +51,7 @@ export function userUpdatePassword(data: UpdatePasswordParam) {
  * @param fileCallback data
  * @returns void
  */
-export function userUpdateAvatar(fileCallback: FileCallBack) {
+export async function userUpdateAvatar(fileCallback: FileCallBack) {
   /** 直接点击头像上传 filename为空 由于后台通过拓展名判断(默认文件名blob) 会上传失败 */
   let { file } = fileCallback;
   const { filename } = fileCallback;
@@ -61,11 +63,22 @@ export function userUpdateAvatar(fileCallback: FileCallBack) {
   file = filename
     ? new File([file], filename)
     : new File([file], `${buildUUID()}.png`);
-  return requestClient.post(
-    Api.updateAvatar,
-    {
-      avatarfile: file,
-    },
-    { headers: { 'Content-Type': 'multipart/form-data' } },
-  );
+
+  const formData = new FormData();
+  formData.append('file', file);
+  const fileUrl = await requestClient.post<string>(Api.uploadFile, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    errorMessageMode: 'message',
+  });
+
+  if (!fileUrl) {
+    throw new Error('上传文件失败');
+  }
+
+  return requestClient.put(Api.updateIcon, {
+    icon: fileUrl,
+  }, {
+    errorMessageMode: 'message',
+    successMessageMode: 'message',
+  });
 }

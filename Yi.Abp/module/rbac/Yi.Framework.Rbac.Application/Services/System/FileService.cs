@@ -22,17 +22,16 @@ public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutput
     private readonly ISqlSugarRepository<FileAggregateRoot, Guid> _repository;
     private readonly FileManager _fileManager;
     private readonly IBlobContainer<FileManagementContainer> _blobContainer;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public FileService(
         ISqlSugarRepository<FileAggregateRoot, Guid> repository,
         FileManager fileManager,
-        IBlobContainer<FileManagementContainer> blobContainer)
-        : base(repository)
-    {
-        _repository = repository;
-        _fileManager = fileManager;
-        _blobContainer = blobContainer;
-    }
+        IBlobContainer<FileManagementContainer> blobContainer,
+        IHttpContextAccessor httpContextAccessor)
+        : base(repository) =>
+        (_repository, _fileManager, _blobContainer, _httpContextAccessor) =
+        (repository, fileManager, blobContainer, httpContextAccessor);
 
     /// <summary>
     /// 多查
@@ -52,17 +51,12 @@ public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutput
     /// <summary>
     /// 单查
     /// </summary>
-    public override async Task<FileGetListOutputDto> GetAsync(Guid id)
+    [HttpGet("file/get/{id}")]
+    public new async Task<FileStreamResult> GetAsync(Guid id)
     {
-        var dto = await _fileManager.GetAsync(id);
-        return new FileGetListOutputDto
-        {
-            Id = dto.Id,
-            FileSize = dto.FileSize,
-            ContentType = dto.ContentType,
-            FileName = dto.FileName,
-            CreationTime = dto.CreationTime
-        };
+        var fileObject = await _fileManager.GetAsync(id);
+        var stream = await _blobContainer.GetAsync(id.ToString());
+        return new FileStreamResult(stream, fileObject.ContentType);
     }
 
     /// <summary>
@@ -92,7 +86,7 @@ public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutput
     /// <summary>
     /// 上传文件，返回落库后的文件 id 列表（与入参 files 顺序一致）
     /// </summary>
-    public async Task<List<Guid>> UploadAsync(List<IFormFile> files)
+    public async Task<List<Guid>> BatchUploadAsync(List<IFormFile> files)
     {
         var ids = new List<Guid>();
         foreach (var formFile in files)
@@ -110,6 +104,27 @@ public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutput
             ids.Add(dto.Id);
         }
         return ids;
+    }
+
+    /// <summary>
+    /// 上传单个文件，返回文件访问链接
+    /// </summary>
+    public async Task<string> UploadAsync(IFormFile file)
+    {
+        using var memoryStream = new MemoryStream();
+        await file.CopyToAsync(memoryStream);
+        var fileBytes = memoryStream.ToArray();
+        var dto = await _fileManager.CreateAsync(
+            GuidGenerator.Create(),
+            file.FileName,
+            file.Length,
+            file.ContentType,
+            fileBytes,
+            overwrite: true);
+
+        var request = _httpContextAccessor.HttpContext?.Request;
+        var baseUrl = $"{request?.Scheme}://{request?.Host.Value}";
+        return $"{baseUrl}/api/file/get/{dto.Id}";
     }
 
     /// <summary>

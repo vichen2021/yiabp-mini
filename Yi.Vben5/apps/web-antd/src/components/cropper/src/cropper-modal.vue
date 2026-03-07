@@ -39,14 +39,21 @@ let scaleX = 1;
 let scaleY = 1;
 
 const prefixCls = 'cropper-am';
+let loadingTimeout: ReturnType<typeof setTimeout> | null = null;
+
 const [BasicModal, modalApi] = useVbenModal({
   onConfirm: handleOk,
   onOpenChange(isOpen) {
-    // 打开的时候loading CropperImage组件加载完毕关闭loading
     if (isOpen) {
       modalLoading(true);
+      loadingTimeout = setTimeout(() => {
+        modalLoading(false);
+      }, 3000);
     } else {
-      // 关闭时候清空右侧预览
+      if (loadingTimeout) {
+        clearTimeout(loadingTimeout);
+        loadingTimeout = null;
+      }
       previewSource.value = '';
       modalLoading(false);
     }
@@ -54,6 +61,10 @@ const [BasicModal, modalApi] = useVbenModal({
 });
 
 function modalLoading(loading: boolean) {
+  if (!loading && loadingTimeout) {
+    clearTimeout(loadingTimeout);
+    loadingTimeout = null;
+  }
   modalApi.setState({ confirmLoading: loading, loading });
 }
 

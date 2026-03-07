@@ -11,9 +11,14 @@ namespace Yi.Framework.Rbac.Application.Contracts.IServices;
 public interface IFileService : IYiCrudAppService<FileGetListOutputDto, Guid, FileGetListInputVo>
 {
     /// <summary>
-    /// 上传文件，返回创建的文件 id 列表（与入参 files 顺序一致）
+    /// 上传单个文件，返回文件访问链接
     /// </summary>
-    Task<List<Guid>> UploadAsync(List<IFormFile> files);
+    Task<string> UploadAsync(IFormFile file);
+
+    /// <summary>
+    /// 批量上传文件，返回文件 id 列表（与入参 files 顺序一致）
+    /// </summary>
+    Task<List<Guid>> BatchUploadAsync(List<IFormFile> files);
 
     /// <summary>
     /// 下载文件
