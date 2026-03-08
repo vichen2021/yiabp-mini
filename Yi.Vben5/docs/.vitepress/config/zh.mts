@@ -89,7 +89,7 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
       text: '前端开发',
       items: [
         { link: 'frontend/tech-stack', text: '前端技术栈' },
-        { link: 'frontend/development', text: '本地开发' },
+        { link: 'frontend/development', text: '快速上手' },
         { link: 'frontend/route', text: '路由和菜单' },
         { link: 'frontend/api', text: 'API 调用' },
         { link: 'frontend/components', text: '组件使用' },

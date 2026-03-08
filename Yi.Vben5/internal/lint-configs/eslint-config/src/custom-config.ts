@@ -141,9 +141,9 @@ const customConfig: Linter.Config[] = [
       ],
     },
   },
-  // 后端模拟代码，不需要太多规则
+  // 文档目录，不需要太多规则
   {
-    files: ['apps/backend-mock/**/**', 'docs/**/**'],
+    files: ['docs/**/**'],
     rules: {
       '@typescript-eslint/no-extraneous-class': 'off',
       'n/no-extraneous-import': 'off',

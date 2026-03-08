@@ -1,4 +1,4 @@
-# 本地开发
+# 快速上手
 
 ## 环境要求
 
@@ -38,9 +38,9 @@ pnpm build:antd
 ```
 Yi.Vben5/
 ├── apps/
-│   └── web-antd/          # 主应用
+│   └── web-antd/          # 主应用-开发目录
 ├── packages/              # 共享包
-└── playground/            # 开发测试
+└── docs/                  # 本框架文档
 ```
 
 ## 相关文档

@@ -24,7 +24,7 @@ apps/web-naive
 
 ## 演示代码精简
 
-如果你不需要演示代码，你可以直接删除的`playground`文件夹。
+项目已移除演示代码目录。
 
 ## 文档精简
 
@@ -32,12 +32,7 @@ apps/web-naive
 
 ## Mock 服务精简
 
-如果你不需要`Mock`服务，你可以直接删除`apps/backend-mock`文件夹。同时在你的应用下`.env.development`文件中删除`VITE_NITRO_MOCK`变量。
-
-```bash
-# 是否开启 Nitro Mock服务，true 为开启，false 为关闭
-VITE_NITRO_MOCK=false
-```
+项目已移除 Mock 服务目录，默认使用真实后端接口。如需 Mock 服务，可参考 [Nitro](https://nitro.unjs.io/) 文档自行配置。
 
 ## 安装依赖
 
@@ -57,15 +52,9 @@ pnpm install
 {
   "scripts": {
     "build:antd": "pnpm run build --filter=@vben/web-antd",
-    "build:docs": "pnpm run build --filter=@vben/docs",
-    "build:ele": "pnpm run build --filter=@vben/web-ele",
-    "build:naive": "pnpm run build --filter=@vben/web-naive",
-    "build:play": "pnpm run build --filter=@vben/playground",
+    "build:docs": "pnpm run build --filter=@yi-mini/docs",
     "dev:antd": "pnpm -F @vben/web-antd run dev",
-    "dev:docs": "pnpm -F @vben/docs run dev",
-    "dev:ele": "pnpm -F @vben/web-ele run dev",
-    "dev:play": "pnpm -F @vben/playground run dev",
-    "dev:naive": "pnpm -F @vben/web-naive run dev"
+    "dev:docs": "pnpm -F @yi-mini/docs run dev"
   }
 }
 ```
