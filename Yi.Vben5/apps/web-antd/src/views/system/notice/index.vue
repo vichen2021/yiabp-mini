@@ -10,7 +10,7 @@ import { getVxePopupContainer } from '@vben/utils';
 import { Modal, Popconfirm, Space } from 'ant-design-vue';
 
 import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
-import { noticeList, noticeRemove } from '#/api/system/notice';
+import { noticeList, noticeRemove, noticeSendOnline } from '#/api/system/notice';
 
 import { columns, querySchema } from './data';
 import noticeModal from './notice-modal.vue';
@@ -80,6 +80,13 @@ async function handleDelete(row: Notice) {
   await tableApi.query();
 }
 
+async function handleSendNotice(row: Notice) {
+  await noticeSendOnline(row.id);
+  Modal.success({
+    content: '通知已推送至所有在线用户',
+  });
+}
+
 function handleMultiDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
   const ids = rows.map((row: Notice) => row.id);
@@ -120,6 +127,12 @@ function handleMultiDelete() {
       </template>
       <template #action="{ row }">
         <Space>
+          <ghost-button
+            v-access:code="['system:notice:send']"
+            @click="handleSendNotice(row)"
+          >
+            推送
+          </ghost-button>
           <ghost-button
             v-access:code="['system:notice:edit']"
             @click="handleEdit(row)"

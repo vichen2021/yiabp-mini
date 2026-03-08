@@ -51,3 +51,19 @@ export function noticeRemove(ids: IDS) {
     params: { ids: ids.join(',') },
   });
 }
+
+/**
+ * 发送在线通知（推送给所有在线用户）
+ * @param id 通知id
+ */
+export function noticeSendOnline(id: ID) {
+  return requestClient.post<void>(`${Api.root}/online/${id}`);
+}
+
+/**
+ * 发送离线通知（推送给所有在线用户并记录未读）
+ * @param id 通知id
+ */
+export function noticeSendOffline(id: ID) {
+  return requestClient.post<void>(`${Api.root}/offline/${id}`);
+}

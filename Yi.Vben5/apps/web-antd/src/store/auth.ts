@@ -11,7 +11,7 @@ import { resetAllStores, useAccessStore, useUserStore } from '@vben/stores';
 import { notification } from 'ant-design-vue';
 import { defineStore } from 'pinia';
 
-import { doLogout, getUserInfoApi, loginApi, seeConnectionClose } from '#/api';
+import { doLogout, getUserInfoApi, loginApi } from '#/api';
 import { $t } from '#/locales';
 import { startSignalRConnection, stopSignalRConnection } from '#/utils/signalr';
 
@@ -83,7 +83,6 @@ export const useAuthStore = defineStore('auth', () => {
   async function logout(redirect: boolean = true) {
     try {
       await stopSignalRConnection();
-      await seeConnectionClose();
       await doLogout();
     } catch (error) {
       console.error(error);

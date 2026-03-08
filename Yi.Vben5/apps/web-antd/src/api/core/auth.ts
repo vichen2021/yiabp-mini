@@ -9,7 +9,7 @@ import { Modal } from 'ant-design-vue';
 
 import { requestClient } from '#/api/request';
 
-const { clientId, sseEnable } = useAppConfig(
+const { clientId } = useAppConfig(
   import.meta.env,
   import.meta.env.PROD,
 );
@@ -122,20 +122,6 @@ export async function doLogout() {
       ]),
     });
   }
-}
-
-/**
- * 关闭sse连接
- * @returns void
- */
-export function seeConnectionClose() {
-  /**
-   * 未开启sse 不需要处理
-   */
-  if (!sseEnable) {
-    return;
-  }
-  return requestClient.get<void>('/resource/sse/close');
 }
 
 /**
