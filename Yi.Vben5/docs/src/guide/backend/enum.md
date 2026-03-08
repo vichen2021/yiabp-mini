@@ -30,10 +30,10 @@ public StateEnum? State { get; set; }
 
 ## 字典种子数据同步
 
-每个枚举必须在 RBAC 模块的字典种子数据中注册对应的字典类型和字典项，供前端管理后台下拉框使用：
+若枚举需供外部使用，则枚举必须在 RBAC 模块的字典种子数据中注册对应的字典类型和字典项，供前端管理后台下拉框使用：
 
 - `DictionaryTypeDataSeed.cs` — 注册字典类型
-- `DictionaryDataSeed.cs` — 注册字典项，`DictValue` 为枚举 int 值的字符串形式（如 `"0"`, `"1"`）
+- `DictionaryDataSeed.cs` — 注册字典项，`DictValue` 为枚举，字符串形式（如 `"0"`, `"Woman"`）
 
 ## 前端管理后台（Vben5）
 

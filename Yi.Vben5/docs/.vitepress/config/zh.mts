@@ -76,15 +76,13 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
       text: '后端开发',
       items: [
         { link: 'backend/tech-stack', text: '后端技术栈' },
+        { link: 'backend/startup', text: '启动项目' },
         { link: 'backend/architecture', text: '架构设计' },
         { link: 'backend/naming', text: '命名规范' },
         { link: 'backend/entity', text: '实体定义' },
-        { link: 'backend/enum', text: '枚举使用' },
-        { link: 'backend/service', text: '应用服务' },
-        { link: 'backend/api', text: 'API 模式' },
-        { link: 'backend/permission', text: '权限与日志' },
-        { link: 'backend/query', text: '查询模式' },
         { link: 'backend/module', text: '模块开发' },
+        { link: 'backend/enum', text: '枚举/系统字典' },
+        { link: 'backend/permission', text: '权限与日志' },
       ],
     },
     {

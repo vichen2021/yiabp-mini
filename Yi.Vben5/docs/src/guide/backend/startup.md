@@ -37,6 +37,19 @@
 
 项目采用模块化方式，已自动分组至右上角，可点击切换分组，框架通过`Yi.Abp\src\Yi.Abp.Web\YiAbpWebModule.cs` PreConfigureServices配置进行分组
 
+```csharp
+PreConfigure<AbpAspNetCoreMvcOptions>(options =>
+{
+    options.ConventionalControllers.Create(
+        typeof(YiFramework{Module}ApplicationModule).Assembly,
+        options =>
+        {
+            options.RemoteServiceName = "{module}";
+            options.RootPath = "api/{module}";
+        });
+});
+```
+
 ## 默认账号
 
 默认种子数据超级管理员账号：
