@@ -25,7 +25,8 @@ export async function startSignalRConnection(): Promise<void> {
     return;
   }
 
-  const hubUrl = `/hub/main?access_token=${encodeURIComponent(token)}`;
+  const hubBaseUrl = import.meta.env.VITE_GLOB_HUB_URL || '/hub';
+  const hubUrl = `${hubBaseUrl}/main?access_token=${encodeURIComponent(token)}`;
 
   connection = new signalR.HubConnectionBuilder()
     .withUrl(hubUrl, {
