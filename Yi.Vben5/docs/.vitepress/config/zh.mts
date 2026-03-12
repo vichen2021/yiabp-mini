@@ -33,18 +33,25 @@ export const zh = defineConfig({
     },
     lightModeSwitchTitle: '切换到浅色模式',
     nav: nav(),
-
     outline: {
       label: '页面导航',
     },
     returnToTopLabel: '回到顶部',
-
     sidebar: {
       '/commercial/': { base: '/commercial/', items: sidebarCommercial() },
       '/components/': { base: '/components/', items: sidebarComponents() },
       '/guide/': { base: '/guide/', items: sidebarGuide() },
     },
     sidebarMenuLabel: '菜单',
+    socialLinks: [
+      { icon: 'github', link: 'https://github.com/vichen2021/yiabp-mini' },
+      {
+        icon: {
+          svg: '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.984 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.016 0zm6.09 5.333c.328 0 .593.266.592.593v1.482a.594.594 0 0 1-.593.592H9.777c-.982 0-1.778.796-1.778 1.778v5.63c0 .327.266.592.593.592h5.63c.327 0 .593-.265.593-.593v-1.481a.593.593 0 0 0-.593-.593h-3.556a.593.593 0 0 1-.593-.593V9.778c0-.327.266-.593.593-.593h5.63c.327 0 .593.266.593.593v6.815a2.37 2.37 0 0 1-2.37 2.37H6.518a.593.593 0 0 1-.593-.593V9.778a4.444 4.444 0 0 1 4.444-4.445h7.705z"/></svg>',
+        },
+        link: 'https://gitee.com/vichen2021/yiabp-mini',
+      },
+    ],
   },
 });
 
