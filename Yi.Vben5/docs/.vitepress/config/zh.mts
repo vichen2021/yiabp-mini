@@ -88,12 +88,28 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
     {
       text: '前端开发',
       items: [
-        { link: 'frontend/tech-stack', text: '前端技术栈' },
-        { link: 'frontend/development', text: '快速上手' },
-        { link: 'frontend/route', text: '路由和菜单' },
-        { link: 'frontend/api', text: 'API 调用' },
-        { link: 'frontend/components', text: '组件使用' },
-        { link: 'frontend/build', text: '构建与部署' },
+        { link: 'frontend/quick-start', text: '快速开始' },
+        { link: 'frontend/configuration', text: '配置项' },
+        { link: 'frontend/build', text: '构建部署' },
+        { link: 'frontend/faq', text: '常见问题' },
+      ],
+    },
+    {
+      text: '前端组件',
+      items: [
+        { link: 'frontend/components/import', text: '组件导入' },
+        { link: 'frontend/components/form', text: '表单组件' },
+        { link: 'frontend/components/table', text: '表格组件' },
+        { link: 'frontend/components/upload', text: '上传组件' },
+        { link: 'frontend/components/tinymce', text: '富文本编辑器' },
+      ],
+    },
+    {
+      text: '前端功能',
+      items: [
+        { link: 'frontend/features/route', text: '路由配置' },
+        { link: 'frontend/features/menu', text: '菜单管理' },
+        { link: 'frontend/features/dict', text: '字典功能' },
       ],
     },
     {

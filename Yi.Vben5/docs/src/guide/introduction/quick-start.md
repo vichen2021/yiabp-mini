@@ -79,4 +79,4 @@ pnpm build:antd
 
 - 查看 [技术栈文档](/guide/backend/tech-stack) 了解项目使用的技术
 - 查看 [后端开发指南](/guide/backend/architecture) 开始后端开发
-- 查看 [前端开发指南](/guide/frontend/development) 开始前端开发
+- 查看 [前端开发指南](/guide/frontend/quick-start) 开始前端开发

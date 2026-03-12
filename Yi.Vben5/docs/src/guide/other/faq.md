@@ -18,11 +18,11 @@ A: 使用 Claude Skills 中的字段同步器，参考 [字段同步器文档](/
 
 ### Q: 如何添加新的页面？
 
-A: 参考 [路由和菜单文档](/guide/frontend/route)，创建路由配置和视图文件。
+A: 参考 [路由配置文档](/guide/frontend/features/route)，创建路由配置和视图文件。
 
 ### Q: 如何调用后端 API？
 
-A: 参考 [API 调用文档](/guide/frontend/api)，创建 API 文件并调用。
+A: 参考 [快速开始文档](/guide/frontend/quick-start)，了解项目结构和 API 调用方式。
 
 ## 其他问题
 
