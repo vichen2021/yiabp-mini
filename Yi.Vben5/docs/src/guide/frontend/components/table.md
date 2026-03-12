@@ -83,13 +83,14 @@ const columns = [
 
 ```typescript
 import { renderDict } from '#/utils/render';
+import { DictEnum } from '@vben/constants';
 
 const columns = [
   {
     field: 'status',
     title: '状态',
     slots: {
-      default: ({ row }) => renderDict(row.status, DictEnum.SYS_STATUS),
+      default: ({ row }) => renderDict(row.state, DictEnum.SYS_NORMAL_DISABLE),
     },
   },
 ];

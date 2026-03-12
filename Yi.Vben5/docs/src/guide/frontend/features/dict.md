@@ -11,7 +11,7 @@ import { getDictOptions } from '#/utils/dict';
 import { DictEnum } from '@vben/constants';
 
 // 用于 Select/Radio/Checkbox 组件
-const options = getDictOptions(DictEnum.SYS_STATUS);
+const options = getDictOptions(DictEnum.SYS_NORMAL_DISABLE);
 ```
 
 ### 渲染字典标签
@@ -24,7 +24,7 @@ import { renderDict } from '#/utils/render';
   field: 'status',
   title: '状态',
   slots: {
-    default: ({ row }) => renderDict(row.status, DictEnum.SYS_STATUS),
+    default: ({ row }) => renderDict(row.state, DictEnum.SYS_NORMAL_DISABLE),
   },
 }
 ```
@@ -34,11 +34,23 @@ import { renderDict } from '#/utils/render';
 字典枚举定义在 `@vben/constants` 中：
 
 ```typescript
-// dict-enum.ts
+// packages/@core/base/shared/src/constants/dict-enum.ts
 export const DictEnum = {
-  SYS_STATUS: 'sys_status',
-  SYS_YES_NO: 'sys_yes_no',
+  SYS_COMMON_STATUS: 'sys_common_status',
+  SYS_DB_TYPE: 'sys_db_type',
+  SYS_DEVICE_TYPE: 'sys_device_type',
+  SYS_GRANT_TYPE: 'sys_grant_type',
+  SYS_NORMAL_DISABLE: 'sys_normal_disable',
+  SYS_NOTICE_STATUS: 'sys_notice_status',
   SYS_NOTICE_TYPE: 'sys_notice_type',
+  SYS_OPER_TYPE: 'sys_oper_type',
+  SYS_OSS_ACCESS_POLICY: 'oss_access_policy',
+  SYS_SHOW_HIDE: 'sys_show_hide',
+  SYS_USER_SEX: 'sys_user_sex',
+  SYS_YES_NO: 'sys_yes_no',
+  WF_BUSINESS_STATUS: 'wf_business_status',
+  WF_FORM_TYPE: 'wf_form_type',
+  WF_TASK_STATUS: 'wf_task_status',
 } as const;
 ```
 
@@ -51,15 +63,15 @@ export const DictEnum = {
 ```typescript
 // ❌ 错误用法
 function test() {
-  const options = getDictOptions(DictEnum.SYS_STATUS);
+  const options = getDictOptions(DictEnum.SYS_NORMAL_DISABLE);
   // options 为空数组
 }
 
 // ✅ 正确用法 - 在 API 中获取
-import { dictDataInfo } from '#/api/system/dict-data';
+import { dictDataInfo } from '#/api/system/dict/dict-data';
 
 async function test() {
-  const data = await dictDataInfo('sys_status');
+  const data = await dictDataInfo('sys_normal_disable');
 }
 ```
 
@@ -72,7 +84,7 @@ async function test() {
   component: 'Select',
   componentProps: {
     options: computed(() => {
-      return getDictOptions(DictEnum.SYS_STATUS)
+      return getDictOptions(DictEnum.SYS_NORMAL_DISABLE)
         .filter(item => item.value !== '0');
     }),
   },
@@ -85,7 +97,7 @@ async function test() {
 
 ```typescript
 // value 转为 number 类型
-getDictOptions(DictEnum.SYS_STATUS, true)
+getDictOptions(DictEnum.SYS_NORMAL_DISABLE, true)
 ```
 
 ::: warning 注意

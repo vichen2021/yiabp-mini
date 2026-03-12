@@ -23,6 +23,9 @@ const [BasicForm, formApi] = useVbenForm({
 ## Schema 配置
 
 ```typescript
+import { getDictOptions } from '#/utils/dict';
+import { DictEnum } from '@vben/constants';
+
 export const formSchema: FormSchemaGetter = () => [
   {
     component: 'Input',
@@ -35,7 +38,7 @@ export const formSchema: FormSchemaGetter = () => [
     fieldName: 'type',
     label: '类型',
     componentProps: {
-      options: getDictOptions(DictEnum.SYS_TYPE),
+      options: getDictOptions(DictEnum.SYS_NOTICE_TYPE),
     },
     rules: 'selectRequired',  // 选择必填
   },
@@ -107,11 +110,14 @@ import { z } from '#/adapter';
 使用 `computed` 处理字典过滤：
 
 ```typescript
+import { getDictOptions } from '#/utils/dict';
+import { DictEnum } from '@vben/constants';
+
 {
   component: 'Select',
   componentProps: {
     options: computed(() => {
-      return getDictOptions(DictEnum.SYS_STATUS)
+      return getDictOptions(DictEnum.SYS_NORMAL_DISABLE)
         .filter(item => item.value !== '0');
     }),
   },

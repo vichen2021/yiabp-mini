@@ -80,10 +80,13 @@ const getPopupContainer = getVxePopupContainer;
 使用 `computed` 或在组件挂载后获取：
 
 ```typescript
+import { getDictOptions } from '#/utils/dict';
+import { DictEnum } from '@vben/constants';
+
 // ✅ 使用 computed
 {
   componentProps: {
-    options: computed(() => getDictOptions(DictEnum.SYS_STATUS)),
+    options: computed(() => getDictOptions(DictEnum.SYS_NORMAL_DISABLE)),
   },
 }
 ```
