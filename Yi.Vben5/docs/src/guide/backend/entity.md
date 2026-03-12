@@ -55,5 +55,5 @@ public EncryPasswordValueObject EncryPassword { get; set; } = new();
 ## 相关文档
 
 - [枚举使用](/guide/backend/enum) - 了解枚举定义和使用
-- [查询模式](/guide/backend/query) - 了解查询模式
+- [模块开发](/guide/backend/module) - 了解查询模式
 

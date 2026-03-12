@@ -35,6 +35,5 @@ public override Task DeleteAsync(TKey id) { ... }
 
 ## 相关文档
 
-- [应用服务](/guide/backend/service) - 了解应用服务开发
-- [API 模式](/guide/backend/api) - 了解 API 自动映射
+- [模块开发](/guide/backend/module) - 了解应用服务开发和 API 自动映射
 

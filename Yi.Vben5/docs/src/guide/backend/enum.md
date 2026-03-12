@@ -63,5 +63,5 @@ const stateOptions = () =>
 ## 相关文档
 
 - [实体定义](/guide/backend/entity) - 了解实体定义
-- [应用服务](/guide/backend/service) - 了解应用服务开发
+- [模块开发](/guide/backend/module) - 了解应用服务开发
 
