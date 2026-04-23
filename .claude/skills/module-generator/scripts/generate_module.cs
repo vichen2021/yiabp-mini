@@ -735,17 +735,20 @@ void UpdateMainProjectFiles(string codeRoot, NameInfo nameInfo, bool dryRun)
             continue;
         }
 
-        // Find existing ItemGroup containing ProjectReference
+        // Find existing ItemGroup containing ProjectReference (not PackageReference)
+        // Match ItemGroup that has at least one ProjectReference element
         var itemGroupMatch = Regex.Match(
             content,
-            @"<ItemGroup>\s*(?:\s*<PackageReference[^>]*/>\s*)*\s*(<ProjectReference[^>]*/>)");
+            @"<ItemGroup>\s*(?:\s*<ProjectReference[^>]*/>\s*)+\s*</ItemGroup>");
 
         if (itemGroupMatch.Success)
         {
-            // Find the closing </ItemGroup> tag position
-            var itemGroupEnd = content.IndexOf("</ItemGroup>", itemGroupMatch.Index, StringComparison.Ordinal);
+            // Find the closing </ItemGroup> tag position within this match
+            var itemGroupEnd = itemGroupMatch.Value.LastIndexOf("</ItemGroup>");
             if (itemGroupEnd >= 0)
             {
+                // Convert relative position to absolute position in content
+                itemGroupEnd += itemGroupMatch.Index;
                 // Insert with standard 4-space indent, followed by newline
                 content = content.Insert(itemGroupEnd, elementIndent + projectRef + "\n");
             }
@@ -927,14 +930,19 @@ void UpdateDynamicApi(string codeRoot, NameInfo nameInfo, bool dryRun)
             var unifiedMatch = Regex.Match(content, @"//统一前缀");
             if (unifiedMatch.Success)
             {
-                // Standard indent: 4 spaces relative to the PreConfigure lambda block
-                // All ConventionalControllers.Create calls should use consistent 4-space indent
-                const string standardIndent = "                "; // 16 spaces from line start (4 relative to block)
+                // Standard indent: 16 spaces for first line, 20 spaces for second line
+                const string indentLine1 = "                ";  // 16 spaces
+                const string indentLine2 = "                    ";  // 20 spaces
 
-                var insertPos = unifiedMatch.Index;
+                // Find all existing ConventionalControllers.Create calls BEFORE unifiedMatch
+                var searchContent = content.Substring(0, unifiedMatch.Index);
                 var createMatches = Regex.Matches(
-                    content.Substring(0, unifiedMatch.Index),
+                    searchContent,
                     @"options\.ConventionalControllers\.Create[\s\S]*?\);");
+
+                // Determine insertion position based on alphabetical order
+                int lastPrecedingEndPos = -1;
+                int insertBeforePos = -1;
 
                 foreach (Match match in createMatches)
                 {
@@ -943,19 +951,67 @@ void UpdateDynamicApi(string codeRoot, NameInfo nameInfo, bool dryRun)
                         existingContent,
                         "RemoteServiceName\\s*=\\s*\"([^\"]+)\"");
 
-                    if (remoteNameMatch.Success &&
-                        string.CompareOrdinal(remoteNameMatch.Groups[1].Value, nameInfo.Kebab) > 0)
+                    if (remoteNameMatch.Success)
                     {
-                        insertPos = match.Index;
-                        break;
+                        var existingName = remoteNameMatch.Groups[1].Value;
+
+                        // Compare: if new module name comes BEFORE existing name alphabetically
+                        if (string.CompareOrdinal(nameInfo.Kebab, existingName) < 0)
+                        {
+                            // Insert BEFORE this existing call
+                            insertBeforePos = match.Index;
+                            break;
+                        }
+                        else
+                        {
+                            // new module comes AFTER this existing call
+                            lastPrecedingEndPos = match.Index + match.Length;
+                        }
                     }
                 }
 
-                // Build consistently formatted config (lambda indented 4 spaces relative to first line)
-                var formattedConfig = standardIndent + apiConfigBase + "\n" +
-                                      standardIndent + "    " + apiConfigLambda + "\n\n" +
-                                      standardIndent;
-                content = content.Insert(insertPos, formattedConfig);
+                // Build formatted config
+                var formattedConfig =
+                    indentLine1 + "options.ConventionalControllers.Create(typeof(YiFramework" + nameInfo.Pascal + "ApplicationModule).Assembly," + "\n" +
+                    indentLine2 + "options => options.RemoteServiceName = \"" + nameInfo.Kebab + "\");" + "\n\n";
+
+                if (insertBeforePos >= 0)
+                {
+                    // Insert BEFORE an existing call
+                    // Find the beginning of the line (after the previous newline)
+                    int lineStartPos = insertBeforePos;
+                    while (lineStartPos > 0 && content[lineStartPos - 1] != '\n')
+                    {
+                        lineStartPos--;
+                    }
+                    content = content.Insert(lineStartPos, formattedConfig);
+                }
+                else if (lastPrecedingEndPos >= 0)
+                {
+                    // Insert AFTER all preceding calls, just before "//统一前缀"
+                    int insertPos = lastPrecedingEndPos;
+
+                    // Skip any whitespace (spaces) after ");"
+                    while (insertPos < unifiedMatch.Index && content[insertPos] == ' ')
+                    {
+                        insertPos++;
+                    }
+
+                    // Move past the newline
+                    if (insertPos < unifiedMatch.Index && content[insertPos] == '\n')
+                    {
+                        insertPos++;
+                    }
+
+                    // Insert with a leading newline to separate from previous call
+                    var configWithLeadingNewline = "\n" + formattedConfig;
+                    content = content.Insert(insertPos, configWithLeadingNewline);
+                }
+                else
+                {
+                    // No existing calls, insert before "//统一前缀"
+                    content = content.Insert(unifiedMatch.Index, formattedConfig);
+                }
             }
             else
             {
