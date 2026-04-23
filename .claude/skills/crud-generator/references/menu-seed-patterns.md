@@ -1,13 +1,22 @@
-# Menu Seed Data Patterns
+# Menu and Dictionary Seed Data Patterns
 
-This document provides detailed patterns for creating menu seed data files.
+This document provides detailed patterns for creating menu and dictionary seed data.
 
-## File Structure
+## Important Note
 
-Each module should have its own menu seed data file located at:
-`Yi.Abp/module/rbac/Yi.Framework.Rbac.SqlSugarCore/DataSeeds/MenuDataSeed/{ModuleName}MenuDataSeed.cs`
+**Yi.Abp project uses a SINGLE file for all menu and dictionary seed data, NOT separate files per entity.**
 
-## Basic Structure
+- Menu Seed File: `Yi.Abp/module/rbac/Yi.Framework.Rbac.SqlSugarCore/DataSeeds/MenuDataSeed.cs`
+- Dictionary Seed File: `Yi.Abp/module/rbac/Yi.Framework.Rbac.SqlSugarCore/DataSeeds/DictionaryDataSeed.cs`
+- Dictionary Type Seed File: `Yi.Abp/module/rbac/Yi.Framework.Rbac.SqlSugarCore/DataSeeds/DictionaryTypeDataSeed.cs`
+
+When adding a new entity, you need to **edit the existing files** to add new entries in the `GetSeedData()` method.
+
+## Menu Seed Data
+
+### File Structure
+
+Location: `Yi.Abp/module/rbac/Yi.Framework.Rbac.SqlSugarCore/DataSeeds/MenuDataSeed.cs`
 
 ```csharp
 using Volo.Abp.Data;
@@ -19,12 +28,12 @@ using Yi.Framework.SqlSugarCore.Abstractions;
 
 namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
 {
-    public class {ModuleName}MenuDataSeed : IDataSeedContributor, ITransientDependency
+    public class MenuDataSeed : IDataSeedContributor, ITransientDependency
     {
         private ISqlSugarRepository<MenuAggregateRoot> _repository;
         private IGuidGenerator _guidGenerator;
 
-        public {ModuleName}MenuDataSeed(ISqlSugarRepository<MenuAggregateRoot> repository, IGuidGenerator guidGenerator)
+        public MenuDataSeed(ISqlSugarRepository<MenuAggregateRoot> repository, IGuidGenerator guidGenerator)
         {
             _repository = repository;
             _guidGenerator = guidGenerator;
@@ -32,7 +41,7 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
 
         public async Task SeedAsync(DataSeedContext context)
         {
-            if (!await _repository.IsAnyAsync(x => x.MenuName == "{Module Display Name}"))
+            if (!await _repository.IsAnyAsync(x => x.MenuName == "系统管理"&&x.MenuSource==MenuSourceEnum.Ruoyi))
             {
                 await _repository.InsertManyAsync(GetSeedData());
             }
@@ -40,15 +49,17 @@ namespace Yi.Framework.Rbac.SqlSugarCore.DataSeeds
 
         public List<MenuAggregateRoot> GetSeedData()
         {
-            // Implementation here
+            List<MenuAggregateRoot> entities = new List<MenuAggregateRoot>();
+            // Add your menu entries here...
+            return entities;
         }
     }
 }
 ```
 
-## Menu Types
+### Menu Types
 
-### Top-Level Catalogue Menu
+#### Top-Level Catalogue Menu
 
 ```csharp
 MenuAggregateRoot {moduleName} = new MenuAggregateRoot(_guidGenerator.Create(), Guid.Empty)
@@ -62,6 +73,7 @@ MenuAggregateRoot {moduleName} = new MenuAggregateRoot(_guidGenerator.Create(), 
     OrderNum = 95,
     IsDeleted = false
 };
+entities.Add({moduleName});
 ```
 
 **Key properties:**
@@ -70,7 +82,7 @@ MenuAggregateRoot {moduleName} = new MenuAggregateRoot(_guidGenerator.Create(), 
 - `Router` - Route path (e.g., "/video", "/system")
 - `OrderNum` - Display order (lower numbers appear first)
 
-### Entity Menu (List Page)
+#### Entity Menu (List Page)
 
 ```csharp
 MenuAggregateRoot {entityName} = new MenuAggregateRoot(_guidGenerator.Create(), {moduleName}.Id)
@@ -87,6 +99,7 @@ MenuAggregateRoot {entityName} = new MenuAggregateRoot(_guidGenerator.Create(), 
     OrderNum = 100,
     IsDeleted = false
 };
+entities.Add({entityName});
 ```
 
 **Key properties:**
@@ -96,20 +109,6 @@ MenuAggregateRoot {entityName} = new MenuAggregateRoot(_guidGenerator.Create(), 
 - `Component` - Frontend component path (e.g., "video/vod/index")
 
 ### Permission Components (CRUD Operations)
-
-#### Query Permission
-
-```csharp
-MenuAggregateRoot {entityName}Query = new MenuAggregateRoot(_guidGenerator.Create())
-{
-    MenuName = "{Entity Display Name}查询",
-    PermissionCode = "{module-name}:{entity-name}:query",
-    MenuType = MenuTypeEnum.Component,
-    OrderNum = 100,
-    ParentId = {entityName}.Id,
-    IsDeleted = false
-};
-```
 
 #### Add Permission
 
@@ -123,6 +122,7 @@ MenuAggregateRoot {entityName}Add = new MenuAggregateRoot(_guidGenerator.Create(
     ParentId = {entityName}.Id,
     IsDeleted = false
 };
+entities.Add({entityName}Add);
 ```
 
 #### Edit Permission
@@ -137,6 +137,7 @@ MenuAggregateRoot {entityName}Edit = new MenuAggregateRoot(_guidGenerator.Create
     ParentId = {entityName}.Id,
     IsDeleted = false
 };
+entities.Add({entityName}Edit);
 ```
 
 #### Remove Permission
@@ -151,43 +152,110 @@ MenuAggregateRoot {entityName}Remove = new MenuAggregateRoot(_guidGenerator.Crea
     ParentId = {entityName}.Id,
     IsDeleted = false
 };
+entities.Add({entityName}Remove);
 ```
 
-## Default Properties
+### Menu Icons
 
-At the end of `GetSeedData()`, set default properties for all menus:
+Use icon names from the icon library (e.g., Material Symbols, Tabler Icons):
+- `eos-icons:system-group` - System icon
+- `material-symbols:list-alt-outline` - List icon
+- `material-symbols:category-outline` - Category icon
+- `tabler:code` - Code icon
+
+### Icon Derivation Rules
+
+When creating menu, derive icon from entity name:
+- *User* → user-outlined
+- *Role* → team-outlined
+- *Order* → shopping-cart-outlined
+- *Log* → file-text-outlined
+- *Config* → setting-outlined
+- *Category* → appstore-outlined
+- *Payment* → pay-circle-outlined
+- *Product* → shopping-outlined
+- Default → appstore-outlined
+
+## Dictionary Seed Data
+
+### Dictionary Type Seed
+
+Location: `Yi.Abp/module/rbac/Yi.Framework.Rbac.SqlSugarCore/DataSeeds/DictionaryTypeDataSeed.cs`
+
+Add dictionary type first:
 
 ```csharp
-entities.ForEach(m =>
+DictionaryTypeAggregateRoot dictType{EnumName} = new DictionaryTypeAggregateRoot()
 {
-    m.IsDeleted = false;
-    m.State = true;
-    m.MenuSource = MenuSourceEnum.Ruoyi;
-    m.IsShow = true;
-});
+    DictName = "{Enum Display Name}",
+    DictType = "{module}_{enum_lower}",
+    OrderNum = 100,
+    Remark = "Description",
+    IsDeleted = false,
+    State = true
+};
+entities.Add(dictType{EnumName});
+```
+
+### Dictionary Data Seed
+
+Location: `Yi.Abp/module/rbac/Yi.Framework.Rbac.SqlSugarCore/DataSeeds/DictionaryDataSeed.cs`
+
+Add dictionary entries:
+
+```csharp
+DictionaryEntity dict{EnumName}Value0 = new DictionaryEntity()
+{
+    DictLabel = "Label 1",  // From [Description] attribute
+    DictValue = "0",        // Enum int value as string
+    DictType = "{module}_{enum_lower}",
+    OrderNum = 100,
+    Remark = "Description",
+    IsDeleted = false,
+    State = true,
+    ListClass = "default"  // success, danger, warning, info, primary, default
+};
+entities.Add(dict{EnumName}Value0);
+
+DictionaryEntity dict{EnumName}Value1 = new DictionaryEntity()
+{
+    DictLabel = "Label 2",
+    DictValue = "1",
+    DictType = "{module}_{enum_lower}",
+    OrderNum = 99,
+    Remark = "Description",
+    IsDeleted = false,
+    State = true,
+    ListClass = "primary"
+};
+entities.Add(dict{EnumName}Value1);
+```
+
+## Frontend Dict Enum Update
+
+Location: `Yi.Vben5/packages/@core/base/shared/src/constants/dict-enum.ts`
+
+Add constant for new dictionary type:
+
+```typescript
+export const DictEnum = {
+  // ... existing entries
+  {MODULE}_{ENUM_UPPER}: '{module}_{enum_lower}',  // e.g., POKEMON_STATUS: 'pokemon_status'
+} as const;
 ```
 
 ## Permission Code Format
 
 Use consistent permission code format:
 - List: `{module-name}:{entity-name}:list`
-- Query: `{module-name}:{entity-name}:query`
 - Add: `{module-name}:{entity-name}:add`
 - Edit: `{module-name}:{entity-name}:edit`
 - Remove: `{module-name}:{entity-name}:remove`
 
 **Examples:**
-- `{module-name}:{entity-name}:list` - 列表查询权限
-- `{module-name}:{entity-name}:add` - 新增权限
-- `system:user:edit` - 用户修改权限（系统模块示例）
-
-## Menu Icons
-
-Use icon names from the icon library (e.g., Material Symbols, Tabler Icons):
-- `material-symbols:list-alt-outline` - 列表图标
-- `material-symbols:category-outline` - 分类图标
-- `eos-icons:system-group` - 系统图标
-- `tabler:code` - 代码图标
+- `system:user:list` - 用户列表查询权限
+- `system:user:add` - 用户新增权限
+- `workflow:category:edit` - 流程分类修改权限
 
 ## Order Numbers
 
@@ -195,15 +263,26 @@ Use icon names from the icon library (e.g., Material Symbols, Tabler Icons):
 - Entity menus: Use 100 as default
 - Permission components: Use 100 as default
 
-## Examples
+## How to Add New Entity
 
-Reference existing menu seed data files in:
-`Yi.Abp/module/rbac/Yi.Framework.Rbac.SqlSugarCore/DataSeeds/MenuDataSeed/`
+When adding a new entity, follow these steps:
+
+1. **Read the existing seed files**:
+   - Read `MenuDataSeed.cs` to understand the current structure
+   - Read `DictionaryDataSeed.cs` and `DictionaryTypeDataSeed.cs` if you have enums
+
+2. **Edit the existing files**:
+   - Add new menu entries at the end of `GetSeedData()` method in `MenuDataSeed.cs`
+   - Add new dictionary types in `DictionaryTypeDataSeed.cs` (if enums exist)
+   - Add new dictionary entries in `DictionaryDataSeed.cs` (if enums exist)
+
+3. **Update frontend dict-enum.ts**:
+   - Add new constant in `Yi.Vben5/packages/@core/base/shared/src/constants/dict-enum.ts`
 
 ## Notes
 
-- Each module should have exactly one menu seed data file
-- The file name should follow the pattern: `{ModuleName}MenuDataSeed.cs`
-- Check for existing menu in `SeedAsync` to avoid duplicates
-- All menus should be added to the `entities` list before returning
-
+- Yi.Abp project uses a single `MenuDataSeed.cs` file for all menu entries
+- Yi.Abp project uses a single `DictionaryDataSeed.cs` file for all dictionary entries
+- Edit existing files, do NOT create separate files per entity
+- Check for existing entries to avoid duplicates
+- All menus should be added to the `entities` list before returning in `GetSeedData()`

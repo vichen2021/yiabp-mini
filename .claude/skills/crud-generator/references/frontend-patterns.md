@@ -2,6 +2,12 @@
 
 This document provides detailed code patterns for frontend implementation.
 
+## Directory Structure
+
+- **API files**: `Yi.Vben5/apps/web-antd/src/api/{module-name}/{entity-name}/`
+- **View files**: `Yi.Vben5/apps/web-antd/src/views/{module-name}/{entity-name}/`
+- **Dict Enum**: `Yi.Vben5/packages/@core/base/shared/src/constants/dict-enum.ts`
+
 ## API File Patterns
 
 ### Basic API Structure (with Pagination)
@@ -520,4 +526,3 @@ async function handleClosed() {
 - `cloneDeep` - For deep cloning objects
 - `listToTree` - Convert flat list to tree structure
 - `addFullName` - Add full path name for tree nodes
-

@@ -2,6 +2,14 @@
 
 This document provides detailed code patterns for backend implementation.
 
+## Naming Conventions
+
+| Layer | Namespace Prefix | Module Class Prefix |
+|-------|-----------------|---------------------|
+| Framework | `Yi.Framework.` | `YiFramework` |
+| Module | `Yi.Framework.` | `YiFramework` |
+| Application | `Yi.Abp.` | `YiAbp` |
+
 ## Entity Patterns
 
 ### Basic Entity Structure
@@ -111,6 +119,21 @@ namespace Yi.Framework.{ModuleName}.Application.Contracts.Dtos.{EntityName}
 ```
 
 ## Service Patterns
+
+### Service Interface
+
+```csharp
+using Yi.Framework.Ddd.Application.Contracts;
+using Yi.Framework.{ModuleName}.Application.Contracts.Dtos.{EntityName};
+
+namespace Yi.Framework.{ModuleName}.Application.Contracts.IServices
+{
+    public interface I{EntityName}Service : IYiCrudAppService<{EntityName}GetOutputDto, {EntityName}GetListOutputDto, Guid,
+        {EntityName}GetListInputVo, {EntityName}CreateInputVo, {EntityName}UpdateInputVo>
+    {
+    }
+}
+```
 
 ### Basic Service Implementation
 

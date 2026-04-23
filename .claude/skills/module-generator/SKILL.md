@@ -1,448 +1,125 @@
 ---
 name: module-generator
-description: Generate ABP framework module structure following the project's established patterns. Creates all necessary project files, module classes, directory structures, updates main module references, and configures dynamic API. Use when user needs to create a new module in the module directory.
+description: Generate complete ABP module structure with minimal token overhead. Creates 5-layer projects, updates main module dependencies, solution file, and dynamic API configuration. Use when user wants to create a new module, mentions "新建模块"、"创建模块"、"module"、"add module"、"generate module". Triggers for both simple names (Payment) and compound names (content-management, ContentManagement).
 ---
 
 # Module Generator
 
-This skill guides the creation of complete ABP framework module structures following the project's established architecture patterns. It generates all necessary project files, module classes, directory structures, and automatically updates main module references.
-
-## Overview
-
-When generating a new module (e.g., "Content", "PersonManagement", "Collection"), you need to:
-
-1. **Convert module name** to appropriate formats (PascalCase for namespaces, kebab-case for directories)
-2. **Create 5 project layers**: Domain.Shared, Domain, Application.Contracts, Application, SqlSugarCore
-3. **Generate module classes** for each layer
-4. **Create directory structures** (Entities, Dtos, IServices, Services, Repositories)
-5. **Update main module files** to include the new module
-6. **Update solution file** (.slnx) to include all projects
-7. **Configure dynamic API** in YiAbpWebModule.cs
+Generates complete ABP module structures by delegating to C# script execution.
 
 ## Workflow
 
-### Step 1: Name Conversion
+### Step 1: Validate Input
 
-Convert the module name to appropriate formats:
+Check module name format:
+- Accepts PascalCase (e.g., `Payment`, `ContentManagement`)
+- Accepts kebab-case (e.g., `payment`, `content-management`)
+- Accepts snake_case (converted to PascalCase)
 
-- **Input**: Can be PascalCase (e.g., "ContentManagement") or kebab-case (e.g., "content-management")
-- **PascalCase**: Used for namespaces and class names (e.g., "ContentManagement")
-  - If input has no hyphens/underscores and starts with uppercase, use as-is
-  - Otherwise, split by `-` or `_`, capitalize first letter of each part, lowercase the rest
-- **KebabCase**: Used for directory names (e.g., "content-management")
-  - If input has hyphens, use as-is (lowercase)
-  - Otherwise, convert PascalCase by inserting `-` before each uppercase letter, then lowercase
+### Step 2: Check Module Exists
 
-**Example:**
-- Input: "Content" → PascalCase: "Content", KebabCase: "content"
-- Input: "ContentManagement" → PascalCase: "ContentManagement", KebabCase: "content-management"
-- Input: "content-management" → PascalCase: "ContentManagement", KebabCase: "content-management"
+Before generating, verify `module/{kebab-name}/` doesn't already exist. If it does, inform the user and stop.
 
-### Step 2: Create Module Directory Structure
+### Step 3: Execute Generation Script
 
-Create the module root directory at: `module/{kebab-module-name}/`
+Run the C# file directly:
 
-**Check if module already exists** - if it does, inform the user and stop.
-
-### Step 3: Create Projects
-
-Create 5 projects using `dotnet new classlib`:
-
-1. **Yi.Framework.{PascalModuleName}.Domain.Shared** (TFM: net10.0)
-2. **Yi.Framework.{PascalModuleName}.Domain** (TFM: net10.0)
-3. **Yi.Framework.{PascalModuleName}.Application.Contracts** (TFM: net10.0)
-4. **Yi.Framework.{PascalModuleName}.Application** (TFM: net10.0)
-5. **Yi.Framework.{PascalModuleName}.SqlSugarCore** (TFM: net10.0)
-
-For each project:
-- Use `dotnet new classlib -n {ProjectName} -f {TFM} -o {ProjectPath} --force`
-- Delete the default `Class1.cs` file if it exists
-
-### Step 4: Generate Module Classes and Project Files
-
-#### 4.1 Domain.Shared
-
-**Module Class**: `Yi.Framework.{PascalModuleName}.Domain.Shared/YiFramework{PascalModuleName}DomainSharedModule.cs`
-
-```csharp
-using Volo.Abp.Domain;
-using Volo.Abp.Modularity;
-
-namespace Yi.Framework.{PascalModuleName}.Domain.Shared
-{
-    [DependsOn(typeof(AbpDddDomainSharedModule))]
-    public class YiFramework{PascalModuleName}DomainSharedModule : AbpModule
-    {
-
-    }
-}
+```bash
+dotnet run --file .claude/skills/module-generator-plus/scripts/generate_module.cs -- <module-name>
 ```
 
-**Project File**: `Yi.Framework.{PascalModuleName}.Domain.Shared/Yi.Framework.{PascalModuleName}.Domain.Shared.csproj`
+The script handles:
+1. Name conversion (PascalCase ↔ kebab-case)
+2. Creating 5-layer project structure
+3. Generating module classes and csproj files
+4. Creating subdirectories (Entities, Dtos, IServices, Services, Repositories)
+5. Updating main module DependsOn declarations
+6. Adding ProjectReference to main csproj files
+7. Updating solution file (.slnx)
+8. Configuring dynamic API in YiAbpWebModule.cs
 
-```xml
-<Project Sdk="Microsoft.NET.Sdk">
-	<Import Project="..\..\..\common.props" />
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+### Step 4: Verify Build
 
-	<ItemGroup>
-		<PackageReference Include="Volo.Abp.Ddd.Domain.Shared" Version="$(AbpVersion)" />
-	</ItemGroup>
+After generation, verify the build succeeds:
 
-</Project>
+```bash
+cd Yi.Abp && dotnet build
 ```
 
-#### 4.2 Domain
+If build fails:
+1. Read error messages carefully
+2. Fix issues (common: missing references, wrong namespace)
+3. Re-run build until successful
 
-**Module Class**: `Yi.Framework.{PascalModuleName}.Domain/YiFramework{PascalModuleName}DomainModule.cs`
+### Step 5: Self-Check
 
-```csharp
-using Volo.Abp.Domain;
-using Volo.Abp.Modularity;
-using Yi.Framework.{PascalModuleName}.Domain.Shared;
-using Yi.Framework.SqlSugarCore.Abstractions;
+Verify the following automatically:
 
-namespace Yi.Framework.{PascalModuleName}.Domain
-{
-    [DependsOn(typeof(YiFramework{PascalModuleName}DomainSharedModule),
-        typeof(AbpDddDomainModule),
-        typeof(YiFrameworkSqlSugarCoreAbstractionsModule))]
-    public class YiFramework{PascalModuleName}DomainModule : AbpModule
-    {
+- [ ] Module directory created at `module/{kebab-name}/`
+- [ ] 5 project folders exist with correct names
+- [ ] Each project has `.csproj` and module class file
+- [ ] Subdirectories created (Entities, Dtos, IServices, Services, Repositories)
+- [ ] Solution file contains new module folder
+- [ ] Build passes without errors
 
-    }
-}
+If any check fails, fix immediately before reporting results.
+
+### Step 6: Report Results
+
+Show the user:
+- Generated module path
+- List of created files (summary, not full paths)
+- Build status (passed/failed)
+- Next steps for entity/DTO/service creation
+
+## Output Format
+
+After successful generation:
+
 ```
+Module '{PascalName}' created successfully.
 
-**Project File**: `Yi.Framework.{PascalModuleName}.Domain/Yi.Framework.{PascalModuleName}.Domain.csproj`
+Location: module/{kebab-name}/
 
-```xml
-<Project Sdk="Microsoft.NET.Sdk">
-	<Import Project="..\..\..\common.props" />
-	<PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+Generated:
+- 5 project layers (Domain.Shared, Domain, Application.Contracts, Application, SqlSugarCore)
+- Module classes with proper DependsOn
+- Project files with correct references
+- Directory structure (Entities, Dtos, IServices, Services, Repositories)
 
-	<ItemGroup>
-		<PackageReference Include="Volo.Abp.Ddd.Domain" Version="$(AbpVersion)" />
-	</ItemGroup>
+Updated:
+- Main module classes (5 files)
+- Main project files (5 files)
+- Solution file (Yi.Abp.slnx)
+- Dynamic API configuration (YiAbpWebModule.cs)
 
-	<ItemGroup>
-	  <ProjectReference Include="..\..\..\framework\Yi.Framework.SqlSugarCore.Abstractions\Yi.Framework.SqlSugarCore.Abstractions.csproj" />
-	  <ProjectReference Include="..\Yi.Framework.{PascalModuleName}.Domain.Shared\Yi.Framework.{PascalModuleName}.Domain.Shared.csproj" />
-	</ItemGroup>
-</Project>
+Next steps:
+1. Create entity classes in Domain/Entities/
+2. Use /crud-generator-fast to generate full CRUD functionality
 ```
-
-**Create Directory**: `Yi.Framework.{PascalModuleName}.Domain/Entities/` (empty)
-
-#### 4.3 Application.Contracts
-
-**Module Class**: `Yi.Framework.{PascalModuleName}.Application.Contracts/YiFramework{PascalModuleName}ApplicationContractsModule.cs`
-
-```csharp
-using Yi.Framework.{PascalModuleName}.Domain.Shared;
-using Yi.Framework.Ddd.Application.Contracts;
-
-namespace Yi.Framework.{PascalModuleName}.Application.Contracts
-{
-    [DependsOn(typeof(YiFramework{PascalModuleName}DomainSharedModule),
-        typeof(YiFrameworkDddApplicationContractsModule))]
-    public class YiFramework{PascalModuleName}ApplicationContractsModule : AbpModule
-    {
-
-    }
-}
-```
-
-**Project File**: `Yi.Framework.{PascalModuleName}.Application.Contracts/Yi.Framework.{PascalModuleName}.Application.Contracts.csproj`
-
-```xml
-<Project Sdk="Microsoft.NET.Sdk">
-	<Import Project="..\..\..\common.props" />
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\framework\Yi.Framework.Ddd.Application.Contracts\Yi.Framework.Ddd.Application.Contracts.csproj" />
-    <ProjectReference Include="..\Yi.Framework.{PascalModuleName}.Domain.Shared\Yi.Framework.{PascalModuleName}.Domain.Shared.csproj" />
-  </ItemGroup>
-
-</Project>
-```
-
-**Create Directories**:
-- `Yi.Framework.{PascalModuleName}.Application.Contracts/Dtos/` (empty)
-- `Yi.Framework.{PascalModuleName}.Application.Contracts/IServices/` (empty)
-
-#### 4.4 Application
-
-**Module Class**: `Yi.Framework.{PascalModuleName}.Application/YiFramework{PascalModuleName}ApplicationModule.cs`
-
-```csharp
-using Yi.Framework.{PascalModuleName}.Application.Contracts;
-using Yi.Framework.{PascalModuleName}.Domain;
-using Yi.Framework.Ddd.Application;
-
-namespace Yi.Framework.{PascalModuleName}.Application
-{
-    [DependsOn(typeof(YiFramework{PascalModuleName}ApplicationContractsModule),
-        typeof(YiFramework{PascalModuleName}DomainModule),
-        typeof(YiFrameworkDddApplicationModule))]
-    public class YiFramework{PascalModuleName}ApplicationModule : AbpModule
-    {
-
-    }
-}
-```
-
-**Project File**: `Yi.Framework.{PascalModuleName}.Application/Yi.Framework.{PascalModuleName}.Application.csproj`
-
-```xml
-<Project Sdk="Microsoft.NET.Sdk">
-	<Import Project="..\..\..\common.props" />
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\framework\Yi.Framework.Ddd.Application\Yi.Framework.Ddd.Application.csproj" />
-    <ProjectReference Include="..\Yi.Framework.{PascalModuleName}.Application.Contracts\Yi.Framework.{PascalModuleName}.Application.Contracts.csproj" />
-    <ProjectReference Include="..\Yi.Framework.{PascalModuleName}.Domain\Yi.Framework.{PascalModuleName}.Domain.csproj" />
-  </ItemGroup>
-
-</Project>
-```
-
-**Create Directory**: `Yi.Framework.{PascalModuleName}.Application/Services/` (empty)
-
-#### 4.5 SqlSugarCore
-
-**Module Class**: `Yi.Framework.{PascalModuleName}.SqlSugarCore/YiFramework{PascalModuleName}SqlSugarCoreModule.cs`
-
-```csharp
-using Yi.Framework.SqlSugarCore;
-
-namespace Yi.Framework.{PascalModuleName}.SqlSugarCore
-{
-    [DependsOn(typeof(YiFrameworkSqlSugarCoreModule))]
-    public class YiFramework{PascalModuleName}SqlSugarCoreModule:AbpModule
-    {
-
-    }
-}
-```
-
-**Project File**: `Yi.Framework.{PascalModuleName}.SqlSugarCore/Yi.Framework.{PascalModuleName}.SqlSugarCore.csproj`
-
-```xml
-<Project Sdk="Microsoft.NET.Sdk">
-	<Import Project="..\..\..\common.props" />
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\framework\Yi.Framework.SqlSugarCore\Yi.Framework.SqlSugarCore.csproj" />
-    <ProjectReference Include="..\Yi.Framework.{PascalModuleName}.Domain\Yi.Framework.{PascalModuleName}.Domain.csproj" />
-  </ItemGroup>
-
-</Project>
-```
-
-**Create Directory**: `Yi.Framework.{PascalModuleName}.SqlSugarCore/Repositories/` (empty)
-
-### Step 5: Update Main Module Files
-
-Update the main module files in `src/` to include references to the new module.
-
-#### 5.1 Update Module Classes
-
-For each layer, update the corresponding main module class:
-
-**Domain.Shared**: `src/Yi.Abp.Domain.Shared/YiAbpDomainSharedModule.cs`
-- Add `using Yi.Framework.{PascalModuleName}.Domain.Shared;`
-- Add `typeof(YiFramework{PascalModuleName}DomainSharedModule)` to `[DependsOn(...)]`
-
-**Domain**: `src/Yi.Abp.Domain/YiAbpDomainModule.cs`
-- Add `using Yi.Framework.{PascalModuleName}.Domain;`
-- Add `typeof(YiFramework{PascalModuleName}DomainModule)` to `[DependsOn(...)]`
-
-**Application.Contracts**: `src/Yi.Abp.Application.Contracts/YiAbpApplicationContractsModule.cs`
-- Add `using Yi.Framework.{PascalModuleName}.Application.Contracts;`
-- Add `typeof(YiFramework{PascalModuleName}ApplicationContractsModule)` to `[DependsOn(...)]`
-
-**Application**: `src/Yi.Abp.Application/YiAbpApplicationModule.cs`
-- Add `using Yi.Framework.{PascalModuleName}.Application;`
-- Add `typeof(YiFramework{PascalModuleName}ApplicationModule)` to `[DependsOn(...)]`
-
-**SqlSugarCore**: `src/Yi.Abp.SqlSugarCore/YiAbpSqlSugarCoreModule.cs`
-- Add `using Yi.Framework.{PascalModuleName}.SqlSugarCore;`
-- Add `typeof(YiFramework{PascalModuleName}SqlSugarCoreModule)` to `[DependsOn(...)]`
-
-**Important Notes:**
-- Add `using` statements in alphabetical order
-- Add `typeof(...)` entries in the `[DependsOn(...)]` attribute, maintaining proper formatting
-- If it's the last entry, don't add a trailing comma
-- If it's not the last entry, add a comma and newline
-
-#### 5.2 Update Project References
-
-For each layer, update the corresponding main project file to add a ProjectReference:
-
-**Domain.Shared**: `src/Yi.Abp.Domain.Shared/Yi.Abp.Domain.Shared.csproj`
-- Add: `<ProjectReference Include="..\..\module\{KebabModuleName}\Yi.Framework.{PascalModuleName}.Domain.Shared\Yi.Framework.{PascalModuleName}.Domain.Shared.csproj" />`
-
-**Domain**: `src/Yi.Abp.Domain/Yi.Abp.Domain.csproj`
-- Add: `<ProjectReference Include="..\..\module\{KebabModuleName}\Yi.Framework.{PascalModuleName}.Domain\Yi.Framework.{PascalModuleName}.Domain.csproj" />`
-
-**Application.Contracts**: `src/Yi.Abp.Application.Contracts/Yi.Abp.Application.Contracts.csproj`
-- Add: `<ProjectReference Include="..\..\module\{KebabModuleName}\Yi.Framework.{PascalModuleName}.Application.Contracts\Yi.Framework.{PascalModuleName}.Application.Contracts.csproj" />`
-
-**Application**: `src/Yi.Abp.Application/Yi.Abp.Application.csproj`
-- Add: `<ProjectReference Include="..\..\module\{KebabModuleName}\Yi.Framework.{PascalModuleName}.Application\Yi.Framework.{PascalModuleName}.Application.csproj" />`
-
-**SqlSugarCore**: `src/Yi.Abp.SqlSugarCore/Yi.Abp.SqlSugarCore.csproj`
-- Add: `<ProjectReference Include="..\..\module\{KebabModuleName}\Yi.Framework.{PascalModuleName}.SqlSugarCore\Yi.Framework.{PascalModuleName}.SqlSugarCore.csproj" />`
-
-**Important Notes:**
-- Add ProjectReference within an existing `<ItemGroup>` that contains other ProjectReference elements
-- If no such ItemGroup exists, create a new one
-- Maintain proper indentation (4 spaces)
-
-### Step 6: Update Solution File
-
-Update the solution file: `Yi.Abp.slnx`
-
-The solution file is an XML file. You need to:
-
-1. **Check if module folder exists**: Look for a `<Folder Name="/module/{KebabModuleName}/">` element
-2. **If it doesn't exist**, create a new Folder element with the name `/module/{KebabModuleName}/`
-3. **Add all 5 projects** to this folder in the following order:
-   - Application.Contracts
-   - Application
-   - Domain.Shared
-   - Domain
-   - SqlSugarCore
-4. **Insert the folder** after the last existing module folder (one with name like `/module/*/`)
-5. **If no module folders exist**, insert after the `/module/` parent folder (if it exists)
-
-**Project XML structure:**
-```xml
-<Folder Name="/module/{KebabModuleName}/">
-  <Project Path="module/{KebabModuleName}/Yi.Framework.{PascalModuleName}.Application.Contracts/Yi.Framework.{PascalModuleName}.Application.Contracts.csproj" />
-  <Project Path="module/{KebabModuleName}/Yi.Framework.{PascalModuleName}.Application/Yi.Framework.{PascalModuleName}.Application.csproj" />
-  <Project Path="module/{KebabModuleName}/Yi.Framework.{PascalModuleName}.Domain.Shared/Yi.Framework.{PascalModuleName}.Domain.Shared.csproj" />
-  <Project Path="module/{KebabModuleName}/Yi.Framework.{PascalModuleName}.Domain/Yi.Framework.{PascalModuleName}.Domain.csproj" />
-  <Project Path="module/{KebabModuleName}/Yi.Framework.{PascalModuleName}.SqlSugarCore/Yi.Framework.{PascalModuleName}.SqlSugarCore.csproj" />
-</Folder>
-```
-
-### Step 7: Configure Dynamic API
-
-Update the `YiAbpWebModule.cs` file to add dynamic API configuration for the new module.
-
-**File**: `src/Yi.Abp.Web/YiAbpWebModule.cs`
-
-In the `PreConfigureServices` method, add a new `ConventionalControllers.Create` call:
-
-1. **Add using statement** (if not already present):
-   - Add `using Yi.Framework.{PascalModuleName}.Application;` at the top of the file
-   - Add using statements in alphabetical order
-
-2. **Add dynamic API configuration** in the `PreConfigureServices` method:
-   - Find the `PreConfigure<AbpAspNetCoreMvcOptions>` block
-   - Add a new `options.ConventionalControllers.Create` call before the `//统一前缀` comment
-   - Use the following pattern:
-
-```csharp
-options.ConventionalControllers.Create(typeof(YiFramework{PascalModuleName}ApplicationModule).Assembly,
-    options => options.RemoteServiceName = "{kebab-module-name}");
-```
-
-**Example:**
-For a module named "Video" (PascalCase: "Video", KebabCase: "video"):
-```csharp
-options.ConventionalControllers.Create(typeof(YiFrameworkVideoApplicationModule).Assembly,
-    options => options.RemoteServiceName = "video");
-```
-
-**Important Notes:**
-- Add the `ConventionalControllers.Create` call in alphabetical order based on RemoteServiceName
-- The RemoteServiceName should be in kebab-case format (e.g., "video", "content-management")
-- Place the new entry before the `//统一前缀` comment line
-- Maintain proper indentation (4 spaces)
-
-## Naming Conventions
-
-- **Module name input**: PascalCase or kebab-case
-- **PascalCase**: Used for namespaces, class names, project names
-- **KebabCase**: Used for directory names, solution folder paths
-- **Module class prefix**: `YiFramework` (e.g., `YiFrameworkContentDomainModule`)
-- **Namespace prefix**: `Yi.Framework.` (e.g., `Yi.Framework.Content.Domain`)
-
-## File Encoding
-
-All generated files should use **UTF-8 without BOM** encoding.
 
 ## Error Handling
 
-- **Module already exists**: Check if `module/{kebab-module-name}/` exists before creating
-- **Main module files not found**: If main module files don't exist, inform the user but continue
-- **Solution file update fails**: Inform the user to manually add projects to the solution
-- **Dynamic API configuration fails**: If YiAbpWebModule.cs cannot be updated, inform the user to manually add the configuration
+| Scenario | Action |
+|----------|--------|
+| Module exists | Stop, inform user, suggest deleting or using different name |
+| C# script execution error | Show error message, suggest checking .NET installation |
+| Main module files missing | Script logs warning, continues generation |
+
+## Dry Run Mode
+
+For validation without changes:
+
+```bash
+dotnet run --file .claude/skills/module-generator-plus/scripts/generate_module.cs -- <name> --dry-run
+```
+
+Useful when user asks "what would be created" or wants to preview changes.
 
 ## Examples
 
-### Example 1: Simple Module Name
-**Input**: "Content"
-- PascalCase: "Content"
-- KebabCase: "content"
-- Module path: `module/content/`
-- Projects: `Yi.Framework.Content.Domain.Shared`, `Yi.Framework.Content.Domain`, etc.
-- Dynamic API RemoteServiceName: "content"
-
-### Example 2: Compound Module Name
-**Input**: "ContentManagement"
-- PascalCase: "ContentManagement"
-- KebabCase: "content-management"
-- Module path: `module/content-management/`
-- Projects: `Yi.Framework.ContentManagement.Domain.Shared`, etc.
-- Dynamic API RemoteServiceName: "content-management"
-
-### Example 3: Kebab-Case Input
-**Input**: "content-management"
-- PascalCase: "ContentManagement"
-- KebabCase: "content-management"
-- Module path: `module/content-management/`
-- Projects: `Yi.Framework.ContentManagement.Domain.Shared`, etc.
-- Dynamic API RemoteServiceName: "content-management"
-
-## Reference Implementation
-
-See existing modules for reference:
-- `module/setting-management/` - Kebab-case module example
-- `module/rbac/` - Complex module example with dynamic API configured
-
-## Next Steps After Module Generation
-
-After generating the module structure, the user typically needs to:
-1. Create entity classes in `Domain/Entities/`
-2. Create DTO classes in `Application.Contracts/Dtos/`
-3. Create service interfaces in `Application.Contracts/IServices/`
-4. Create service implementations in `Application/Services/`
-5. Create repository implementations in `SqlSugarCore/Repositories/` (if needed)
-
-Use the `business-module-initializer` skill for generating business entities and their related files.
+| Input | PascalCase | kebab-case | Module Path |
+|-------|------------|------------|-------------|
+| `Payment` | Payment | payment | `module/payment/` |
+| `content-management` | ContentManagement | content-management | `module/content-management/` |
+| `ContentManagement` | ContentManagement | content-management | `module/content-management/` |

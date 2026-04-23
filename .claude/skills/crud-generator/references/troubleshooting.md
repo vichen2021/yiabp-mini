@@ -11,8 +11,8 @@ Common issues and solutions when creating business modules.
 **Solution**: Use `PagedAllResultRequestDto` instead:
 
 ```csharp
-using Yi.Framework.Ddd;
-using Yi.Framework.Ddd.Application.Contracts;
+using Wj.Framework.Ddd;
+using Wj.Framework.Ddd.Application.Contracts;
 
 public class {EntityName}GetListInputVo : PagedAllResultRequestDto
 {
@@ -25,7 +25,7 @@ public class {EntityName}GetListInputVo : PagedAllResultRequestDto
 **Problem**: Application is running and locking DLL files.
 
 **Solution**:
-1. Stop the running application (Yi.Abp.Web process)
+1. Stop the running application (Wj.Cms.Web process)
 2. Close any debuggers (JetBrains.Debugger.Worker)
 3. Run `dotnet build` again
 
@@ -40,8 +40,8 @@ using SqlSugar;
 using Volo.Abp;
 using Volo.Abp.Auditing;
 using Volo.Abp.Domain.Entities;
-using Yi.Framework.Core.Data;
-using Yi.Framework.Ddd.Application.Contracts;
+using Wj.Framework.Core.Data;
+using Wj.Framework.Ddd.Application.Contracts;
 ```
 
 ## Menu Issues
@@ -140,7 +140,7 @@ if (isUpdate.value && id) {
 
 **Symptom**: Team members don't know about new module.
 
-**Fix**: Create documentation in `.docs/` directory.
+**Fix**: Create documentation in `docs/` directory.
 
 ## Debugging Tips
 

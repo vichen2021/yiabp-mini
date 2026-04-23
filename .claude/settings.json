@@ -9,9 +9,8 @@
       "Bash(dotnet script *)",
       "Bash(python *)",
       "Bash(dotnet tool *)",
-      "Bash('C:/Users/WCG/.dotnet/tools/dotnet-script.exe' .claude/skills/module-generator-plus/scripts/generate_module.csx Product)",
-      "Edit(/.claude/skills/crud-generator-fast/**)",
-      "Edit(/.claude/skills/module-generator-plus/**)"
+      "Edit(/.claude/skills/module-generator-plus/**)",
+      "Edit(/.claude/skills/crud-generator-fast/**)"
     ]
   }
 }
