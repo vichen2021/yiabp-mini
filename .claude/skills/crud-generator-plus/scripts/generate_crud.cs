@@ -92,6 +92,7 @@ EntityInfo ParseEntityFile(string entityPath, string module)
     {
         info.EntityName = classMatch.Groups[1].Value;
         info.EntityNameLower = ToLower(info.EntityName);
+        info.EntityNameKebab = ToKebabCase(info.EntityName);
     }
 
     // 从 summary 注释中提取实体注释（支持多行格式）
@@ -230,20 +231,20 @@ void GenerateFrontendFiles(string basePath, EntityInfo entity, List<EnumInfo> en
 {
     var frontendPath = Path.Combine(basePath, "Yi.Vben5", "apps", "web-antd", "src");
 
-    // 创建 API 目录
-    var apiPath = Path.Combine(frontendPath, "api", entity.Module, entity.EntityNameLower);
+    // 创建 API 目录（短横线命名，不包含模块名）
+    var apiPath = Path.Combine(frontendPath, "api", entity.EntityNameKebab);
     Directory.CreateDirectory(apiPath);
 
     WriteFile(Path.Combine(apiPath, "model.d.ts"), GenerateModelTs(entity, enums));
     WriteFile(Path.Combine(apiPath, "index.ts"), GenerateIndexTs(entity));
 
-    // 创建 Views 目录
-    var viewsPath = Path.Combine(frontendPath, "views", entity.Module, entity.EntityNameLower);
+    // 创建 Views 目录（模块名/实体名短横线）
+    var viewsPath = Path.Combine(frontendPath, "views", entity.Module, entity.EntityNameKebab);
     Directory.CreateDirectory(viewsPath);
 
     WriteFile(Path.Combine(viewsPath, "data.ts"), GenerateDataTs(entity, enums));
     WriteFile(Path.Combine(viewsPath, "index.vue"), GenerateIndexVue(entity));
-    WriteFile(Path.Combine(viewsPath, $"{entity.EntityNameLower}-drawer.vue"), GenerateDrawerVue(entity));
+    WriteFile(Path.Combine(viewsPath, $"{entity.EntityNameKebab}-drawer.vue"), GenerateDrawerVue(entity));
 
     Console.WriteLine($"  已生成 5 个前端文件");
 }
@@ -270,7 +271,17 @@ string GenerateGetOutputDto(EntityInfo entity, List<EnumInfo> enums)
         sb.AppendLine($"        /// <summary>");
         sb.AppendLine($"        /// {field.Comment}");
         sb.AppendLine($"        /// </summary>");
-        sb.AppendLine($"        public {(field.Nullable ? field.Type + "?" : field.Type)} {field.Name} {{ get; set; }}");
+        // 枚举字段使用 int 类型
+        var fieldType = field.IsEnum ? "int" : (field.Nullable ? field.Type + "?" : field.Type);
+        sb.AppendLine($"        public {fieldType} {field.Name} {{ get; set; }}");
+    }
+
+    if (entity.IsTree)
+    {
+        sb.AppendLine($"        /// <summary>");
+        sb.AppendLine($"        /// 父级id");
+        sb.AppendLine($"        /// </summary>");
+        sb.AppendLine($"        public Guid? ParentId {{ get; set; }}");
     }
 
     sb.AppendLine($"        /// <summary>");
@@ -315,7 +326,9 @@ string GenerateGetListOutputDto(EntityInfo entity, List<EnumInfo> enums)
         sb.AppendLine($"        /// <summary>");
         sb.AppendLine($"        /// {field.Comment}");
         sb.AppendLine($"        /// </summary>");
-        sb.AppendLine($"        public {(field.Nullable ? field.Type + "?" : field.Type)} {field.Name} {{ get; set; }}");
+        // 枚举字段使用 int 类型
+        var fieldType = field.IsEnum ? "int" : (field.Nullable ? field.Type + "?" : field.Type);
+        sb.AppendLine($"        public {fieldType} {field.Name} {{ get; set; }}");
     }
 
     if (entity.IsTree)
@@ -323,7 +336,7 @@ string GenerateGetListOutputDto(EntityInfo entity, List<EnumInfo> enums)
         sb.AppendLine($"        /// <summary>");
         sb.AppendLine($"        /// 父级id");
         sb.AppendLine($"        /// </summary>");
-        sb.AppendLine($"        public Guid ParentId {{ get; set; }}");
+        sb.AppendLine($"        public Guid? ParentId {{ get; set; }}");
     }
 
     sb.AppendLine($"        /// <summary>");
@@ -363,7 +376,7 @@ string GenerateGetListInputVo(EntityInfo entity)
     sb.AppendLine($"    /// <summary>");
     sb.AppendLine($"    /// {entity.EntityComment}列表查询输入");
     sb.AppendLine($"    /// </summary>");
-    sb.AppendLine($"    public class {entity.EntityName}GetListInputVo : {(entity.IsTree ? "" : "PagedAllResultRequestDto")}");
+    sb.AppendLine($"    public class {entity.EntityName}GetListInputVo : PagedAllResultRequestDto");
     sb.AppendLine("    {");
 
     // 搜索字段（用于 Contains 查询）
@@ -484,6 +497,7 @@ string GenerateIService(EntityInfo entity)
     sb.AppendLine($"    public interface I{entity.EntityName}Service : IYiCrudAppService<{entity.EntityName}GetOutputDto, {entity.EntityName}GetListOutputDto, Guid,");
     sb.AppendLine($"        {entity.EntityName}GetListInputVo, {entity.EntityName}CreateInputVo, {entity.EntityName}UpdateInputVo>");
     sb.AppendLine("    {");
+    // 树形实体不定义 GetListAsync，由 Service 通过 Route 特性创建独立路由
     sb.AppendLine($"        /// <summary>");
     sb.AppendLine($"        /// {entity.EntityComment}下拉列表");
     sb.AppendLine($"        /// </summary>");
@@ -501,6 +515,8 @@ string GenerateService(EntityInfo entity)
     sb.AppendLine("using SqlSugar;");
     sb.AppendLine("using Volo.Abp;");
     sb.AppendLine("using Volo.Abp.Application.Dtos;");
+    if (entity.IsTree)
+        sb.AppendLine("using Microsoft.AspNetCore.Mvc;");
     sb.AppendLine("using Yi.Framework.Ddd.Application;");
     sb.AppendLine($"using Yi.Framework.{entity.ModuleNamespace}.Application.Contracts.Dtos.{entity.EntityName};");
     sb.AppendLine($"using Yi.Framework.{entity.ModuleNamespace}.Application.Contracts.IServices;");
@@ -523,11 +539,21 @@ string GenerateService(EntityInfo entity)
     sb.AppendLine("            _repository = repository;");
     sb.AppendLine();
 
-    // GetListAsync 方法重写
-    sb.AppendLine($"        public override async Task<PagedResultDto<{entity.EntityName}GetListOutputDto>> GetListAsync({entity.EntityName}GetListInputVo input)");
-    sb.AppendLine("        {");
-    sb.AppendLine("            RefAsync<int> total = 0;");
-    sb.AppendLine("            var output = await _repository._DbQueryable");
+    // GetListAsync 方法重写 - 树形实体返回 List，普通实体返回 PagedResultDto
+    if (entity.IsTree)
+    {
+        sb.AppendLine($"        [Route(\"{entity.EntityNameKebab}/list\")]");
+        sb.AppendLine($"        public new async Task<List<{entity.EntityName}GetListOutputDto>> GetListAsync({entity.EntityName}GetListInputVo input)");
+        sb.AppendLine("        {");
+        sb.AppendLine("            var output = await _repository._DbQueryable");
+    }
+    else
+    {
+        sb.AppendLine($"        public override async Task<PagedResultDto<{entity.EntityName}GetListOutputDto>> GetListAsync({entity.EntityName}GetListInputVo input)");
+        sb.AppendLine("        {");
+        sb.AppendLine("            RefAsync<int> total = 0;");
+        sb.AppendLine("            var output = await _repository._DbQueryable");
+    }
 
     // 搜索字段（Contains 查询）
     foreach (var field in entity.Fields.Where(f => f.IsSearchField && !f.IsTreeField))
@@ -542,24 +568,48 @@ string GenerateService(EntityInfo entity)
     }
 
     sb.AppendLine("                .WhereIF(input.State is not null, x => x.State == input.State)");
-    sb.AppendLine("                .WhereIF(input.StartTime is not null && input.EndTime is not null,");
-    sb.AppendLine("                    x => x.CreationTime >= input.StartTime && x.CreationTime <= input.EndTime)");
-    sb.AppendLine("                .OrderByDescending(x => x.CreationTime)");
+    if (!entity.IsTree)
+    {
+        sb.AppendLine("                .WhereIF(input.StartTime is not null && input.EndTime is not null,");
+        sb.AppendLine("                    x => x.CreationTime >= input.StartTime && x.CreationTime <= input.EndTime)");
+        sb.AppendLine("                .OrderByDescending(x => x.CreationTime)");
+    }
+    else
+    {
+        sb.AppendLine("                .OrderBy(x => x.OrderNum, OrderByType.Asc)");
+    }
     sb.AppendLine($"                .Select(x => new {entity.EntityName}GetListOutputDto");
     sb.AppendLine("                {");
     sb.AppendLine("                    Id = x.Id,");
     foreach (var field in entity.Fields.Where(f => !f.IsTreeField))
     {
-        sb.AppendLine($"                    {field.Name} = x.{field.Name},");
+        // 枚举字段需要转换为 int
+        if (field.IsEnum)
+            sb.AppendLine($"                    {field.Name} = (int)x.{field.Name},");
+        else
+            sb.AppendLine($"                    {field.Name} = x.{field.Name},");
+    }
+    if (entity.IsTree)
+    {
+        sb.AppendLine("                    ParentId = x.ParentId,");
     }
     sb.AppendLine("                    State = x.State,");
     sb.AppendLine("                    OrderNum = x.OrderNum,");
     sb.AppendLine("                    CreationTime = x.CreationTime,");
     sb.AppendLine("                    CreatorId = x.CreatorId");
     sb.AppendLine("                })");
-    sb.AppendLine("                .ToPageListAsync(input.SkipCount, input.MaxResultCount, total);");
-    sb.AppendLine();
-    sb.AppendLine($"            return new PagedResultDto<{entity.EntityName}GetListOutputDto>(total, output);");
+    if (entity.IsTree)
+    {
+        sb.AppendLine("                .ToListAsync();");
+        sb.AppendLine();
+        sb.AppendLine("            return output;");
+    }
+    else
+    {
+        sb.AppendLine("                .ToPageListAsync(input.SkipCount, input.MaxResultCount, total);");
+        sb.AppendLine();
+        sb.AppendLine($"            return new PagedResultDto<{entity.EntityName}GetListOutputDto>(total, output);");
+    }
     sb.AppendLine("        }");
     sb.AppendLine();
 
@@ -610,7 +660,15 @@ string GenerateService(EntityInfo entity)
     sb.AppendLine("                    Id = x.Id,");
     foreach (var field in entity.Fields.Where(f => !f.IsTreeField))
     {
-        sb.AppendLine($"                    {field.Name} = x.{field.Name},");
+        // 枚举字段需要转换为 int
+        if (field.IsEnum)
+            sb.AppendLine($"                    {field.Name} = (int)x.{field.Name},");
+        else
+            sb.AppendLine($"                    {field.Name} = x.{field.Name},");
+    }
+    if (entity.IsTree)
+    {
+        sb.AppendLine("                    ParentId = x.ParentId,");
     }
     sb.AppendLine("                });");
     sb.AppendLine();
@@ -645,7 +703,7 @@ string GenerateModelTs(EntityInfo entity, List<EnumInfo> enums)
 
     if (entity.IsTree)
     {
-        sb.AppendLine("  parentId: string;");
+        sb.AppendLine("  parentId: string | null;");
         sb.AppendLine($"  children?: {entity.EntityName}[];");
     }
 
@@ -700,17 +758,33 @@ string GenerateModelTs(EntityInfo entity, List<EnumInfo> enums)
 string GenerateIndexTs(EntityInfo entity)
 {
     var sb = new StringBuilder();
-    sb.AppendLine("import type { ID, IDS, PageResult } from '#/api/common';");
+    if (!entity.IsTree)
+    {
+        sb.AppendLine("import type { ID, IDS, PageResult } from '#/api/common';");
+    }
+    else
+    {
+        sb.AppendLine("import type { ID, IDS } from '#/api/common';");
+    }
     sb.AppendLine($"import type {{ {entity.EntityName}, {entity.EntityName}ListParams, {entity.EntityName}CreateInput, {entity.EntityName}UpdateInput }} from './model';");
     sb.AppendLine("import { requestClient } from '#/api/request';");
     sb.AppendLine();
     sb.AppendLine("enum Api {");
-    sb.AppendLine($"  root = '/{entity.Module}/{entity.EntityNameLower}',");
+    sb.AppendLine($"  root = '/{entity.EntityNameKebab}',");
     sb.AppendLine("}");
     sb.AppendLine();
-    sb.AppendLine($"/** {entity.EntityComment}分页列表 */");
-    sb.AppendLine($"export function {entity.EntityNameLower}List(params?: {entity.EntityName}ListParams) {{");
-    sb.AppendLine($"  return requestClient.get<PageResult<{entity.EntityName}>>(Api.root, {{ params }});");
+    if (entity.IsTree)
+    {
+        sb.AppendLine($"/** {entity.EntityComment}列表 */");
+        sb.AppendLine($"export function {entity.EntityNameLower}List(params?: {entity.EntityName}ListParams) {{");
+        sb.AppendLine($"  return requestClient.get<{entity.EntityName}[]>(`${{Api.root}}/list`, {{ params }});");
+    }
+    else
+    {
+        sb.AppendLine($"/** {entity.EntityComment}分页列表 */");
+        sb.AppendLine($"export function {entity.EntityNameLower}List(params?: {entity.EntityName}ListParams) {{");
+        sb.AppendLine($"  return requestClient.get<PageResult<{entity.EntityName}>>(Api.root, {{ params }});");
+    }
     sb.AppendLine("}");
     sb.AppendLine();
     sb.AppendLine($"/** {entity.EntityComment}详情 */");
@@ -807,10 +881,21 @@ string GenerateDataTs(EntityInfo entity, List<EnumInfo> enums)
     sb.AppendLine("];");
     sb.AppendLine();
 
-    // drawerSchema - 搜索字段（索引字段必填） + 枚举字段 + 标准字段
+    // drawerSchema - 树形parentId + 搜索字段（索引字段必填） + 枚举字段 + 标准字段
     var indexField = entity.Fields.FirstOrDefault(f => f.IsIndex);
     sb.AppendLine("export const drawerSchema: FormSchemaGetter = () => [");
     sb.AppendLine("  { component: 'Input', dependencies: { show: () => false, triggerFields: [''] }, fieldName: 'id' },");
+    if (entity.IsTree)
+    {
+        sb.AppendLine("  {");
+        sb.AppendLine("    component: 'TreeSelect',");
+        sb.AppendLine("    componentProps: { getPopupContainer },");
+        sb.AppendLine("    dependencies: { show: (model) => model.parentId !== '00000000-0000-0000-0000-000000000000', triggerFields: ['parentId'] },");
+        sb.AppendLine("    fieldName: 'parentId',");
+        sb.AppendLine($"    label: '上级{entity.EntityComment}',");
+        sb.AppendLine("    rules: 'selectRequired',");
+        sb.AppendLine("  },");
+    }
     if (indexField != null)
     {
         sb.AppendLine($"  {{ component: 'Input', fieldName: '{ToLower(indexField.Name)}', label: '{indexField.Comment}', rules: 'required' }},");
@@ -840,82 +925,233 @@ string GenerateIndexVue(EntityInfo entity)
     sb.AppendLine("<script setup lang=\"ts\">");
     sb.AppendLine("import type { VbenFormProps } from '@vben/common-ui';");
     sb.AppendLine("import type { VxeGridProps } from '#/adapter/vxe-table';");
-    sb.AppendLine($"import type {{ {entity.EntityName} }} from '#/api/{entity.Module}/{entity.EntityNameLower}/model';");
+    sb.AppendLine($"import type {{ {entity.EntityName} }} from '#/api/{entity.EntityNameKebab}/model';");
     sb.AppendLine();
+
+    if (entity.IsTree)
+    {
+        sb.AppendLine("import { nextTick } from 'vue';");
+    }
     sb.AppendLine("import { Page, useVbenDrawer } from '@vben/common-ui';");
-    sb.AppendLine("import { getVxePopupContainer } from '@vben/utils';");
-    sb.AppendLine("import { Modal, Popconfirm, Space } from 'ant-design-vue';");
+
+    if (entity.IsTree)
+    {
+        sb.AppendLine("import { eachTree, getVxePopupContainer } from '@vben/utils';");
+    }
+    else
+    {
+        sb.AppendLine("import { getVxePopupContainer } from '@vben/utils';");
+    }
+    if (entity.IsTree)
+    {
+        sb.AppendLine("import { Popconfirm, Space } from 'ant-design-vue';");
+    }
+    else
+    {
+        sb.AppendLine("import { Modal, Popconfirm, Space } from 'ant-design-vue';");
+    }
     sb.AppendLine();
-    sb.AppendLine("import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';");
-    sb.AppendLine($"import {{ {entity.EntityNameLower}List, {entity.EntityNameLower}Remove }} from '#/api/{entity.Module}/{entity.EntityNameLower}';");
+    if (entity.IsTree)
+    {
+        sb.AppendLine("import { useVbenVxeGrid } from '#/adapter/vxe-table';");
+    }
+    else
+    {
+        sb.AppendLine("import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';");
+    }
+    sb.AppendLine($"import {{ {entity.EntityNameLower}List, {entity.EntityNameLower}Remove }} from '#/api/{entity.EntityNameKebab}';");
     sb.AppendLine();
     sb.AppendLine("import { columns, querySchema } from './data';");
-    sb.AppendLine($"import {entity.EntityNameLower}Drawer from './{entity.EntityNameLower}-drawer.vue';");
+    sb.AppendLine($"import {entity.EntityNameLower}Drawer from './{entity.EntityNameKebab}-drawer.vue';");
     sb.AppendLine();
+
+    if (entity.IsTree)
+    {
+        sb.AppendLine("// 空GUID，用于判断根节点");
+        sb.AppendLine("const EMPTY_GUID = '00000000-0000-0000-0000-000000000000';");
+        sb.AppendLine();
+    }
+
     sb.AppendLine("const formOptions: VbenFormProps = {");
     sb.AppendLine("  commonConfig: { labelWidth: 80, componentProps: { allowClear: true } },");
     sb.AppendLine("  schema: querySchema(),");
     sb.AppendLine("  wrapperClass: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',");
-    sb.AppendLine("  fieldMappingTime: [['creationTime', ['startTime', 'endTime'], ['YYYY-MM-DD 00:00:00', 'YYYY-MM-DD 23:59:59']]],");
+    if (!entity.IsTree)
+    {
+        sb.AppendLine("  fieldMappingTime: [['creationTime', ['startTime', 'endTime'], ['YYYY-MM-DD 00:00:00', 'YYYY-MM-DD 23:59:59']]],");
+    }
     sb.AppendLine("};");
     sb.AppendLine();
+
     sb.AppendLine("const gridOptions: VxeGridProps = {");
-    sb.AppendLine("  checkboxConfig: { highlight: true, reserve: true },");
+    if (!entity.IsTree)
+    {
+        sb.AppendLine("  checkboxConfig: { highlight: true, reserve: true },");
+    }
     sb.AppendLine("  columns,");
     sb.AppendLine("  height: 'auto',");
     sb.AppendLine("  keepSource: true,");
-    sb.AppendLine("  pagerConfig: {},");
-    sb.AppendLine("  proxyConfig: {");
-    sb.AppendLine("    ajax: {");
-    sb.AppendLine("      query: async ({ page }, formValues = {}) => {");
-    sb.AppendLine($"        return await {entity.EntityNameLower}List({{");
-    sb.AppendLine("          SkipCount: (page.currentPage - 1) * page.pageSize,");
-    sb.AppendLine("          MaxResultCount: page.pageSize,");
-    sb.AppendLine("          ...formValues,");
-    sb.AppendLine("        });");
-    sb.AppendLine("      },");
-    sb.AppendLine("    },");
-    sb.AppendLine("  },");
-    sb.AppendLine("  rowConfig: { keyField: 'id' },");
-    sb.AppendLine($"  id: '{entity.Module}-{entity.EntityNameLower}-index',");
+
+    if (entity.IsTree)
+    {
+        sb.AppendLine("  pagerConfig: { enabled: false },");
+        sb.AppendLine("  proxyConfig: {");
+        sb.AppendLine("    ajax: {");
+        sb.AppendLine("      query: async (_, formValues = {}) => {");
+        sb.AppendLine($"        const resp = await {entity.EntityNameLower}List(formValues);");
+        sb.AppendLine("        // 将根节点的 parentId 置为 null，以便 vxe-table 正确识别根节点");
+        sb.AppendLine("        const items = resp.map((item) => ({");
+        sb.AppendLine("          ...item,");
+        sb.AppendLine("          parentId: item.parentId === EMPTY_GUID ? null : item.parentId,");
+        sb.AppendLine("        }));");
+        sb.AppendLine("        return { items };");
+        sb.AppendLine("      },");
+        sb.AppendLine("      querySuccess: () => {");
+        sb.AppendLine("        // 默认展开全部");
+        sb.AppendLine("        eachTree(tableApi.grid.getData(), (item) => (item.expand = true));");
+        sb.AppendLine("        nextTick(() => {");
+        sb.AppendLine("          setExpandOrCollapse(true);");
+        sb.AppendLine("        });");
+        sb.AppendLine("      },");
+        sb.AppendLine("    },");
+        sb.AppendLine("  },");
+        sb.AppendLine("  rowConfig: { keyField: 'id' },");
+        sb.AppendLine("  treeConfig: {");
+        sb.AppendLine("    parentField: 'parentId',");
+        sb.AppendLine("    rowField: 'id',");
+        sb.AppendLine("    transform: true,");
+        sb.AppendLine("  },");
+    }
+    else
+    {
+        sb.AppendLine("  pagerConfig: {},");
+        sb.AppendLine("  proxyConfig: {");
+        sb.AppendLine("    ajax: {");
+        sb.AppendLine("      query: async ({ page }, formValues = {}) => {");
+        sb.AppendLine($"        return await {entity.EntityNameLower}List({{");
+        sb.AppendLine("          SkipCount: (page.currentPage - 1) * page.pageSize,");
+        sb.AppendLine("          MaxResultCount: page.pageSize,");
+        sb.AppendLine("          ...formValues,");
+        sb.AppendLine("        });");
+        sb.AppendLine("      },");
+        sb.AppendLine("    },");
+        sb.AppendLine("  },");
+        sb.AppendLine("  rowConfig: { keyField: 'id' },");
+    }
+    sb.AppendLine($"  id: '{entity.Module}-{entity.EntityNameKebab}-index',");
     sb.AppendLine("};");
     sb.AppendLine();
-    sb.AppendLine($"const [BasicTable, tableApi] = useVbenVxeGrid({{ formOptions, gridOptions }});");
+
+    if (entity.IsTree)
+    {
+        sb.AppendLine("const [BasicTable, tableApi] = useVbenVxeGrid({");
+        sb.AppendLine("  formOptions,");
+        sb.AppendLine("  gridOptions,");
+        sb.AppendLine("  gridEvents: {");
+        sb.AppendLine("    cellDblclick: (e) => {");
+        sb.AppendLine("      const { row = {} } = e;");
+        sb.AppendLine("      if (!row?.children) return;");
+        sb.AppendLine("      const isExpanded = row?.expand;");
+        sb.AppendLine("      tableApi.grid.setTreeExpand(row, !isExpanded);");
+        sb.AppendLine("      row.expand = !isExpanded;");
+        sb.AppendLine("    },");
+        sb.AppendLine("    toggleTreeExpand: (e) => {");
+        sb.AppendLine("      const { row = {}, expanded } = e;");
+        sb.AppendLine("      row.expand = expanded;");
+        sb.AppendLine("    },");
+        sb.AppendLine("  },");
+        sb.AppendLine("});");
+    }
+    else
+    {
+        sb.AppendLine($"const [BasicTable, tableApi] = useVbenVxeGrid({{ formOptions, gridOptions }});");
+    }
     sb.AppendLine($"const [{entity.EntityName}Drawer, drawerApi] = useVbenDrawer({{ connectedComponent: {entity.EntityNameLower}Drawer }});");
     sb.AppendLine();
+
     sb.AppendLine($"function handleAdd() {{ drawerApi.setData({{ update: false }}); drawerApi.open(); }}");
+
+    if (entity.IsTree)
+    {
+        sb.AppendLine();
+        sb.AppendLine($"function handleSubAdd(row: {entity.EntityName}) {{");
+        sb.AppendLine("  const { id } = row;");
+        sb.AppendLine("  drawerApi.setData({ id, update: false });");
+        sb.AppendLine("  drawerApi.open();");
+        sb.AppendLine("}");
+    }
+
     sb.AppendLine($"async function handleEdit(record: {entity.EntityName}) {{ drawerApi.setData({{ id: record.id, update: true }}); drawerApi.open(); }}");
     sb.AppendLine($"async function handleDelete(row: {entity.EntityName}) {{ await {entity.EntityNameLower}Remove([row.id]); await tableApi.query(); }}");
-    sb.AppendLine("function handleMultiDelete() {");
-    sb.AppendLine("  const rows = tableApi.grid.getCheckboxRecords();");
-    sb.AppendLine($"  const ids = rows.map((row: {entity.EntityName}) => row.id);");
-    sb.AppendLine("  Modal.confirm({");
-    sb.AppendLine($"    title: '提示', okType: 'danger', content: `确认删除选中的${{ids.length}}条记录吗？`,");
-    sb.AppendLine($"    onOk: async () => {{ await {entity.EntityNameLower}Remove(ids); await tableApi.query(); }},");
-    sb.AppendLine("  });");
-    sb.AppendLine("}");
+
+    if (!entity.IsTree)
+    {
+        sb.AppendLine("function handleMultiDelete() {");
+        sb.AppendLine("  const rows = tableApi.grid.getCheckboxRecords();");
+        sb.AppendLine($"  const ids = rows.map((row: {entity.EntityName}) => row.id);");
+        sb.AppendLine("  Modal.confirm({");
+        sb.AppendLine($"    title: '提示', okType: 'danger', content: `确认删除选中的${{ids.length}}条记录吗？`,");
+        sb.AppendLine($"    onOk: async () => {{ await {entity.EntityNameLower}Remove(ids); await tableApi.query(); }},");
+        sb.AppendLine("  });");
+        sb.AppendLine("}");
+    }
+
+    if (entity.IsTree)
+    {
+        sb.AppendLine();
+        sb.AppendLine("function setExpandOrCollapse(expand: boolean) {");
+        sb.AppendLine("  eachTree(tableApi.grid.getData(), (item) => (item.expand = expand));");
+        sb.AppendLine("  tableApi.grid?.setAllTreeExpand(expand);");
+        sb.AppendLine("}");
+    }
+
     sb.AppendLine("</script>");
     sb.AppendLine();
     sb.AppendLine("<template>");
     sb.AppendLine("  <Page :auto-content-height=\"true\">");
-    sb.AppendLine($"    <BasicTable table-title=\"{entity.EntityComment}列表\">");
+    if (entity.IsTree)
+    {
+        sb.AppendLine($"    <BasicTable table-title=\"{entity.EntityComment}列表\" table-title-help=\"双击展开/收起子节点\">");
+    }
+    else
+    {
+        sb.AppendLine($"    <BasicTable table-title=\"{entity.EntityComment}列表\">");
+    }
     sb.AppendLine("      <template #toolbar-tools>");
     sb.AppendLine("        <Space>");
-    sb.AppendLine($"          <a-button :disabled=\"!vxeCheckboxChecked(tableApi)\" danger type=\"primary\" v-access:code=\"['{entity.Module}:{entity.EntityNameLower}:remove']\" @click=\"handleMultiDelete\">");
-    sb.AppendLine("            {{ $t('pages.common.delete') }}");
-    sb.AppendLine("          </a-button>");
-    sb.AppendLine($"          <a-button type=\"primary\" v-access:code=\"['{entity.Module}:{entity.EntityNameLower}:add']\" @click=\"handleAdd\">");
+    if (entity.IsTree)
+    {
+        sb.AppendLine("          <a-button @click=\"setExpandOrCollapse(false)\">");
+        sb.AppendLine("            {{ $t('pages.common.collapse') }}");
+        sb.AppendLine("          </a-button>");
+        sb.AppendLine("          <a-button @click=\"setExpandOrCollapse(true)\">");
+        sb.AppendLine("            {{ $t('pages.common.expand') }}");
+        sb.AppendLine("          </a-button>");
+    }
+    else
+    {
+        sb.AppendLine($"          <a-button :disabled=\"!vxeCheckboxChecked(tableApi)\" danger type=\"primary\" v-access:code=\"['{entity.Module}:{entity.EntityNameKebab}:remove']\" @click=\"handleMultiDelete\">");
+        sb.AppendLine("            {{ $t('pages.common.delete') }}");
+        sb.AppendLine("          </a-button>");
+    }
+    sb.AppendLine($"          <a-button type=\"primary\" v-access:code=\"['{entity.Module}:{entity.EntityNameKebab}:add']\" @click=\"handleAdd\">");
     sb.AppendLine("            {{ $t('pages.common.add') }}");
     sb.AppendLine("          </a-button>");
     sb.AppendLine("        </Space>");
     sb.AppendLine("      </template>");
     sb.AppendLine("      <template #action=\"{ row }\">");
     sb.AppendLine("        <Space>");
-    sb.AppendLine($"          <ghost-button v-access:code=\"['{entity.Module}:{entity.EntityNameLower}:edit']\" @click.stop=\"handleEdit(row)\">");
+    sb.AppendLine($"          <ghost-button v-access:code=\"['{entity.Module}:{entity.EntityNameKebab}:edit']\" @click=\"handleEdit(row)\">");
     sb.AppendLine("            {{ $t('pages.common.edit') }}");
     sb.AppendLine("          </ghost-button>");
+    if (entity.IsTree)
+    {
+        sb.AppendLine($"          <ghost-button class=\"btn-success\" v-access:code=\"['{entity.Module}:{entity.EntityNameKebab}:add']\" @click=\"handleSubAdd(row)\">");
+        sb.AppendLine("            {{ $t('pages.common.add') }}");
+        sb.AppendLine("          </ghost-button>");
+    }
     sb.AppendLine($"          <Popconfirm :get-popup-container=\"getVxePopupContainer\" placement=\"left\" title=\"确认删除？\" @confirm=\"handleDelete(row)\">");
-    sb.AppendLine($"            <ghost-button danger v-access:code=\"['{entity.Module}:{entity.EntityNameLower}:remove']\" @click.stop=\"\">");
+    sb.AppendLine($"            <ghost-button danger v-access:code=\"['{entity.Module}:{entity.EntityNameKebab}:remove']\" @click.stop=\"\">");
     sb.AppendLine("              {{ $t('pages.common.delete') }}");
     sb.AppendLine("            </ghost-button>");
     sb.AppendLine("          </Popconfirm>");
@@ -933,13 +1169,31 @@ string GenerateDrawerVue(EntityInfo entity)
 {
     var sb = new StringBuilder();
     sb.AppendLine("<script setup lang=\"ts\">");
+    if (entity.IsTree)
+    {
+        sb.AppendLine($"import type {{ {entity.EntityName} }} from '#/api/{entity.EntityNameKebab}/model';");
+    }
     sb.AppendLine("import { computed, ref } from 'vue';");
     sb.AppendLine("import { useVbenDrawer } from '@vben/common-ui';");
     sb.AppendLine("import { $t } from '@vben/locales';");
-    sb.AppendLine("import { cloneDeep } from '@vben/utils';");
+    if (entity.IsTree)
+    {
+        sb.AppendLine("import { addFullName, cloneDeep, listToTree } from '@vben/utils';");
+    }
+    else
+    {
+        sb.AppendLine("import { cloneDeep } from '@vben/utils';");
+    }
     sb.AppendLine("import { useVbenForm } from '#/adapter/form';");
-    sb.AppendLine($"import type {{ {entity.EntityName}CreateInput, {entity.EntityName}UpdateInput }} from '#/api/{entity.Module}/{entity.EntityNameLower}/model';");
-    sb.AppendLine($"import {{ {entity.EntityNameLower}Add, {entity.EntityNameLower}Info, {entity.EntityNameLower}Update }} from '#/api/{entity.Module}/{entity.EntityNameLower}';");
+    sb.AppendLine($"import type {{ {entity.EntityName}CreateInput, {entity.EntityName}UpdateInput }} from '#/api/{entity.EntityNameKebab}/model';");
+    if (entity.IsTree)
+    {
+        sb.AppendLine($"import {{ {entity.EntityNameLower}Add, {entity.EntityNameLower}Info, {entity.EntityNameLower}List, {entity.EntityNameLower}Update }} from '#/api/{entity.EntityNameKebab}';");
+    }
+    else
+    {
+        sb.AppendLine($"import {{ {entity.EntityNameLower}Add, {entity.EntityNameLower}Info, {entity.EntityNameLower}Update }} from '#/api/{entity.EntityNameKebab}';");
+    }
     sb.AppendLine("import { defaultFormValueGetter, useBeforeCloseDiff } from '#/utils/popup';");
     sb.AppendLine("import { drawerSchema } from './data';");
     sb.AppendLine();
@@ -956,6 +1210,46 @@ string GenerateDrawerVue(EntityInfo entity)
     sb.AppendLine("  wrapperClass: 'grid-cols-2',");
     sb.AppendLine("});");
     sb.AppendLine();
+
+    if (entity.IsTree)
+    {
+        sb.AppendLine($"async function get{entity.EntityName}Tree(entityId?: number | string) {{");
+        sb.AppendLine($"  const ret = await {entity.EntityNameLower}List({{}});");
+        sb.AppendLine("  // 编辑时排除自己（防止选择自己作为父级）");
+        sb.AppendLine($"  const filtered = isUpdate.value && entityId ? ret.filter((item) => item.id !== entityId) : ret;");
+        sb.AppendLine("  const treeData = listToTree(filtered, { id: 'id', pid: 'parentId' });");
+        sb.AppendLine("  // 添加完整路径名称 如 xx-xx-xx");
+        var nameField = entity.Fields.FirstOrDefault(f => f.Name == "Name") ?? entity.Fields.FirstOrDefault(f => f.IsIndex);
+        if (nameField != null)
+        {
+            sb.AppendLine($"  addFullName(treeData, '{ToLower(nameField.Name)}', ' / ');");
+        }
+        sb.AppendLine("  return treeData;");
+        sb.AppendLine("}");
+        sb.AppendLine();
+        sb.AppendLine($"async function init{entity.EntityName}Select(entityId?: number | string) {{");
+        sb.AppendLine($"  const treeData = await get{entity.EntityName}Tree(entityId);");
+        sb.AppendLine("  formApi.updateSchema([");
+        sb.AppendLine("    {");
+        sb.AppendLine("      componentProps: {");
+        if (nameField != null)
+        {
+            sb.AppendLine($"        fieldNames: {{ label: '{ToLower(nameField.Name)}', value: 'id' }},");
+        }
+        sb.AppendLine("        showSearch: true,");
+        sb.AppendLine("        treeData,");
+        sb.AppendLine("        treeDefaultExpandAll: true,");
+        sb.AppendLine("        treeLine: { showLeafIcon: false },");
+        sb.AppendLine("        // 选中后显示在输入框的值");
+        sb.AppendLine("        treeNodeLabelProp: 'fullName',");
+        sb.AppendLine("      },");
+        sb.AppendLine("      fieldName: 'parentId',");
+        sb.AppendLine("    },");
+        sb.AppendLine("  ]);");
+        sb.AppendLine("}");
+        sb.AppendLine();
+    }
+
     sb.AppendLine("const { onBeforeClose, markInitialized, resetInitialized } = useBeforeCloseDiff({");
     sb.AppendLine("  initializedGetter: defaultFormValueGetter(formApi), currentGetter: defaultFormValueGetter(formApi),");
     sb.AppendLine("});");
@@ -969,10 +1263,27 @@ string GenerateDrawerVue(EntityInfo entity)
     sb.AppendLine("    drawerApi.drawerLoading(true);");
     sb.AppendLine("    const { id, update } = drawerApi.getData() as DrawerProps;");
     sb.AppendLine("    isUpdate.value = update;");
-    sb.AppendLine("    if (id && update) {");
-    sb.AppendLine($"      const record = await {entity.EntityNameLower}Info(id);");
-    sb.AppendLine("      await formApi.setValues(record);");
-    sb.AppendLine("    }");
+    if (entity.IsTree)
+    {
+        sb.AppendLine();
+        sb.AppendLine("    if (id) {");
+        sb.AppendLine("      await formApi.setFieldValue('parentId', id);");
+        sb.AppendLine("      if (update) {");
+        sb.AppendLine($"        const record = await {entity.EntityNameLower}Info(id);");
+        sb.AppendLine("        await formApi.setValues(record);");
+        sb.AppendLine("      }");
+        sb.AppendLine("    }");
+        sb.AppendLine();
+        sb.AppendLine($"    // 初始化{entity.EntityComment}树选择");
+        sb.AppendLine($"    await init{entity.EntityName}Select(id);");
+    }
+    else
+    {
+        sb.AppendLine("    if (id && update) {");
+        sb.AppendLine($"      const record = await {entity.EntityNameLower}Info(id);");
+        sb.AppendLine("      await formApi.setValues(record);");
+        sb.AppendLine("    }");
+    }
     sb.AppendLine("    await markInitialized();");
     sb.AppendLine("    drawerApi.drawerLoading(false);");
     sb.AppendLine("  },");
@@ -1050,6 +1361,27 @@ string ToLower(string value)
     return char.ToLowerInvariant(value[0]) + value.Substring(1);
 }
 
+string ToKebabCase(string value)
+{
+    if (string.IsNullOrEmpty(value)) return "";
+    // 驼峰转短横线：ProductCategory → product-category
+    var result = new StringBuilder();
+    for (var i = 0; i < value.Length; i++)
+    {
+        var c = value[i];
+        if (char.IsUpper(c))
+        {
+            if (i > 0) result.Append('-');
+            result.Append(char.ToLowerInvariant(c));
+        }
+        else
+        {
+            result.Append(c);
+        }
+    }
+    return result.ToString();
+}
+
 string ToSnakeCaseUpper(string? value)
 {
     if (string.IsNullOrEmpty(value)) return "";
@@ -1101,7 +1433,8 @@ string? ResolveBasePath(string? explicitBasePath)
 class EntityInfo
 {
     public string EntityName { get; set; } = "";
-    public string EntityNameLower { get; set; } = "";
+    public string EntityNameLower { get; set; } = "";   // 驼峰小写：productCategory
+    public string EntityNameKebab { get; set; } = "";   // 短横线：product-category
     public string Module { get; set; } = "";
     public string ModuleNamespace { get; set; } = "";
     public string EntityComment { get; set; } = "";
