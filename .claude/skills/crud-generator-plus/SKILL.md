@@ -146,8 +146,8 @@ Application.Contracts/Dtos/{Entity}/
 ├── {Entity}CreateInputVo.cs
 └── {Entity}UpdateInputVo.cs
 
-Application.Contracts/IServices/I{Entity}Service.cs
-Application/Services/{Entity}Service.cs
+Application.Contracts/IServices/I{Entity}Service.cs  ← 包含 SelectListAsync 接口
+Application/Services/{Entity}Service.cs              ← 包含 SelectListAsync 实现
 ```
 
 **前端（5个文件）**:
@@ -155,11 +155,70 @@ Application/Services/{Entity}Service.cs
 Yi.Vben5/apps/web-antd/src/
 ├── api/{module}/{entity}/
 │   ├── model.d.ts
-│   └── index.ts
+│   └── index.ts                      ← 包含 selectList API
 └── views/{module}/{entity}/
     ├── data.ts
     ├── index.vue
     └── {entity}-drawer.vue
+```
+
+### 新增功能：下拉列表（SelectList）
+
+**后端接口**：
+```csharp
+Task<List<{Entity}GetOutputDto>> SelectListAsync(string? keywords = null);
+```
+
+**后端实现**：
+- 查询条件：State == true + 关键字过滤（按 Name 字段）
+- 返回：启用状态的数据列表，用于下拉选择组件
+
+**前端 API**：
+```typescript
+export function {entity}SelectList(keywords?: string) {
+  return requestClient.get<{Entity}[]>(`${Api.root}/select-list`, {
+    params: keywords ? { keywords } : undefined,
+  });
+}
+```
+
+**使用场景**：
+- 表单中的下拉选择框
+- 关联实体的选择列表
+- 搜索框的候选数据
+
+### 新增功能：自动查询条件生成
+
+脚本会根据实体字段自动识别并生成查询条件：
+
+**搜索字段识别规则**（仅 string 类型）：
+| 字段名关键字 | 示例 | 查询方式 |
+|------|------|------|
+| Name | UserName, ProductName | Contains |
+| Title | Title, SubTitle | Contains |
+| Code | Code, ProductCode | Contains |
+| Key | ApiKey, AccessKey | Contains |
+| No | OrderNo, SerialNo | Contains |
+| Phone | Phone, MobilePhone | Contains |
+| Email | Email, ContactEmail | Contains |
+
+**枚举字段**：
+- 自动添加精确匹配查询条件
+
+**生成的查询参数**：
+- GetListInputVo：仅包含搜索字段 + 枚举字段 + State
+- 前端 querySchema：搜索字段输入框 + 枚举字段下拉框 + 状态 + 时间范围
+
+**示例**（实体有 Name 和 Type 枚举字段）：
+```csharp
+// GetListInputVo
+public string? Name { get; set; }
+public ProductTypeEnum? Type { get; set; }
+public bool? State { get; set; }
+
+// Service 查询
+.WhereIF(!string.IsNullOrEmpty(input.Name), x => x.Name.Contains(input.Name!))
+.WhereIF(input.Type is not null, x => x.Type == (ProductTypeEnum)input.Type!)
 ```
 
 ### 树形实体额外输出

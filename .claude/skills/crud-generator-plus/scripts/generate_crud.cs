@@ -125,7 +125,8 @@ EntityInfo ParseEntityFile(string entityPath, string module)
             Comment = comment,
             Nullable = nullable,
             IsTreeField = name == "ParentId",
-            IsIndex = Regex.IsMatch(content, $"index_{name}") || name.Contains("Name"),
+            IsIndex = Regex.IsMatch(content, $"index_{name}") || name.EndsWith("Name"),
+            IsSearchField = IsSearchableField(name, type),
             IsEnum = type.EndsWith("Enum"),
             EnumType = type.EndsWith("Enum") ? type : null
         };
@@ -175,6 +176,16 @@ bool IsStandardField(string name)
     var standardFields = new[] { "Id", "State", "OrderNum", "Remark", "IsDeleted", "CreationTime",
         "CreatorId", "LastModifierId", "LastModificationTime", "Children" };
     return standardFields.Contains(name);
+}
+
+bool IsSearchableField(string name, string type)
+{
+    // 仅字符串类型可进行 Contains 搜索
+    if (type != "string") return false;
+
+    // 搜索字段关键字（按优先级排序）
+    var searchKeywords = new[] { "Name", "Title", "Code", "Key", "No", "Number", "Phone", "Email", "Address", "Description" };
+    return searchKeywords.Any(k => name.EndsWith(k) || name.Contains(k));
 }
 
 string CleanType(string type)
@@ -340,6 +351,9 @@ string GenerateGetListOutputDto(EntityInfo entity, List<EnumInfo> enums)
 string GenerateGetListInputVo(EntityInfo entity)
 {
     var hasEnums = entity.EnumTypes.Count > 0;
+    var searchFields = entity.Fields.Where(f => f.IsSearchField).ToList();
+    var enumFields = entity.Fields.Where(f => f.IsEnum && !f.IsTreeField).ToList();
+
     var sb = new StringBuilder();
     sb.AppendLine("using Yi.Framework.Ddd.Application.Contracts;");
     if (hasEnums) sb.AppendLine($"using Yi.Framework.{entity.ModuleNamespace}.Domain.Shared.Enums;");
@@ -352,22 +366,22 @@ string GenerateGetListInputVo(EntityInfo entity)
     sb.AppendLine($"    public class {entity.EntityName}GetListInputVo : {(entity.IsTree ? "" : "PagedAllResultRequestDto")}");
     sb.AppendLine("    {");
 
-    foreach (var field in entity.Fields.Where(f => !f.IsTreeField && !f.IsIndex))
+    // 搜索字段（用于 Contains 查询）
+    foreach (var field in searchFields)
+    {
+        sb.AppendLine($"        /// <summary>");
+        sb.AppendLine($"        /// {field.Comment}");
+        sb.AppendLine($"        /// </summary>");
+        sb.AppendLine($"        public string? {field.Name} {{ get; set; }}");
+    }
+
+    // 枚举字段（用于精确匹配）
+    foreach (var field in enumFields)
     {
         sb.AppendLine($"        /// <summary>");
         sb.AppendLine($"        /// {field.Comment}");
         sb.AppendLine($"        /// </summary>");
         sb.AppendLine($"        public {field.Type}? {field.Name} {{ get; set; }}");
-    }
-
-    // 添加索引字段用于过滤
-    var indexField = entity.Fields.FirstOrDefault(f => f.IsIndex);
-    if (indexField != null)
-    {
-        sb.AppendLine($"        /// <summary>");
-        sb.AppendLine($"        /// {indexField.Comment}");
-        sb.AppendLine($"        /// </summary>");
-        sb.AppendLine($"        public string? {indexField.Name} {{ get; set; }}");
     }
 
     sb.AppendLine($"        /// <summary>");
@@ -470,6 +484,10 @@ string GenerateIService(EntityInfo entity)
     sb.AppendLine($"    public interface I{entity.EntityName}Service : IYiCrudAppService<{entity.EntityName}GetOutputDto, {entity.EntityName}GetListOutputDto, Guid,");
     sb.AppendLine($"        {entity.EntityName}GetListInputVo, {entity.EntityName}CreateInputVo, {entity.EntityName}UpdateInputVo>");
     sb.AppendLine("    {");
+    sb.AppendLine($"        /// <summary>");
+    sb.AppendLine($"        /// {entity.EntityComment}下拉列表");
+    sb.AppendLine($"        /// </summary>");
+    sb.AppendLine($"        Task<List<{entity.EntityName}GetOutputDto>> SelectListAsync(string? keywords = null);");
     sb.AppendLine("    }");
     sb.AppendLine("}");
 
@@ -511,10 +529,14 @@ string GenerateService(EntityInfo entity)
     sb.AppendLine("            RefAsync<int> total = 0;");
     sb.AppendLine("            var output = await _repository._DbQueryable");
 
-    if (indexField != null)
-        sb.AppendLine($"                .WhereIF(!string.IsNullOrEmpty(input.{indexField.Name}), x => x.{indexField.Name}.Contains(input.{indexField.Name}!))");
+    // 搜索字段（Contains 查询）
+    foreach (var field in entity.Fields.Where(f => f.IsSearchField && !f.IsTreeField))
+    {
+        sb.AppendLine($"                .WhereIF(!string.IsNullOrEmpty(input.{field.Name}), x => x.{field.Name}.Contains(input.{field.Name}!))");
+    }
 
-    foreach (var field in entity.Fields.Where(f => !f.IsTreeField && !f.IsIndex && f.IsEnum))
+    // 枚举字段（精确匹配）
+    foreach (var field in entity.Fields.Where(f => f.IsEnum && !f.IsTreeField))
     {
         sb.AppendLine($"                .WhereIF(input.{field.Name} is not null, x => x.{field.Name} == ({field.EnumType})input.{field.Name}!)");
     }
@@ -569,6 +591,31 @@ string GenerateService(EntityInfo entity)
         sb.AppendLine("            }");
         sb.AppendLine("        }");
     }
+
+    // SelectListAsync 下拉列表方法
+    var nameField = entity.Fields.FirstOrDefault(f => f.Name == "Name") ?? indexField;
+    sb.AppendLine();
+    sb.AppendLine($"        /// <summary>");
+    sb.AppendLine($"        /// {entity.EntityComment}下拉列表");
+    sb.AppendLine($"        /// </summary>");
+    sb.AppendLine($"        public async Task<List<{entity.EntityName}GetOutputDto>> SelectListAsync(string? keywords = null)");
+    sb.AppendLine("        {");
+    sb.AppendLine($"            var query = _repository._DbQueryable.Where(x => x.State == true)");
+    if (nameField != null)
+    {
+        sb.AppendLine($"                .WhereIF(!string.IsNullOrEmpty(keywords), x => x.{nameField.Name}.Contains(keywords!))");
+    }
+    sb.AppendLine($"                .Select(x => new {entity.EntityName}GetOutputDto");
+    sb.AppendLine("                {");
+    sb.AppendLine("                    Id = x.Id,");
+    foreach (var field in entity.Fields.Where(f => !f.IsTreeField))
+    {
+        sb.AppendLine($"                    {field.Name} = x.{field.Name},");
+    }
+    sb.AppendLine("                });");
+    sb.AppendLine();
+    sb.AppendLine("            return await query.ToListAsync();");
+    sb.AppendLine("        }");
 
     sb.AppendLine("    }");
     sb.AppendLine("}");
@@ -633,11 +680,11 @@ string GenerateModelTs(EntityInfo entity, List<EnumInfo> enums)
     sb.AppendLine("  remark?: string | null;");
     sb.AppendLine("}");
 
-    // 列表查询参数
+    // 列表查询参数 - 仅包含搜索字段和枚举字段
     sb.AppendLine();
     sb.AppendLine($"/** {entity.EntityComment}列表查询参数 */");
     sb.AppendLine($"export interface {entity.EntityName}ListParams {{");
-    foreach (var field in entity.Fields.Where(f => !f.IsTreeField))
+    foreach (var field in entity.Fields.Where(f => f.IsSearchField || f.IsEnum))
     {
         var tsType = MapToTsType(field.Type, field.IsEnum);
         sb.AppendLine($"  {ToLower(field.Name)}?: {tsType};");
@@ -687,6 +734,13 @@ string GenerateIndexTs(EntityInfo entity)
     sb.AppendLine($"    params: {{ ids: {entity.EntityNameLower}Ids.join(',') }},");
     sb.AppendLine("  });");
     sb.AppendLine("}");
+    sb.AppendLine();
+    sb.AppendLine($"/** {entity.EntityComment}下拉列表 */");
+    sb.AppendLine($"export function {entity.EntityNameLower}SelectList(keywords?: string) {{");
+    sb.AppendLine($"  return requestClient.get<{entity.EntityName}[]>(`${{Api.root}}/select-list`, {{");
+    sb.AppendLine("    params: keywords ? { keywords } : undefined,");
+    sb.AppendLine("  });");
+    sb.AppendLine("}");
 
     return sb.ToString();
 }
@@ -694,6 +748,7 @@ string GenerateIndexTs(EntityInfo entity)
 string GenerateDataTs(EntityInfo entity, List<EnumInfo> enums)
 {
     var enumFields = entity.Fields.Where(f => f.IsEnum).ToList();
+    var searchFields = entity.Fields.Where(f => f.IsSearchField).ToList();
     var sb = new StringBuilder();
     sb.AppendLine("import type { FormSchemaGetter } from '#/adapter/form';");
     sb.AppendLine("import type { VxeGridProps } from '#/adapter/vxe-table';");
@@ -705,12 +760,11 @@ string GenerateDataTs(EntityInfo entity, List<EnumInfo> enums)
 
     var moduleConst = entity.Module.Replace("-", "_").ToUpperInvariant();
 
-    // querySchema
+    // querySchema - 搜索字段 + 枚举字段 + 状态 + 时间
     sb.AppendLine("export const querySchema: FormSchemaGetter = () => [");
-    var indexField = entity.Fields.FirstOrDefault(f => f.IsIndex);
-    if (indexField != null)
+    foreach (var field in searchFields)
     {
-        sb.AppendLine($"  {{ component: 'Input', fieldName: '{ToLower(indexField.Name)}', label: '{indexField.Comment}' }},");
+        sb.AppendLine($"  {{ component: 'Input', fieldName: '{ToLower(field.Name)}', label: '{field.Comment}' }},");
     }
     foreach (var field in enumFields)
     {
@@ -727,12 +781,13 @@ string GenerateDataTs(EntityInfo entity, List<EnumInfo> enums)
     sb.AppendLine("];");
     sb.AppendLine();
 
-    // columns
+    // columns - 搜索字段（第一个作为树节点） + 枚举字段 + 标准字段
+    var firstSearchField = searchFields.FirstOrDefault();
     sb.AppendLine("export const columns: VxeGridProps['columns'] = [");
     sb.AppendLine("  { type: 'checkbox', width: 60 },");
-    if (indexField != null)
+    if (firstSearchField != null)
     {
-        sb.AppendLine($"  {{ title: '{indexField.Comment}', field: '{ToLower(indexField.Name)}' {(entity.IsTree ? ", treeNode: true" : "")} }},");
+        sb.AppendLine($"  {{ title: '{firstSearchField.Comment}', field: '{ToLower(firstSearchField.Name)}' {(entity.IsTree ? ", treeNode: true" : "")} }},");
     }
     foreach (var field in enumFields)
     {
@@ -752,7 +807,8 @@ string GenerateDataTs(EntityInfo entity, List<EnumInfo> enums)
     sb.AppendLine("];");
     sb.AppendLine();
 
-    // drawerSchema
+    // drawerSchema - 搜索字段（索引字段必填） + 枚举字段 + 标准字段
+    var indexField = entity.Fields.FirstOrDefault(f => f.IsIndex);
     sb.AppendLine("export const drawerSchema: FormSchemaGetter = () => [");
     sb.AppendLine("  { component: 'Input', dependencies: { show: () => false, triggerFields: [''] }, fieldName: 'id' },");
     if (indexField != null)
@@ -1064,7 +1120,8 @@ class FieldInfo
     public string Type { get; set; } = "";
     public string Comment { get; set; } = "";
     public bool Nullable { get; set; }
-    public bool IsIndex { get; set; }
+    public bool IsIndex { get; set; }      // 索引字段，用于唯一性验证
+    public bool IsSearchField { get; set; } // 搜索字段，用于 Contains 查询
     public bool IsTreeField { get; set; }
     public bool IsEnum { get; set; }
     public string? EnumType { get; set; }
