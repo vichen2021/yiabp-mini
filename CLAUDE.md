@@ -557,6 +557,23 @@ private readonly ISqlSugarRepository<ModuleBEntity, Guid> _moduleBRepository;
 
 ## AI 协作规范
 
+### 新模块开发推荐流程
+
+**示例**：
+```
+/using-superpowers 帮我设计一个 book-manage 模块，包含图书、分类、借阅记录三个实体，分类是树形结构，生成开发文档
+```
+
+生成开发文档后，
+1.  /module-generator {模块名} — 创建模块结构
+2. /crud-generator-plus 基于开发文档 @docs/开发文档.md 逐个生成实体 CRUD
+
+如果 `/using-superpowers` 未安装，Claude Code 二选一执行，其他IDE自行搜索安装方法：
+```
+/plugin install superpowers@claude-plugins-official --global    # 全局安装
+/plugin install superpowers@claude-plugins-official             # 项目级安装
+ ```
+
 ### ⚠️ 已记录的严重错误（警示）
 
 以下错误曾在实际协作中发生，**绝对禁止重犯**：
