@@ -211,18 +211,32 @@ SqlSugarCore/Repositories/{Entity}Repository.cs
 ### 后端验证
 
 ```bash
-dotnet build Yi.Abp/module/{module}/Yi.Framework.{Module}.Application/Yi.Framework.{Module}.Application.csproj
+dotnet build Yi.Abp/module/{module}/Yi.Framework.{Module}.Application/Yi.Framework.{Module}.Application.csproj --no-restore
 ```
 
 ### 前端验证
 
-检查生成文件质量（不运行全项目 typecheck）：
+**pnpm TypeScript 检查**（仅检查生成的模块目录，避免全项目检查耗时）：
+
+```bash
+cd Yi.Vben5 && pnpm run check:type --filter="@vben/web-antd" 2>&1 | grep -E "({module}|error TS)" || echo "前端类型检查通过"
+```
+
+**文件质量检查**：
 
 ```bash
 # 检查关键文件内容
-cat Yi.Abp/module/{module}/Yi.Framework.{Module}.Application.Contracts/Dtos/{Entity}/{Entity}GetListOutputDto.cs | head -5
+head -20 Yi.Abp/module/{module}/Yi.Framework.{Module}.Application.Contracts/Dtos/{Entity}/{Entity}GetListOutputDto.cs
 grep DictEnum Yi.Vben5/apps/web-antd/src/views/{module}/{entity}/data.ts
 ```
+
+### 验证失败处理
+
+| 错误类型 | 处理方式 |
+|------|----------|
+| 后端构建失败 | 检查实体类语法、DTO 引用、服务实现 |
+| 前端 typecheck 失败 | 检查 API 类型定义、dict-enum 常量引用 |
+| 字典常量不匹配 | 统一 dict-enum.ts 与 data.ts 的常量名称 |
 
 ## 命名规范速查
 
@@ -280,3 +294,5 @@ crud-generator-plus/
 3. **单个 Agent 处理种子数据** — 菜单和字典由一个 Agent 统一处理
 4. **仅构建 Application 项目** — 不构建整个解决方案
 5. **不使用 Agent 生成 DTO/Service** — 直接调用脚本生成
+6. **前端验证必须运行 pnpm typecheck** — 确保生成的 TypeScript 文件类型正确
+7. **字典常量命名一致性** — dict-enum.ts 的常量名必须与 data.ts 引用完全匹配（格式：`{MODULE}_{ENTITY}_{ENUM}`）

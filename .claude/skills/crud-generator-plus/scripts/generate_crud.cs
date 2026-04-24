@@ -94,8 +94,8 @@ EntityInfo ParseEntityFile(string entityPath, string module)
         info.EntityNameLower = ToLower(info.EntityName);
     }
 
-    // 从 summary 注释中提取实体注释
-    var commentMatch = Regex.Match(content, @"///\s*<summary>\s*(.*?)\s*</summary>", RegexOptions.Multiline);
+    // 从 summary 注释中提取实体注释（支持多行格式）
+    var commentMatch = Regex.Match(content, @"///\s*<summary>\s*\n\s*///\s*(.+?)\s*\n\s*///\s*</summary>", RegexOptions.Multiline);
     if (commentMatch.Success)
     {
         info.EntityComment = commentMatch.Groups[1].Value.Trim();
@@ -658,7 +658,7 @@ string GenerateIndexTs(EntityInfo entity)
     sb.AppendLine("import { requestClient } from '#/api/request';");
     sb.AppendLine();
     sb.AppendLine("enum Api {");
-    sb.AppendLine($"  root = '/api/{entity.Module}/{entity.EntityNameLower}',");
+    sb.AppendLine($"  root = '/{entity.Module}/{entity.EntityNameLower}',");
     sb.AppendLine("}");
     sb.AppendLine();
     sb.AppendLine($"/** {entity.EntityComment}分页列表 */");
@@ -714,7 +714,7 @@ string GenerateDataTs(EntityInfo entity, List<EnumInfo> enums)
     }
     foreach (var field in enumFields)
     {
-        var dictConst = $"{moduleConst}_{ToSnakeCaseUpper(field.EnumType?.Replace("Enum", ""))}";
+        var dictConst = $"{moduleConst}_{ToSnakeCaseUpper(field.EnumType?.Replace("Enum", "").Replace(entity.EntityName, ""))}";
         sb.AppendLine($"  {{");
         sb.AppendLine($"    component: 'Select',");
         sb.AppendLine($"    componentProps: {{ getPopupContainer, options: getDictOptions(DictEnum.{dictConst}, true) }},");
@@ -736,7 +736,7 @@ string GenerateDataTs(EntityInfo entity, List<EnumInfo> enums)
     }
     foreach (var field in enumFields)
     {
-        var dictConst = $"{moduleConst}_{ToSnakeCaseUpper(field.EnumType?.Replace("Enum", ""))}";
+        var dictConst = $"{moduleConst}_{ToSnakeCaseUpper(field.EnumType?.Replace("Enum", "").Replace(entity.EntityName, ""))}";
         sb.AppendLine($"  {{");
         sb.AppendLine($"    title: '{field.Comment}',");
         sb.AppendLine($"    field: '{ToLower(field.Name)}',");
@@ -761,7 +761,7 @@ string GenerateDataTs(EntityInfo entity, List<EnumInfo> enums)
     }
     foreach (var field in enumFields)
     {
-        var dictConst = $"{moduleConst}_{ToSnakeCaseUpper(field.EnumType?.Replace("Enum", ""))}";
+        var dictConst = $"{moduleConst}_{ToSnakeCaseUpper(field.EnumType?.Replace("Enum", "").Replace(entity.EntityName, ""))}";
         sb.AppendLine($"  {{");
         sb.AppendLine($"    component: 'Select',");
         sb.AppendLine($"    componentProps: {{ getPopupContainer, options: getDictOptions(DictEnum.{dictConst}, true) }},");
@@ -835,7 +835,7 @@ string GenerateIndexVue(EntityInfo entity)
     sb.AppendLine($"  const ids = rows.map((row: {entity.EntityName}) => row.id);");
     sb.AppendLine("  Modal.confirm({");
     sb.AppendLine($"    title: '提示', okType: 'danger', content: `确认删除选中的${{ids.length}}条记录吗？`,");
-    sb.AppendLine($"    onOk: async () {{ await {entity.EntityNameLower}Remove(ids); await tableApi.query(); }},");
+    sb.AppendLine($"    onOk: async () => {{ await {entity.EntityNameLower}Remove(ids); await tableApi.query(); }},");
     sb.AppendLine("  });");
     sb.AppendLine("}");
     sb.AppendLine("</script>");
