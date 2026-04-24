@@ -175,27 +175,44 @@ SqlSugarCore/Repositories/{Entity}Repository.cs
 ### 2b: 种子数据 Agent（单个 Agent 处理菜单和字典）
 
 ```markdown
-任务：更新菜单和字典种子数据
+任务：生成模块独立的菜单和字典种子数据（IDataSeedContributor 模式）
 
 输入：
 - 模块：{module}
+- 模块Pascal：{ModulePascal}（如 ProductManage）
 - 实体名：{Entity}
 - 实体中文名：{实体中文名}
 - 枚举信息：{枚举名} + {枚举值列表}（如有）
 
 操作：
 
-**菜单种子数据**（MenuDataSeed.cs）：
-1. 读取文件
-2. 添加菜单项：
-   - 父菜单：根据模块名查找或新建
-   - 子菜单：{实体中文名}, path: /{module}/{entity}
-   - 权限按钮：list/add/edit/remove
+**创建独立种子数据文件**：
+- 目录：Yi.Abp/module/rbac/Yi.Framework.Rbac.SqlSugarCore/DataSeeds/{ModulePascal}DataSeed/
+- 文件：MenuDataSeed.cs, DictionaryTypeDataSeed.cs, DictionaryDataSeed.cs
 
-**字典种子数据**（DictionaryDataSeed.cs + dict-enum.ts）：
-1. 如有枚举，添加字典类型：{module}_{enum_lower}
-2. 添加字典项：枚举值对应 Description
-3. 添加前端常量：{MODULE}_{ENUM} = '{module}_{enum_lower}'
+**文件结构**（独立 IDataSeedContributor）：
+- 类名：`{ModulePascal}MenuDataSeed`, `{ModulePascal}DictionaryTypeDataSeed`, `{ModulePascal}DictionaryDataSeed`
+- 实现：`IDataSeedContributor, ITransientDependency`（不需要 partial）
+- 构造函数：注入 `ISqlSugarRepository` + `IGuidGenerator`（菜单需要）
+- SeedAsync 方法：包含条件检查 + 调用 GetSeedData()
+- GetSeedData 方法：返回种子数据列表
+
+**条件检查逻辑**：
+- MenuDataSeed: `!await _repository.IsAnyAsync(x => x.MenuName == "{模块中文名}" && x.Router == "/{module}")`
+- DictionaryTypeDataSeed: `!await _repository.IsAnyAsync(x => x.DictType == "{module}_{enum_lower}")`
+- DictionaryDataSeed: `!await _repository.IsAnyAsync(x => x.DictType == "{module}_{enum_lower}")`
+
+**菜单数据**：
+- 父菜单（目录）：{模块中文名}, path: /{module}, icon: 根据关键词匹配
+- 子菜单（菜单）：{实体中文名}, path: {entity}, component: {module}/{entity}/index
+- 权限按钮：query/add/edit/remove
+
+**字典数据**（如有枚举）：
+- 字典类型：{module}_{enum_lower}（snake_case）
+- 字典项：枚举值 Description 对应 DictLabel，枚举 int 值对应 DictValue
+
+**前端字典常量**（dict-enum.ts）：
+- 添加常量：{MODULE}_{ENUM} = '{module}_{enum_lower}'
 
 图标规则：
 - *Order* → shopping-cart-outlined
@@ -203,7 +220,7 @@ SqlSugarCore/Repositories/{Entity}Repository.cs
 - *Product* → shopping-outlined
 - 默认 → appstore-outlined
 
-报告：菜单项、权限码、字典项、常量列表。
+报告：创建的文件、菜单项、权限码、字典项、常量列表。
 ```
 
 ## Step 3: 增量构建验证
@@ -247,10 +264,11 @@ grep DictEnum Yi.Vben5/apps/web-antd/src/views/{module}/{entity}/data.ts
 | DTO 输出 | `{Entity}GetOutputDto` | `{Entity}` |
 | 服务接口 | `I{Entity}Service` | - |
 | 服务实现 | `{Entity}Service` | - |
-| API 路径 | `/api/{module}/{entity}` | - |
+| API 路径 | `/api/{module}/{entity}` | `/{module}/{entity}` (requestClient 自动添加 /api) |
 | 权限码 | `{module}:{entity}:{action}` | - |
-| 字典常量 | - | `{MODULE}_{ENUM}` |
+| 字典常量 | - | `{MODULE}_{ENUM}` (不含实体名) |
 | 字典类型 | `{module}_{enum_lower}` | - |
+| 种子数据目录 | `DataSeeds/{ModulePascal}DataSeed/` | - |
 
 ## 错误处理
 
