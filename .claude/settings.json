@@ -3,6 +3,7 @@
     "allow": [
       "Bash(dotnet build:*)",
       "Bash(npm run:*)",
+      "Bash(pnpm run:*)",
       "Bash(npx vue-tsc:*)",
       "Bash(grep:*)",
       "Bash(git checkout *)",

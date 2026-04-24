@@ -129,7 +129,7 @@ See `references/backend-patterns.md` for full template. Key points:
 
 **CRITICAL**: Spawn ALL 3 agents in a SINGLE message with multiple Agent tool calls. This enables parallel execution.
 
-#### Agent A: Backend CRUD Generator
+#### Agent A: Backend CRUD Generator (Template-Based)
 
 **Input**: Entity file path, module name, enum file paths (if any)
 
@@ -137,76 +137,78 @@ See `references/backend-patterns.md` for full template. Key points:
 - DTOs (5 files): `Application.Contracts/Dtos/{EntityName}/`
 - IService: `Application.Contracts/IServices/I{EntityName}Service.cs`
 - Service: `Application/Services/{EntityName}Service.cs`
+- TreeDto (if tree entity): `Domain.Shared/Dtos/{EntityName}TreeDto.cs`
+- Repository (if tree entity): `Domain/Repositories/I{EntityName}Repository.cs` + `SqlSugarCore/Repositories/{EntityName}Repository.cs`
 
 **Agent Prompt Template**:
 ```
-You are Agent A: Backend CRUD Generator.
+You are Agent A: Backend CRUD Generator (Template-Based).
 
-Task: Generate backend CRUD code for entity.
+Task: Generate backend CRUD code using templates. MAXIMIZE SPEED by minimizing file reads.
 
 Input:
 - Entity path: {entity_file_path}
 - Module: {module_name}
 - Enum paths: {enum_file_paths_or_none}
 
-Instructions:
-1. Read the entity file to extract: fields, types, navigations, indexes, namespace
-2. Check if entity has ParentId field → this is a TREE entity (requires special handling)
-3. Read enum files (if any) to understand enum types and their namespaces
-4. Read references/backend-patterns.md for patterns
-5. For TREE entities, READ Yi.Framework.Rbac.Application/Services/System/DeptService.cs as reference (NOT user/config)
-6. Read Yi.Framework.Ddd.Application/YiCrudAppService.cs to understand base class method signatures
+⚡ SPEED OPTIMIZATION - READ ONLY 3 FILES:
+1. Read entity file at {entity_file_path} (extract ALL data in ONE read)
+2. Read templates/dto-templates.md (contains all 5 DTO templates)
+3. Read templates/service-templates.md (contains IService + Service templates)
+4. If entity has ParentId → read templates/tree-templates.md (TreeDto + Repository templates)
 
-⚠️ TREE ENTITY CHECK (ParentId field exists):
-- Return type: List<{GetListOutputDto}> (NOT PagedResultDto<T>)
-- Use [Route("xxx/list")] custom route, method name: GetListAsync
-- pagerConfig.enabled: false in frontend
-- Need GetTreeAsync method for tree structure
-- Need GetListExcludeAsync method (exclude self and children for edit)
-- Need GetAllChildrenIdsAsync recursive helper method
-- Need CheckUpdateInputDtoAsync validation (parent cannot be self or children)
+DO NOT read DeptService.cs, YiCrudAppService.cs, or backend-patterns.md - templates contain all patterns.
 
-7. Generate DTOs in Application.Contracts/Dtos/{Entity}/:
-   - {Entity}GetOutputDto.cs
-   - {Entity}GetListOutputDto.cs
-   - {Entity}GetListInputVo.cs (TREE: DO NOT inherit PagedAllResultRequestDto, no pagination)
-   - {Entity}CreateInputVo.cs
-   - {Entity}UpdateInputVo.cs
-   
-   ⚠️ NAMESPACE CHECK (REQUIRED before writing each file):
-   - Check all types used in the file and add required using statements
-   - Common namespaces: Yi.Framework.{Module}.Domain.Entities, Yi.Framework.{Module}.Domain.Shared.Enums, Yi.Framework.Ddd.Application.Contracts, Volo.Abp.Application.Dtos
-   - DO NOT rely on compilation to find missing namespaces
-
-8. Generate IService in Application.Contracts/IServices/I{Entity}Service.cs
-   - Inherit IYiCrudAppService<{Entity}, {GetOutputDto}, {GetListOutputDto}, Guid, {GetListInputVo}, {CreateInputVo}, {UpdateInputVo}>
-   - TREE: Add GetTreeAsync and GetListExcludeAsync method signatures
-   - Add all required using statements
-
-9. Generate Service in Application/Services/{Entity}Service.cs
-   - Inherit YiCrudAppService<{Entity}, {GetOutputDto}, {GetListOutputDto}, Guid, {GetListInputVo}, {CreateInputVo}, {UpdateInputVo}>
-   
-   ⚠️ METHOD SIGNATURE (CRITICAL):
-   - TREE: GetListAsync returns List<T>, use [Route("xxx/list")], NOT override (different signature)
-   - NON-TREE: GetListAsync returns PagedResultDto<T>, use override keyword
-   - NEVER use `new` keyword to hide base method
-   
-   TREE entity methods (reference DeptService.cs):
-   - GetListAsync: [Route("xxx/list")] → List<T>
-   - GetTreeAsync: tree structure for dropdown
-   - GetListExcludeAsync: [HttpGet, Route("xxx/list/exclude/{id}")] → List<T>
-   - GetAllChildrenIdsAsync + GetChildrenIdsRecursive: recursive helper
-   
-   - Use WhereIF for conditional filtering
-   - Use LeftJoin + Select for relation fields projection
-   - Add all required using statements
-
-10. DO NOT run dotnet build or any compilation command. Your task is ONLY to generate code files.
-
-Follow CLAUDE.md naming conventions. Create all files using Write tool.
+📊 ENTITY DATA EXTRACTION (parse from entity file ONCE):
+Extract into this structure:
+```
+entityName = "ProductCategory"  // class name without AggregateRoot
+moduleName = "product"          // lowercase module
+moduleNamespace = "Product"     // PascalCase for namespace
+entityComment = "产品分类"       // from XML summary
+isTree = true/false             // has ParentId field
+fields = [
+  {name, type, nullable, comment, isIndex, isTreeField}
+]
 ```
 
-#### Agent B: Frontend Generator
+📝 FILE GENERATION (batch Write calls):
+
+**Common Files (all entities):**
+- Application.Contracts/Dtos/{Entity}/
+  - {Entity}GetOutputDto.cs (use GetOutputDto template)
+  - {Entity}GetListOutputDto.cs (use GetListOutputDto template)
+  - {Entity}GetListInputVo.cs (use GetListInputVo template - tree vs non-tree)
+  - {Entity}CreateInputVo.cs (use CreateInputVo template)
+  - {Entity}UpdateInputVo.cs (use UpdateInputVo template)
+- Application.Contracts/IServices/I{Entity}Service.cs (use IService template)
+- Application/Services/{Entity}Service.cs (use Service template - tree vs non-tree)
+
+**Tree Entity Additional Files:**
+- Domain.Shared/Dtos/{Entity}TreeDto.cs (use TreeDto template)
+- Domain.Entities/{Entity}AggregateRoot.cs (append EntityExtension using template)
+- Domain.Repositories/I{Entity}Repository.cs (use IRepository template)
+- SqlSugarCore/Repositories/{Entity}Repository.cs (use Repository template)
+- Domain.Shared/Yi.Framework.{Module}.Domain.Shared.csproj (add SqlSugarCore.Abstractions reference)
+
+⚠️ TEMPLATE RENDERING RULES:
+- Replace {{entityName}} with actual entity name
+- Replace {{moduleNamespace}} with PascalCase module name
+- Replace {{entityComment}} with entity description
+- Replace {{entityNameLower}} with lowercase entity name (e.g., "productCategory")
+- Iterate {{#each fields}} to generate field properties
+- Use {{#if isTree}}, {{#if hasState}}, {{#if hasOrderNum}} for conditional sections
+- Skip Id, CreationTime, CreatorId, etc. (standard fields handled by base class)
+
+⚠️ TREE ENTITY KEY POINTS (embedded in templates):
+- GetListAsync uses `new` keyword, [Route("xxx/list")], returns List<T>
+- GetTreeAsync, GetListExcludeAsync, GetAllChildrenIdsAsync methods included
+- CheckUpdateInputDtoAsync validates parent circular reference
+
+DO NOT run dotnet build. Create all files using Write tool in batch.
+```
+
+#### Agent B: Frontend Generator (Template-Based)
 
 **Input**: Entity file path, module name, enum file paths (if any)
 
@@ -219,83 +221,66 @@ Follow CLAUDE.md naming conventions. Create all files using Write tool.
 
 **Agent Prompt Template**:
 ```
-You are Agent B: Frontend Generator.
+You are Agent B: Frontend Generator (Template-Based).
 
-Task: Generate frontend code for entity.
+Task: Generate frontend code using templates. MAXIMIZE SPEED by minimizing file reads.
 
 Input:
 - Entity path: {entity_file_path}
 - Module: {module_name}
 - Enum paths: {enum_file_paths_or_none}
 
-Instructions:
-1. Read the entity file to extract: fields, types, descriptions
-2. Check if entity has ParentId field → this is a TREE entity (requires special handling)
-3. For TREE entities, READ Yi.Vben5/apps/web-antd/src/views/system/dept/ directory as reference (NOT user/config)
-4. Read enum files (if any) to map enum → number type
-5. Read references/frontend-patterns.md for patterns
+⚡ SPEED OPTIMIZATION - READ ONLY 4 FILES:
+1. Read entity file (extract ALL data in ONE read)
+2. Read templates/frontend-api-templates.md (contains model.d.ts + index.ts templates)
+3. Read templates/frontend-views-templates.md (contains data.ts + index.vue + drawer.vue templates)
+4. Read references/frontend-patterns.md (for additional patterns if needed)
 
-⚠️ IMPORT CHECK (REQUIRED before writing each file):
-- Check all types and imports used in the file
-- Ensure all import paths are correct relative to file location
-- Common imports: @vben/request, dict-enum constants, API types
-- DO NOT rely on type check to find missing imports
+DO NOT read dept views or other reference files - templates contain all patterns.
 
-6. Generate api/{module}/{entity}/model.d.ts:
-   - TypeScript interfaces matching entity fields
-   - Enum fields as number type
-   - Add all required imports
+📊 ENTITY DATA EXTRACTION (parse from entity file ONCE):
+Extract into this structure:
+```
+entityName = "Item"
+entityNameLower = "item"
+moduleName = "product"
+entityComment = "物品"
+isTree = false/true
+hasEnums = true/false
+dictConstants = ["PRODUCT_ITEM_TYPE"]  // derived from module + enum name
+treeNodeField = "itemName"  // field with isIndex=true, used as tree node label
+fields = [
+  {name: "itemName", label: "物品名称", tsType: "string", isIndex: true, isTreeNode: true, required: true},
+  {name: "itemType", label: "物品类型", tsType: "number", isEnum: true, dictConstant: "PRODUCT_ITEM_TYPE", required: true},
+  {name: "orderNum", label: "排序", tsType: "number"},
+  {name: "state", label: "状态", tsType: "boolean", isBoolean: true},
+  {name: "remark", label: "备注", tsType: "string", nullable: true},
+  {name: "creationTime", label: "创建时间", tsType: "string", isDatetime: true}
+]
+```
 
-7. Generate api/{module}/{entity}/index.ts:
-   - API functions: list, info, add, update, remove
-   - TREE: list returns Entity[] array (NOT paginated)
-   - TREE: add nodeList function (exclude self and children for edit)
-   - Follow existing patterns in Yi.Vben5
-   - Add all required imports
+📝 FILE GENERATION (batch Write calls):
 
-8. Generate views/{module}/{entity}/index.vue:
-   - VXE Table with CRUD operations
+**API Files (Yi.Vben5/apps/web-antd/src/api/{module}/{entity}/):**
+1. model.d.ts - TypeScript interfaces (use frontend-api-templates.md)
+2. index.ts - API functions (use frontend-api-templates.md - tree vs non-tree variant)
+
+**View Files (Yi.Vben5/apps/web-antd/src/views/{module}/{entity}/):**
+3. data.ts - Schema definitions (use frontend-views-templates.md - tree vs non-tree)
+   - querySchema: filter fields
+   - columns: table columns with renderDict for enums
+   - drawerSchema: form fields
    
-   ⚠️ TREE CONFIG (if ParentId exists):
-   - pagerConfig: { enabled: false } (no pagination)
-   - treeConfig: { parentField: 'parentId', rowField: 'id', transform: true }
-   - rowConfig: { keyField: 'id' }
-   - proxyConfig.ajax.query: Map root node parentId (EMPTY_GUID) to null
-   - querySuccess: Default expand all (eachTree + setAllTreeExpand)
-   - Toolbar: Add expand/collapse all buttons
-   - Action: Add "sub-add" button (add child node)
-   - cellDblclick: Toggle tree expand
-   - toggleTreeExpand: Sync expand state
-   - Reference: Yi.Vben5/apps/web-antd/src/views/system/dept/index.vue
+4. index.vue - VXE Table (use frontend-views-templates.md)
+   - Non-tree: pagination + standard toolbar
+   - Tree: treeConfig + expand/collapse buttons + add child action
    
-   - Use Vben5 patterns (BasicTable, Toolbar)
-   - Add all required imports
+5. {entity}-drawer.vue - Drawer component (use frontend-views-templates.md)
 
-9. Generate views/{module}/{entity}/data.ts:
-   - querySchema: search form fields
-   - columns: table columns
-   
-   ⚠️ TREE COLUMN:
-   - Tree node column: { field: 'xxxName', title: '名称', treeNode: true }
-   
-   - Dict rendering for enums: slots.default → renderDict(row.field, DictEnum.XXX)
-   - drawerSchema: create/edit form fields
-   
-   ⚠️ TREE DRAWER:
-   - ParentId field: component: 'TreeSelect', use nodeList API for options
-   - Show condition: parentId !== EMPTY_GUID (hide for root edit)
-   
-   - Add all required imports
+⚠️ DictEnum naming: {MODULE}_{ENUM_NAME} (e.g., PRODUCT_ITEM_TYPE)
+⚠️ TreeNode field: the field with isIndex=true is used as tree node label (e.g., itemName)
 
-10. Generate views/{module}/{entity}/{entity}-drawer.vue:
-    - Drawer component for create/edit
-    - Use BasicDrawer from Vben5
-    - TREE: Call nodeList API to get parent options (exclude self and children)
-    - Add all required imports
-
-11. DO NOT run typecheck, lint, or any compilation command. Your task is ONLY to generate code files.
-
-Follow existing patterns in Yi.Vben5. Create all files using Write tool.
+DO NOT run typecheck. Create all files using Write tool in batch.
 ```
 
 #### Agent C: Seed Data Generator
@@ -447,9 +432,14 @@ Document the module in `docs/{ModuleName}模块开发文档.md` with:
 
 ## Reference Files
 
-- `references/backend-patterns.md` - Entity, DTO, and service templates
+- `templates/dto-templates.md` - All 5 DTO templates (GetOutput, GetListOutput, GetListInput, Create, Update)
+- `templates/service-templates.md` - IService + Service templates (normal and tree variants)
+- `templates/tree-templates.md` - TreeDto + EntityExtension + Repository templates
+- `templates/frontend-api-templates.md` - TypeScript model.d.ts + index.ts templates
+- `templates/frontend-views-templates.md` - Vue view templates (data.ts, index.vue, drawer.vue)
+- `references/backend-patterns.md` - Entity patterns (for Step 2 entity creation)
+- `references/frontend-patterns.md` - Additional Vue patterns (fallback reference)
 - `references/menu-seed-patterns.md` - Menu seed data examples
-- `references/frontend-patterns.md` - Frontend API and view templates
 - `references/troubleshooting.md` - Common issues and solutions
 
 ## Examples
@@ -457,3 +447,189 @@ Document the module in `docs/{ModuleName}模块开发文档.md` with:
 Reference existing modules:
 - **普通列表（分页）**: Config, User — `Yi.Abp/module/rbac/` + `Yi.Vben5/apps/web-antd/src/views/system/config/` + `Yi.Vben5/apps/web-antd/src/api/system/config`
 - **树表（无分页）**: Dept — `Yi.Abp/module/rbac/Yi.Framework.Rbac.Application/Services/System/DeptService.cs` + `Yi.Vben5/apps/web-antd/src/views/system/dept/` + `Yi.Vben5/apps/web-antd/src/api/system/dept`
+- **产品模块示例**: Item — `Yi.Vben5/apps/web-antd/src/views/product/item/` + `Yi.Vben5/apps/web-antd/src/api/product/item`
+
+---
+
+## ⚠️ 常见问题与解决方案
+
+以下问题在实际执行中多次出现，Agent 生成代码时必须避免：
+
+### 问题 1：前端 API 方法错误
+
+**错误代码**：
+```typescript
+// ❌ 错误：使用不存在的方法签名
+return requestClient.delete(API_PREFIX, ids, { successMessageMode: 'message' });
+```
+
+**正确代码**：
+```typescript
+// ✅ 正确：使用项目已有的 deleteWithMsg 方法
+export function {{entityNameLower}}Remove({{entityNameLower}}Ids: IDS) {
+  return requestClient.deleteWithMsg<void>(Api.root, {
+    params: { ids: {{entityNameLower}}Ids.join(',') },
+  });
+}
+
+// ✅ 正确：创建/更新方法
+export function {{entityNameLower}}Add(data: {{entityName}}CreateInput) {
+  return requestClient.postWithMsg<void>(Api.root, data);
+}
+
+export function {{entityNameLower}}Update(data: {{entityName}}UpdateInput) {
+  return requestClient.putWithMsg<void>(`${Api.root}/${data.id}`, data);
+}
+```
+
+### 问题 2：缺少类型导入
+
+**错误代码**：
+```typescript
+// ❌ 错误：缺少 PageResult 导入，导致 TypeScript 错误
+import { requestClient } from '#/api/request';
+```
+
+**正确代码**：
+```typescript
+// ✅ 正确：必须导入所有需要的类型
+import type { ID, IDS, PageResult } from '#/api/common';
+import { requestClient } from '#/api/request';
+```
+
+### 问题 3：导入路径错误
+
+**错误路径** | **正确路径**
+---|---
+`'#/types'` 或 `'#/types/form'` | `'#/adapter/form'`
+`'vxe-table'` | `'#/adapter/vxe-table'`
+`'#/hooks'` | `'#/adapter/form'` 或 `'#/adapter/vxe-table'`
+`'#/utils/render'` (getDictOptions) | `'#/utils/dict'`
+`'#/utils/render'` (renderDict) | `'#/utils/render'` ✓
+
+### 问题 4：Schema 格式错误
+
+**错误代码**：
+```typescript
+// ❌ 错误：旧版 VbenFormSchema 数组格式
+import type { VbenFormSchema } from '#/types';
+export const querySchema: VbenFormSchema[] = [
+  { field: 'materialName', label: '材料名称', component: 'Input' },
+];
+```
+
+**正确代码**：
+```typescript
+// ✅ 正确：新版 FormSchemaGetter 函数格式
+import type { FormSchemaGetter } from '#/adapter/form';
+export const querySchema: FormSchemaGetter = () => [
+  { component: 'Input', fieldName: 'materialName', label: '材料名称' },
+];
+```
+
+**关键区别**：
+- `field` → `fieldName`
+- `VbenFormSchema[]` → `FormSchemaGetter` (函数返回)
+
+### 问题 5：字典下拉选项格式错误
+
+**错误代码**：
+```typescript
+// ❌ 错误：使用 api 返回函数
+componentProps: {
+  api: () => getDictOptions(DictEnum.PRODUCT_MATERIAL_TYPE),
+  labelField: 'label',
+  valueField: 'value',
+  numberToString: true,
+},
+```
+
+**正确代码**：
+```typescript
+// ✅ 正确：直接使用 options
+componentProps: {
+  getPopupContainer,
+  options: getDictOptions(DictEnum.PRODUCT_MATERIAL_TYPE, true),
+},
+```
+
+### 问题 6：renderDict 参数错误
+
+**错误代码**：
+```typescript
+// ❌ 错误：boolean 类型直接传入
+renderDict(row.state, DictEnum.SYS_NORMAL_DISABLE)
+```
+
+**正确代码**：
+```typescript
+// ✅ 正确：boolean 需转为 string，枚举可直接传 number
+renderDict(String(row.state), DictEnum.SYS_NORMAL_DISABLE)
+renderDict(row.materialType, DictEnum.PRODUCT_MATERIAL_TYPE)  // 枚举可直接传
+```
+
+### 问题 7：视图组件导入错误
+
+**错误代码**：
+```vue
+<script setup lang="ts">
+import { Page } from '@vben/common-ui';
+import { useVbenModal, useVbenVxeGrid } from '#/hooks';
+import { VbenDrawer } from '#/components';
+```
+
+**正确代码**：
+```vue
+<script setup lang="ts">
+import { Page, useVbenDrawer } from '@vben/common-ui';
+import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
+import { useVbenForm } from '#/adapter/form';
+```
+
+### 问题 8：类型断言缺失
+
+**错误代码**：
+```typescript
+const data = cloneDeep(await formApi.getValues());
+await (isUpdate.value ? {{entityNameLower}}Update(data) : {{entityNameLower}}Add(data));
+```
+
+**正确代码**：
+```typescript
+import type { {{entityName}}CreateInput, {{entityName}}UpdateInput } from '#/api/{{moduleName}}/{{entityNameLower}}/model';
+
+const data = cloneDeep(await formApi.getValues()) as {{entityName}}CreateInput | {{entityName}}UpdateInput;
+await (isUpdate.value 
+  ? {{entityNameLower}}Update(data as {{entityName}}UpdateInput) 
+  : {{entityNameLower}}Add(data as {{entityName}}CreateInput));
+```
+
+---
+
+## ⚠️ Agent 执行检查清单
+
+生成代码后，Agent 必须自检以下问题：
+
+**API 文件 (index.ts)**：
+- [ ] 导入 `type { ID, IDS, PageResult } from '#/api/common'`
+- [ ] 使用 `requestClient.postWithMsg/putWithMsg/deleteWithMsg`
+- [ ] 删除使用 `params: { ids: ids.join(',') }` 格式
+
+**Data 文件 (data.ts)**：
+- [ ] 导入 `type { FormSchemaGetter } from '#/adapter/form'`
+- [ ] 导入 `type { VxeGridProps } from '#/adapter/vxe-table'`
+- [ ] 导入 `getDictOptions from '#/utils/dict'`
+- [ ] 导入 `renderDict from '#/utils/render'`
+- [ ] Schema 使用 `FormSchemaGetter = () => [...]` 格式
+- [ ] 字段使用 `fieldName` 而非 `field`
+- [ ] 下拉使用 `options: getDictOptions(...)` 而非 `api: () => getDictOptions(...)`
+
+**Index Vue (index.vue)**：
+- [ ] 导入 `Page, useVbenDrawer from '@vben/common-ui'`
+- [ ] 导入 `useVbenVxeGrid, vxeCheckboxChecked from '#/adapter/vxe-table'`
+- [ ] 使用 `BasicTable, BasicDrawer` 组件名
+
+**Drawer Vue (drawer.vue)**：
+- [ ] 导入 `useVbenForm from '#/adapter/form'`
+- [ ] 导入类型并使用类型断言
+- [ ] 使用 `BasicForm, BasicDrawer` 组件名
