@@ -13,5 +13,8 @@
       "Edit(/.claude/skills/module-generator-plus/**)",
       "Edit(/.claude/skills/crud-generator-fast/**)"
     ]
+  },
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true
   }
 }

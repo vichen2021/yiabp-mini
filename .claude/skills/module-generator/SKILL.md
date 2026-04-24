@@ -1,125 +1,96 @@
 ---
 name: module-generator
-description: Generate complete ABP module structure with minimal token overhead. Creates 5-layer projects, updates main module dependencies, solution file, and dynamic API configuration. Use when user wants to create a new module, mentions "新建模块"、"创建模块"、"module"、"add module"、"generate module". Triggers for both simple names (Payment) and compound names (content-management, ContentManagement).
+description: 生成完整的 ABP 模块结构，以最小 token 开销创建 5 层项目、更新主模块依赖、解决方案文件和动态 API 配置。当用户想要创建新模块，提到"新建模块"、"创建模块"、"module"、"add module"、"generate module"时使用。支持简单名称（Payment）和复合名称（content-management、ContentManagement）。
 ---
 
-# Module Generator
+# 模块生成器
 
-Generates complete ABP module structures by delegating to C# script execution.
+通过委托 C# 脚本执行来生成完整的 ABP 模块结构。
 
-## Workflow
+## 工作流程
 
-### Step 1: Validate Input
+### 步骤 1：验证输入
 
-Check module name format:
-- Accepts PascalCase (e.g., `Payment`, `ContentManagement`)
-- Accepts kebab-case (e.g., `payment`, `content-management`)
-- Accepts snake_case (converted to PascalCase)
+检查模块名称格式：
+- 支持 PascalCase（如 `Payment`、`ContentManagement`）
+- 支持 kebab-case（如 `payment`、`content-management`）
+- 支持 snake_case（自动转换为 PascalCase）
 
-### Step 2: Check Module Exists
+### 步骤 2：执行生成脚本
 
-Before generating, verify `module/{kebab-name}/` doesn't already exist. If it does, inform the user and stop.
-
-### Step 3: Execute Generation Script
-
-Run the C# file directly:
+直接运行 C# 文件：
 
 ```bash
-dotnet run --file .claude/skills/module-generator/scripts/generate_module.cs -- <module-name>
+dotnet run --file .claude/skills/module-generator/scripts/generate_module.cs -- <模块名称>
 ```
 
-The script handles:
-1. Name conversion (PascalCase ↔ kebab-case)
-2. Creating 5-layer project structure
-3. Generating module classes and csproj files
-4. Creating subdirectories (Entities, Dtos, IServices, Services, Repositories)
-5. Updating main module DependsOn declarations
-6. Adding ProjectReference to main csproj files
-7. Updating solution file (.slnx)
-8. Configuring dynamic API in YiAbpWebModule.cs
+脚本处理以下事项：
+1. 名称转换（PascalCase ↔ kebab-case）
+2. 创建 5 层项目结构
+3. 生成模块类和 csproj 文件
+4. 创建子目录（Entities、Dtos、IServices、Services、Repositories）
+5. 更新主模块 DependsOn 声明
+6. 向主 csproj 文件添加 ProjectReference
+7. 更新解决方案文件（.slnx）
+8. 在 YiAbpWebModule.cs 中配置动态 API
 
-### Step 4: Verify Build
+如果模块已存在，脚本将报告错误并停止。
 
-After generation, verify the build succeeds:
+### 步骤 3：报告结果
+
+向用户展示：
+- 生成的模块路径
+- 创建的文件列表（摘要，非完整路径）
+- 实体/DTO/服务创建的后续步骤
+
+## 输出格式
+
+成功生成后：
+
+```
+模块 '{PascalName}' 创建成功。
+
+位置：module/{kebab-name}/
+
+已生成：
+- 5 个项目层（Domain.Shared、Domain、Application.Contracts、Application、SqlSugarCore）
+- 带有正确 DependsOn 的模块类
+- 带有正确引用的项目文件
+- 目录结构（Entities、Dtos、IServices、Services、Repositories）
+
+已更新：
+- 主模块类（5 个文件）
+- 主项目文件（5 个文件）
+- 解决方案文件（Yi.Abp.slnx）
+- 动态 API 配置（YiAbpWebModule.cs）
+
+后续建议步骤：
+1. 使用 /crud-generator 生成完整 CRUD 功能
+
+是否需要执行 dotnet build 构建检查（一般情况下不需要）？
+```
+
+## 错误处理
+
+| 场景 | 操作 |
+|------|------|
+| 模块已存在 | 脚本报告错误，告知用户删除或使用不同名称 |
+| C# 脚本执行错误 | 显示错误消息，建议检查 .NET 安装 |
+
+## 预运行模式
+
+用于验证而不做实际更改：
 
 ```bash
-cd Yi.Abp && dotnet build
+dotnet run --file .claude/skills/module-generator/scripts/generate_module.cs -- <名称> --dry-run
 ```
 
-If build fails:
-1. Read error messages carefully
-2. Fix issues (common: missing references, wrong namespace)
-3. Re-run build until successful
+适用于用户询问"会创建什么"或想要预览更改的情况。
 
-### Step 5: Self-Check
+## 示例
 
-Verify the following automatically:
-
-- [ ] Module directory created at `module/{kebab-name}/`
-- [ ] 5 project folders exist with correct names
-- [ ] Each project has `.csproj` and module class file
-- [ ] Subdirectories created (Entities, Dtos, IServices, Services, Repositories)
-- [ ] Solution file contains new module folder
-- [ ] Build passes without errors
-
-If any check fails, fix immediately before reporting results.
-
-### Step 6: Report Results
-
-Show the user:
-- Generated module path
-- List of created files (summary, not full paths)
-- Build status (passed/failed)
-- Next steps for entity/DTO/service creation
-
-## Output Format
-
-After successful generation:
-
-```
-Module '{PascalName}' created successfully.
-
-Location: module/{kebab-name}/
-
-Generated:
-- 5 project layers (Domain.Shared, Domain, Application.Contracts, Application, SqlSugarCore)
-- Module classes with proper DependsOn
-- Project files with correct references
-- Directory structure (Entities, Dtos, IServices, Services, Repositories)
-
-Updated:
-- Main module classes (5 files)
-- Main project files (5 files)
-- Solution file (Yi.Abp.slnx)
-- Dynamic API configuration (YiAbpWebModule.cs)
-
-Next steps:
-1. Create entity classes in Domain/Entities/
-2. Use /crud-generator-fast to generate full CRUD functionality
-```
-
-## Error Handling
-
-| Scenario | Action |
-|----------|--------|
-| Module exists | Stop, inform user, suggest deleting or using different name |
-| C# script execution error | Show error message, suggest checking .NET installation |
-| Main module files missing | Script logs warning, continues generation |
-
-## Dry Run Mode
-
-For validation without changes:
-
-```bash
-dotnet run --file .claude/skills/module-generator/scripts/generate_module.cs -- <name> --dry-run
-```
-
-Useful when user asks "what would be created" or wants to preview changes.
-
-## Examples
-
-| Input | PascalCase | kebab-case | Module Path |
-|-------|------------|------------|-------------|
+| 输入 | PascalCase | kebab-case | 模块路径 |
+|------|------------|------------|----------|
 | `Payment` | Payment | payment | `module/payment/` |
 | `content-management` | ContentManagement | content-management | `module/content-management/` |
 | `ContentManagement` | ContentManagement | content-management | `module/content-management/` |
