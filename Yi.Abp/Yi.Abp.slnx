@@ -73,13 +73,4 @@
     <Project Path="test/Yi.Abp.Test/Yi.Abp.Test.csproj" />
     <Project Path="test/Yi.Framework.Rbac.Test/Yi.Framework.Rbac.Test.csproj" />
   </Folder>
-  <Folder Name="/tool/">
-    <Project Path="tool/Yi.Abp.Tool.Application.Contracts/Yi.Abp.Tool.Application.Contracts.csproj" />
-    <Project Path="tool/Yi.Abp.Tool.Application/Yi.Abp.Tool.Application.csproj" />
-    <Project Path="tool/Yi.Abp.Tool.Domain.Shared/Yi.Abp.Tool.Domain.Shared.csproj" />
-    <Project Path="tool/Yi.Abp.Tool.Domain/Yi.Abp.Tool.Domain.csproj" />
-    <Project Path="tool/Yi.Abp.Tool.HttpApi.Client/Yi.Abp.Tool.HttpApi.Client.csproj" />
-    <Project Path="tool/Yi.Abp.Tool.Web/Yi.Abp.Tool.Web.csproj" />
-    <Project Path="tool/Yi.Abp.Tool/Yi.Abp.Tool.csproj" />
-  </Folder>
 </Solution>

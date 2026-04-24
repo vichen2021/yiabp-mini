@@ -25,7 +25,7 @@ Before generating, verify `module/{kebab-name}/` doesn't already exist. If it do
 Run the C# file directly:
 
 ```bash
-dotnet run --file .claude/skills/module-generator-plus/scripts/generate_module.cs -- <module-name>
+dotnet run --file .claude/skills/module-generator/scripts/generate_module.cs -- <module-name>
 ```
 
 The script handles:
@@ -111,7 +111,7 @@ Next steps:
 For validation without changes:
 
 ```bash
-dotnet run --file .claude/skills/module-generator-plus/scripts/generate_module.cs -- <name> --dry-run
+dotnet run --file .claude/skills/module-generator/scripts/generate_module.cs -- <name> --dry-run
 ```
 
 Useful when user asks "what would be created" or wants to preview changes.
