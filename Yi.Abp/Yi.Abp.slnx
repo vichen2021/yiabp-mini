@@ -23,14 +23,7 @@
     <Project Path="module/audit-logging/Yi.Framework.AuditLogging.Domain/Yi.Framework.AuditLogging.Domain.csproj" />
     <Project Path="module/audit-logging/Yi.Framework.AuditLogging.SqlSugarCore/Yi.Framework.AuditLogging.SqlSugarCore.csproj" />
   </Folder>
-  <Folder Name="/module/code-gen/">
-    <Project Path="module/code-gen/Yi.Framework.CodeGen.Application.Contracts/Yi.Framework.CodeGen.Application.Contracts.csproj" />
-    <Project Path="module/code-gen/Yi.Framework.CodeGen.Application/Yi.Framework.CodeGen.Application.csproj" />
-    <Project Path="module/code-gen/Yi.Framework.CodeGen.Domain.Shared/Yi.Framework.CodeGen.Domain.Shared.csproj" />
-    <Project Path="module/code-gen/Yi.Framework.CodeGen.Domain/Yi.Framework.CodeGen.Domain.csproj" />
-    <Project Path="module/code-gen/Yi.Framework.CodeGen.SqlSugarCore/Yi.Framework.CodeGen.SqlSugarCore.csproj" />
-  </Folder>
-  <Folder Name="/module/rbac/">
+    <Folder Name="/module/rbac/">
     <Project Path="module/rbac/Yi.Framework.Rbac.Application.Contracts/Yi.Framework.Rbac.Application.Contracts.csproj" />
     <Project Path="module/rbac/Yi.Framework.Rbac.Application/Yi.Framework.Rbac.Application.csproj" />
     <Project Path="module/rbac/Yi.Framework.Rbac.Domain.Shared/Yi.Framework.Rbac.Domain.Shared.csproj" />

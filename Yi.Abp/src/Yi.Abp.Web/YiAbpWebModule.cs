@@ -41,7 +41,6 @@ using Yi.Framework.AspNetCore.Microsoft.AspNetCore.Builder;
 using Yi.Framework.AspNetCore.Microsoft.Extensions.DependencyInjection;
 using Yi.Framework.AspNetCore.UnifyResult;
 using Yi.Framework.BackgroundWorkers.Hangfire;
-using Yi.Framework.CodeGen.Application;
 using Yi.Framework.Core.Json;
 using Yi.Framework.Rbac.Application;
 using Yi.Framework.Rbac.Domain.Authorization;
@@ -82,8 +81,6 @@ namespace Yi.Abp.Web
                     options => options.RemoteServiceName = "default");
                 options.ConventionalControllers.Create(typeof(YiFrameworkTenantManagementApplicationModule).Assembly,
                     options => options.RemoteServiceName = "tenant-management");
-                options.ConventionalControllers.Create(typeof(YiFrameworkCodeGenApplicationModule).Assembly,
-                    options => options.RemoteServiceName = "code-gen");
                 //统一前缀
                 options.ConventionalControllers.ConventionalControllerSettings.ForEach(x => x.RootPath = "api");
             });

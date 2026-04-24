@@ -3,7 +3,6 @@ using Volo.Abp.Modularity;
 using Yi.Abp.Domain;
 using Yi.Abp.SqlSugarCore;
 using Yi.Framework.AuditLogging.SqlSugarCore;
-using Yi.Framework.CodeGen.SqlSugarCore;
 using Yi.Framework.Mapster;
 using Yi.Framework.Rbac.SqlSugarCore;
 using Yi.Framework.SettingManagement.SqlSugarCore;
@@ -15,13 +14,12 @@ namespace Yi.Abp.SqlsugarCore
     [DependsOn(
         typeof(YiAbpDomainModule),
         typeof(YiFrameworkRbacSqlSugarCoreModule),
-        typeof(YiFrameworkCodeGenSqlSugarCoreModule),
         typeof(YiFrameworkSettingManagementSqlSugarCoreModule),
         typeof(YiFrameworkAuditLoggingSqlSugarCoreModule),
         typeof(YiFrameworkTenantManagementSqlSugarCoreModule),
         typeof(YiFrameworkMapsterModule),
         typeof(YiFrameworkSqlSugarCoreModule)
-    )]
+        )]
     public class YiAbpSqlSugarCoreModule : AbpModule
     {
         public override void ConfigureServices(ServiceConfigurationContext context)
