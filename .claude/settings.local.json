@@ -12,7 +12,8 @@
       "Bash('C:/Users/WCG/.dotnet/tools/dotnet-script.exe' .claude/skills/module-generator-plus/scripts/generate_module.csx Product)",
       "Edit(/.claude/skills/crud-generator-fast/**)",
       "Edit(/.claude/skills/module-generator-plus/**)",
-      "Bash(pnpm typecheck *)"
+      "Bash(pnpm typecheck *)",
+      "Bash(sqlite3 yi-abp-dev.db \"SELECT Id, Name, ParentId FROM ProductCategory;\")"
     ]
   }
 }

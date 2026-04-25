@@ -422,6 +422,15 @@ string GenerateCreateInputVo(EntityInfo entity, List<EnumInfo> enums)
     sb.AppendLine($"    public class {entity.EntityName}CreateInputVo");
     sb.AppendLine("    {");
 
+    // 树形实体需要 ParentId
+    if (entity.IsTree)
+    {
+        sb.AppendLine($"        /// <summary>");
+        sb.AppendLine($"        /// 父级id");
+        sb.AppendLine($"        /// </summary>");
+        sb.AppendLine($"        public Guid? ParentId {{ get; set; }}");
+    }
+
     foreach (var field in entity.Fields.Where(f => !f.IsTreeField))
     {
         sb.AppendLine($"        /// <summary>");
@@ -459,6 +468,15 @@ string GenerateUpdateInputVo(EntityInfo entity, List<EnumInfo> enums)
     sb.AppendLine($"    /// </summary>");
     sb.AppendLine($"    public class {entity.EntityName}UpdateInputVo");
     sb.AppendLine("    {");
+
+    // 树形实体需要 ParentId
+    if (entity.IsTree)
+    {
+        sb.AppendLine($"        /// <summary>");
+        sb.AppendLine($"        /// 父级id");
+        sb.AppendLine($"        /// </summary>");
+        sb.AppendLine($"        public Guid? ParentId {{ get; set; }}");
+    }
 
     foreach (var field in entity.Fields.Where(f => !f.IsTreeField))
     {
@@ -713,6 +731,11 @@ string GenerateModelTs(EntityInfo entity, List<EnumInfo> enums)
     sb.AppendLine();
     sb.AppendLine($"/** {entity.EntityComment}创建输入 */");
     sb.AppendLine($"export interface {entity.EntityName}CreateInput {{");
+    // 树形实体需要 parentId
+    if (entity.IsTree)
+    {
+        sb.AppendLine("  parentId?: string | null;");
+    }
     foreach (var field in entity.Fields.Where(f => !f.IsTreeField))
     {
         var tsType = MapToTsType(field.Type, field.IsEnum);
@@ -728,6 +751,11 @@ string GenerateModelTs(EntityInfo entity, List<EnumInfo> enums)
     sb.AppendLine($"/** {entity.EntityComment}更新输入 */");
     sb.AppendLine($"export interface {entity.EntityName}UpdateInput {{");
     sb.AppendLine("  id: string;");
+    // 树形实体需要 parentId
+    if (entity.IsTree)
+    {
+        sb.AppendLine("  parentId?: string | null;");
+    }
     foreach (var field in entity.Fields.Where(f => !f.IsTreeField))
     {
         var tsType = MapToTsType(field.Type, field.IsEnum);
