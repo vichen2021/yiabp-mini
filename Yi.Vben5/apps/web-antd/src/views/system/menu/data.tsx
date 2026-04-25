@@ -275,10 +275,7 @@ export const drawerSchema: FormSchemaGetter = () => [
         if (!model.isLink) {
           return z
             .string({ message: '请输入路由地址' })
-            .min(1, '请输入路由地址')
-            .refine((val) => !val.startsWith('/'), {
-              message: '路由地址不需要带/',
-            });
+            .min(1, '请输入路由地址');
         }
         // 为链接
         return z
@@ -290,7 +287,7 @@ export const drawerSchema: FormSchemaGetter = () => [
       triggerFields: ['isLink', 'menuType'],
     },
     fieldName: 'router',
-    help: `路由地址不带/, 如: menu, user\n 链接为http(s)://开头\n 链接默认使用内部iframe打开, 可通过{是否外链}控制打开方式`,
+    help: `路由地址如: menu, user\n 链接为http(s)://开头\n 链接默认使用内部iframe打开, 可通过{是否外链}控制打开方式`,
     label: '路由地址',
   },
   {

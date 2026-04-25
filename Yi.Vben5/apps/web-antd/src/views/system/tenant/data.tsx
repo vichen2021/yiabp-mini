@@ -156,10 +156,7 @@ export const drawerSchema: FormSchemaGetter = () => [
     component: 'Select',
     componentProps: {
       getPopupContainer,
-      options: getDictOptions(DictEnum.SYS_DB_TYPE).map((o) => ({
-        ...o,
-        value: Number(o.value),
-      })),
+      options: getDictOptions(DictEnum.SYS_DB_TYPE, true),
     },
     fieldName: 'dbType',
     label: '数据库类型',
