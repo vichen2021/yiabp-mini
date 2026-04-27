@@ -3,6 +3,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\framework\Yi.Framework.Ddd.Application.Contracts\Yi.Framework.Ddd.Application.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\framework\Yi.Framework.Security.Abstractions\Yi.Framework.Security.Abstractions.csproj" />
     <ProjectReference Include="..\Yi.Framework.Rbac.Domain.Shared\Yi.Framework.Rbac.Domain.Shared.csproj" />
   </ItemGroup>
 

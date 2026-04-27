@@ -1,7 +1,7 @@
 ﻿using SqlSugar;
 using Volo.Abp.Auditing;
 using Volo.Abp.Domain.Entities;
-using Yi.Framework.Rbac.Domain.Shared.OperLog;
+using Yi.Framework.Security.Abstractions.Enums;
 
 namespace Yi.Framework.Rbac.Domain.Operlog
 {

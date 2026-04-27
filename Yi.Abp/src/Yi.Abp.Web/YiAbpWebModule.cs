@@ -46,6 +46,8 @@ using Yi.Framework.Rbac.Application;
 using Yi.Framework.Rbac.Domain.Authorization;
 using Yi.Framework.Rbac.Domain.Shared.Consts;
 using Yi.Framework.Rbac.Domain.Shared.Options;
+using Yi.Framework.Security.Core;
+using Yi.Framework.Security.Core.Filters;
 using Yi.Framework.TenantManagement.Application;
 
 namespace Yi.Abp.Web
@@ -62,7 +64,8 @@ namespace Yi.Abp.Web
         typeof(AbpAspNetCoreAuthenticationJwtBearerModule),
         typeof(YiFrameworkAspNetCoreModule),
         typeof(YiFrameworkAspNetCoreAuthenticationOAuthModule),
-        
+
+        typeof(YiFrameworkSecurityCoreModule),
         typeof(YiFrameworkBackgroundWorkersHangfireModule),
         typeof(AbpAutofacModule)
     )]
@@ -118,6 +121,13 @@ namespace Yi.Abp.Web
             //前置：需要将管道工作单元前加上app.Properties.Add("_AbpExceptionHandlingMiddleware_Added",false);
             //你没看错。。。
             service.AddFurionUnifyResultApi();
+
+            //注册 Security 全局过滤器（权限 + 操作日志）
+            service.AddControllers(options =>
+            {
+                options.Filters.Add<PermissionAuthorizationFilter>();
+                options.Filters.Add<OperLogActionFilter>();
+            });
 
             //配置错误处理显示详情
             Configure<AbpExceptionHandlingOptions>(options => { options.SendExceptionsDetailsToClients = true; });

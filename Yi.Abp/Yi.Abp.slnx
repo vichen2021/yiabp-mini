@@ -13,6 +13,8 @@
     <Project Path="framework/Yi.Framework.Ddd.Application.Contracts/Yi.Framework.Ddd.Application.Contracts.csproj" />
     <Project Path="framework/Yi.Framework.Ddd.Application/Yi.Framework.Ddd.Application.csproj" />
     <Project Path="framework/Yi.Framework.Mapster/Yi.Framework.Mapster.csproj" />
+    <Project Path="framework/Yi.Framework.Security.Abstractions/Yi.Framework.Security.Abstractions.csproj" />
+    <Project Path="framework/Yi.Framework.Security.Core/Yi.Framework.Security.Core.csproj" />
     <Project Path="framework/Yi.Framework.SqlSugarCore.Abstractions/Yi.Framework.SqlSugarCore.Abstractions.csproj" />
     <Project Path="framework/Yi.Framework.SqlSugarCore/Yi.Framework.SqlSugarCore.csproj" />
     <Project Path="framework/Yi.Framework.WeChat.MiniProgram/Yi.Framework.WeChat.MiniProgram.csproj" />

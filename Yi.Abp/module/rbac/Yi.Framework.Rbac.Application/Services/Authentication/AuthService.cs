@@ -11,6 +11,7 @@ using Volo.Abp.Users;
 using Yi.Framework.Ddd.Application;
 using Yi.Framework.Rbac.Application.Contracts.Dtos.Account;
 using Yi.Framework.Rbac.Application.Contracts.IServices;
+using Yi.Framework.Security.Abstractions.Attributes;
 using Yi.Framework.Rbac.Domain.Authorization;
 using Yi.Framework.Rbac.Domain.Managers;
 using Yi.Framework.SqlSugarCore.Abstractions;
