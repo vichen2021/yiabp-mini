@@ -7,6 +7,7 @@ using Yi.Framework.Rbac.Application.Contracts.Dtos.Dept;
 using Yi.Framework.Rbac.Application.Contracts.IServices;
 using Yi.Framework.Rbac.Domain.Entities;
 using Yi.Framework.Rbac.Domain.Repositories;
+using Yi.Framework.Operation.Abstractions.Attributes;
 using Yi.Framework.Rbac.Domain.Shared.Consts;
 using Yi.Framework.Rbac.Domain.Shared.Dtos;
 
@@ -15,6 +16,7 @@ namespace Yi.Framework.Rbac.Application.Services
     /// <summary>
     /// Dept服务实现
     /// </summary>
+    [OperLogEntity("部门")]
     public class DeptService : YiCrudAppService<DeptAggregateRoot, DeptGetOutputDto, DeptGetListOutputDto, Guid,
         DeptGetListInputVo, DeptCreateInputVo, DeptUpdateInputVo>, IDeptService
     {

@@ -16,6 +16,7 @@ using Yi.Framework.Rbac.Domain.Repositories;
 using Yi.Framework.Rbac.Domain.Shared.Consts;
 using Yi.Framework.Rbac.Domain.Shared.Dtos;
 using Yi.Framework.Rbac.Domain.Shared.Enums;
+using Yi.Framework.Operation.Abstractions.Attributes;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
 namespace Yi.Framework.Rbac.Application.Services
@@ -23,6 +24,7 @@ namespace Yi.Framework.Rbac.Application.Services
     /// <summary>
     /// Role服务实现
     /// </summary>
+    [OperLogEntity("角色")]
     public class RoleService : YiCrudAppService<RoleAggregateRoot, RoleGetOutputDto, RoleGetListOutputDto, Guid,
             RoleGetListInputVo, RoleCreateInputVo, RoleUpdateInputVo>,
         IRoleService

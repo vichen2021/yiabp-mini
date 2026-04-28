@@ -30,7 +30,8 @@
     <ProjectReference Include="..\..\framework\Yi.Framework.AspNetCore.Authentication.OAuth\Yi.Framework.AspNetCore.Authentication.OAuth.csproj" />
     <ProjectReference Include="..\..\framework\Yi.Framework.AspNetCore\Yi.Framework.AspNetCore.csproj" />
     <ProjectReference Include="..\..\framework\Yi.Framework.BackgroundWorkers.Hangfire\Yi.Framework.BackgroundWorkers.Hangfire.csproj" />
-    <ProjectReference Include="..\..\framework\Yi.Framework.Security.Core\Yi.Framework.Security.Core.csproj" />
+    <ProjectReference Include="..\..\framework\Yi.Framework.Operation.Core\Yi.Framework.Operation.Core.csproj" />
+    <ProjectReference Include="..\..\module\audit-logging\Yi.Framework.AuditLogging.Application\Yi.Framework.AuditLogging.Application.csproj" />
     <ProjectReference Include="..\Yi.Abp.Application\Yi.Abp.Application.csproj" />
     <ProjectReference Include="..\Yi.Abp.SqlSugarCore\Yi.Abp.SqlSugarCore.csproj" />
   </ItemGroup>

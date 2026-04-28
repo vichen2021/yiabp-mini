@@ -9,14 +9,14 @@ using Volo.Abp.Users;
 using Yi.Framework.Ddd.Application;
 using Yi.Framework.Rbac.Application.Contracts.Dtos.User;
 using Yi.Framework.Rbac.Application.Contracts.IServices;
-using Yi.Framework.Security.Abstractions.Attributes;
+using Yi.Framework.Operation.Abstractions.Attributes;
 using Yi.Framework.Rbac.Domain.Entities;
 using Yi.Framework.Rbac.Domain.Managers;
 using Yi.Framework.Rbac.Domain.Repositories;
 using Yi.Framework.Rbac.Domain.Shared.Caches;
 using Yi.Framework.Rbac.Domain.Shared.Consts;
 using Yi.Framework.Rbac.Domain.Shared.Etos;
-using Yi.Framework.Security.Abstractions.Enums;
+using Yi.Framework.Operation.Abstractions.Enums;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
 namespace Yi.Framework.Rbac.Application.Services
@@ -24,6 +24,7 @@ namespace Yi.Framework.Rbac.Application.Services
     /// <summary>
     /// User服务实现
     /// </summary>
+    [OperLogEntity("用户")]
     public class UserService : YiCrudAppService<UserAggregateRoot, UserGetOutputDto, UserGetListOutputDto, Guid,
         UserGetListInputVo, UserCreateInputVo, UserUpdateInputVo>, IUserService
     //IUserService

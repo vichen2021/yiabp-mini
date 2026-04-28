@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\framework\Yi.Framework.SqlSugarCore\Yi.Framework.SqlSugarCore.csproj" />
+    <ProjectReference Include="..\..\..\framework\Yi.Framework.Operation.Abstractions\Yi.Framework.Operation.Abstractions.csproj" />
     <ProjectReference Include="..\Yi.Framework.AuditLogging.Domain.Shared\Yi.Framework.AuditLogging.Domain.Shared.csproj" />
   </ItemGroup>
 

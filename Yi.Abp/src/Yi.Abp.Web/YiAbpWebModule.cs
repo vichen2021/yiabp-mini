@@ -46,8 +46,9 @@ using Yi.Framework.Rbac.Application;
 using Yi.Framework.Rbac.Domain.Authorization;
 using Yi.Framework.Rbac.Domain.Shared.Consts;
 using Yi.Framework.Rbac.Domain.Shared.Options;
-using Yi.Framework.Security.Core;
-using Yi.Framework.Security.Core.Filters;
+using Yi.Framework.AuditLogging.Application;
+using Yi.Framework.Operation.Core;
+using Yi.Framework.Operation.Core.Filters;
 using Yi.Framework.TenantManagement.Application;
 
 namespace Yi.Abp.Web
@@ -65,7 +66,8 @@ namespace Yi.Abp.Web
         typeof(YiFrameworkAspNetCoreModule),
         typeof(YiFrameworkAspNetCoreAuthenticationOAuthModule),
 
-        typeof(YiFrameworkSecurityCoreModule),
+        typeof(YiFrameworkAuditLoggingApplicationModule),
+        typeof(YiFrameworkOperationCoreModule),
         typeof(YiFrameworkBackgroundWorkersHangfireModule),
         typeof(AbpAutofacModule)
     )]
@@ -84,6 +86,8 @@ namespace Yi.Abp.Web
                     options => options.RemoteServiceName = "default");
                 options.ConventionalControllers.Create(typeof(YiFrameworkTenantManagementApplicationModule).Assembly,
                     options => options.RemoteServiceName = "tenant-management");
+                options.ConventionalControllers.Create(typeof(YiFrameworkAuditLoggingApplicationModule).Assembly,
+                    options => options.RemoteServiceName = "audit");
                 //统一前缀
                 options.ConventionalControllers.ConventionalControllerSettings.ForEach(x => x.RootPath = "api");
             });
@@ -104,11 +108,11 @@ namespace Yi.Abp.Web
                 });
             }
             
-            //请求日志
+            //请求日志 - ABP 开关负责"采不采集"
             Configure<AbpAuditingOptions>(options =>
             {
-                //默认关闭，开启会有大量的审计日志
-                options.IsEnabled = false;
+                options.IsEnabled = true;
+                options.IsEnabledForGetRequests = false;
             });
             //忽略审计日志路径
             Configure<AbpAspNetCoreAuditingOptions>(options =>
@@ -122,11 +126,10 @@ namespace Yi.Abp.Web
             //你没看错。。。
             service.AddFurionUnifyResultApi();
 
-            //注册 Security 全局过滤器（权限 + 操作日志）
+            //注册 Operation 全局过滤器（权限准入）
             service.AddControllers(options =>
             {
                 options.Filters.Add<PermissionAuthorizationFilter>();
-                options.Filters.Add<OperLogActionFilter>();
             });
 
             //配置错误处理显示详情

@@ -9,14 +9,13 @@ namespace Yi.Framework.AuditLogging.SqlSugarCore
 {
     [DependsOn(
         typeof(YiFrameworkAuditLoggingDomainModule),
-
         typeof(YiFrameworkSqlSugarCoreModule))]
     public class YiFrameworkAuditLoggingSqlSugarCoreModule : AbpModule
     {
         public override void ConfigureServices(ServiceConfigurationContext context)
         {
             context.Services.AddTransient<IAuditLogRepository, SqlSugarCoreAuditLogRepository>();
-
+            context.Services.AddTransient<IOperationLogRepository, SqlSugarCoreOperationLogRepository>();
         }
     }
 }

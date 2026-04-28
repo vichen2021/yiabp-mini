@@ -5,6 +5,7 @@ using Yi.Framework.Rbac.Application.Contracts.Dtos.Menu;
 using Yi.Framework.Rbac.Application.Contracts.IServices;
 using Yi.Framework.Rbac.Domain.Entities;
 using Yi.Framework.Rbac.Domain.Shared.Consts;
+using Yi.Framework.Operation.Abstractions.Attributes;
 using Yi.Framework.SqlSugarCore.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using Yi.Framework.Rbac.Domain.Shared.Dtos;
@@ -14,6 +15,7 @@ namespace Yi.Framework.Rbac.Application.Services
     /// <summary>
     /// Menu服务实现
     /// </summary>
+    [OperLogEntity("菜单")]
     public class MenuService : YiCrudAppService<MenuAggregateRoot, MenuGetOutputDto, MenuGetListOutputDto, Guid, MenuGetListInputVo, MenuCreateInputVo, MenuUpdateInputVo>,
        IMenuService
     {

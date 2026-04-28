@@ -13,7 +13,23 @@
       "Edit(/.claude/skills/crud-generator-fast/**)",
       "Edit(/.claude/skills/module-generator-plus/**)",
       "Bash(pnpm typecheck *)",
-      "Bash(sqlite3 yi-abp-dev.db \"SELECT Id, Name, ParentId FROM ProductCategory;\")"
+      "Bash(sqlite3 yi-abp-dev.db \"SELECT Id, Name, ParentId FROM ProductCategory;\")",
+      "Bash(dotnet restore:*)",
+      "Bash(dotnet run:*)",
+      "Bash(mv Yi.Framework.SecLog.Domain.Shared.csproj Yi.Framework.AuditLogging.Domain.Shared.csproj)",
+      "Bash(sed 's/\"command\":\"//g')",
+      "Bash(sed 's/\"$//g')",
+      "Bash(awk '{cmd=$1; if\\(cmd==\"cd\"\\){cmd=$1\" \"$3\" && \"$4\" \"$5}; print cmd}')",
+      "Bash(dotnet sln *)",
+      "Bash(sed -i 's/Yi\\\\.Framework\\\\.Security\\\\.Core/Yi.Framework.Operation.Core/g' Metadata/*.cs Permissions/*.cs Filters/*.cs YiFrameworkSecurityCoreModule.cs)",
+      "Bash(sed -i 's/Yi\\\\.Framework\\\\.Security\\\\.Abstractions/Yi.Framework.Operation.Abstractions/g' Metadata/*.cs Permissions/*.cs Filters/*.cs YiFrameworkSecurityCoreModule.cs)",
+      "Bash(xargs sed *)",
+      "Bash(rm -f module/rbac/Yi.Framework.Rbac.Domain/Operlog/OperationLogEntity.cs)",
+      "Bash(rm -f module/rbac/Yi.Framework.Rbac.Application/Services/RecordLog/OperationLogService.cs)",
+      "Bash(rm -f module/rbac/Yi.Framework.Rbac.Application.Contracts/IServices/IOperationLogService.cs)",
+      "Bash(rm -rf module/rbac/Yi.Framework.Rbac.Application.Contracts/Dtos/OperLog)",
+      "Bash(rm -rf framework/Yi.Framework.Security.SqlSugarCore)",
+      "Bash(dotnet clean *)"
     ]
   }
 }

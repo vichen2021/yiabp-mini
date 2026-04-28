@@ -13,14 +13,16 @@
     <Project Path="framework/Yi.Framework.Ddd.Application.Contracts/Yi.Framework.Ddd.Application.Contracts.csproj" />
     <Project Path="framework/Yi.Framework.Ddd.Application/Yi.Framework.Ddd.Application.csproj" />
     <Project Path="framework/Yi.Framework.Mapster/Yi.Framework.Mapster.csproj" />
-    <Project Path="framework/Yi.Framework.Security.Abstractions/Yi.Framework.Security.Abstractions.csproj" />
-    <Project Path="framework/Yi.Framework.Security.Core/Yi.Framework.Security.Core.csproj" />
+    <Project Path="framework/Yi.Framework.Operation.Abstractions/Yi.Framework.Operation.Abstractions.csproj" />
+    <Project Path="framework/Yi.Framework.Operation.Core/Yi.Framework.Operation.Core.csproj" />
     <Project Path="framework/Yi.Framework.SqlSugarCore.Abstractions/Yi.Framework.SqlSugarCore.Abstractions.csproj" />
     <Project Path="framework/Yi.Framework.SqlSugarCore/Yi.Framework.SqlSugarCore.csproj" />
     <Project Path="framework/Yi.Framework.WeChat.MiniProgram/Yi.Framework.WeChat.MiniProgram.csproj" />
   </Folder>
   <Folder Name="/module/" />
   <Folder Name="/module/audit-logging/">
+    <Project Path="module/audit-logging/Yi.Framework.AuditLogging.Application.Contracts/Yi.Framework.AuditLogging.Application.Contracts.csproj" />
+    <Project Path="module/audit-logging/Yi.Framework.AuditLogging.Application/Yi.Framework.AuditLogging.Application.csproj" />
     <Project Path="module/audit-logging/Yi.Framework.AuditLogging.Domain.Shared/Yi.Framework.AuditLogging.Domain.Shared.csproj" />
     <Project Path="module/audit-logging/Yi.Framework.AuditLogging.Domain/Yi.Framework.AuditLogging.Domain.csproj" />
     <Project Path="module/audit-logging/Yi.Framework.AuditLogging.SqlSugarCore/Yi.Framework.AuditLogging.SqlSugarCore.csproj" />

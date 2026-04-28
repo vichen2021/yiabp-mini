@@ -30,7 +30,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\framework\Yi.Framework.Caching.FreeRedis\Yi.Framework.Caching.FreeRedis.csproj" />
     <ProjectReference Include="..\..\..\framework\Yi.Framework.SqlSugarCore.Abstractions\Yi.Framework.SqlSugarCore.Abstractions.csproj" />
-    <ProjectReference Include="..\..\..\framework\Yi.Framework.Security.Abstractions\Yi.Framework.Security.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\framework\Yi.Framework.Operation.Abstractions\Yi.Framework.Operation.Abstractions.csproj" />
     <ProjectReference Include="..\Yi.Framework.Rbac.Domain.Shared\Yi.Framework.Rbac.Domain.Shared.csproj" />
   </ItemGroup>
 
