@@ -10,7 +10,7 @@ using Yi.Framework.SqlSugarCore.Abstractions;
 
 namespace Yi.Module.TenantManagement.Domain
 {
-    [SugarTable("YiTenant")]
+    [SugarTable("Tenant")]
     [DefaultTenantTable]
     public class TenantAggregateRoot : FullAuditedAggregateRoot<Guid>, IHasEntityVersion, IState
     {
