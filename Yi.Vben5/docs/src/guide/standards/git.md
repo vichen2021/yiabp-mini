@@ -20,7 +20,9 @@
 
 ## 作用域（scope）
 
-作用域对应模块目录名：`rbac`, `domain`, `codegen`, `audit`, `setting`, `tenant`, `project` 等。
+作用域优先对应模块或变更边界：`rbac`, `tenant`, `audit`, `setting`, `framework`, `frontend`, `docs`, `deps`, `project` 等。
+
+~~`codegen` 作用域用于旧版 code-gen 模块。~~ 2.0 起该模块已移除，代码生成能力改为 Skills；仅在修改历史兼容说明时使用 `docs` 或 `project`。
 
 ## 示例
 

@@ -17,6 +17,9 @@
 # 应用标题
 VITE_APP_TITLE=Yi Admin
 
+# 应用命名空间
+VITE_APP_NAMESPACE=vben-web-antd
+
 # 端口号
 VITE_PORT=5666
 
@@ -35,6 +38,16 @@ VITE_GLOB_SIGNALR_ENABLE=true
 # 客户端 ID
 VITE_GLOB_APP_CLIENT_ID=e5cd7e4891bf95d1d19206ce24a7b32e
 ```
+
+### 应用命名空间
+
+`VITE_APP_NAMESPACE` 用于区分浏览器缓存、Pinia 持久化数据等本地存储。当前 `apps/web-antd/src/main.ts` 会自动把应用版本和环境拼进命名空间：
+
+```typescript
+const namespace = `${import.meta.env.VITE_APP_NAMESPACE}-${appVersion}-${env}`;
+```
+
+`appVersion` 来自 `apps/web-antd/package.json`。前端版本升级到 `2.0.0` 后，最终命名空间会随版本变化，从而自然隔离旧版本缓存。
 
 ### 加密配置
 
@@ -80,8 +93,8 @@ export const overridesPreferences = defineOverridesPreferences({
 });
 ```
 
-::: danger 重要
-修改偏好设置后需要清空浏览器缓存！
+::: warning 注意
+修改 `VITE_APP_NAMESPACE` 或应用版本会改变本地存储命名空间，相当于启用一套新的前端缓存。
 :::
 
 ## 更换 Logo

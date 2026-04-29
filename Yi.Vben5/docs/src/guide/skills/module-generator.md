@@ -4,6 +4,12 @@
 
 自动生成完整的 ABP 框架模块结构，遵循项目既定的架构模式。生成所有必要的项目文件、模块类、目录结构，并自动更新主模块引用和动态 API 配置。
 
+::: warning 2.0 说明
+~~旧版 `code-gen` 模块和 `Yi.Abp.Tool` 模块生成器用于生成模块/代码结构。~~
+
+2.0 起这两部分已移除，模块生成、CRUD 生成、字段同步统一改为使用 Skills 完成。
+:::
+
 ## 使用场景
 
 当需要在 `module/` 目录下创建新的业务模块时使用。例如：
@@ -40,11 +46,11 @@
 
 使用 `dotnet new classlib` 创建以下 5 个项目：
 
-1. **Yi.Framework.{PascalModuleName}.Domain.Shared** - 共享层（枚举、常量、事件）
-2. **Yi.Framework.{PascalModuleName}.Domain** - 领域层（实体、聚合根、领域服务、仓储接口）
-3. **Yi.Framework.{PascalModuleName}.Application.Contracts** - 应用契约层（DTO、服务接口）
-4. **Yi.Framework.{PascalModuleName}.Application** - 应用层（服务实现）
-5. **Yi.Framework.{PascalModuleName}.SqlSugarCore** - 基础设施层（ORM 配置、仓储实现、数据种子）
+1. **Yi.Module.{PascalModuleName}.Domain.Shared** - 共享层（枚举、常量、事件）
+2. **Yi.Module.{PascalModuleName}.Domain** - 领域层（实体、聚合根、领域服务、仓储接口）
+3. **Yi.Module.{PascalModuleName}.Application.Contracts** - 应用契约层（DTO、服务接口）
+4. **Yi.Module.{PascalModuleName}.Application** - 应用层（服务实现）
+5. **Yi.Module.{PascalModuleName}.SqlSugarCore** - 基础设施层（ORM 配置、仓储实现、数据种子）
 
 ### 4. 生成模块类和项目文件
 
@@ -72,8 +78,13 @@
 在 `YiAbpWebModule.cs` 中添加动态 API 配置：
 
 ```csharp
-options.ConventionalControllers.Create(typeof(YiFramework{PascalModuleName}ApplicationModule).Assembly,
-    options => options.RemoteServiceName = "{kebab-module-name}");
+options.ConventionalControllers.Create(
+    typeof(YiModule{PascalModuleName}ApplicationModule).Assembly,
+    options =>
+    {
+        options.RemoteServiceName = "{kebab-module-name}";
+        options.RootPath = "api";
+    });
 ```
 
 ## 命名规范
@@ -81,8 +92,9 @@ options.ConventionalControllers.Create(typeof(YiFramework{PascalModuleName}Appli
 - **模块名称输入**：PascalCase 或 kebab-case
 - **PascalCase**：用于命名空间、类名、项目名
 - **KebabCase**：用于目录名、解决方案文件夹路径
-- **模块类前缀**：`YiFramework`（如 `YiFrameworkContentDomainModule`）
-- **命名空间前缀**：`Yi.Framework.`（如 `Yi.Framework.Content.Domain`）
+- **模块类前缀**：`YiModule`（如 `YiModuleContentDomainModule`）
+- **命名空间前缀**：`Yi.Module.`（如 `Yi.Module.Content.Domain`）
+- **框架基础设施前缀**：`Yi.Framework.` 只用于通用框架能力，不用于业务模块
 
 ## 文件编码
 
@@ -103,7 +115,7 @@ options.ConventionalControllers.Create(typeof(YiFramework{PascalModuleName}Appli
 - PascalCase: "Content"
 - KebabCase: "content"
 - 模块路径：`module/content/`
-- 项目：`Yi.Framework.Content.Domain.Shared` 等
+- 项目：`Yi.Module.Content.Domain.Shared` 等
 - 动态 API RemoteServiceName: "content"
 
 ### 示例 2：复合模块名
@@ -112,7 +124,7 @@ options.ConventionalControllers.Create(typeof(YiFramework{PascalModuleName}Appli
 - PascalCase: "ContentManagement"
 - KebabCase: "content-management"
 - 模块路径：`module/content-management/`
-- 项目：`Yi.Framework.ContentManagement.Domain.Shared` 等
+- 项目：`Yi.Module.ContentManagement.Domain.Shared` 等
 - 动态 API RemoteServiceName: "content-management"
 
 ## 参考实现

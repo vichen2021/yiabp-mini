@@ -21,8 +21,11 @@
 
 ```json
 {
-  "ConnectionStrings": {
-    "Default": "Data Source=yiabp.db;"
+  "DbConnOptions": {
+    "Url": "DataSource=yi-abp-dev.db",
+    "DbType": "Sqlite",
+    "EnabledCodeFirst": true,
+    "EnabledDbSeed": true
   }
 }
 ```

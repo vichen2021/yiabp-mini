@@ -29,6 +29,20 @@
 
 若需要修改数据库类型，请在 `Yi.Abp/src/Yi.Abp.Web/appsettings.json` 中修改
 
+```json
+{
+  "DbConnOptions": {
+    "Url": "DataSource=yi-abp-dev.db",
+    "DbType": "Sqlite",
+    "EnabledCodeFirst": true,
+    "EnabledDbSeed": true,
+    "EnableUnderLine": false
+  }
+}
+```
+
+`EnableUnderLine` 关闭时，数据库表名和列名按实体映射保留大驼峰，不会自动转成下划线。
+
 ## Swagger
 
 启动后，浏览器将会弹出项目接口地址 Swagger：
@@ -41,14 +55,16 @@
 PreConfigure<AbpAspNetCoreMvcOptions>(options =>
 {
     options.ConventionalControllers.Create(
-        typeof(YiFramework{Module}ApplicationModule).Assembly,
+        typeof(YiModuleRbacApplicationModule).Assembly,
         options =>
         {
-            options.RemoteServiceName = "{module}";
-            options.RootPath = "api/{module}";
+            options.RemoteServiceName = "rbac";
+            options.RootPath = "api";
         });
 });
 ```
+
+2.0 起业务模块命名空间使用 `Yi.Module.*`，动态 API 根路径统一为 `/api`，不是 `/api/{module}`。
 
 ## 默认账号
 

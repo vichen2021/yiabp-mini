@@ -4,6 +4,10 @@
 
 同步实体字段变更到整个代码库，包括 DTOs、服务实现、前端 API 和视图、以及字典种子数据。当添加、删除或修改实体字段时，自动同步所有相关文件。
 
+::: warning 2.0 说明
+业务模块命名空间已统一为 `Yi.Module.*`。~~旧版 `Yi.Framework.{Module}` 业务模块命名、`code-gen` 模块和 `Yi.Abp.Tool` 生成器~~ 不再作为 2.0 文档推荐路径。
+:::
+
 ## 使用场景
 
 - 向实体添加新字段
@@ -31,7 +35,7 @@
 
 #### 2.1 查找 DTO 位置
 
-DTOs 位于：`Yi.Abp/module/{module-name}/Yi.Framework.{ModuleName}.Application.Contracts/Dtos/{EntityName}/`
+DTOs 位于：`Yi.Abp/module/{module-name}/Yi.Module.{ModuleName}.Application.Contracts/Dtos/{EntityName}/`
 
 #### 2.2 更新 5 个 DTO 文件
 
@@ -53,7 +57,7 @@ DTOs 位于：`Yi.Abp/module/{module-name}/Yi.Framework.{ModuleName}.Application
 
 ### 步骤 3：更新服务实现
 
-位置：`Yi.Abp/module/{module-name}/Yi.Framework.{ModuleName}.Application/Services/{EntityName}Service.cs`
+位置：`Yi.Abp/module/{module-name}/Yi.Module.{ModuleName}.Application/Services/{EntityName}Service.cs`
 
 #### 3.1 更新 GetListAsync 方法
 
@@ -131,7 +135,7 @@ DTOs 位于：`Yi.Abp/module/{module-name}/Yi.Framework.{ModuleName}.Application
 
 #### 6.1 更新 DictionaryTypeDataSeed.cs
 
-位置：`Yi.Abp/module/rbac/Yi.Framework.Rbac.SqlSugarCore/DataSeeds/DictionaryTypeDataSeed.cs`
+位置：`Yi.Abp/module/rbac/Yi.Module.Rbac.SqlSugarCore/DataSeeds/DictionaryTypeDataSeed.cs`
 
 添加新字典类型：
 
@@ -150,7 +154,7 @@ entities.Add(dictNew);
 
 #### 6.2 更新 DictionaryDataSeed.cs
 
-位置：`Yi.Abp/module/rbac/Yi.Framework.Rbac.SqlSugarCore/DataSeeds/DictionaryDataSeed.cs`
+位置：`Yi.Abp/module/rbac/Yi.Module.Rbac.SqlSugarCore/DataSeeds/DictionaryDataSeed.cs`
 
 添加字典数据条目：
 
@@ -188,7 +192,7 @@ entities.Add(dictData2);
 
 ```powershell
 # 后端
-dotnet build Yi.Abp/module/{module-name}/Yi.Framework.{ModuleName}.Application/Yi.Framework.{ModuleName}.Application.csproj
+dotnet build Yi.Abp/module/{module-name}/Yi.Module.{ModuleName}.Application/Yi.Module.{ModuleName}.Application.csproj
 
 # 前端
 cd Yi.Vben5/apps/web-antd

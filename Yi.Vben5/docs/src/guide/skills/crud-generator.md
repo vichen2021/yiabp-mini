@@ -4,6 +4,12 @@
 
 初始化完整的业务模块脚手架，包括后端（C# .NET with ABP framework）和前端（Vue3 + Vben5 + Ant Design Vue）。创建实体类、DTOs、服务接口、服务实现、菜单种子数据、API 文件和视图组件，遵循项目的既定模式。
 
+::: warning 2.0 说明
+~~旧版 `code-gen` 模块和 `Yi.Abp.Tool` 代码生成能力不再作为后端模块维护。~~
+
+2.0 起 CRUD 脚手架由 Skills 执行。生成时业务模块命名空间使用 `Yi.Module.*`，不要再使用 `Yi.Framework.{Module}`。
+:::
+
 ## ⚠️ 重要提示
 
 **此技能需要全栈实现**
@@ -71,7 +77,7 @@
 
 #### 2.1 实体类
 
-位置：`Yi.Abp/module/{module-name}/Yi.Framework.{ModuleName}.Domain/Entities/{EntityName}AggregateRoot.cs`
+位置：`Yi.Abp/module/{module-name}/Yi.Module.{ModuleName}.Domain/Entities/{EntityName}AggregateRoot.cs`
 
 要点：
 - 继承 `AggregateRoot<Guid>`
@@ -80,7 +86,7 @@
 
 #### 2.2 DTO 类（5个文件）
 
-位置：`Yi.Abp/module/{module-name}/Yi.Framework.{ModuleName}.Application.Contracts/Dtos/{EntityName}/`
+位置：`Yi.Abp/module/{module-name}/Yi.Module.{ModuleName}.Application.Contracts/Dtos/{EntityName}/`
 
 创建：
 1. `{EntityName}GetOutputDto.cs` - 单条实体检索
@@ -91,13 +97,13 @@
 
 #### 2.3 服务接口
 
-位置：`Yi.Abp/module/{module-name}/Yi.Framework.{ModuleName}.Application.Contracts/IServices/I{EntityName}Service.cs`
+位置：`Yi.Abp/module/{module-name}/Yi.Module.{ModuleName}.Application.Contracts/IServices/I{EntityName}Service.cs`
 
 继承 `IYiCrudAppService<...>` 并包含所有 DTO 类型。
 
 #### 2.4 服务实现
 
-位置：`Yi.Abp/module/{module-name}/Yi.Framework.{ModuleName}.Application/Services/{EntityName}Service.cs`
+位置：`Yi.Abp/module/{module-name}/Yi.Module.{ModuleName}.Application/Services/{EntityName}Service.cs`
 
 继承 `YiCrudAppService<...>` 并实现接口。为自定义查询重写 `GetListAsync()`。
 
@@ -118,13 +124,13 @@
 
 **选项 A - 更新现有菜单文件：**
 
-位置：`Yi.Abp/module/rbac/Yi.Framework.Rbac.SqlSugarCore/DataSeeds/MenuDataSeed/{ExistingModule}MenuDataSeed.cs`
+位置：`Yi.Abp/module/rbac/Yi.Module.Rbac.SqlSugarCore/DataSeeds/MenuDataSeed/{ExistingModule}MenuDataSeed.cs`
 
 在现有的 `GetSeedData()` 方法中添加新实体的菜单项。
 
 **选项 B - 创建新模块菜单文件：**
 
-位置：`Yi.Abp/module/rbac/Yi.Framework.Rbac.SqlSugarCore/DataSeeds/MenuDataSeed/{ModuleName}MenuDataSeed.cs`
+位置：`Yi.Abp/module/rbac/Yi.Module.Rbac.SqlSugarCore/DataSeeds/MenuDataSeed/{ModuleName}MenuDataSeed.cs`
 
 创建包含以下内容的完整菜单结构：
 - 顶级目录菜单
@@ -132,7 +138,11 @@
 - CRUD 权限菜单（查询、添加、编辑、删除）
 
 **权限码格式**：`{module-name}:{entity-name}:{action}`
-- 示例：`app:app-nav:list`, `app:app-nav:add`, `app:app-nav:edit`, `app:app-nav:remove`
+- 示例：`app:app-nav:list`, `app:app-nav:add`, `app:app-nav:edit`, `app:app-nav:delete`
+
+::: warning 兼容说明
+2.0 权限自动推断的标准删除动作是 `delete`。历史菜单种子里可能仍有 `remove`、`query`、`resetPwd` 等权限码；新增功能建议使用标准动作，兼容旧权限时通过 `[Permission]` 或 `Operation:Permission:Mappings` 显式映射。
+:::
 
 **步骤 2 检查点 - 在继续之前验证：**
 - [ ] 实体文件存在且正确

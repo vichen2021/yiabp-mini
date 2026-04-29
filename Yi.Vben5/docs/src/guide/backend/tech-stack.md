@@ -37,7 +37,7 @@
 
 ### 版本管理
 
-版本集中管理在 `version.props`，构建属性集中在 `common.props`。
+项目/包版本集中管理在 `common.props`，依赖包版本集中管理在 `version.props`。
 
 ## 相关文档
 

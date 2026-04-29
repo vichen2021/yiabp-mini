@@ -2,237 +2,174 @@
 
 ## 项目整体结构
 
-项目分为以下 3 个部分：
+后端位于 `Yi.Abp/`，2.0 后明确区分 `framework`、`module` 和 `src`：
 
-```
+```text
 Yi.Abp/
-├── framework/           # 框架部分：基础设施（不需要修改）
-├── modules/             # 内置模块部分：Rbac、TenantManagement 等（业务开发区域）
-└── src/                 # 组装层：引用模块、启动配置
-    ├── Yi.Abp.Web/                    # Web 启动项目
-    ├── Yi.Abp.Domain/                 # 领域组装
-    ├── Yi.Abp.Domain.Shared/          # 共享组装
-    ├── Yi.Abp.Application/            # 应用组装
-    ├── Yi.Abp.Application.Contracts/  # 契约组装
-    └── Yi.Abp.SqlSugarCore/           # 基础设施组装
+├── framework/           # 框架基础设施：SqlSugar、缓存、认证、操作横切等
+├── module/              # 功能模块：rbac、tenant-management、audit-logging 等
+└── src/                 # 应用组装层：启动项目、模块引用、统一配置
+    ├── Yi.Abp.Web/
+    ├── Yi.Abp.Domain/
+    ├── Yi.Abp.Domain.Shared/
+    ├── Yi.Abp.Application/
+    ├── Yi.Abp.Application.Contracts/
+    └── Yi.Abp.SqlSugarCore/
 ```
 
-### 各目录职责
+| 目录 | 职责 | 是否建议写业务 |
+|------|------|----------------|
+| `framework/` | 通用基础设施、横切能力、技术适配 | 否，除非在扩展框架能力 |
+| `module/` | 独立功能模块和业务模块 | 是，主要开发区域 |
+| `src/` | 应用入口和模块组装 | 只放启动配置、组合逻辑和少量全局能力 |
 
-| 目录 | 职责 | 是否需要修改 |
-|------|------|-------------|
-| `framework/` | 基础设施代码，如 SqlSugar 封装、认证、缓存等 | 一般不需要 |
-| `modules/` | 业务模块开发，如 Rbac、TenantManagement | **主要开发区域** |
-| `src/` | 组装各模块、启动配置、后台任务 | 需要时修改 |
+## src 组装层
 
-### src 目录的作用
+`src` 不是业务模块目录，它负责把各个模块组合成最终应用：
 
-`src` 目录一般作为**组装层**，它的作用是：
-
-1. **引用模块**：通过 `[DependsOn]` 将各模块组装在一起
-2. **启动配置**：配置 JWT、Swagger、Hangfire、跨域等
-3. **后台任务**：放置定时任务（Jobs 目录）
+1. 通过 `[DependsOn]` 引用模块。
+2. 配置 JWT、Swagger、Hangfire、跨域、统一返回等启动能力。
+3. 放置少量应用级后台任务或全局设置。
 
 ```csharp
-// YiAbpApplicationModule.cs - 组装各模块
 [DependsOn(
     typeof(YiAbpApplicationContractsModule),
     typeof(YiAbpDomainModule),
-    typeof(YiFrameworkRbacApplicationModule),      // 引用 Rbac 模块
-    typeof(YiFrameworkTenantManagementApplicationModule), // 引用租户模块
-    typeof(YiFrameworkCodeGenApplicationModule)    // 引用代码生成模块
+    typeof(YiModuleRbacApplicationModule),
+    typeof(YiModuleTenantManagementApplicationModule),
+    typeof(YiModuleAuditLoggingApplicationModule)
+    // ~~typeof(YiFrameworkCodeGenApplicationModule)~~
+    // 2.0 起 code-gen 模块已移除，代码生成改为使用 Skills。
 )]
-public class YiAbpApplicationModule : AbpModule { }
+public class YiAbpApplicationModule : AbpModule
+{
+}
 ```
 
-### 什么时候在 src 中写代码？
-
-| 场景 | 位置 | 示例 |
-|------|------|------|
-| 添加后台任务 | `src/Yi.Abp.Web/Jobs/` | `DemoResetJob.cs` |
-| 添加全局设置 | `src/Yi.Abp.Domain.Shared/Settings/` | `TestSettingProvider.cs` |
-| 修改启动配置 | `src/Yi.Abp.Web/YiAbpWebModule.cs` | JWT、Swagger、跨域配置 |
-| 引用新模块 | `src/Yi.Abp.*/YiAbp*Module.cs` | 添加 `[DependsOn]` |
+| 场景 | 推荐位置 |
+|------|----------|
+| 添加后台任务 | `src/Yi.Abp.Web/Jobs/` |
+| 添加全局设置定义 | `src/Yi.Abp.Domain.Shared/Settings/` |
+| 修改启动配置 | `src/Yi.Abp.Web/YiAbpWebModule.cs` |
+| 引用新模块 | `src/Yi.Abp.*/YiAbp*Module.cs` |
 
 ::: warning 注意
-真正的业务开发应该在 `modules/` 目录下创建新模块，而不是在 `src` 中直接写业务代码，除非是小项目并且不在意依赖关系
+业务功能优先放到 `module/` 下的新模块，不要直接堆在 `src/`。`src` 的职责是组装，不是承载业务边界。
 :::
 
-## DDD 分层架构
+## 模块分层
 
-每个业务模块严格遵循 6 层项目结构：
+标准业务模块通常包含 5 层项目：
 
+```text
+module/{kebab-module-name}/
+├── Yi.Module.{Module}.Domain.Shared/
+├── Yi.Module.{Module}.Domain/
+├── Yi.Module.{Module}.Application.Contracts/
+├── Yi.Module.{Module}.Application/
+└── Yi.Module.{Module}.SqlSugarCore/
 ```
-module/{模块名}/
-├── Yi.Framework.{Module}.Domain.Shared/          # 共享层：枚举、常量、事件
-├── Yi.Framework.{Module}.Domain/                 # 领域层：实体、聚合根、领域服务、仓储接口
-├── Yi.Framework.{Module}.Application.Contracts/  # 应用契约层：DTO、服务接口
-├── Yi.Framework.{Module}.Application/            # 应用层：服务实现
-├── Yi.Framework.{Module}.SqlSugarCore/           # 基础设施层：ORM 配置、仓储实现、数据种子
-└── Yi.Framework.{Module}.Web/                    # Web 层（可选）
-```
 
-## 各层详解
+可选情况下可以增加 Web 层，但当前项目主要通过应用服务和 ABP Conventional Controllers 暴露接口。
 
-### Domain.Shared 共享层
+### Domain.Shared
 
-最底层，不依赖其他模块，存放：
+最底层共享契约，适合放：
 
-- 常量定义
-- 枚举定义
-- 跨模块通用类
+- 枚举
+- 常量
+- 跨模块共享的轻量类型
+- 集成事件契约
 
-::: info 类比
-类似三层架构的 Common 层，简单且不包含业务逻辑。
-:::
+### Domain
 
-### Domain 领域层
+领域层只依赖 `Domain.Shared`，适合放：
 
-只依赖 `Domain.Shared`，存放：
-
-- 实体和聚合根
+- 聚合根和实体
 - 值对象
-- 领域服务（Managers 文件夹）
+- 领域服务，也就是 `Managers/`
 - 仓储接口
 - 领域事件处理器
 
-::: tip 开发模式选择
-- **重领域层模式**：大部分业务放在领域层
-- **重应用层模式**：大部分业务放在应用层（推荐新手）
-:::
+### Application.Contracts
 
-### Application.Contracts 应用契约层
+应用契约层是模块对外公开的应用 API：
 
-对应用层的抽象，结构简单：
+- DTO：`Dtos/{Entity}/`
+- 服务接口：`IServices/`
 
-- DTO 定义（`Dtos/{Entity}/`）
-- 服务接口定义（`IServices/`）
+跨模块同步调用优先依赖这一层，而不是引用对方的 `Domain`。
 
-### Application 应用层
+### Application
 
-存放业务逻辑：
+应用层实现用例和接口编排：
 
 - CRUD 服务实现
 - 通用业务服务
-- Job 任务调度
-- 事件处理
 - SignalR Hub
+- 应用事件处理
+- 防腐层适配器实现
 
-::: info 开发建议
-如果是重应用层开发，可以像三层架构一样将业务写入应用层。
-:::
+### SqlSugarCore
 
-### SqlSugarCore 基础设施层
+基础设施层负责数据访问：
 
-数据访问层，依赖领域层但不依赖应用层：
-
-- ORM 配置
 - 仓储实现
+- CodeFirst 表映射补充
 - 数据种子
 
-::: warning 注意
-框架已封装大部分通用场景，自定义仓储使用机会较少。框架与 SqlSugar 有轻量耦合，可在大部分地方直接使用 SqlSugar 操作。
-:::
+框架已经封装了通用仓储，普通 CRUD 不需要额外创建仓储实现。
 
-### Web 层
+## 模块内部目录
 
-最简单的一层，仅用于：
+Domain 层常见目录：
 
-- 启动配置
-- 暴露 Web API
-
-## 模块内部目录结构
-
-### Domain 层
-
-```
-Entities/              # 实体和聚合根
+```text
+Entities/              # 聚合根和实体
 Entities/ValueObjects/ # 值对象
 Managers/              # 领域服务
 Repositories/          # 仓储接口
 EventHandlers/         # 领域事件处理器
-Authorization/         # 权限相关（rbac 模块）
+Authorization/         # 权限相关，rbac 模块使用
 ```
 
-### Application 层
+Application 层常见目录：
 
-```
-Services/              # 应用服务实现
-Services/System/       # 系统级服务
+```text
+Services/              # 应用服务
+Services/System/       # 系统管理服务
 Services/Monitor/      # 监控服务
 Adapters/              # 防腐层适配器
 SignalRHubs/           # 实时通信 Hub
 ```
 
-### Application.Contracts 层
+Application.Contracts 层常见目录：
 
+```text
+Dtos/{Entity}/
+IServices/
 ```
-Dtos/{Entity}/         # 按实体分组的 DTO
-IServices/             # 服务接口定义
-```
 
-## DDD 限界上下文边界（强制规则）
+## 模块边界
 
-**禁止跨模块直接引用 Domain 层。** 模块 A 不得引用模块 B 的 `Domain` 层（实体、聚合根、仓储接口、领域服务），这是限界上下文的核心边界。
-
-### 允许的跨模块依赖
+**禁止跨模块直接引用 Domain 层。** 模块 A 不应依赖模块 B 的实体、聚合根、领域服务和仓储接口。
 
 | 层 | 是否允许跨模块引用 | 说明 |
-|------|------|------|
-| `Domain.Shared` | 允许 | 专为跨模块共享设计（枚举、常量、集成事件） |
-| `Application.Contracts` | 允许 | 模块的公开 API（服务接口、DTO） |
-| `Domain` | **禁止** | 模块内部实现，不得跨模块引用 |
-| `Application` | **禁止** | 模块内部实现，不得跨模块引用 |
-| `SqlSugarCore` | **禁止** | 模块内部实现，不得跨模块引用 |
+|----|--------------------|------|
+| `Domain.Shared` | 允许 | 枚举、常量、集成事件等共享契约 |
+| `Application.Contracts` | 允许 | 服务接口和 DTO |
+| `Domain` | 禁止 | 模块内部领域模型 |
+| `Application` | 禁止 | 模块内部用例实现 |
+| `SqlSugarCore` | 禁止 | 模块内部数据访问实现 |
 
-### 跨模块交互方式
+跨模块交互优先级：
 
-按优先级排序，优先使用靠前的方式：
-
-#### 方式一：通过 Application.Contracts 服务接口交互（优先）
-
-直接注入目标模块的 `Application.Contracts` 服务接口：
-
-```csharp
-public class ModuleAService : ApplicationService
-{
-    private readonly IModuleBService _moduleBService;  // ModuleB 的契约接口
-
-    public async Task<ResultDto> DoSomethingAsync(Guid id)
-    {
-        var data = await _moduleBService.GetAsync(id);
-    }
-}
-```
-
-#### 方式二：防腐层适配器模式
-
-当目标模块的 `Application.Contracts` 接口不能满足需求时，使用适配器模式：
-
-1. 在消费方 Domain 层定义适配器接口
-2. 在消费方 Domain.Shared 层定义跨模块 DTO
-3. 在消费方 Application 层实现适配器
-
-#### 方式三：集成事件（异步解耦）
-
-模块间无需同步响应时，使用分布式事件总线。
-
-## ABP 模块依赖
-
-每个层都是 ABP 模块，通过 `[DependsOn]` 声明依赖关系：
-
-```csharp
-[DependsOn(
-    typeof(YiFrameworkRbacApplicationContractsModule),
-    typeof(YiFrameworkRbacDomainModule),
-    typeof(YiFrameworkDddApplicationModule))]
-public class YiFrameworkRbacApplicationModule : AbpModule
-```
+1. 注入目标模块的 `Application.Contracts` 服务接口。
+2. 在消费方定义防腐层适配器。
+3. 使用集成事件做异步解耦。
 
 ## 相关文档
 
-- [命名规范](/guide/backend/naming) - 了解命名规范
-- [实体定义](/guide/backend/entity) - 了解如何定义实体
-- [模块开发](/guide/backend/module) - 了解如何开发新模块
-- 本节部分内容参考自 [.Net意社区 - Yi框架架构设计](https://ccnetcore.com/article/aaa00329-7f35-d3fe-d258-3a0f8380b742/e0e7e180-f160-fecd-bf03-3a0f8387438c)
-- 推荐阅读 [.Net意社区 - Yi框架依赖关系](https://ccnetcore.com/article/aaa00329-7f35-d3fe-d258-3a0f8380b742/27cd461e-2d49-d95b-5e8e-3a1100c6b32d)
+- [命名规范](/guide/backend/naming)
+- [实体定义](/guide/backend/entity)
+- [模块开发](/guide/backend/module)

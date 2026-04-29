@@ -1,56 +1,94 @@
 # 菜单管理
 
-菜单通过后端接口动态加载，支持树形结构和权限绑定。
+Yi.Mini 菜单分两类数据：系统菜单管理页使用 `system/menu` 接口维护原始菜单数据；登录后的动态路由使用 `/account/router` 返回前端可直接转换的路由树。
 
-## 菜单结构
+## 菜单管理模型
+
+菜单管理页的模型位于 `apps/web-antd/src/api/system/menu/model.d.ts`：
 
 ```typescript
 interface Menu {
-  id: string;                    // 菜单ID
-  parentId: string;              // 父菜单ID
-  menuName: string;              // 菜单名称
-  routerName?: string | null;    // 路由名称
-  router?: string | null;        // 路由地址
-  component?: string | null;     // 组件路径
-  menuIcon?: string | null;      // 菜单图标
-  menuType: string;              // 菜单类型（M目录/C菜单/F按钮）
-  permissionCode?: string | null; // 权限标识
-  orderNum: number;              // 排序号
-  state: boolean;                // 状态
-  isShow: boolean;               // 是否显示
-  isLink: boolean;               // 是否外链
-  isCache: boolean;              // 是否缓存
-  query?: string | null;         // 查询参数
-  remark?: string | null;        // 备注
-  children?: Menu[];             // 子菜单
+  id: string;
+  parentId: string;
+  orderNum: number;
+  state: boolean;
+  menuName: string;
+  routerName?: string | null;
+  menuType: string;
+  permissionCode?: string | null;
+  menuIcon?: string | null;
+  router?: string | null;
+  isLink: boolean;
+  isCache: boolean;
+  isShow: boolean;
+  component?: string | null;
+  query?: string | null;
+  children?: Menu[];
 }
 ```
+
+常用字段说明：
+
+| 字段 | 说明 |
+| --- | --- |
+| `menuName` | 菜单显示名称 |
+| `menuType` | 菜单类型，通常为目录、菜单、按钮 |
+| `permissionCode` | 按钮或菜单绑定的权限码 |
+| `routerName` | Vue Router name，需要保持唯一 |
+| `router` | 路由路径 |
+| `component` | 页面组件路径或特殊组件值 |
+| `menuIcon` | Iconify 图标名称 |
+| `isShow` | 是否在菜单中显示 |
+| `isCache` | 是否缓存页面 |
+| `isLink` | 是否外链 |
+| `query` | JSON 字符串形式的路由参数 |
+
+## 动态路由模型
+
+登录后前端调用 `apps/web-antd/src/api/core/menu.ts` 中的 `getAllMenusApi()`：
+
+```typescript
+export async function getAllMenusApi() {
+  return requestClient.get<Menu[]>('/account/router');
+}
+```
+
+该接口返回的是路由树，字段包括 `name`、`path`、`component`、`hidden`、`meta`、`children`。转换逻辑在 `apps/web-antd/src/router/access.ts` 的 `backMenuToVbenMenu()`。
 
 ## 权限绑定
 
-菜单与权限码绑定，用于控制按钮级别的权限：
+权限码格式推荐与后端 2.0 自动权限保持一致：
 
-```typescript
-// 路由配置
-{
-  path: '/system/user',
-  meta: {
-    permission: 'system:user:list',
-  },
-}
-
-// 按钮权限
-<a-button v-access:code="['system:user:add']">新增</a-button>
+```text
+{module}:{entity}:{action}
 ```
 
-## 图标配置
+示例：
 
-### 在线图标（推荐）
+```text
+system:user:list
+system:user:add
+system:user:edit
+system:user:delete
+```
+
+按钮权限：
+
+```vue
+<template>
+  <a-button v-access:code="['system:user:add']">新增</a-button>
+</template>
+```
+
+::: warning 兼容说明
+历史种子数据中可能存在 `remove`、`query`、`resetPwd` 等权限码。新增菜单建议使用 `list`、`detail`、`add`、`edit`、`delete`、`export`、`import` 等标准动作；需要兼容旧码时，由后端显式映射。
+:::
+
+## 图标配置
 
 直接在 [Iconify 图标库](https://icon-sets.iconify.design/) 搜索图标，复制图标名称到菜单配置即可。
 
 ```typescript
-// 格式：图标集名称:图标名称
 {
   menuIcon: 'ant-design:user-outlined',
 }
@@ -63,58 +101,12 @@ interface Menu {
 | Ant Design | `ant-design:` | `ant-design:home-outlined` |
 | Material Design | `mdi:` | `mdi:account` |
 | Carbon | `carbon:` | `carbon:user` |
-| Iconify | `iconify:` | `iconify:mdi:home` |
-
-::: tip 提示
-在线图标需要网络连接，如果部署在内网环境，请使用离线图标或本地 SVG 图标。
-:::
-
-### 离线图标
-
-如需离线使用图标，需要安装对应的图标包：
-
-```bash
-cd packages/icons
-pnpm add @iconify/icons-图标集 -D
-```
-
-然后在 `packages/icons/src/iconify-offline/menu-icons.ts` 中添加：
-
-```typescript
-// 以 ic:baseline-15mp 为例
-import baseline15mp from '@iconify/icons-ic/baseline-15mp';
-
-addIcon('ic:baseline-15mp', baseline15mp);
-```
-
-### 本地 SVG 图标
-
-将 SVG 文件放入 `packages/icons/src/svg/icons` 目录，然后在 `index.ts` 中注册：
-
-```typescript
-// 格式：svg:图标名称（不带扩展名）
-const SvgCustomIcon = createIconifyIcon('svg:custom-icon');
-
-export {
-  // ...
-  SvgCustomIcon,
-};
-```
-
-在菜单中配置：
-
-```typescript
-{
-  menuIcon: 'svg:custom-icon',
-}
-```
 
 ::: warning 注意
-添加本地 SVG 图标后需要**重启 Vite** 才能生效！
+添加本地 SVG 图标后需要重启 Vite 才能生效。
 :::
 
 ## 相关文档
 
 - [路由配置](/guide/frontend/features/route) - 路由详细配置
-- [Iconify 图标库](https://icon-sets.iconify.design/) - 在线搜索图标
-- [Vben 图标文档](https://doc.vben.pro/guide/essentials/icons) - 官方图标使用说明
+- [权限](/guide/in-depth/access) - 权限码和角色控制

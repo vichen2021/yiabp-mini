@@ -50,7 +50,7 @@ features:
   - icon: 🔧
     title: 开箱即用
     details: 完善的开发工具链，支持快速开发和部署
-    link: /guide/frontend/development
+    link: /guide/frontend/quick-start
     linkText: 开发指南
   - title: ABP Framework
     icon:
