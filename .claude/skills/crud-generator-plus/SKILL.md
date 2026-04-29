@@ -141,7 +141,7 @@ Application.Contracts/Dtos/{Entity}/
 └── {Entity}UpdateInputVo.cs
 
 Application.Contracts/IServices/I{Entity}Service.cs  ← 包含 SelectListAsync 接口
-Application/Services/{Entity}Service.cs              ← 包含 SelectListAsync 实现
+Application/Services/{Entity}Service.cs              ← 包含 [OperLogEntity("{实体中文名}")] 和 SelectListAsync 实现
 ```
 
 **前端（5个文件）**:
