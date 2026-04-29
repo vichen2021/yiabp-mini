@@ -41,7 +41,14 @@
       "Bash(mv Yi.Module.Rbac.Application.Contracts/Yi.Framework.Rbac.Application.Contracts.csproj Yi.Module.Rbac.Application.Contracts/Yi.Module.Rbac.Application.Contracts.csproj)",
       "Bash(mv Yi.Module.Rbac.Application/Yi.Framework.Rbac.Application.csproj Yi.Module.Rbac.Application/Yi.Module.Rbac.Application.csproj)",
       "Bash(sed *)",
-      "Bash(git reset *)"
+      "Bash(git reset *)",
+      "Bash(mv Yi.Framework.AspNetCore aspnetcore/)",
+      "Bash(mv Yi.Framework.AspNetCore.Authentication.OAuth aspnetcore/)",
+      "Bash(mv Yi.Framework.BackgroundWorkers.Hangfire background-workers/)",
+      "Bash(mv Yi.Framework.Caching.FreeRedis caching/)",
+      "Bash(mv Yi.Framework.Core core/)",
+      "Bash(grep -rn \"\\\\.\\\\.\\\\\\\\\\\\\\\\framework\\\\\\\\\\\\\\\\Yi\\\\.Framework\" --include=\"*.csproj\" .)",
+      "Bash(grep -rn '../framework/Yi\\\\.Framework' --include=\"*.csproj\" .)"
     ]
   }
 }

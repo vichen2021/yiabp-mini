@@ -8,7 +8,7 @@ using Yi.Module.AuditLogging.Domain.Shared.Consts;
 namespace Yi.Module.AuditLogging.Domain.Entities
 {
     [DisableAuditing]
-    [SugarTable("YiAuditLog")]
+    [SugarTable("AuditLog")]
     [SugarIndex($"index_{nameof(ExecutionTime)}", nameof(TenantId), OrderByType.Asc,nameof(ExecutionTime), OrderByType.Asc)]
     [SugarIndex($"index_{nameof(ExecutionTime)}_{nameof(UserId)}",nameof(TenantId), OrderByType.Asc, nameof(UserId), OrderByType.Asc, nameof(ExecutionTime), OrderByType.Asc)]
     public class AuditLogAggregateRoot: AggregateRoot<Guid>, IMultiTenant

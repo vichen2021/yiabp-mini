@@ -12,7 +12,7 @@ using Yi.Module.AuditLogging.Domain.Shared.Consts;
 
 namespace Yi.Module.AuditLogging.Domain.Entities
 {
-    [SugarTable("YiEntityPropertyChange")]
+    [SugarTable("EntityPropertyChange")]
 
     [SugarIndex($"index_{nameof(EntityChangeId)}", nameof(EntityChangeId), OrderByType.Asc)]
     public class EntityPropertyChangeEntity:Entity<Guid>, IMultiTenant
