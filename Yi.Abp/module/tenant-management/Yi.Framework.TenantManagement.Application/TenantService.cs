@@ -10,6 +10,7 @@ using Volo.Abp.Data;
 using Volo.Abp.Modularity;
 using Volo.Abp.Uow;
 using Yi.Framework.Ddd.Application;
+using Yi.Framework.Operation.Abstractions.Attributes;
 using Yi.Framework.Rbac.Domain.Entities;
 using Yi.Framework.Rbac.Domain.Managers;
 using Yi.Framework.SqlSugarCore.Abstractions;
@@ -22,6 +23,7 @@ namespace Yi.Framework.TenantManagement.Application
     /// <summary>
     /// 租户管理
     /// </summary>
+    [OperLogEntity("租户")]
     public class TenantService :
         YiCrudAppService<TenantAggregateRoot, TenantGetOutputDto, TenantGetListOutputDto, Guid, TenantGetListInput,
             TenantCreateInput, TenantUpdateInput>, ITenantService

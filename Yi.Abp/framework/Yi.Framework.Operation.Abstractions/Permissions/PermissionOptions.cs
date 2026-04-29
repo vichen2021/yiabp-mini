@@ -24,5 +24,13 @@ namespace Yi.Framework.Operation.Abstractions.Permissions
         /// 示例：AccountService:LoginAsync
         /// </summary>
         public List<string> WhitelistActions { get; set; } = new();
+
+        /// <summary>
+        /// 权限码配置映射表
+        /// Key: {FullTypeName}.{MethodName}
+        /// Value: 权限码，如 system:user:update
+        /// 优先级：低于显式 [Permission]，高于自动推断
+        /// </summary>
+        public Dictionary<string, string> Mappings { get; set; } = new();
     }
 }

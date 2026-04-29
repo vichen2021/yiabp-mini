@@ -3,6 +3,7 @@ using SqlSugar;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Domain.Repositories;
 using Yi.Framework.Ddd.Application;
+using Yi.Framework.Operation.Abstractions.Attributes;
 using Yi.Framework.Rbac.Application.Contracts.Dtos.Dictionary;
 using Yi.Framework.Rbac.Application.Contracts.IServices;
 using Yi.Framework.Rbac.Domain.Entities;
@@ -14,6 +15,7 @@ namespace Yi.Framework.Rbac.Application.Services
     /// <summary>
     /// Dictionary服务实现
     /// </summary>
+    [OperLogEntity("字典数据")]
     public class DictionaryService : YiCrudAppService<DictionaryEntity, DictionaryGetOutputDto, DictionaryGetListOutputDto, Guid, DictionaryGetListInputVo, DictionaryCreateInputVo, DictionaryUpdateInputVo>,
        IDictionaryService
     {

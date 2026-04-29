@@ -40,15 +40,18 @@ using Yi.Framework.AspNetCore.Authentication.OAuth.QQ;
 using Yi.Framework.AspNetCore.Microsoft.AspNetCore.Builder;
 using Yi.Framework.AspNetCore.Microsoft.Extensions.DependencyInjection;
 using Yi.Framework.AspNetCore.UnifyResult;
+using Yi.Framework.AuditLogging.Application;
+using Yi.Framework.AuditLogging.Domain;
 using Yi.Framework.BackgroundWorkers.Hangfire;
 using Yi.Framework.Core.Json;
+using Yi.Framework.Operation.Abstractions;
+using Yi.Framework.Operation.Abstractions.Permissions;
+using Yi.Framework.Operation.Core;
+using Yi.Framework.Operation.Core.Filters;
 using Yi.Framework.Rbac.Application;
 using Yi.Framework.Rbac.Domain.Authorization;
 using Yi.Framework.Rbac.Domain.Shared.Consts;
 using Yi.Framework.Rbac.Domain.Shared.Options;
-using Yi.Framework.AuditLogging.Application;
-using Yi.Framework.Operation.Core;
-using Yi.Framework.Operation.Core.Filters;
 using Yi.Framework.TenantManagement.Application;
 
 namespace Yi.Abp.Web
@@ -120,6 +123,9 @@ namespace Yi.Abp.Web
                 options.IgnoredUrls.Add("/api/app/file/");
                 options.IgnoredUrls.Add("/hangfire");
             });
+            Configure<YiAuditLoggingOptions>(configuration.GetSection("AuditLogging"));
+            Configure<OperationOptions>(configuration.GetSection("Operation"));
+            Configure<PermissionOptions>(configuration.GetSection("Operation:Permission"));
 
             //采用furion格式的规范化api，默认不开启，使用abp优雅的方式
             //前置：需要将管道工作单元前加上app.Properties.Add("_AbpExceptionHandlingMiddleware_Added",false);
@@ -365,7 +371,7 @@ namespace Yi.Abp.Web
             app.UseAuthentication();
 
             //多租户
-            app.UseMultiTenancy();
+            //app.UseMultiTenancy();
 
             //swagger
             app.UseYiSwagger();

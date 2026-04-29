@@ -2,6 +2,7 @@ using SqlSugar;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Yi.Framework.Ddd.Application;
+using Yi.Framework.Operation.Abstractions.Attributes;
 using Yi.Framework.Rbac.Application.Contracts.Dtos.Config;
 using Yi.Framework.Rbac.Application.Contracts.IServices;
 using Yi.Framework.Rbac.Domain.Entities;
@@ -14,6 +15,7 @@ namespace Yi.Framework.Rbac.Application.Services
     /// <summary>
     /// Config服务实现
     /// </summary>
+    [OperLogEntity("参数配置")]
     public class ConfigService : YiCrudAppService<ConfigAggregateRoot, ConfigGetOutputDto, ConfigGetListOutputDto, Guid,
             ConfigGetListInputVo, ConfigCreateInputVo, ConfigUpdateInputVo>,
         IConfigService

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Options;
 using Volo.Abp;
 using Yi.Framework.Operation.Abstractions.Attributes;
 using Yi.Framework.Operation.Abstractions.Metadata;
@@ -30,11 +31,11 @@ namespace Yi.Framework.Operation.Core.Filters
         public PermissionAuthorizationFilter(
             IActionMetadataResolver metadataResolver,
             IPermissionHandler permissionHandler,
-            PermissionOptions options)
+            IOptions<PermissionOptions> options)
         {
             _metadataResolver = metadataResolver;
             _permissionHandler = permissionHandler;
-            _options = options;
+            _options = options.Value;
         }
 
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
@@ -48,43 +49,57 @@ namespace Yi.Framework.Operation.Core.Filters
                 return;
             }
 
-            // 2. 检查 [IgnorePermission]
-            if (HasIgnorePermissionAttribute(descriptor))
+            // 2. 解析元数据，后续权限和日志共用同一套规则
+            var metadata = _metadataResolver.Resolve(descriptor);
+
+            // 3. 检查 [IgnorePermission]
+            if (HasIgnorePermissionAttribute(descriptor) || metadata.IgnorePermission)
             {
                 return;
             }
 
-            // 3. 检查 ABP RemoteService 是否禁用
+            // 4. 检查 ABP RemoteService 是否禁用
             if (IsRemoteServiceDisabled(descriptor))
             {
                 return;
             }
 
-            // 4. 检查白名单
+            // 5. 检查白名单
             if (IsInWhitelist(descriptor))
             {
                 return;
             }
 
-            // 解析元数据
-            var metadata = _metadataResolver.Resolve(descriptor);
-
-            // 获取权限码（显式优先）
-            var permissionCode = metadata.ExplicitPermissionCode ?? metadata.PermissionCode;
-
-            // 5. 未推断权限码的处理
-            if (string.IsNullOrEmpty(permissionCode) || !metadata.IsResolved)
+            // 6. 显式 [Permission] 必须校验（不受 IsResolved 影响）
+            if (!string.IsNullOrEmpty(metadata.ExplicitPermissionCode))
             {
-                if (!_options.AllowUnresolvedActions)
+                var isGranted = await _permissionHandler.IsGrantedAsync(metadata.ExplicitPermissionCode);
+                if (!isGranted)
                 {
                     context.Result = new ForbidResult();
                 }
                 return;
             }
 
-            // 6. 权限检查
-            var isGranted = await _permissionHandler.IsGrantedAsync(permissionCode);
-            if (!isGranted)
+            // 7. 自动推断权限码的处理
+            if (metadata.IsResolved && !string.IsNullOrEmpty(metadata.PermissionCode))
+            {
+                // AutoCheckResolvedActions 控制是否校验自动推断的权限
+                if (!_options.AutoCheckResolvedActions)
+                {
+                    return;
+                }
+
+                var isGranted = await _permissionHandler.IsGrantedAsync(metadata.PermissionCode);
+                if (!isGranted)
+                {
+                    context.Result = new ForbidResult();
+                }
+                return;
+            }
+
+            // 8. 未推断且无显式权限的处理
+            if (!_options.AllowUnresolvedActions)
             {
                 context.Result = new ForbidResult();
             }
@@ -101,6 +116,12 @@ namespace Yi.Framework.Operation.Core.Filters
                 return true;
             }
 
+            // 检查 EndpointMetadata，兼容 ABP 动态控制器
+            if (descriptor.EndpointMetadata.OfType<AllowAnonymousAttribute>().Any())
+            {
+                return true;
+            }
+
             // 检查控制器上的特性
             if (descriptor.ControllerTypeInfo.GetCustomAttributes(typeof(AllowAnonymousAttribute), true).Any())
             {
@@ -112,10 +133,29 @@ namespace Yi.Framework.Operation.Core.Filters
 
         /// <summary>
         /// 检查是否标记了 [IgnorePermission]
+        /// 支持类级和方法级
         /// </summary>
         private bool HasIgnorePermissionAttribute(ControllerActionDescriptor descriptor)
         {
-            return descriptor.MethodInfo.GetCustomAttributes(typeof(IgnorePermissionAttribute), true).Any();
+            // 方法级优先
+            if (descriptor.MethodInfo.GetCustomAttributes(typeof(IgnorePermissionAttribute), true).Any())
+            {
+                return true;
+            }
+
+            // 检查 EndpointMetadata，兼容 ABP 动态控制器
+            if (descriptor.EndpointMetadata.OfType<IgnorePermissionAttribute>().Any())
+            {
+                return true;
+            }
+
+            // 类级
+            if (descriptor.ControllerTypeInfo.GetCustomAttributes(typeof(IgnorePermissionAttribute), true).Any())
+            {
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>

@@ -30,8 +30,38 @@ namespace Yi.Framework.Operation.Core.Permissions
                 .Select(c => c.Value)
                 .ToList();
 
-            // 检查是否拥有权限
-            return permissions.Contains(permissionCode);
+            // 检查是否拥有权限，支持 cc 超级管理员的 *:*:* 以及模块/实体级通配。
+            return permissions.Any(permission => IsPermissionMatch(permission, permissionCode));
+        }
+
+        private static bool IsPermissionMatch(string ownedPermission, string requiredPermission)
+        {
+            if (string.IsNullOrWhiteSpace(ownedPermission) || string.IsNullOrWhiteSpace(requiredPermission))
+            {
+                return false;
+            }
+
+            if (ownedPermission == "*" || ownedPermission == requiredPermission)
+            {
+                return true;
+            }
+
+            var ownedParts = ownedPermission.Split(':');
+            var requiredParts = requiredPermission.Split(':');
+            if (ownedParts.Length != requiredParts.Length)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < ownedParts.Length; i++)
+            {
+                if (ownedParts[i] != "*" && ownedParts[i] != requiredParts[i])
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

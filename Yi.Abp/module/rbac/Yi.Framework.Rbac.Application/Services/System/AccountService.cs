@@ -29,6 +29,7 @@ using Yi.Framework.Rbac.Domain.Shared.Enums;
 using Yi.Framework.Rbac.Domain.Shared.Etos;
 using Yi.Framework.Rbac.Domain.Shared.Options;
 using Yi.Framework.SqlSugarCore.Abstractions;
+using Yi.Framework.Operation.Abstractions.Attributes;
 
 namespace Yi.Framework.Rbac.Application.Services
 {
@@ -353,6 +354,7 @@ namespace Yi.Framework.Rbac.Application.Services
         /// <returns></returns>
         [Route("account")]
         [Authorize]
+        [IgnorePermission]
         public async Task<UserRoleMenuDto> GetAsync()
         {
             //通过鉴权jwt获取到用户的id
@@ -397,6 +399,7 @@ namespace Yi.Framework.Rbac.Application.Services
         /// </summary>
         /// <returns></returns>
         [Authorize]
+        [IgnorePermission]
         public async Task<object> GetRouterAsync()
         {
             var userId = _currentUser.Id;

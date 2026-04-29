@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using SqlSugar;
 using Volo.Abp.Application.Dtos;
 using Yi.Framework.Ddd.Application;
+using Yi.Framework.Operation.Abstractions.Attributes;
 using Yi.Framework.Rbac.Application.Contracts.Dtos.Notice;
 using Yi.Framework.Rbac.Application.Contracts.IServices;
 using Yi.Framework.Rbac.Application.SignalRHubs;
@@ -14,6 +15,7 @@ namespace Yi.Framework.Rbac.Application.Services
     /// <summary>
     /// Notice服务实现
     /// </summary>
+    [OperLogEntity("通知公告")]
     public class NoticeService : YiCrudAppService<NoticeAggregateRoot, NoticeGetOutputDto, NoticeGetListOutputDto, Guid, NoticeGetListInput, NoticeCreateInput, NoticeUpdateInput>,
        INoticeService
     {

@@ -1,28 +1,46 @@
+using System.Reflection;
 using System.Text.Json;
+using Microsoft.Extensions.Options;
 using Volo.Abp.Auditing;
 using Volo.Abp.DependencyInjection;
 using Yi.Framework.AuditLogging.Domain.Entities;
+using Yi.Framework.Operation.Abstractions;
+using Yi.Framework.Operation.Abstractions.Attributes;
 using Yi.Framework.Operation.Abstractions.Enums;
+using Yi.Framework.Operation.Abstractions.Metadata;
 
 namespace Yi.Framework.AuditLogging.Domain
 {
     /// <summary>
     /// 默认操作日志映射器
-    /// 从 ABP AuditLogInfo 映射到业务 OperationLogEntity
+    /// 使用统一 IActionMetadataResolver 解析元数据
     /// </summary>
     public class DefaultOperationLogMapper : IOperationLogMapper, ITransientDependency
     {
-        private readonly YiAuditLoggingOptions _options;
+        private readonly YiAuditLoggingOptions _yiOptions;
+        private readonly OperationOptions _operationOptions;
+        private readonly IActionMetadataResolver _metadataResolver;
 
-        public DefaultOperationLogMapper(YiAuditLoggingOptions options)
+        public DefaultOperationLogMapper(
+            IOptions<YiAuditLoggingOptions> yiOptions,
+            IOptions<OperationOptions> operationOptions,
+            IActionMetadataResolver metadataResolver)
         {
-            _options = options;
+            _yiOptions = yiOptions.Value;
+            _operationOptions = operationOptions.Value;
+            _metadataResolver = metadataResolver;
         }
 
         public OperationLogEntity? TryMap(AuditLogInfo auditLogInfo)
         {
             // 不保存操作日志时返回 null
-            if (!_options.SaveOperationLog)
+            if (!_yiOptions.SaveOperationLog)
+            {
+                return null;
+            }
+
+            // 检查是否在忽略 URL 列表中
+            if (IsIgnoredUrl(auditLogInfo.Url))
             {
                 return null;
             }
@@ -34,19 +52,58 @@ namespace Yi.Framework.AuditLogging.Domain
                 return null;
             }
 
-            // 从 Action 信息推断操作类型
-            var operType = InferOperType(actionInfo.MethodName);
+            // 解析 ServiceType 和 MethodInfo
+            var serviceType = ResolveServiceType(actionInfo.ServiceName);
+            var methodInfo = ResolveMethod(serviceType, actionInfo.MethodName);
+            if (serviceType == null || methodInfo == null)
+            {
+                return null;
+            }
+
+            // 检查显式 [OperLog] 特性
+            var operLogAttr = methodInfo.GetCustomAttribute<OperLogAttribute>();
+            var hasExplicitLog = operLogAttr != null;
+
+            // 使用统一元数据解析器
+            var metadata = _metadataResolver.Resolve(serviceType, methodInfo);
+
+            // 检查是否忽略日志
+            if (metadata.IgnoreLog)
+            {
+                return null;
+            }
+
+            // 自动写操作日志开关控制
+            // 显式 [OperLog] 不受 AutoLogWriteOperations 控制
+            if (!hasExplicitLog && !_operationOptions.AutoLogWriteOperations)
+            {
+                // 关闭自动写操作日志时，只有显式声明才记录
+                return null;
+            }
+
+            // 查询操作日志控制
+            if (metadata.ActionName == "list" || metadata.ActionName == "detail" || !metadata.IsWriteOperation)
+            {
+                if (!_operationOptions.LogReadOperations && !hasExplicitLog)
+                {
+                    return null;
+                }
+            }
+
+            // 使用显式日志信息或推断结果
+            var operType = metadata.ExplicitLogInfo?.OperType ?? metadata.OperType;
             if (operType == null)
             {
                 // 无法推断操作类型，不生成操作日志
                 return null;
             }
 
-            // 从 ServiceName 推断实体名
-            var entityName = InferEntityName(actionInfo.ServiceName);
-
-            // 生成标题
-            var title = GenerateTitle(entityName, operType);
+            // 使用显式标题或推断标题
+            var title = metadata.ExplicitLogInfo?.Title ?? metadata.LogTitle;
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                return null;
+            }
 
             var entity = new OperationLogEntity(
                 Guid.NewGuid(),
@@ -61,108 +118,84 @@ namespace Yi.Framework.AuditLogging.Domain
             );
 
             // 请求参数
-            if (_options.SaveRequestData && actionInfo.Parameters != null)
+            if ((_yiOptions.SaveRequestData || operLogAttr?.IsSaveRequestData == true) && actionInfo.Parameters != null)
             {
-                entity.RequestParam = Truncate(JsonSerializer.Serialize(actionInfo.Parameters), _options.MaxRequestParamLength);
+                entity.RequestParam = Truncate(JsonSerializer.Serialize(actionInfo.Parameters), _yiOptions.MaxRequestParamLength);
             }
 
             // 错误信息
             if (auditLogInfo.Exceptions != null && auditLogInfo.Exceptions.Count > 0)
             {
-                entity.ErrorMessage = Truncate(string.Join(Environment.NewLine, auditLogInfo.Exceptions.Select(e => e.Message)), _options.MaxResponseDataLength);
+                entity.ErrorMessage = Truncate(string.Join(Environment.NewLine, auditLogInfo.Exceptions.Select(e => e.Message)), _yiOptions.MaxResponseDataLength);
             }
 
             return entity;
         }
 
         /// <summary>
-        /// 从方法名推断操作类型
+        /// 检查是否在忽略 URL 列表中
         /// </summary>
-        private OperEnum? InferOperType(string? methodName)
+        private bool IsIgnoredUrl(string? url)
         {
-            if (string.IsNullOrEmpty(methodName))
+            if (string.IsNullOrEmpty(url)) return false;
+
+            foreach (var prefix in _operationOptions.IgnoredUrlPrefixes)
             {
-                return null;
+                if (url.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
             }
 
-            // 方法名映射
-            if (methodName.StartsWith("Create") || methodName.StartsWith("Add") || methodName.StartsWith("Insert"))
-            {
-                return OperEnum.Insert;
-            }
-            if (methodName.StartsWith("Update") || methodName.StartsWith("Edit") || methodName.StartsWith("Modify"))
-            {
-                return OperEnum.Update;
-            }
-            if (methodName.StartsWith("Delete") || methodName.StartsWith("Remove"))
-            {
-                return OperEnum.Delete;
-            }
-            if (methodName.StartsWith("Export"))
-            {
-                return OperEnum.Export;
-            }
-            if (methodName.StartsWith("Import"))
-            {
-                return OperEnum.Import;
-            }
-
-            // POST/PUT/DELETE 方法
-            // GET 方法不记录操作日志
-
-            return null;
+            return false;
         }
 
-        /// <summary>
-        /// 从 ServiceName 推断实体名
-        /// </summary>
-        private string? InferEntityName(string? serviceName)
+        private Type? ResolveServiceType(string? serviceName)
         {
-            if (string.IsNullOrEmpty(serviceName))
+            if (string.IsNullOrWhiteSpace(serviceName))
             {
                 return null;
             }
 
-            // 移除 Service 后缀
-            if (serviceName.EndsWith("Service"))
+            var matchedType = AppDomain.CurrentDomain
+                .GetAssemblies()
+                .SelectMany(GetTypesSafely)
+                .FirstOrDefault(type =>
+                    string.Equals(type.FullName, serviceName, StringComparison.Ordinal) ||
+                    string.Equals(type.Name, serviceName, StringComparison.Ordinal));
+
+            if (matchedType is { IsInterface: true })
             {
-                serviceName = serviceName.Substring(0, serviceName.Length - 7);
+                return AppDomain.CurrentDomain
+                    .GetAssemblies()
+                    .SelectMany(GetTypesSafely)
+                    .FirstOrDefault(type => type is { IsClass: true, IsAbstract: false } && matchedType.IsAssignableFrom(type));
             }
 
-            // 首字母小写
-            if (serviceName.Length > 0)
-            {
-                serviceName = serviceName[0].ToString().ToLower() + serviceName.Substring(1);
-            }
-
-            return serviceName;
+            return matchedType;
         }
 
-        /// <summary>
-        /// 生成操作标题
-        /// </summary>
-        private string? GenerateTitle(string? entityName, OperEnum? operType)
+        private MethodInfo? ResolveMethod(Type? serviceType, string? methodName)
         {
-            if (string.IsNullOrEmpty(entityName) || operType == null)
+            if (serviceType == null || string.IsNullOrWhiteSpace(methodName))
             {
                 return null;
             }
 
-            var actionDesc = operType switch
-            {
-                OperEnum.Insert => "添加",
-                OperEnum.Update => "更新",
-                OperEnum.Delete => "删除",
-                OperEnum.Export => "导出",
-                OperEnum.Import => "导入",
-                OperEnum.Auth => "授权",
-                OperEnum.ForceLogout => "强制退出",
-                OperEnum.GenerateCode => "生成代码",
-                OperEnum.Clear => "清空",
-                _ => "操作"
-            };
+            return serviceType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .FirstOrDefault(method => string.Equals(method.Name, methodName, StringComparison.Ordinal));
+        }
 
-            return $"{actionDesc}{entityName}";
+        private static IEnumerable<Type> GetTypesSafely(Assembly assembly)
+        {
+            try
+            {
+                return assembly.GetTypes();
+            }
+            catch (ReflectionTypeLoadException ex)
+            {
+                return ex.Types.Where(type => type != null)!;
+            }
         }
 
         /// <summary>

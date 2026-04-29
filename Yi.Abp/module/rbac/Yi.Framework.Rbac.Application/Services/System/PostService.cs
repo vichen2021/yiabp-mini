@@ -1,6 +1,7 @@
 using SqlSugar;
 using Volo.Abp.Application.Dtos;
 using Yi.Framework.Ddd.Application;
+using Yi.Framework.Operation.Abstractions.Attributes;
 using Yi.Framework.Rbac.Application.Contracts.Dtos.Post;
 using Yi.Framework.Rbac.Application.Contracts.IServices;
 using Yi.Framework.Rbac.Domain.Entities;
@@ -12,6 +13,7 @@ namespace Yi.Framework.Rbac.Application.Services
     /// <summary>
     /// Post服务实现
     /// </summary>
+    [OperLogEntity("岗位")]
     public class PostService : YiCrudAppService<PostAggregateRoot, PostGetOutputDto, PostGetListOutputDto, Guid,
             PostGetListInputVo, PostCreateInputVo, PostUpdateInputVo>,
         IPostService
