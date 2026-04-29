@@ -40,19 +40,19 @@ using Yi.Framework.AspNetCore.Authentication.OAuth.QQ;
 using Yi.Framework.AspNetCore.Microsoft.AspNetCore.Builder;
 using Yi.Framework.AspNetCore.Microsoft.Extensions.DependencyInjection;
 using Yi.Framework.AspNetCore.UnifyResult;
-using Yi.Framework.AuditLogging.Application;
-using Yi.Framework.AuditLogging.Domain;
+using Yi.Module.AuditLogging.Application;
+using Yi.Module.AuditLogging.Domain;
 using Yi.Framework.BackgroundWorkers.Hangfire;
 using Yi.Framework.Core.Json;
 using Yi.Framework.Operation.Abstractions;
 using Yi.Framework.Operation.Abstractions.Permissions;
 using Yi.Framework.Operation.Core;
 using Yi.Framework.Operation.Core.Filters;
-using Yi.Framework.Rbac.Application;
-using Yi.Framework.Rbac.Domain.Authorization;
-using Yi.Framework.Rbac.Domain.Shared.Consts;
-using Yi.Framework.Rbac.Domain.Shared.Options;
-using Yi.Framework.TenantManagement.Application;
+using Yi.Module.Rbac.Application;
+using Yi.Module.Rbac.Domain.Authorization;
+using Yi.Module.Rbac.Domain.Shared.Consts;
+using Yi.Module.Rbac.Domain.Shared.Options;
+using Yi.Module.TenantManagement.Application;
 
 namespace Yi.Abp.Web
 {
@@ -69,7 +69,7 @@ namespace Yi.Abp.Web
         typeof(YiFrameworkAspNetCoreModule),
         typeof(YiFrameworkAspNetCoreAuthenticationOAuthModule),
 
-        typeof(YiFrameworkAuditLoggingApplicationModule),
+        typeof(YiModuleAuditLoggingApplicationModule),
         typeof(YiFrameworkOperationCoreModule),
         typeof(YiFrameworkBackgroundWorkersHangfireModule),
         typeof(AbpAutofacModule)
@@ -83,13 +83,13 @@ namespace Yi.Abp.Web
             //动态Api-改进在pre中配置，启动更快
             PreConfigure<AbpAspNetCoreMvcOptions>(options =>
             {
-                options.ConventionalControllers.Create(typeof(YiFrameworkRbacApplicationModule).Assembly,
+                options.ConventionalControllers.Create(typeof(YiModuleRbacApplicationModule).Assembly,
                     options => options.RemoteServiceName = "rbac");
                 options.ConventionalControllers.Create(typeof(YiAbpApplicationModule).Assembly,
                     options => options.RemoteServiceName = "default");
-                options.ConventionalControllers.Create(typeof(YiFrameworkTenantManagementApplicationModule).Assembly,
+                options.ConventionalControllers.Create(typeof(YiModuleTenantManagementApplicationModule).Assembly,
                     options => options.RemoteServiceName = "tenant-management");
-                options.ConventionalControllers.Create(typeof(YiFrameworkAuditLoggingApplicationModule).Assembly,
+                options.ConventionalControllers.Create(typeof(YiModuleAuditLoggingApplicationModule).Assembly,
                     options => options.RemoteServiceName = "audit");
                 //统一前缀
                 options.ConventionalControllers.ConventionalControllerSettings.ForEach(x => x.RootPath = "api");

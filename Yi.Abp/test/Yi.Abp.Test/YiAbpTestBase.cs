@@ -3,8 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Volo.Abp;
-using Yi.Framework.Rbac.Domain.Repositories;
-using Yi.Framework.Rbac.SqlSugarCore.Repositories;
+using Yi.Module.Rbac.Domain.Repositories;
+using Yi.Module.Rbac.SqlSugarCore.Repositories;
 
 namespace Yi.Abp.Test
 {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using Volo.Abp.BackgroundWorkers.Hangfire;
-using Yi.Framework.Rbac.Domain.Shared.Options;
+using Yi.Module.Rbac.Domain.Shared.Options;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
 namespace Yi.Abp.Web.Jobs.rbac

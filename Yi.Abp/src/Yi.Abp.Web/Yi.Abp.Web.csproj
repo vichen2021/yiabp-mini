@@ -12,7 +12,7 @@
     <PackageReference Include="Hangfire.Redis.StackExchange" Version="1.12.0" />
     <!-- 解决 docker 构建冲突问题，冲突版本信息如下 -->
     <!-- Yi.Abp.Web -> Hangfire.Redis.StackExchange 1.9.4 -> Hangfire.Core (>= 1.8.7)  -->
-    <!-- Yi.Abp.Web -> Yi.Abp.Application -> Yi.Framework.Rbac.Application -> Volo.Abp.BackgroundJobs.HangFire 0.4.1 -> Volo.Abp.HangFire 0.4.1 -> Hangfire.AspNetCore 1.6.19 -> Hangfire.Core (= 1.6.19). -->
+    <!-- Yi.Abp.Web -> Yi.Abp.Application -> Yi.Module.Rbac.Application -> Volo.Abp.BackgroundJobs.HangFire 0.4.1 -> Volo.Abp.HangFire 0.4.1 -> Hangfire.AspNetCore 1.6.19 -> Hangfire.Core (= 1.6.19). -->
     <PackageReference Include="Hangfire.Core" Version="1.8.22" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
@@ -31,7 +31,7 @@
     <ProjectReference Include="..\..\framework\Yi.Framework.AspNetCore\Yi.Framework.AspNetCore.csproj" />
     <ProjectReference Include="..\..\framework\Yi.Framework.BackgroundWorkers.Hangfire\Yi.Framework.BackgroundWorkers.Hangfire.csproj" />
     <ProjectReference Include="..\..\framework\Yi.Framework.Operation.Core\Yi.Framework.Operation.Core.csproj" />
-    <ProjectReference Include="..\..\module\audit-logging\Yi.Framework.AuditLogging.Application\Yi.Framework.AuditLogging.Application.csproj" />
+    <ProjectReference Include="..\..\module\audit-logging\Yi.Module.AuditLogging.Application\Yi.Module.AuditLogging.Application.csproj" />
     <ProjectReference Include="..\Yi.Abp.Application\Yi.Abp.Application.csproj" />
     <ProjectReference Include="..\Yi.Abp.SqlSugarCore\Yi.Abp.SqlSugarCore.csproj" />
   </ItemGroup>

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Yi.Abp.Client.Console;
-using Yi.Framework.Rbac.Application.Contracts.IServices;
+using Yi.Module.Rbac.Application.Contracts.IServices;
 
 try
 {
@@ -20,7 +20,7 @@ try
     var data1 = await account.GetCaptchaImageAsync();
 
     //登录
-    var data2 = await account.PostLoginAsync(new Yi.Framework.Rbac.Application.Contracts.Dtos.Account.LoginInputVo { UserName = "cc", Password = "123456", Code = string.Empty, Uuid = string.Empty });
+    var data2 = await account.PostLoginAsync(new Yi.Module.Rbac.Application.Contracts.Dtos.Account.LoginInputVo { UserName = "cc", Password = "123456", Code = string.Empty, Uuid = string.Empty });
 
 
     host.Run();

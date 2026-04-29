@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Yi.Framework.Rbac.Application.Contracts.Dtos.Account;
-using Yi.Framework.Rbac.Application.Contracts.IServices;
+using Yi.Module.Rbac.Application.Contracts.Dtos.Account;
+using Yi.Module.Rbac.Application.Contracts.IServices;
 
 namespace Yi.Abp.Client.WebApi.Controllers
 {

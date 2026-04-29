@@ -1,6 +1,6 @@
 ﻿using Hangfire;
 using Volo.Abp.BackgroundWorkers.Hangfire;
-using Yi.Framework.Rbac.Domain.Entities;
+using Yi.Module.Rbac.Domain.Entities;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
 namespace Yi.Abp.Web.Jobs

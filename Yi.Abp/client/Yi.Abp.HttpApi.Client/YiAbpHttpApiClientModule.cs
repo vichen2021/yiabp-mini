@@ -2,7 +2,7 @@
 using Volo.Abp.Autofac;
 using Volo.Abp.Http.Client;
 using Volo.Abp.Modularity;
-using Yi.Framework.Rbac.Application.Contracts;
+using Yi.Module.Rbac.Application.Contracts;
 
 namespace Yi.Abp.HttpApi.Client
 {
@@ -10,14 +10,14 @@ namespace Yi.Abp.HttpApi.Client
             typeof(AbpAutofacModule),
 
 
-        typeof(YiFrameworkRbacApplicationContractsModule))]
+        typeof(YiModuleRbacApplicationContractsModule))]
     public class YiAbpHttpApiClientModule : AbpModule
     {
         public override void ConfigureServices(ServiceConfigurationContext context)
         {
             //创建动态客户端代理
             context.Services.AddHttpClientProxies(
-                typeof(YiFrameworkRbacApplicationContractsModule).Assembly
+                typeof(YiModuleRbacApplicationContractsModule).Assembly
 
             );
             Configure<AbpRemoteServiceOptions>(options =>

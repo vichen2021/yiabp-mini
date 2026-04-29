@@ -29,7 +29,19 @@
       "Bash(rm -f module/rbac/Yi.Framework.Rbac.Application.Contracts/IServices/IOperationLogService.cs)",
       "Bash(rm -rf module/rbac/Yi.Framework.Rbac.Application.Contracts/Dtos/OperLog)",
       "Bash(rm -rf framework/Yi.Framework.Security.SqlSugarCore)",
-      "Bash(dotnet clean *)"
+      "Bash(dotnet clean *)",
+      "Bash(mv Yi.Framework.Rbac.Domain.Shared Yi.Module.Rbac.Domain.Shared)",
+      "Bash(mv Yi.Framework.Rbac.Domain Yi.Module.Rbac.Domain)",
+      "Bash(mv Yi.Framework.Rbac.SqlSugarCore Yi.Module.Rbac.SqlSugarCore)",
+      "Bash(mv Yi.Framework.Rbac.Application.Contracts Yi.Module.Rbac.Application.Contracts)",
+      "Bash(mv Yi.Framework.Rbac.Application Yi.Module.Rbac.Application)",
+      "Bash(mv Yi.Module.Rbac.Domain.Shared/Yi.Framework.Rbac.Domain.Shared.csproj Yi.Module.Rbac.Domain.Shared/Yi.Module.Rbac.Domain.Shared.csproj)",
+      "Bash(mv Yi.Module.Rbac.Domain/Yi.Framework.Rbac.Domain.csproj Yi.Module.Rbac.Domain/Yi.Module.Rbac.Domain.csproj)",
+      "Bash(mv Yi.Module.Rbac.SqlSugarCore/Yi.Framework.Rbac.SqlSugarCore.csproj Yi.Module.Rbac.SqlSugarCore/Yi.Module.Rbac.SqlSugarCore.csproj)",
+      "Bash(mv Yi.Module.Rbac.Application.Contracts/Yi.Framework.Rbac.Application.Contracts.csproj Yi.Module.Rbac.Application.Contracts/Yi.Module.Rbac.Application.Contracts.csproj)",
+      "Bash(mv Yi.Module.Rbac.Application/Yi.Framework.Rbac.Application.csproj Yi.Module.Rbac.Application/Yi.Module.Rbac.Application.csproj)",
+      "Bash(sed *)",
+      "Bash(git reset *)"
     ]
   }
 }

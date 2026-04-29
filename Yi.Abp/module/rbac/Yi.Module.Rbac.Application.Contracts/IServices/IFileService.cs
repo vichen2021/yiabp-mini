@@ -1,0 +1,27 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Yi.Framework.Ddd.Application.Contracts;
+using Yi.Module.Rbac.Application.Contracts.Dtos;
+
+namespace Yi.Module.Rbac.Application.Contracts.IServices;
+
+/// <summary>
+/// 文件应用服务接口
+/// </summary>
+public interface IFileService : IYiCrudAppService<FileGetListOutputDto, Guid, FileGetListInputVo>
+{
+    /// <summary>
+    /// 上传单个文件，返回文件访问链接
+    /// </summary>
+    Task<string> UploadAsync(IFormFile file);
+
+    /// <summary>
+    /// 批量上传文件，返回文件 id 列表（与入参 files 顺序一致）
+    /// </summary>
+    Task<List<Guid>> BatchUploadAsync(List<IFormFile> files);
+
+    /// <summary>
+    /// 下载文件
+    /// </summary>
+    Task<FileStreamResult> DownloadAsync(Guid id);
+}

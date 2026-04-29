@@ -129,7 +129,13 @@ namespace Yi.Framework.Operation.Core.Metadata
         {
             var ns = serviceType.Namespace ?? "";
 
-            // 根据命名空间推断
+            // Yi.Module.* 命名空间（业务模块）
+            if (ns.Contains("Yi.Module.Rbac")) return "system";
+            if (ns.Contains("Yi.Module.TenantManagement")) return "system";
+            if (ns.Contains("Yi.Module.AuditLogging")) return "monitor";
+            if (ns.Contains("Yi.Module.SettingManagement")) return "system";
+
+            // Yi.Framework.* 命名空间（框架模块）
             if (ns.Contains(".TenantManagement")) return "system";
             if (ns.Contains(".Services.System")) return "system";
             if (ns.Contains(".Services.Monitor")) return "monitor";

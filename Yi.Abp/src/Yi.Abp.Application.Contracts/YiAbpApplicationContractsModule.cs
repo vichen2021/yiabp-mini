@@ -1,16 +1,16 @@
 using Volo.Abp.SettingManagement;
 using Yi.Abp.Domain.Shared;
 using Yi.Framework.Ddd.Application.Contracts;
-using Yi.Framework.Rbac.Application.Contracts;
-using Yi.Framework.TenantManagement.Application.Contracts;
+using Yi.Module.Rbac.Application.Contracts;
+using Yi.Module.TenantManagement.Application.Contracts;
 
 namespace Yi.Abp.Application.Contracts
 {
     [DependsOn(
         typeof(YiAbpDomainSharedModule),
-        typeof(YiFrameworkRbacApplicationContractsModule),
+        typeof(YiModuleRbacApplicationContractsModule),
         typeof(AbpSettingManagementApplicationContractsModule),
-        typeof(YiFrameworkTenantManagementApplicationContractsModule),
+        typeof(YiModuleTenantManagementApplicationContractsModule),
         typeof(YiFrameworkDddApplicationContractsModule))]
     public class YiAbpApplicationContractsModule:AbpModule
     {

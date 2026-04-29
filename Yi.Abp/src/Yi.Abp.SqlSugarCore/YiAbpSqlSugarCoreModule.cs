@@ -2,21 +2,21 @@ using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.Modularity;
 using Yi.Abp.Domain;
 using Yi.Abp.SqlSugarCore;
-using Yi.Framework.AuditLogging.SqlSugarCore;
+using Yi.Module.AuditLogging.SqlSugarCore;
 using Yi.Framework.Mapster;
-using Yi.Framework.Rbac.SqlSugarCore;
-using Yi.Framework.SettingManagement.SqlSugarCore;
+using Yi.Module.Rbac.SqlSugarCore;
+using Yi.Module.SettingManagement.SqlSugarCore;
 using Yi.Framework.SqlSugarCore;
-using Yi.Framework.TenantManagement.SqlSugarCore;
+using Yi.Module.TenantManagement.SqlSugarCore;
 
 namespace Yi.Abp.SqlsugarCore
 {
     [DependsOn(
         typeof(YiAbpDomainModule),
-        typeof(YiFrameworkRbacSqlSugarCoreModule),
-        typeof(YiFrameworkSettingManagementSqlSugarCoreModule),
-        typeof(YiFrameworkAuditLoggingSqlSugarCoreModule),
-        typeof(YiFrameworkTenantManagementSqlSugarCoreModule),
+        typeof(YiModuleRbacSqlSugarCoreModule),
+        typeof(YiModuleSettingManagementSqlSugarCoreModule),
+        typeof(YiModuleAuditLoggingSqlSugarCoreModule),
+        typeof(YiModuleTenantManagementSqlSugarCoreModule),
         typeof(YiFrameworkMapsterModule),
         typeof(YiFrameworkSqlSugarCoreModule)
         )]
