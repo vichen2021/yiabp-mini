@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <Import Project="..\..\common.props" />
+    <Import Project="..\..\..\common.props" />
     <ItemGroup>
-        <ProjectReference Include="..\Yi.Framework.Core\Yi.Framework.Core.csproj" />
+        <ProjectReference Include="..\..\core\Yi.Framework.Core\Yi.Framework.Core.csproj" />
         <PackageReference Include="Volo.Abp.Caching" Version="$(AbpVersion)" />
     </ItemGroup>
 </Project>

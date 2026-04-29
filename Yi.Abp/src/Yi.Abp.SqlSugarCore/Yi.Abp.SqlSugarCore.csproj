@@ -2,8 +2,8 @@
 	<Import Project="..\..\common.props" />
 
   <ItemGroup>
-    <ProjectReference Include="..\..\framework\Yi.Framework.Mapster\Yi.Framework.Mapster.csproj" />
-    <ProjectReference Include="..\..\framework\Yi.Framework.SqlSugarCore\Yi.Framework.SqlSugarCore.csproj" />
+    <ProjectReference Include="..\..\framework\mapping\Yi.Framework.Mapster\Yi.Framework.Mapster.csproj" />
+    <ProjectReference Include="..\..\framework\sqlsugar\Yi.Framework.SqlSugarCore\Yi.Framework.SqlSugarCore.csproj" />
     <ProjectReference Include="..\..\module\audit-logging\Yi.Module.AuditLogging.SqlSugarCore\Yi.Module.AuditLogging.SqlSugarCore.csproj" />
         <ProjectReference Include="..\..\module\rbac\Yi.Module.Rbac.SqlSugarCore\Yi.Module.Rbac.SqlSugarCore.csproj" />
     <ProjectReference Include="..\..\module\setting-management\Yi.Module.SettingManagement.SqlSugarCore\Yi.Module.SettingManagement.SqlSugarCore.csproj" />

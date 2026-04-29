@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\framework\Yi.Framework.SqlSugarCore\Yi.Framework.SqlSugarCore.csproj" />
+    <ProjectReference Include="..\..\..\framework\sqlsugar\Yi.Framework.SqlSugarCore\Yi.Framework.SqlSugarCore.csproj" />
     <ProjectReference Include="..\Yi.Module.SettingManagement.Domain\Yi.Module.SettingManagement.Domain.csproj" />
   </ItemGroup>
 

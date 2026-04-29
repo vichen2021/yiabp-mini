@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\framework\Yi.Framework.Mapster\Yi.Framework.Mapster.csproj" />
-    <ProjectReference Include="..\..\..\framework\Yi.Framework.SqlSugarCore\Yi.Framework.SqlSugarCore.csproj" />
+    <ProjectReference Include="..\..\..\framework\mapping\Yi.Framework.Mapster\Yi.Framework.Mapster.csproj" />
+    <ProjectReference Include="..\..\..\framework\sqlsugar\Yi.Framework.SqlSugarCore\Yi.Framework.SqlSugarCore.csproj" />
     <ProjectReference Include="..\Yi.Module.AuditLogging.Domain\Yi.Module.AuditLogging.Domain.csproj" />
   </ItemGroup>
 

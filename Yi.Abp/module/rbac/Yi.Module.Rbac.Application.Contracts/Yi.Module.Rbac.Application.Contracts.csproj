@@ -2,8 +2,8 @@
 	<Import Project="..\..\..\common.props" />
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\framework\Yi.Framework.Ddd.Application.Contracts\Yi.Framework.Ddd.Application.Contracts.csproj" />
-    <ProjectReference Include="..\..\..\framework\Yi.Framework.Operation.Abstractions\Yi.Framework.Operation.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\framework\ddd\Yi.Framework.Ddd.Application.Contracts\Yi.Framework.Ddd.Application.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\framework\operation\Yi.Framework.Operation.Abstractions\Yi.Framework.Operation.Abstractions.csproj" />
     <ProjectReference Include="..\Yi.Module.Rbac.Domain.Shared\Yi.Module.Rbac.Domain.Shared.csproj" />
   </ItemGroup>
 

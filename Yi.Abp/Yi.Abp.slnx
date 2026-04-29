@@ -4,20 +4,37 @@
     <Project Path="client/Yi.Abp.Client.WebApi/Yi.Abp.Client.WebApi.csproj" />
     <Project Path="client/Yi.Abp.HttpApi.Client/Yi.Abp.HttpApi.Client.csproj" />
   </Folder>
-  <Folder Name="/framework/">
-    <Project Path="framework/Yi.Framework.AspNetCore.Authentication.OAuth/Yi.Framework.AspNetCore.Authentication.OAuth.csproj" />
-    <Project Path="framework/Yi.Framework.AspNetCore/Yi.Framework.AspNetCore.csproj" />
-    <Project Path="framework/Yi.Framework.BackgroundWorkers.Hangfire/Yi.Framework.BackgroundWorkers.Hangfire.csproj" />
-    <Project Path="framework/Yi.Framework.Caching.FreeRedis/Yi.Framework.Caching.FreeRedis.csproj" />
-    <Project Path="framework/Yi.Framework.Core/Yi.Framework.Core.csproj" />
-    <Project Path="framework/Yi.Framework.Ddd.Application.Contracts/Yi.Framework.Ddd.Application.Contracts.csproj" />
-    <Project Path="framework/Yi.Framework.Ddd.Application/Yi.Framework.Ddd.Application.csproj" />
-    <Project Path="framework/Yi.Framework.Mapster/Yi.Framework.Mapster.csproj" />
-    <Project Path="framework/Yi.Framework.Operation.Abstractions/Yi.Framework.Operation.Abstractions.csproj" />
-    <Project Path="framework/Yi.Framework.Operation.Core/Yi.Framework.Operation.Core.csproj" />
-    <Project Path="framework/Yi.Framework.SqlSugarCore.Abstractions/Yi.Framework.SqlSugarCore.Abstractions.csproj" />
-    <Project Path="framework/Yi.Framework.SqlSugarCore/Yi.Framework.SqlSugarCore.csproj" />
-    <Project Path="framework/Yi.Framework.WeChat.MiniProgram/Yi.Framework.WeChat.MiniProgram.csproj" />
+  <Folder Name="/framework/" />
+  <Folder Name="/framework/aspnetcore/">
+    <Project Path="framework/aspnetcore/Yi.Framework.AspNetCore.Authentication.OAuth/Yi.Framework.AspNetCore.Authentication.OAuth.csproj" />
+    <Project Path="framework/aspnetcore/Yi.Framework.AspNetCore/Yi.Framework.AspNetCore.csproj" />
+  </Folder>
+  <Folder Name="/framework/background-workers/">
+    <Project Path="framework/background-workers/Yi.Framework.BackgroundWorkers.Hangfire/Yi.Framework.BackgroundWorkers.Hangfire.csproj" />
+  </Folder>
+  <Folder Name="/framework/caching/">
+    <Project Path="framework/caching/Yi.Framework.Caching.FreeRedis/Yi.Framework.Caching.FreeRedis.csproj" />
+  </Folder>
+  <Folder Name="/framework/core/">
+    <Project Path="framework/core/Yi.Framework.Core/Yi.Framework.Core.csproj" />
+  </Folder>
+  <Folder Name="/framework/ddd/">
+    <Project Path="framework/ddd/Yi.Framework.Ddd.Application.Contracts/Yi.Framework.Ddd.Application.Contracts.csproj" />
+    <Project Path="framework/ddd/Yi.Framework.Ddd.Application/Yi.Framework.Ddd.Application.csproj" />
+  </Folder>
+  <Folder Name="/framework/integrations/">
+    <Project Path="framework/integrations/Yi.Framework.WeChat.MiniProgram/Yi.Framework.WeChat.MiniProgram.csproj" />
+  </Folder>
+  <Folder Name="/framework/mapping/">
+    <Project Path="framework/mapping/Yi.Framework.Mapster/Yi.Framework.Mapster.csproj" />
+  </Folder>
+  <Folder Name="/framework/operation/">
+    <Project Path="framework/operation/Yi.Framework.Operation.Abstractions/Yi.Framework.Operation.Abstractions.csproj" />
+    <Project Path="framework/operation/Yi.Framework.Operation.Core/Yi.Framework.Operation.Core.csproj" />
+  </Folder>
+  <Folder Name="/framework/sqlsugar/">
+    <Project Path="framework/sqlsugar/Yi.Framework.SqlSugarCore.Abstractions/Yi.Framework.SqlSugarCore.Abstractions.csproj" />
+    <Project Path="framework/sqlsugar/Yi.Framework.SqlSugarCore/Yi.Framework.SqlSugarCore.csproj" />
   </Folder>
   <Folder Name="/module/" />
   <Folder Name="/module/audit-logging/">

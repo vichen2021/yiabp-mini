@@ -297,10 +297,10 @@ Dictionary<string, string> BuildTemplates()
             @"using Volo.Abp.Domain;
 using Volo.Abp.Modularity;
 
-namespace Yi.Framework.{Pascal}.Domain.Shared
+namespace Yi.Module.{Pascal}.Domain.Shared
 {
     [DependsOn(typeof(AbpDddDomainSharedModule))]
-    public class YiFramework{Pascal}DomainSharedModule : AbpModule
+    public class YiModule{Pascal}DomainSharedModule : AbpModule
     {
 
     }
@@ -327,15 +327,15 @@ namespace Yi.Framework.{Pascal}.Domain.Shared
             "domain_module",
             @"using Volo.Abp.Domain;
 using Volo.Abp.Modularity;
-using Yi.Framework.{Pascal}.Domain.Shared;
+using Yi.Module.{Pascal}.Domain.Shared;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
-namespace Yi.Framework.{Pascal}.Domain
+namespace Yi.Module.{Pascal}.Domain
 {
-    [DependsOn(typeof(YiFramework{Pascal}DomainSharedModule),
+    [DependsOn(typeof(YiModule{Pascal}DomainSharedModule),
         typeof(AbpDddDomainModule),
         typeof(YiFrameworkSqlSugarCoreAbstractionsModule))]
-    public class YiFramework{Pascal}DomainModule : AbpModule
+    public class YiModule{Pascal}DomainModule : AbpModule
     {
 
     }
@@ -357,8 +357,8 @@ namespace Yi.Framework.{Pascal}.Domain
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include=""..\..\..\framework\Yi.Framework.SqlSugarCore.Abstractions\Yi.Framework.SqlSugarCore.Abstractions.csproj"" />
-    <ProjectReference Include=""..\Yi.Framework.{Pascal}.Domain.Shared\Yi.Framework.{Pascal}.Domain.Shared.csproj"" />
+    <ProjectReference Include=""..\..\..\framework\sqlsugar\Yi.Framework.SqlSugarCore.Abstractions\Yi.Framework.SqlSugarCore.Abstractions.csproj"" />
+    <ProjectReference Include=""..\Yi.Module.{Pascal}.Domain.Shared\Yi.Module.{Pascal}.Domain.Shared.csproj"" />
   </ItemGroup>
 </Project>
 "
@@ -366,14 +366,14 @@ namespace Yi.Framework.{Pascal}.Domain
         {
             "application_contracts_module",
             @"using Volo.Abp.Modularity;
-using Yi.Framework.{Pascal}.Domain.Shared;
+using Yi.Module.{Pascal}.Domain.Shared;
 using Yi.Framework.Ddd.Application.Contracts;
 
-namespace Yi.Framework.{Pascal}.Application.Contracts
+namespace Yi.Module.{Pascal}.Application.Contracts
 {
-    [DependsOn(typeof(YiFramework{Pascal}DomainSharedModule),
+    [DependsOn(typeof(YiModule{Pascal}DomainSharedModule),
         typeof(YiFrameworkDddApplicationContractsModule))]
-    public class YiFramework{Pascal}ApplicationContractsModule : AbpModule
+    public class YiModule{Pascal}ApplicationContractsModule : AbpModule
     {
 
     }
@@ -391,8 +391,8 @@ namespace Yi.Framework.{Pascal}.Application.Contracts
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include=""..\..\..\framework\Yi.Framework.Ddd.Application.Contracts\Yi.Framework.Ddd.Application.Contracts.csproj"" />
-    <ProjectReference Include=""..\Yi.Framework.{Pascal}.Domain.Shared\Yi.Framework.{Pascal}.Domain.Shared.csproj"" />
+    <ProjectReference Include=""..\..\..\framework\ddd\Yi.Framework.Ddd.Application.Contracts\Yi.Framework.Ddd.Application.Contracts.csproj"" />
+    <ProjectReference Include=""..\Yi.Module.{Pascal}.Domain.Shared\Yi.Module.{Pascal}.Domain.Shared.csproj"" />
   </ItemGroup>
 </Project>
 "
@@ -400,16 +400,16 @@ namespace Yi.Framework.{Pascal}.Application.Contracts
         {
             "application_module",
             @"using Volo.Abp.Modularity;
-using Yi.Framework.{Pascal}.Application.Contracts;
-using Yi.Framework.{Pascal}.Domain;
+using Yi.Module.{Pascal}.Application.Contracts;
+using Yi.Module.{Pascal}.Domain;
 using Yi.Framework.Ddd.Application;
 
-namespace Yi.Framework.{Pascal}.Application
+namespace Yi.Module.{Pascal}.Application
 {
-    [DependsOn(typeof(YiFramework{Pascal}ApplicationContractsModule),
-        typeof(YiFramework{Pascal}DomainModule),
+    [DependsOn(typeof(YiModule{Pascal}ApplicationContractsModule),
+        typeof(YiModule{Pascal}DomainModule),
         typeof(YiFrameworkDddApplicationModule))]
-    public class YiFramework{Pascal}ApplicationModule : AbpModule
+    public class YiModule{Pascal}ApplicationModule : AbpModule
     {
 
     }
@@ -427,9 +427,9 @@ namespace Yi.Framework.{Pascal}.Application
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include=""..\..\..\framework\Yi.Framework.Ddd.Application\Yi.Framework.Ddd.Application.csproj"" />
-    <ProjectReference Include=""..\Yi.Framework.{Pascal}.Application.Contracts\Yi.Framework.{Pascal}.Application.Contracts.csproj"" />
-    <ProjectReference Include=""..\Yi.Framework.{Pascal}.Domain\Yi.Framework.{Pascal}.Domain.csproj"" />
+    <ProjectReference Include=""..\..\..\framework\ddd\Yi.Framework.Ddd.Application\Yi.Framework.Ddd.Application.csproj"" />
+    <ProjectReference Include=""..\Yi.Module.{Pascal}.Application.Contracts\Yi.Module.{Pascal}.Application.Contracts.csproj"" />
+    <ProjectReference Include=""..\Yi.Module.{Pascal}.Domain\Yi.Module.{Pascal}.Domain.csproj"" />
   </ItemGroup>
 </Project>
 "
@@ -439,10 +439,10 @@ namespace Yi.Framework.{Pascal}.Application
             @"using Yi.Framework.SqlSugarCore;
 using Volo.Abp.Modularity;
 
-namespace Yi.Framework.{Pascal}.SqlSugarCore
+namespace Yi.Module.{Pascal}.SqlSugarCore
 {
     [DependsOn(typeof(YiFrameworkSqlSugarCoreModule))]
-    public class YiFramework{Pascal}SqlSugarCoreModule : AbpModule
+    public class YiModule{Pascal}SqlSugarCoreModule : AbpModule
     {
 
     }
@@ -459,8 +459,8 @@ namespace Yi.Framework.{Pascal}.SqlSugarCore
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include=""..\..\..\framework\Yi.Framework.SqlSugarCore\Yi.Framework.SqlSugarCore.csproj"" />
-    <ProjectReference Include=""..\Yi.Framework.{Pascal}.Domain\Yi.Framework.{Pascal}.Domain.csproj"" />
+    <ProjectReference Include=""..\..\..\framework\sqlsugar\Yi.Framework.SqlSugarCore\Yi.Framework.SqlSugarCore.csproj"" />
+    <ProjectReference Include=""..\Yi.Module.{Pascal}.Domain\Yi.Module.{Pascal}.Domain.csproj"" />
   </ItemGroup>
 </Project>
 "
@@ -478,8 +478,8 @@ List<LayerDefinition> BuildLayers(string pascalName)
             Dirs = new string[0],
             Files = new List<FileDefinition>
             {
-                new FileDefinition("YiFramework" + pascalName + "DomainSharedModule.cs", "domain_shared_module"),
-                new FileDefinition("Yi.Framework." + pascalName + ".Domain.Shared.csproj", "domain_shared_csproj")
+                new FileDefinition("YiModule" + pascalName + "DomainSharedModule.cs", "domain_shared_module"),
+                new FileDefinition("Yi.Module." + pascalName + ".Domain.Shared.csproj", "domain_shared_csproj")
             }
         },
         new LayerDefinition
@@ -488,8 +488,8 @@ List<LayerDefinition> BuildLayers(string pascalName)
             Dirs = new[] { "Entities" },
             Files = new List<FileDefinition>
             {
-                new FileDefinition("YiFramework" + pascalName + "DomainModule.cs", "domain_module"),
-                new FileDefinition("Yi.Framework." + pascalName + ".Domain.csproj", "domain_csproj")
+                new FileDefinition("YiModule" + pascalName + "DomainModule.cs", "domain_module"),
+                new FileDefinition("Yi.Module." + pascalName + ".Domain.csproj", "domain_csproj")
             }
         },
         new LayerDefinition
@@ -498,8 +498,8 @@ List<LayerDefinition> BuildLayers(string pascalName)
             Dirs = new[] { "Dtos", "IServices" },
             Files = new List<FileDefinition>
             {
-                new FileDefinition("YiFramework" + pascalName + "ApplicationContractsModule.cs", "application_contracts_module"),
-                new FileDefinition("Yi.Framework." + pascalName + ".Application.Contracts.csproj", "application_contracts_csproj")
+                new FileDefinition("YiModule" + pascalName + "ApplicationContractsModule.cs", "application_contracts_module"),
+                new FileDefinition("Yi.Module." + pascalName + ".Application.Contracts.csproj", "application_contracts_csproj")
             }
         },
         new LayerDefinition
@@ -508,8 +508,8 @@ List<LayerDefinition> BuildLayers(string pascalName)
             Dirs = new[] { "Services" },
             Files = new List<FileDefinition>
             {
-                new FileDefinition("YiFramework" + pascalName + "ApplicationModule.cs", "application_module"),
-                new FileDefinition("Yi.Framework." + pascalName + ".Application.csproj", "application_csproj")
+                new FileDefinition("YiModule" + pascalName + "ApplicationModule.cs", "application_module"),
+                new FileDefinition("Yi.Module." + pascalName + ".Application.csproj", "application_csproj")
             }
         },
         new LayerDefinition
@@ -518,8 +518,8 @@ List<LayerDefinition> BuildLayers(string pascalName)
             Dirs = new[] { "Repositories" },
             Files = new List<FileDefinition>
             {
-                new FileDefinition("YiFramework" + pascalName + "SqlSugarCoreModule.cs", "sqlsugarcore_module"),
-                new FileDefinition("Yi.Framework." + pascalName + ".SqlSugarCore.csproj", "sqlsugarcore_csproj")
+                new FileDefinition("YiModule" + pascalName + "SqlSugarCoreModule.cs", "sqlsugarcore_module"),
+                new FileDefinition("Yi.Module." + pascalName + ".SqlSugarCore.csproj", "sqlsugarcore_csproj")
             }
         }
     };
@@ -550,7 +550,7 @@ void GenerateModuleFiles(
 
     foreach (var layer in layers)
     {
-        var projectName = "Yi.Framework." + nameInfo.Pascal + "." + layer.Name;
+        var projectName = "Yi.Module." + nameInfo.Pascal + "." + layer.Name;
         var layerPath = Path.Combine(modulePath, projectName);
         Directory.CreateDirectory(layerPath);
 
@@ -582,23 +582,23 @@ void UpdateMainModuleClasses(string codeRoot, string pascalName, bool dryRun)
     {
         {
             "src/Yi.Abp.Domain.Shared/YiAbpDomainSharedModule.cs",
-            new ModuleTarget("YiFramework" + pascalName + "DomainSharedModule", "Domain.Shared")
+            new ModuleTarget("YiModule" + pascalName + "DomainSharedModule", "Domain.Shared")
         },
         {
             "src/Yi.Abp.Domain/YiAbpDomainModule.cs",
-            new ModuleTarget("YiFramework" + pascalName + "DomainModule", "Domain")
+            new ModuleTarget("YiModule" + pascalName + "DomainModule", "Domain")
         },
         {
             "src/Yi.Abp.Application.Contracts/YiAbpApplicationContractsModule.cs",
-            new ModuleTarget("YiFramework" + pascalName + "ApplicationContractsModule", "Application.Contracts")
+            new ModuleTarget("YiModule" + pascalName + "ApplicationContractsModule", "Application.Contracts")
         },
         {
             "src/Yi.Abp.Application/YiAbpApplicationModule.cs",
-            new ModuleTarget("YiFramework" + pascalName + "ApplicationModule", "Application")
+            new ModuleTarget("YiModule" + pascalName + "ApplicationModule", "Application")
         },
         {
             "src/Yi.Abp.SqlSugarCore/YiAbpSqlSugarCoreModule.cs",
-            new ModuleTarget("YiFramework" + pascalName + "SqlSugarCoreModule", "SqlSugarCore")
+            new ModuleTarget("YiModule" + pascalName + "SqlSugarCoreModule", "SqlSugarCore")
         }
     };
 
@@ -620,7 +620,7 @@ void UpdateMainModuleClasses(string codeRoot, string pascalName, bool dryRun)
         }
 
         var content = File.ReadAllText(filePath);
-        var usingStatement = "using Yi.Framework." + pascalName + "." + entry.Value.LayerName + ";";
+        var usingStatement = "using Yi.Module." + pascalName + "." + entry.Value.LayerName + ";";
 
         if (content.Contains(usingStatement))
         {
@@ -719,11 +719,11 @@ void UpdateMainProjectFiles(string codeRoot, NameInfo nameInfo, bool dryRun)
         var projectRef =
             "<ProjectReference Include=\"..\\..\\module\\" +
             nameInfo.Kebab +
-            "\\Yi.Framework." +
+            "\\Yi.Module." +
             nameInfo.Pascal +
             "." +
             layerName +
-            "\\Yi.Framework." +
+            "\\Yi.Module." +
             nameInfo.Pascal +
             "." +
             layerName +
@@ -795,11 +795,11 @@ void UpdateSolutionFile(string codeRoot, NameInfo nameInfo, bool dryRun)
 
     var folderXml =
         "<Folder Name=\"/module/" + nameInfo.Kebab + "/\">\n" +
-        "  <Project Path=\"module/" + nameInfo.Kebab + "/Yi.Framework." + nameInfo.Pascal + ".Application.Contracts/Yi.Framework." + nameInfo.Pascal + ".Application.Contracts.csproj\" />\n" +
-        "  <Project Path=\"module/" + nameInfo.Kebab + "/Yi.Framework." + nameInfo.Pascal + ".Application/Yi.Framework." + nameInfo.Pascal + ".Application.csproj\" />\n" +
-        "  <Project Path=\"module/" + nameInfo.Kebab + "/Yi.Framework." + nameInfo.Pascal + ".Domain.Shared/Yi.Framework." + nameInfo.Pascal + ".Domain.Shared.csproj\" />\n" +
-        "  <Project Path=\"module/" + nameInfo.Kebab + "/Yi.Framework." + nameInfo.Pascal + ".Domain/Yi.Framework." + nameInfo.Pascal + ".Domain.csproj\" />\n" +
-        "  <Project Path=\"module/" + nameInfo.Kebab + "/Yi.Framework." + nameInfo.Pascal + ".SqlSugarCore/Yi.Framework." + nameInfo.Pascal + ".SqlSugarCore.csproj\" />\n" +
+        "  <Project Path=\"module/" + nameInfo.Kebab + "/Yi.Module." + nameInfo.Pascal + ".Application.Contracts/Yi.Module." + nameInfo.Pascal + ".Application.Contracts.csproj\" />\n" +
+        "  <Project Path=\"module/" + nameInfo.Kebab + "/Yi.Module." + nameInfo.Pascal + ".Application/Yi.Module." + nameInfo.Pascal + ".Application.csproj\" />\n" +
+        "  <Project Path=\"module/" + nameInfo.Kebab + "/Yi.Module." + nameInfo.Pascal + ".Domain.Shared/Yi.Module." + nameInfo.Pascal + ".Domain.Shared.csproj\" />\n" +
+        "  <Project Path=\"module/" + nameInfo.Kebab + "/Yi.Module." + nameInfo.Pascal + ".Domain/Yi.Module." + nameInfo.Pascal + ".Domain.csproj\" />\n" +
+        "  <Project Path=\"module/" + nameInfo.Kebab + "/Yi.Module." + nameInfo.Pascal + ".SqlSugarCore/Yi.Module." + nameInfo.Pascal + ".SqlSugarCore.csproj\" />\n" +
         "</Folder>\n";
 
     var moduleFolderMatches = Regex.Matches(content, "<Folder Name=\"/module/[^\"]+/\">");
@@ -872,7 +872,7 @@ void UpdateDynamicApi(string codeRoot, NameInfo nameInfo, bool dryRun)
     }
 
     var content = File.ReadAllText(webModulePath);
-    var usingStatement = "using Yi.Framework." + nameInfo.Pascal + ".Application;";
+    var usingStatement = "using Yi.Module." + nameInfo.Pascal + ".Application;";
 
     if (content.Contains(usingStatement))
     {
@@ -883,7 +883,7 @@ void UpdateDynamicApi(string codeRoot, NameInfo nameInfo, bool dryRun)
         var lines = content.Split('\n').ToList();
         var usingLines = lines
             .Select((line, index) => new { line, index })
-            .Where(x => x.line.StartsWith("using Yi.Framework."))
+            .Where(x => x.line.StartsWith("using Yi.Framework.") || x.line.StartsWith("using Yi.Module."))
             .Select(x => x.index)
             .ToList();
 
@@ -906,7 +906,7 @@ void UpdateDynamicApi(string codeRoot, NameInfo nameInfo, bool dryRun)
     }
 
     var apiConfigBase =
-        "options.ConventionalControllers.Create(typeof(YiFramework" +
+        "options.ConventionalControllers.Create(typeof(YiModule" +
         nameInfo.Pascal +
         "ApplicationModule).Assembly,";
     var apiConfigLambda =
@@ -972,7 +972,7 @@ void UpdateDynamicApi(string codeRoot, NameInfo nameInfo, bool dryRun)
 
                 // Build formatted config
                 var formattedConfig =
-                    indentLine1 + "options.ConventionalControllers.Create(typeof(YiFramework" + nameInfo.Pascal + "ApplicationModule).Assembly," + "\n" +
+                    indentLine1 + "options.ConventionalControllers.Create(typeof(YiModule" + nameInfo.Pascal + "ApplicationModule).Assembly," + "\n" +
                     indentLine2 + "options => options.RemoteServiceName = \"" + nameInfo.Kebab + "\");" + "\n\n";
 
                 if (insertBeforePos >= 0)

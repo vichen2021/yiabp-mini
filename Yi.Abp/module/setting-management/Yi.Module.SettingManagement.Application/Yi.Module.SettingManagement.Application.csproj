@@ -10,7 +10,7 @@
 		<PackageReference Include="Volo.Abp.SettingManagement.Application.Contracts" Version="$(AbpVersion)" />
 	</ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\framework\Yi.Framework.Ddd.Application\Yi.Framework.Ddd.Application.csproj" />
+    <ProjectReference Include="..\..\..\framework\ddd\Yi.Framework.Ddd.Application\Yi.Framework.Ddd.Application.csproj" />
     <ProjectReference Include="..\Yi.Module.SettingManagement.Domain\Yi.Module.SettingManagement.Domain.csproj" />
   </ItemGroup>
 

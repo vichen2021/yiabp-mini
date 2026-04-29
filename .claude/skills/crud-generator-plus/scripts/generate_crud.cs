@@ -8,7 +8,7 @@
  *     dotnet run --file generate_crud.cs -- --entity <路径> --module <模块名> [--enum <枚举路径>]
  *
  * 示例:
- *     dotnet run --file generate_crud.cs -- --entity "Yi.Abp/module/order/Yi.Framework.Order.Domain/Entities/OrderInfoAggregateRoot.cs" --module order --enum "Yi.Abp/module/order/Yi.Framework.Order.Domain.Shared/Enums/OrderTypeEnum.cs"
+ *     dotnet run --file generate_crud.cs -- --entity "Yi.Abp/module/order/Yi.Module.Order.Domain/Entities/OrderInfoAggregateRoot.cs" --module order --enum "Yi.Abp/module/order/Yi.Module.Order.Domain.Shared/Enums/OrderTypeEnum.cs"
  */
 
 using System;
@@ -200,8 +200,8 @@ string CleanType(string type)
 void GenerateBackendFiles(string basePath, EntityInfo entity, List<EnumInfo> enums)
 {
     var modulePath = Path.Combine(basePath, "Yi.Abp", "module", entity.Module);
-    var contractsPath = Path.Combine(modulePath, $"Yi.Framework.{entity.ModuleNamespace}.Application.Contracts");
-    var applicationPath = Path.Combine(modulePath, $"Yi.Framework.{entity.ModuleNamespace}.Application");
+    var contractsPath = Path.Combine(modulePath, $"Yi.Module.{entity.ModuleNamespace}.Application.Contracts");
+    var applicationPath = Path.Combine(modulePath, $"Yi.Module.{entity.ModuleNamespace}.Application");
 
     // 创建 DTO 目录
     var dtosPath = Path.Combine(contractsPath, "Dtos", entity.EntityName);
@@ -256,9 +256,9 @@ string GenerateGetOutputDto(EntityInfo entity, List<EnumInfo> enums)
     var hasEnums = entity.EnumTypes.Count > 0;
     var sb = new StringBuilder();
     sb.AppendLine("using Volo.Abp.Application.Dtos;");
-    if (hasEnums) sb.AppendLine($"using Yi.Framework.{entity.ModuleNamespace}.Domain.Shared.Enums;");
+    if (hasEnums) sb.AppendLine($"using Yi.Module.{entity.ModuleNamespace}.Domain.Shared.Enums;");
     sb.AppendLine();
-    sb.AppendLine($"namespace Yi.Framework.{entity.ModuleNamespace}.Application.Contracts.Dtos.{entity.EntityName}");
+    sb.AppendLine($"namespace Yi.Module.{entity.ModuleNamespace}.Application.Contracts.Dtos.{entity.EntityName}");
     sb.AppendLine("{");
     sb.AppendLine($"    /// <summary>");
     sb.AppendLine($"    /// {entity.EntityComment}单个输出DTO");
@@ -311,9 +311,9 @@ string GenerateGetListOutputDto(EntityInfo entity, List<EnumInfo> enums)
     var hasEnums = entity.EnumTypes.Count > 0;
     var sb = new StringBuilder();
     sb.AppendLine("using Volo.Abp.Application.Dtos;");
-    if (hasEnums) sb.AppendLine($"using Yi.Framework.{entity.ModuleNamespace}.Domain.Shared.Enums;");
+    if (hasEnums) sb.AppendLine($"using Yi.Module.{entity.ModuleNamespace}.Domain.Shared.Enums;");
     sb.AppendLine();
-    sb.AppendLine($"namespace Yi.Framework.{entity.ModuleNamespace}.Application.Contracts.Dtos.{entity.EntityName}");
+    sb.AppendLine($"namespace Yi.Module.{entity.ModuleNamespace}.Application.Contracts.Dtos.{entity.EntityName}");
     sb.AppendLine("{");
     sb.AppendLine($"    /// <summary>");
     sb.AppendLine($"    /// {entity.EntityComment}列表输出DTO");
@@ -369,9 +369,9 @@ string GenerateGetListInputVo(EntityInfo entity)
 
     var sb = new StringBuilder();
     sb.AppendLine("using Yi.Framework.Ddd.Application.Contracts;");
-    if (hasEnums) sb.AppendLine($"using Yi.Framework.{entity.ModuleNamespace}.Domain.Shared.Enums;");
+    if (hasEnums) sb.AppendLine($"using Yi.Module.{entity.ModuleNamespace}.Domain.Shared.Enums;");
     sb.AppendLine();
-    sb.AppendLine($"namespace Yi.Framework.{entity.ModuleNamespace}.Application.Contracts.Dtos.{entity.EntityName}");
+    sb.AppendLine($"namespace Yi.Module.{entity.ModuleNamespace}.Application.Contracts.Dtos.{entity.EntityName}");
     sb.AppendLine("{");
     sb.AppendLine($"    /// <summary>");
     sb.AppendLine($"    /// {entity.EntityComment}列表查询输入");
@@ -412,9 +412,9 @@ string GenerateCreateInputVo(EntityInfo entity, List<EnumInfo> enums)
     var hasEnums = entity.EnumTypes.Count > 0;
     var sb = new StringBuilder();
     sb.AppendLine("using System.ComponentModel.DataAnnotations;");
-    if (hasEnums) sb.AppendLine($"using Yi.Framework.{entity.ModuleNamespace}.Domain.Shared.Enums;");
+    if (hasEnums) sb.AppendLine($"using Yi.Module.{entity.ModuleNamespace}.Domain.Shared.Enums;");
     sb.AppendLine();
-    sb.AppendLine($"namespace Yi.Framework.{entity.ModuleNamespace}.Application.Contracts.Dtos.{entity.EntityName}");
+    sb.AppendLine($"namespace Yi.Module.{entity.ModuleNamespace}.Application.Contracts.Dtos.{entity.EntityName}");
     sb.AppendLine("{");
     sb.AppendLine($"    /// <summary>");
     sb.AppendLine($"    /// {entity.EntityComment}创建输入");
@@ -459,9 +459,9 @@ string GenerateUpdateInputVo(EntityInfo entity, List<EnumInfo> enums)
     var hasEnums = entity.EnumTypes.Count > 0;
     var sb = new StringBuilder();
     sb.AppendLine("using System.ComponentModel.DataAnnotations;");
-    if (hasEnums) sb.AppendLine($"using Yi.Framework.{entity.ModuleNamespace}.Domain.Shared.Enums;");
+    if (hasEnums) sb.AppendLine($"using Yi.Module.{entity.ModuleNamespace}.Domain.Shared.Enums;");
     sb.AppendLine();
-    sb.AppendLine($"namespace Yi.Framework.{entity.ModuleNamespace}.Application.Contracts.Dtos.{entity.EntityName}");
+    sb.AppendLine($"namespace Yi.Module.{entity.ModuleNamespace}.Application.Contracts.Dtos.{entity.EntityName}");
     sb.AppendLine("{");
     sb.AppendLine($"    /// <summary>");
     sb.AppendLine($"    /// {entity.EntityComment}更新输入");
@@ -505,9 +505,9 @@ string GenerateIService(EntityInfo entity)
 {
     var sb = new StringBuilder();
     sb.AppendLine("using Yi.Framework.Ddd.Application.Contracts;");
-    sb.AppendLine($"using Yi.Framework.{entity.ModuleNamespace}.Application.Contracts.Dtos.{entity.EntityName};");
+    sb.AppendLine($"using Yi.Module.{entity.ModuleNamespace}.Application.Contracts.Dtos.{entity.EntityName};");
     sb.AppendLine();
-    sb.AppendLine($"namespace Yi.Framework.{entity.ModuleNamespace}.Application.Contracts.IServices");
+    sb.AppendLine($"namespace Yi.Module.{entity.ModuleNamespace}.Application.Contracts.IServices");
     sb.AppendLine("{");
     sb.AppendLine($"    /// <summary>");
     sb.AppendLine($"    /// {entity.EntityComment}服务接口");
@@ -536,14 +536,14 @@ string GenerateService(EntityInfo entity)
     if (entity.IsTree)
         sb.AppendLine("using Microsoft.AspNetCore.Mvc;");
     sb.AppendLine("using Yi.Framework.Ddd.Application;");
-    sb.AppendLine($"using Yi.Framework.{entity.ModuleNamespace}.Application.Contracts.Dtos.{entity.EntityName};");
-    sb.AppendLine($"using Yi.Framework.{entity.ModuleNamespace}.Application.Contracts.IServices;");
-    sb.AppendLine($"using Yi.Framework.{entity.ModuleNamespace}.Domain.Entities;");
+    sb.AppendLine($"using Yi.Module.{entity.ModuleNamespace}.Application.Contracts.Dtos.{entity.EntityName};");
+    sb.AppendLine($"using Yi.Module.{entity.ModuleNamespace}.Application.Contracts.IServices;");
+    sb.AppendLine($"using Yi.Module.{entity.ModuleNamespace}.Domain.Entities;");
     if (entity.EnumTypes.Count > 0)
-        sb.AppendLine($"using Yi.Framework.{entity.ModuleNamespace}.Domain.Shared.Enums;");
+        sb.AppendLine($"using Yi.Module.{entity.ModuleNamespace}.Domain.Shared.Enums;");
     sb.AppendLine("using Yi.Framework.SqlSugarCore.Abstractions;");
     sb.AppendLine();
-    sb.AppendLine($"namespace Yi.Framework.{entity.ModuleNamespace}.Application.Services");
+    sb.AppendLine($"namespace Yi.Module.{entity.ModuleNamespace}.Application.Services");
     sb.AppendLine("{");
     sb.AppendLine($"    /// <summary>");
     sb.AppendLine($"    /// {entity.EntityComment}服务实现");

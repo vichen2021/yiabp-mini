@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	<Import Project="..\..\common.props" />
+	<Import Project="..\..\..\common.props" />
 
 
   <ItemGroup>
@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Yi.Framework.Core\Yi.Framework.Core.csproj" />
+    <ProjectReference Include="..\..\core\Yi.Framework.Core\Yi.Framework.Core.csproj" />
   </ItemGroup>
 
 </Project>

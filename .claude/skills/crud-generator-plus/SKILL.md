@@ -65,16 +65,16 @@ description: 快速生成完整 CRUD 代码，基于实体类.cs 直接解析生
 
 ### 实体类模板
 
-**位置**: `Yi.Abp/module/{module}/Yi.Framework.{Module}.Domain/Entities/{Entity}AggregateRoot.cs`
+**位置**: `Yi.Abp/module/{module}/Yi.Module.{Module}.Domain/Entities/{Entity}AggregateRoot.cs`
 
 ```csharp
 using SqlSugar;
 using Volo.Abp.Auditing;
 using Volo.Abp.Domain.Entities;
 using Yi.Framework.Core.Data;
-using Yi.Framework.{Module}.Domain.Shared.Enums;
+using Yi.Module.{Module}.Domain.Shared.Enums;
 
-namespace Yi.Framework.{Module}.Domain.Entities;
+namespace Yi.Module.{Module}.Domain.Entities;
 
 /// <summary>
 /// {实体中文名}
@@ -103,12 +103,12 @@ public class {Entity}AggregateRoot : AggregateRoot<Guid>, ISoftDelete, IAuditedO
 
 ### 枚举类模板
 
-**位置**: `Yi.Abp/module/{module}/Yi.Framework.{Module}.Domain.Shared/Enums/{Enum}Enum.cs`
+**位置**: `Yi.Abp/module/{module}/Yi.Module.{Module}.Domain.Shared/Enums/{Enum}Enum.cs`
 
 ```csharp
 using System.ComponentModel;
 
-namespace Yi.Framework.{Module}.Domain.Shared.Enums;
+namespace Yi.Module.{Module}.Domain.Shared.Enums;
 
 public enum {Enum}Enum
 {
@@ -125,7 +125,7 @@ public enum {Enum}Enum
 
 ```bash
 dotnet run --file .claude/skills/crud-generator-plus/scripts/generate_crud.cs -- \
-  --entity "Yi.Abp/module/{module}/Yi.Framework.{Module}.Domain/Entities/{Entity}AggregateRoot.cs" \
+  --entity "Yi.Abp/module/{module}/Yi.Module.{Module}.Domain/Entities/{Entity}AggregateRoot.cs" \
   --module "{module}"
 ```
 
@@ -240,7 +240,7 @@ SqlSugarCore/Repositories/{Entity}Repository.cs
 操作：
 
 **创建独立种子数据文件**：
-- 目录：Yi.Abp/module/rbac/Yi.Framework.Rbac.SqlSugarCore/DataSeeds/{ModulePascal}DataSeed/
+- 目录：Yi.Abp/module/rbac/Yi.Module.Rbac.SqlSugarCore/DataSeeds/{ModulePascal}DataSeed/
 - 文件：MenuDataSeed.cs, DictionaryTypeDataSeed.cs, DictionaryDataSeed.cs
 
 **文件结构**（独立 IDataSeedContributor）：
@@ -281,7 +281,7 @@ SqlSugarCore/Repositories/{Entity}Repository.cs
 ### 后端验证
 
 ```bash
-dotnet build Yi.Abp/module/{module}/Yi.Framework.{Module}.Application/Yi.Framework.{Module}.Application.csproj --no-restore
+dotnet build Yi.Abp/module/{module}/Yi.Module.{Module}.Application/Yi.Module.{Module}.Application.csproj --no-restore
 ```
 
 ### 前端验证
@@ -296,7 +296,7 @@ cd Yi.Vben5 && pnpm run check:type --filter="@vben/web-antd" 2>&1 | grep -E "({m
 
 ```bash
 # 检查关键文件内容
-head -20 Yi.Abp/module/{module}/Yi.Framework.{Module}.Application.Contracts/Dtos/{Entity}/{Entity}GetListOutputDto.cs
+head -20 Yi.Abp/module/{module}/Yi.Module.{Module}.Application.Contracts/Dtos/{Entity}/{Entity}GetListOutputDto.cs
 grep DictEnum Yi.Vben5/apps/web-antd/src/views/{module}/{entity}/data.ts
 ```
 

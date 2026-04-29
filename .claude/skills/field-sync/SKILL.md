@@ -28,7 +28,7 @@ Ask the user to clarify:
 
 #### 2.1 Find DTO Location
 
-DTOs are located in: `Yi.Abp/module/{module-name}/Yi.Framework.{ModuleName}.Application.Contracts/Dtos/{EntityName}/`
+DTOs are located in: `Yi.Abp/module/{module-name}/Yi.Module.{ModuleName}.Application.Contracts/Dtos/{EntityName}/`
 
 #### 2.2 Update 5 DTO Files
 
@@ -50,7 +50,7 @@ For each of the following files, add/remove/update the corresponding field:
 
 ### Step 3: Update Service Implementation
 
-Location: `Yi.Abp/module/{module-name}/Yi.Framework.{ModuleName}.Application/Services/{EntityName}Service.cs`
+Location: `Yi.Abp/module/{module-name}/Yi.Module.{ModuleName}.Application/Services/{EntityName}Service.cs`
 
 #### 3.1 Update GetListAsync Method
 
@@ -126,7 +126,7 @@ If the field is a boolean or enum used in dropdowns, add dictionary data.
 
 #### 6.1 Update DictionaryTypeDataSeed.cs
 
-Location: `Yi.Abp/module/rbac/Yi.Framework.Rbac.SqlSugarCore/DataSeeds/DictionaryTypeDataSeed.cs`
+Location: `Yi.Abp/module/rbac/Yi.Module.Rbac.SqlSugarCore/DataSeeds/DictionaryTypeDataSeed.cs`
 
 Add new dictionary type:
 ```csharp
@@ -144,7 +144,7 @@ entities.Add(dictNew);
 
 #### 6.2 Update DictionaryDataSeed.cs
 
-Location: `Yi.Abp/module/rbac/Yi.Framework.Rbac.SqlSugarCore/DataSeeds/DictionaryDataSeed.cs`
+Location: `Yi.Abp/module/rbac/Yi.Module.Rbac.SqlSugarCore/DataSeeds/DictionaryDataSeed.cs`
 
 Add dictionary data entries:
 ```csharp
@@ -181,7 +181,7 @@ Run build and typecheck to verify changes:
 
 ```powershell
 # Backend
-dotnet build Yi.Abp/module/{module-name}/Yi.Framework.{ModuleName}.Application/Yi.Framework.{ModuleName}.Application.csproj
+dotnet build Yi.Abp/module/{module-name}/Yi.Module.{ModuleName}.Application/Yi.Module.{ModuleName}.Application.csproj
 
 # Frontend
 cd Yi.Vben5/apps/web-antd

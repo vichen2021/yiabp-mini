@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\framework\Yi.Framework.Ddd.Application\Yi.Framework.Ddd.Application.csproj" />
+    <ProjectReference Include="..\..\..\framework\ddd\Yi.Framework.Ddd.Application\Yi.Framework.Ddd.Application.csproj" />
     <ProjectReference Include="..\Yi.Module.AuditLogging.Application.Contracts\Yi.Module.AuditLogging.Application.Contracts.csproj" />
     <ProjectReference Include="..\Yi.Module.AuditLogging.Domain\Yi.Module.AuditLogging.Domain.csproj" />
   </ItemGroup>

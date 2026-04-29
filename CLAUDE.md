@@ -44,11 +44,11 @@
 
 ```
 module/{模块名}/
-├── Yi.Framework.{Module}.Domain.Shared/          # 共享层：枚举、常量、事件
-├── Yi.Framework.{Module}.Domain/                 # 领域层：实体、聚合根、领域服务、仓储接口
-├── Yi.Framework.{Module}.Application.Contracts/  # 应用契约层：DTO、服务接口
-├── Yi.Framework.{Module}.Application/            # 应用层：服务实现
-└── Yi.Framework.{Module}.SqlSugarCore/           # 基础设施层：ORM 配置、仓储实现、数据种子
+├── Yi.Module.{Module}.Domain.Shared/          # 共享层：枚举、常量、事件
+├── Yi.Module.{Module}.Domain/                 # 领域层：实体、聚合根、领域服务、仓储接口
+├── Yi.Module.{Module}.Application.Contracts/  # 应用契约层：DTO、服务接口
+├── Yi.Module.{Module}.Application/            # 应用层：服务实现
+└── Yi.Module.{Module}.SqlSugarCore/           # 基础设施层：ORM 配置、仓储实现、数据种子
 ```
 
 ### 模块内部目录结构
@@ -82,13 +82,13 @@ IServices/             # 服务接口定义
 
 ### 项目命名
 
-项目遵循层级命名：`Yi.Framework.{模块名}.{层名}`
+业务模块项目遵循层级命名：`Yi.Module.{模块名}.{层名}`。`Yi.Framework.*` 仅用于 `framework` 目录下的框架基础设施、通用能力和横切能力。
 
 ```
-Yi.Framework.Rbac.Domain
-Yi.Framework.Rbac.Application
-Yi.Framework.Rbac.Application.Contracts
-Yi.Framework.Rbac.SqlSugarCore
+Yi.Module.Rbac.Domain
+Yi.Module.Rbac.Application
+Yi.Module.Rbac.Application.Contracts
+Yi.Module.Rbac.SqlSugarCore
 ```
 
 ### 类命名
@@ -101,7 +101,7 @@ Yi.Framework.Rbac.SqlSugarCore
 | 应用服务 | `{Name}Service` | `UserService` |
 | 领域服务 | `{Name}Manager` | `UserManager`, `AccountManager` |
 | 服务接口 | `I{Name}Service` | `IUserService`, `IRoleService` |
-| ABP 模块 | `YiFramework{Module}{Layer}Module` | `YiFrameworkRbacApplicationModule` |
+| ABP 模块 | `YiModule{Module}{Layer}Module` | `YiModuleRbacApplicationModule` |
 
 ### DTO 命名
 
@@ -118,7 +118,7 @@ Yi.Framework.Rbac.SqlSugarCore
 ### 变量命名
 
 - 私有字段使用下划线前缀：`_repository`, `_userManager`, `_currentUser`
-- 命名空间与文件夹结构一致：`Yi.Framework.Rbac.Domain.Entities`
+- 命名空间与文件夹结构一致：`Yi.Module.Rbac.Domain.Entities`
 - 所有实体主键类型统一使用 `Guid`
 
 ## 编码模式
@@ -253,7 +253,7 @@ public class UserService : YiCrudAppService<
 PreConfigure<AbpAspNetCoreMvcOptions>(options =>
 {
     options.ConventionalControllers.Create(
-        typeof(YiFramework{Module}ApplicationModule).Assembly,
+        typeof(YiModule{Module}ApplicationModule).Assembly,
         options =>
         {
             options.RemoteServiceName = "{module}";
@@ -315,10 +315,10 @@ var outPut = await _repository._DbQueryable
 
 ```csharp
 [DependsOn(
-    typeof(YiFrameworkRbacApplicationContractsModule),
-    typeof(YiFrameworkRbacDomainModule),
+    typeof(YiModuleRbacApplicationContractsModule),
+    typeof(YiModuleRbacDomainModule),
     typeof(YiFrameworkDddApplicationModule))]
-public class YiFrameworkRbacApplicationModule : AbpModule
+public class YiModuleRbacApplicationModule : AbpModule
 ```
 
 ### 事件总线
@@ -443,11 +443,11 @@ public class ModuleAService : ApplicationService
 
 ```xml
 <!-- ModuleA.Application.csproj -->
-<ProjectReference Include="..\..\module-b\Yi.Framework.ModuleB.Application.Contracts\..." />
+<ProjectReference Include="..\..\module-b\Yi.Module.ModuleB.Application.Contracts\..." />
 ```
 ```csharp
-// YiFrameworkModuleAApplicationModule.cs
-[DependsOn(typeof(YiFrameworkModuleBApplicationContractsModule))]
+// YiModuleModuleAApplicationModule.cs
+[DependsOn(typeof(YiModuleModuleBApplicationContractsModule))]
 ```
 
 **方式二：防腐层适配器模式（Application.Contracts 无法满足时）**
@@ -458,7 +458,7 @@ public class ModuleAService : ApplicationService
 
 ```
 module/{消费方模块}/
-└── Yi.Framework.{Module}.Domain/
+└── Yi.Module.{Module}.Domain/
     └── Adapters/
         └── I{Target}Adapter.cs      ← 接口定义
 ```
@@ -467,7 +467,7 @@ module/{消费方模块}/
 
 ```
 module/{消费方模块}/
-└── Yi.Framework.{Module}.Domain.Shared/
+└── Yi.Module.{Module}.Domain.Shared/
     └── Integration/
         └── {Target}Dto.cs            ← 防腐层 DTO
 ```
@@ -476,7 +476,7 @@ module/{消费方模块}/
 
 ```
 module/{消费方模块}/
-└── Yi.Framework.{Module}.Application/
+└── Yi.Module.{Module}.Application/
     └── Adapters/
         └── {Target}Adapter.cs        ← 实现，注入目标模块的 IService
 ```
@@ -523,7 +523,7 @@ public class SomethingHappenedHandler : IDistributedEventHandler<SomethingHappen
 
 ```csharp
 // 错误：ModuleA 直接引用 ModuleB.Domain 的实体和仓储
-using Yi.Framework.ModuleB.Domain.Entities;
+using Yi.Module.ModuleB.Domain.Entities;
 private readonly ISqlSugarRepository<ModuleBEntity, Guid> _moduleBRepository;
 ```
 
