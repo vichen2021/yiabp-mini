@@ -32,7 +32,7 @@ export function onlineList(params?: PageQuery) {
  */
 export function forceLogout(tokenId: IDS) {
   return requestClient.deleteWithMsg<void>(Api.root, {
-    params: { ids: tokenId.join(',') },
+    params: { ids: tokenId },
   });
 }
 

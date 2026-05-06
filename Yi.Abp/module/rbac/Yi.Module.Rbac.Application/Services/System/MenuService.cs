@@ -9,6 +9,8 @@ using Yi.Framework.Operation.Abstractions.Attributes;
 using Yi.Framework.SqlSugarCore.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using Yi.Module.Rbac.Domain.Shared.Dtos;
+using Yi.Module.TenantManagement.Application.Contracts.IServices;
+using Yi.Module.TenantManagement.Application.Contracts.Dtos.TenantPackage;
 
 namespace Yi.Module.Rbac.Application.Services
 {
@@ -20,10 +22,12 @@ namespace Yi.Module.Rbac.Application.Services
        IMenuService
     {
         private readonly ISqlSugarRepository<MenuAggregateRoot, Guid> _repository;
-        public MenuService(ISqlSugarRepository<MenuAggregateRoot, Guid> repository) : base(repository)
-        {
-            _repository = repository;
-        }
+        private readonly ITenantPackageService _tenantPackageService;
+
+        public MenuService(
+            ISqlSugarRepository<MenuAggregateRoot, Guid> repository,
+            ITenantPackageService tenantPackageService) : base(repository) =>
+            (_repository, _tenantPackageService) = (repository, tenantPackageService);
 
         [Route("menu/list")]
         public async Task<List<MenuGetListOutputDto>> GetListAsync(MenuGetListInputVo input)
@@ -35,7 +39,7 @@ namespace Yi.Module.Rbac.Application.Services
                         .ToListAsync();
             return await MapToGetListOutputDtosAsync(entities);
         }
-        
+
         /// <summary>
         /// 获取菜单树
         /// </summary>
@@ -45,7 +49,15 @@ namespace Yi.Module.Rbac.Application.Services
             var menuList = await _repository._DbQueryable.ToListAsync();
             return menuList.TreeDtoBuild();
         }
-        
-        
+
+        /// <summary>
+        /// 获取租户套餐菜单树
+        /// </summary>
+        /// <param name="packageId">套餐ID，空Guid表示新增模式</param>
+        /// <returns>包含 CheckedKeys 和 Menus 的结果</returns>
+        public async Task<MenuTreeResultDto> GetTenantPackageMenuTreeAsync(Guid? packageId)
+        {
+            return await _tenantPackageService.GetMenuTreeAsync(packageId);
+        }
     }
 }

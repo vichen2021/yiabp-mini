@@ -43,73 +43,6 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
                 IsDeleted = false
             };
             entities.Add(system);
-
-            //代码生成
-            MenuAggregateRoot code = new MenuAggregateRoot(_guidGenerator.Create(), Guid.Empty)
-            {
-                MenuName = "代码生成",
-                MenuType = MenuTypeEnum.Catalogue,
-                Router = "/code",
-                IsShow = true,
-                IsLink = false,
-                MenuIcon = "tabler:code",
-                OrderNum = 91,
-                IsDeleted = false,
-            };
-            entities.Add(code);
-
-            //数据表管理
-            MenuAggregateRoot table = new MenuAggregateRoot(_guidGenerator.Create(), code.Id)
-            {
-                MenuName = "数据表管理",
-                PermissionCode = "code:table:list",
-                MenuType = MenuTypeEnum.Menu,
-                Router = "table",
-                IsShow = true,
-                IsLink = false,
-                IsCache = true,
-                Component = "code/table/index",
-                MenuIcon = "tabler:table",
-                OrderNum = 100,
-                IsDeleted = false
-            };
-            entities.Add(table);
-
-            //字段管理
-            MenuAggregateRoot field = new MenuAggregateRoot(_guidGenerator.Create(), code.Id)
-            {
-                MenuName = "字段管理",
-                PermissionCode = "code:field:list",
-                MenuType = MenuTypeEnum.Menu,
-                Router = "field",
-                IsShow = true,
-                IsLink = false,
-                IsCache = true,
-                Component = "code/field/index",
-                MenuIcon = "tabler:file-code",
-                OrderNum = 99,
-                ParentId = code.Id,
-                IsDeleted = false
-            };
-            entities.Add(field);
-
-
-            //模板管理
-            MenuAggregateRoot template = new MenuAggregateRoot(_guidGenerator.Create(), code.Id)
-            {
-                MenuName = "模板管理",
-                PermissionCode = "code:template:list",
-                MenuType = MenuTypeEnum.Menu,
-                Router = "template",
-                IsShow = true,
-                IsLink = false,
-                IsCache = true,
-                Component = "code/template/index",
-                MenuIcon = "tabler:template",
-                OrderNum = 98,
-                IsDeleted = false
-            };
-            entities.Add(template);
             
             
             //系统监控
@@ -275,7 +208,69 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
                 IsDeleted = false
             };
             entities.Add(tenantRemove);
-            
+
+            //租户套餐
+            MenuAggregateRoot tenantPackage = new MenuAggregateRoot(_guidGenerator.Create())
+            {
+                MenuName = "租户套餐",
+                PermissionCode = "system:tenantPackage:list",
+                MenuType = MenuTypeEnum.Menu,
+                Router = "tenant-package",
+                IsShow = true,
+                IsLink = false,
+                IsCache = true,
+                Component = "system/tenant-package/index",
+                MenuIcon = "tabler:package",
+                OrderNum = 102,
+                ParentId = system.Id,
+                IsDeleted = false
+            };
+            entities.Add(tenantPackage);
+
+            MenuAggregateRoot tenantPackageQuery = new MenuAggregateRoot(_guidGenerator.Create())
+            {
+                MenuName = "套餐查询",
+                PermissionCode = "system:tenantPackage:list",
+                MenuType = MenuTypeEnum.Component,
+                OrderNum = 100,
+                ParentId = tenantPackage.Id,
+                IsDeleted = false
+            };
+            entities.Add(tenantPackageQuery);
+
+            MenuAggregateRoot tenantPackageAdd = new MenuAggregateRoot(_guidGenerator.Create())
+            {
+                MenuName = "套餐新增",
+                PermissionCode = "system:tenantPackage:add",
+                MenuType = MenuTypeEnum.Component,
+                OrderNum = 99,
+                ParentId = tenantPackage.Id,
+                IsDeleted = false
+            };
+            entities.Add(tenantPackageAdd);
+
+            MenuAggregateRoot tenantPackageEdit = new MenuAggregateRoot(_guidGenerator.Create())
+            {
+                MenuName = "套餐修改",
+                PermissionCode = "system:tenantPackage:edit",
+                MenuType = MenuTypeEnum.Component,
+                OrderNum = 98,
+                ParentId = tenantPackage.Id,
+                IsDeleted = false
+            };
+            entities.Add(tenantPackageEdit);
+
+            MenuAggregateRoot tenantPackageRemove = new MenuAggregateRoot(_guidGenerator.Create())
+            {
+                MenuName = "套餐删除",
+                PermissionCode = "system:tenantPackage:delete",
+                MenuType = MenuTypeEnum.Component,
+                OrderNum = 97,
+                ParentId = tenantPackage.Id,
+                IsDeleted = false
+            };
+            entities.Add(tenantPackageRemove);
+
             //用户管理
             MenuAggregateRoot user = new MenuAggregateRoot(_guidGenerator.Create())
             {

@@ -45,7 +45,7 @@ export function fileConfigUpdate(data: Partial<FileConfig>) {
  */
 export function fileConfigRemove(ossConfigIds: IDS) {
   return requestClient.deleteWithMsg<void>(Api.root, {
-    params: { ids: ossConfigIds.join(',') },
+    params: { ids: ossConfigIds },
   });
 }
 

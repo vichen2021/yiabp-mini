@@ -1,6 +1,7 @@
 ﻿using SqlSugar;
 using Volo.Abp.Auditing;
 using Volo.Abp.Domain.Entities;
+using Volo.Abp.MultiTenancy;
 using Yi.Framework.Core.Data;
 using Yi.Module.Rbac.Domain.Shared.Enums;
 
@@ -10,13 +11,18 @@ namespace Yi.Module.Rbac.Domain.Entities
     /// 角色表
     /// </summary>
     [SugarTable("Role")]
-    public class RoleAggregateRoot : AggregateRoot<Guid>, ISoftDelete, IAuditedObject, IOrderNum, IState
+    public class RoleAggregateRoot : AggregateRoot<Guid>, ISoftDelete, IAuditedObject, IOrderNum, IState, IMultiTenant
     {
         /// <summary>
         /// 主键
         /// </summary>
         [SugarColumn(IsPrimaryKey = true)]
         public override Guid Id { get; protected set; }
+
+        /// <summary>
+        /// 租户ID
+        /// </summary>
+        public Guid? TenantId { get; set; }
 
         /// <summary>
         /// 逻辑删除

@@ -20,7 +20,7 @@ import {
   tenantList,
   tenantRemove,
   tenantUpdate,
-  // tenantSyncPackage,
+  tenantSyncPackage,
 } from '#/api/system/tenant';
 import { TableSwitch } from '#/components/table';
 import { useTenantStore } from '#/store/tenant';
@@ -90,14 +90,14 @@ async function handleEdit(record: Tenant) {
   drawerApi.open();
 }
 
-// async function handleSync(record: Tenant) {
-//   const tenantId = record.tenantId || record.id;
-//   const packageId = record.packageId;
-//   if (tenantId && packageId) {
-//     await tenantSyncPackage(tenantId, packageId);
-//     await tableApi.query();
-//   }
-// }
+async function handleSync(record: Tenant) {
+  const tenantId = record.tenantId || record.id;
+  const packageId = record.packageId;
+  if (tenantId && packageId) {
+    await tenantSyncPackage(tenantId, packageId);
+    await tableApi.query();
+  }
+}
 
 const tenantStore = useTenantStore();
 async function handleDelete(row: Tenant) {
@@ -254,7 +254,7 @@ async function handleInitConfirm() {
           >
             初始化
           </ghost-button>
-          <!-- <Popconfirm
+          <Popconfirm
             :get-popup-container="getVxePopupContainer"
             :title="`确认同步[${row.name || row.companyName}]的套餐吗?`"
             placement="left"
@@ -266,7 +266,7 @@ async function handleInitConfirm() {
             >
               {{ $t('pages.common.sync') }}
             </ghost-button>
-          </Popconfirm> -->
+          </Popconfirm>
           <Popconfirm
             :get-popup-container="getVxePopupContainer"
             placement="left"

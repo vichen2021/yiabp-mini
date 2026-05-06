@@ -4,6 +4,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\framework\ddd\Yi.Framework.Ddd.Application.Contracts\Yi.Framework.Ddd.Application.Contracts.csproj" />
     <ProjectReference Include="..\..\..\framework\operation\Yi.Framework.Operation.Abstractions\Yi.Framework.Operation.Abstractions.csproj" />
+    <ProjectReference Include="..\..\tenant-management\Yi.Module.TenantManagement.Application.Contracts\Yi.Module.TenantManagement.Application.Contracts.csproj" />
     <ProjectReference Include="..\Yi.Module.Rbac.Domain.Shared\Yi.Module.Rbac.Domain.Shared.csproj" />
   </ItemGroup>
 

@@ -836,7 +836,7 @@ string GenerateIndexTs(EntityInfo entity)
     sb.AppendLine($"/** {entity.EntityComment}删除 */");
     sb.AppendLine($"export function {entity.EntityNameLower}Remove({entity.EntityNameLower}Ids: IDS) {{");
     sb.AppendLine("  return requestClient.deleteWithMsg<void>(Api.root, {");
-    sb.AppendLine($"    params: {{ ids: {entity.EntityNameLower}Ids.join(',') }},");
+    sb.AppendLine($"    params: {{ ids: {entity.EntityNameLower}Ids }},");
     sb.AppendLine("  });");
     sb.AppendLine("}");
     sb.AppendLine();

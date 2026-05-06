@@ -19,6 +19,7 @@ export interface Tenant {
   licenseNumber?: string;
   intro?: string;
   remark?: string;
+  packageId?: string;
   // 表单专用（新建租户时的初始管理员）
   username?: string;
   password?: string;

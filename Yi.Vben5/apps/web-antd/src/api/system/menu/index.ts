@@ -8,7 +8,7 @@ enum Api {
   menuList = '/menu/list',
   menuTreeSelect = '/menu/tree',
   root = '/menu',
-  tenantPackageMenuTreeselect = '/menu/tenantPackageMenuTreeselect',
+  tenantPackageMenuTreeselect = '/menu/tenant-package-menu-tree',
 }
 
 /**
@@ -51,7 +51,7 @@ export function menuUpdate(data: Partial<Menu>) {
  */
 export function menuRemove(menuIds: IDS) {
   return requestClient.deleteWithMsg<void>(Api.root, {
-    params: { ids: menuIds.join(',') },
+    params: { ids: menuIds },
   });
 }
 

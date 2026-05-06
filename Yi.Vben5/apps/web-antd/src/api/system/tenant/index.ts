@@ -67,7 +67,7 @@ export function tenantUpdate(data: Partial<Tenant>) {
  */
 export function tenantRemove(ids: IDS) {
   return requestClient.deleteWithMsg<void>(Api.root, {
-    params: { ids: ids.join(',') },
+    params: { ids },
   });
 }
 

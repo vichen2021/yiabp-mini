@@ -107,7 +107,7 @@ export function userUpdate(data: Partial<User>) {
  */
 export function userRemove(userIds: IDS) {
   return requestClient.deleteWithMsg<void>(Api.root, {
-    params: { ids: userIds.join(',') },
+    params: { ids: userIds },
   });
 }
 

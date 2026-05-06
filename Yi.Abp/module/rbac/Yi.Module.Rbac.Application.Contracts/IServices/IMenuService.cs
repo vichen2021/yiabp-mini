@@ -2,6 +2,7 @@ using Volo.Abp.Application.Services;
 using Yi.Framework.Ddd.Application.Contracts;
 using Yi.Module.Rbac.Application.Contracts.Dtos.Menu;
 using Yi.Module.Rbac.Domain.Shared.Dtos;
+using Yi.Module.TenantManagement.Application.Contracts.Dtos.TenantPackage;
 
 namespace Yi.Module.Rbac.Application.Contracts.IServices
 {
@@ -22,5 +23,11 @@ namespace Yi.Module.Rbac.Application.Contracts.IServices
         /// </summary>
         /// <returns>菜单树结构列表</returns>
         Task<List<MenuTreeDto>> GetTreeAsync();
+        /// <summary>
+        /// 获取租户套餐菜单树
+        /// </summary>
+        /// <param name="packageId">套餐ID，空Guid表示新增模式</param>
+        /// <returns>包含 CheckedKeys 和 Menus 的结果</returns>
+        Task<MenuTreeResultDto> GetTenantPackageMenuTreeAsync(Guid? packageId);
     }
 }

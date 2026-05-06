@@ -48,7 +48,11 @@
       "Bash(mv Yi.Framework.Caching.FreeRedis caching/)",
       "Bash(mv Yi.Framework.Core core/)",
       "Bash(grep -rn \"\\\\.\\\\.\\\\\\\\\\\\\\\\framework\\\\\\\\\\\\\\\\Yi\\\\.Framework\" --include=\"*.csproj\" .)",
-      "Bash(grep -rn '../framework/Yi\\\\.Framework' --include=\"*.csproj\" .)"
+      "Bash(grep -rn '../framework/Yi\\\\.Framework' --include=\"*.csproj\" .)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git commit *)"
     ]
   }
 }

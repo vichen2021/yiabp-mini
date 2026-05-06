@@ -1,17 +1,40 @@
-/**
- * @description 租户套餐
- * @param packageId id
- * @param packageName 名称
- * @param menuIds 菜单id  格式为[1,2,3] 返回为string 提交为数组
- * @param remark 备注
- * @param menuCheckStrictly 是否关联父节点
- * @param status 状态
- */
+/** 租户套餐实体接口 */
 export interface TenantPackage {
-  packageId: string;
+  id: string;
+  creationTime: string;
+  creatorId?: string;
+  /** 套餐名称 */
   packageName: string;
-  menuIds: number[] | string;
-  remark: string;
+  /** 菜单树选择是否父子关联 */
   menuCheckStrictly: boolean;
-  status: string;
+  orderNum: number;
+  state: boolean;
+  remark?: string | null;
+}
+
+/** 租户套餐创建输入 */
+export interface TenantPackageCreateInput {
+  packageName: string;
+  menuCheckStrictly: boolean;
+  orderNum?: number;
+  state?: boolean;
+  remark?: string | null;
+}
+
+/** 租户套餐更新输入 */
+export interface TenantPackageUpdateInput {
+  id: string;
+  packageName: string;
+  menuCheckStrictly: boolean;
+  orderNum?: number;
+  state?: boolean;
+  remark?: string | null;
+}
+
+/** 租户套餐列表查询参数 */
+export interface TenantPackageListParams {
+  packageName?: string;
+  state?: boolean;
+  startTime?: string;
+  endTime?: string;
 }

@@ -1,4 +1,4 @@
-﻿using Lazy.Captcha.Core.Generator;
+using Lazy.Captcha.Core.Generator;
 using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp.BlobStoring;
 using Volo.Abp.BlobStoring.FileSystem;
@@ -6,13 +6,14 @@ using Yi.Framework.Ddd.Application;
 using Yi.Module.Rbac.Application.Contracts;
 using Yi.Module.Rbac.Domain;
 using Yi.Module.Rbac.Domain.File;
+using Yi.Module.TenantManagement.Application.Contracts;
 
 namespace Yi.Module.Rbac.Application
 {
     [DependsOn(
         typeof(YiModuleRbacApplicationContractsModule),
         typeof(YiModuleRbacDomainModule),
-
+        typeof(YiModuleTenantManagementApplicationContractsModule),
 
         typeof(YiFrameworkDddApplicationModule),
         typeof(AbpBlobStoringFileSystemModule))]

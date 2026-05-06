@@ -17,6 +17,7 @@ using Yi.Framework.SqlSugarCore.Abstractions;
 using Yi.Module.TenantManagement.Application.Contracts;
 using Yi.Module.TenantManagement.Application.Contracts.Dtos;
 using Yi.Module.TenantManagement.Domain;
+using Yi.Module.TenantManagement.Domain.Entities;
 
 namespace Yi.Module.TenantManagement.Application
 {
@@ -33,9 +34,15 @@ namespace Yi.Module.TenantManagement.Application
         private readonly DbConnOptions _dbConnOptions;
         private readonly SqlSugarAndConfigurationTenantStore _tenantStore;
         private readonly UserManager _userManager;
+        private readonly ISqlSugarRepository<TenantPackageMenuEntity> _tenantPackageMenuRepository;
+        private readonly ISqlSugarRepository<RoleAggregateRoot, Guid> _roleRepository;
+        private readonly ISqlSugarRepository<RoleMenuEntity> _roleMenuRepository;
 
         public TenantService(ISqlSugarRepository<TenantAggregateRoot, Guid> repository, IDataSeeder dataSeeder,
-            IOptions<DbConnOptions> dbConnOptions, SqlSugarAndConfigurationTenantStore tenantStore, UserManager userManager) :
+            IOptions<DbConnOptions> dbConnOptions, SqlSugarAndConfigurationTenantStore tenantStore, UserManager userManager,
+            ISqlSugarRepository<TenantPackageMenuEntity> tenantPackageMenuRepository,
+            ISqlSugarRepository<RoleAggregateRoot, Guid> roleRepository,
+            ISqlSugarRepository<RoleMenuEntity> roleMenuRepository) :
             base(repository)
         {
             _repository = repository;
@@ -43,6 +50,9 @@ namespace Yi.Module.TenantManagement.Application
             _dbConnOptions = dbConnOptions.Value;
             _tenantStore = tenantStore;
             _userManager = userManager;
+            _tenantPackageMenuRepository = tenantPackageMenuRepository;
+            _roleRepository = roleRepository;
+            _roleMenuRepository = roleMenuRepository;
         }
 
         /// <summary>
@@ -207,6 +217,53 @@ namespace Yi.Module.TenantManagement.Application
             }
 
             return new TenantInitOutputDto { NeedForce = false };
+        }
+
+        /// <summary>
+        /// 同步套餐菜单到租户
+        /// </summary>
+        /// <param name="tenantId">租户ID</param>
+        /// <param name="packageId">套餐ID</param>
+        public async Task SyncPackageAsync(Guid tenantId, Guid packageId)
+        {
+            // 查询套餐关联的菜单ID（在宿主机上下文中）
+            var packageMenuIds = await _tenantPackageMenuRepository._DbQueryable
+                .Where(x => x.PackageId == packageId)
+                .Select(x => x.MenuId)
+                .ToListAsync();
+
+            // 在租户上下文中查询角色并更新菜单关联
+            using (CurrentTenant.Change(tenantId))
+            {
+                // 查询租户下的所有角色
+                var roles = await _roleRepository._DbQueryable.ToListAsync();
+
+                foreach (var role in roles)
+                {
+                    // 管理员角色：全量替换
+                    if (role.RoleCode == "admin")
+                    {
+                        // 删除该角色的所有菜单关联
+                        await _roleMenuRepository.DeleteAsync(x => x.RoleId == role.Id);
+
+                        // 插入套餐的菜单
+                        var roleMenus = packageMenuIds.Select(menuId => new RoleMenuEntity
+                        {
+                            RoleId = role.Id,
+                            MenuId = menuId
+                        }).ToList();
+                        await _roleMenuRepository.InsertRangeAsync(roleMenus);
+                    }
+                    else
+                    {
+                        // 其他角色：裁剪不在套餐中的菜单
+                        await _roleMenuRepository._Db.Deleteable<RoleMenuEntity>()
+                            .Where(x => x.RoleId == role.Id)
+                            .Where(x => !packageMenuIds.Contains(x.MenuId))
+                            .ExecuteCommandAsync();
+                    }
+                }
+            }
         }
 
         private async Task CodeFirst(IServiceProvider service, string databaseName)
