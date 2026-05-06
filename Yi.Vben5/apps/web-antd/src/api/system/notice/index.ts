@@ -48,7 +48,7 @@ export function noticeUpdate(data: any) {
  */
 export function noticeRemove(ids: IDS) {
   return requestClient.deleteWithMsg<void>(Api.root, {
-    params: { ids: ids.join(',') },
+    params: { ids },
   });
 }
 

@@ -35,7 +35,7 @@ export function fileInfo(fileId: ID) {
  */
 export function fileRemove(fileIds: IDS) {
   return requestClient.deleteWithMsg<void>(Api.root, {
-    params: { ids: fileIds.join(',') },
+    params: { ids: fileIds },
   });
 }
 

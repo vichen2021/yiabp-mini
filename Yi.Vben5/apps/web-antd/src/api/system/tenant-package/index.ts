@@ -88,6 +88,6 @@ export function packageChangeStatus(data: Partial<TenantPackage>) {
  */
 export function packageRemove(ids: IDS) {
   return requestClient.deleteWithMsg<void>(Api.root, {
-    params: { ids: ids.join(',') },
+    params: { ids },
   });
 }

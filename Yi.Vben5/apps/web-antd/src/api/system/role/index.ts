@@ -70,7 +70,7 @@ export function roleUpdate(data: Partial<Role>) {
  */
 export function roleRemove(roleIds: IDS) {
   return requestClient.deleteWithMsg<void>(Api.root, {
-    params: { ids: roleIds.join(',') },
+    params: { ids: roleIds },
   });
 }
 

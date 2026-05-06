@@ -64,7 +64,7 @@ export function postUpdate(data: Partial<Post>) {
  */
 export function postRemove(postIds: IDS) {
   return requestClient.deleteWithMsg<void>(Api.root, {
-    params: { ids: postIds.join(',') },
+    params: { ids: postIds },
   });
 }
 

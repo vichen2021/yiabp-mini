@@ -72,6 +72,6 @@ export function clientChangeStatus(data: any) {
  */
 export function clientRemove(ids: IDS) {
   return requestClient.deleteWithMsg<void>(Api.root, {
-    params: { ids: ids.join(',') },
+    params: { ids },
   });
 }

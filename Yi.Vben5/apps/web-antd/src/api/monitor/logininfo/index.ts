@@ -37,7 +37,7 @@ export function loginInfoExport(data: any) {
  */
 export function loginInfoRemove(infoIds: IDS) {
   return requestClient.deleteWithMsg<void>(Api.root, {
-    params: { ids: infoIds.join(',') },
+    params: { ids: infoIds },
   });
 }
 

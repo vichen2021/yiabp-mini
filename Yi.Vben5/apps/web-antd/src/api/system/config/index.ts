@@ -64,7 +64,7 @@ export function configAdd(data: Partial<SysConfig>) {
  */
 export function configRemove(configIds: IDS) {
   return requestClient.deleteWithMsg<void>(Api.root, {
-    params: { ids: configIds.join(',') },
+    params: { ids: configIds },
   });
 }
 
