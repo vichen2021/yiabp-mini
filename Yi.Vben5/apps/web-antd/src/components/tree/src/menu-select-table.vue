@@ -13,7 +13,7 @@ import type { MenuOption } from '#/api/system/menu/model';
 
 import { nextTick, onMounted, ref, shallowRef, watch } from 'vue';
 
-import { cloneDeep, findGroupParentIds } from '@vben/utils';
+import { cloneDeep } from '@vben/utils';
 
 import { Alert, Checkbox, RadioGroup, Space } from 'ant-design-vue';
 import { uniq } from 'lodash-es';
@@ -318,17 +318,9 @@ function getCheckedKeys() {
   // 节点关联
   if (association.value) {
     const records = tableApi?.grid?.getCheckboxRecords?.(true) ?? [];
-    // 子节点
+    // 只收集叶子节点ID，父节点由VXE表格关联模式自动处理
     const nodeKeys = getKeys(records, true);
-    // 所有父节点
-    // Note: findGroupParentIds is typed for number[] but works with strings at runtime
-    const parentIds = findGroupParentIds(
-      props.menus,
-      nodeKeys as any,
-    ) as (string | number)[];
-    // 拼接 去重
-    const realKeys = uniq([...parentIds, ...nodeKeys]);
-    return realKeys;
+    return uniq(nodeKeys);
   }
   // 节点独立
 
