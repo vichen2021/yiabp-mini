@@ -21,7 +21,21 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
         {
             if (!await _repository.IsAnyAsync(x => x.MenuName == "系统管理"&&x.MenuSource==MenuSourceEnum.Ruoyi))
             {
-                await _repository.InsertManyAsync(GetSeedData());
+                var seedData = GetSeedData();
+
+                // 租户上下文：排除宿主专属菜单（租户管理、租户套餐）
+                if (context.TenantId != null)
+                {
+                    seedData = seedData.Where(x =>
+                        x.MenuName != "租户管理" &&
+                        x.MenuName != "租户套餐" &&
+                        x.MenuName != "套餐查询" &&
+                        x.MenuName != "套餐新增" &&
+                        x.MenuName != "套餐修改" &&
+                        x.MenuName != "套餐删除").ToList();
+                }
+
+                await _repository.InsertManyAsync(seedData);
             }
         }
         public List<MenuAggregateRoot> GetSeedData()

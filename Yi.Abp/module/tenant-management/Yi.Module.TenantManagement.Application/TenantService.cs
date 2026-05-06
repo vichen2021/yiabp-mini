@@ -216,6 +216,12 @@ namespace Yi.Module.TenantManagement.Application
                 }
             }
 
+            // 同步套餐菜单到租户（如果租户绑定了套餐）
+            if (tenant.PackageId.HasValue)
+            {
+                await SyncPackageAsync(id, tenant.PackageId.Value);
+            }
+
             return new TenantInitOutputDto { NeedForce = false };
         }
 
