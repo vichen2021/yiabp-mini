@@ -169,15 +169,15 @@ export const drawerSchema: FormSchemaGetter = () => [
     label: '连接字符串',
     rules: 'required',
   },
-  // {
-  //   component: 'Select',
-  //   componentProps: {
-  //     getPopupContainer,
-  //   },
-  //   fieldName: 'packageId',
-  //   label: '租户套餐',
-  //   rules: 'selectRequired',
-  // },
+  {
+    component: 'Select',
+    componentProps: {
+      getPopupContainer,
+    },
+    fieldName: 'packageId',
+    label: '租户套餐',
+    rules: 'selectRequired',
+  },
   {
     component: 'DatePicker',
     componentProps: {

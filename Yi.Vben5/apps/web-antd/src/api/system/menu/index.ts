@@ -8,7 +8,7 @@ enum Api {
   menuList = '/menu/list',
   menuTreeSelect = '/menu/tree',
   root = '/menu',
-  tenantPackageMenuTreeselect = '/menu/tenantPackageMenuTreeselect',
+  tenantPackageMenuTreeselect = '/menu/tenant-package-menu-tree',
 }
 
 /**

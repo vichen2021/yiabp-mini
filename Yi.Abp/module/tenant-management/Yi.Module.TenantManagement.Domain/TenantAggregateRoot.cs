@@ -69,6 +69,9 @@ namespace Yi.Module.TenantManagement.Domain
         /// <summary>备注</summary>
         public string? Remark { get; set; }
 
+        /// <summary>关联套餐ID</summary>
+        public Guid? PackageId { get; set; }
+
         [SugarColumn(IsIgnore = true)]
         public override ExtraPropertyDictionary ExtraProperties { get => base.ExtraProperties; protected set => base.ExtraProperties = value; }
         public virtual void SetConnectionString(DbType dbType, string connectionString)
