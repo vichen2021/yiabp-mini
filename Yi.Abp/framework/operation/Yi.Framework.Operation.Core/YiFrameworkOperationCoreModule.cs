@@ -22,6 +22,10 @@ namespace Yi.Framework.Operation.Core
             context.Services.AddTransient<IActionMetadataResolver, DefaultActionMetadataResolver>();
             context.Services.AddTransient<IPermissionCodeGenerator, DefaultPermissionCodeGenerator>();
 
+            // ActionIdentity 解析服务（Phase 1：新增抽象层，不改变现有行为）
+            context.Services.AddSingleton<ActionIdentityCache>();
+            context.Services.AddTransient<IActionIdentityResolver, DefaultActionIdentityResolver>();
+
             // 权限
             context.Services.AddTransient<IPermissionHandler, DefaultPermissionHandler>();
             context.Services.Configure<PermissionOptions>(options =>
