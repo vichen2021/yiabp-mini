@@ -15,6 +15,7 @@ namespace Yi.Module.Rbac.Application.Services
     /// <summary>
     /// Dictionary服务实现
     /// </summary>
+    [PermissionResource("system", "dict")]
     [OperLogEntity("字典数据")]
     public class DictionaryService : YiCrudAppService<DictionaryEntity, DictionaryGetOutputDto, DictionaryGetListOutputDto, Guid, DictionaryGetListInputVo, DictionaryCreateInputVo, DictionaryUpdateInputVo>,
        IDictionaryService

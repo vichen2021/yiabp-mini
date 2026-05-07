@@ -15,6 +15,7 @@ namespace Yi.Module.AuditLogging.Application.Services
     /// <summary>
     /// 操作日志服务
     /// </summary>
+    [PermissionResource("monitor", "operlog")]
     [OperLogEntity("操作日志")]
     public class OperationLogService : ApplicationService, IOperationLogService
     {

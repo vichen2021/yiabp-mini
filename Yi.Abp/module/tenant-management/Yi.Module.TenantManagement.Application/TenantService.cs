@@ -24,6 +24,7 @@ namespace Yi.Module.TenantManagement.Application
     /// <summary>
     /// 租户管理
     /// </summary>
+    [PermissionResource("system", "tenant")]
     [OperLogEntity("租户")]
     public class TenantService :
         YiCrudAppService<TenantAggregateRoot, TenantGetOutputDto, TenantGetListOutputDto, Guid, TenantGetListInput,

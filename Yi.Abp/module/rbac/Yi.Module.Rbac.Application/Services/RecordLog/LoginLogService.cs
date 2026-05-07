@@ -6,9 +6,11 @@ using Yi.Framework.Ddd.Application;
 using Yi.Module.Rbac.Application.Contracts.Dtos.LoginLog;
 using Yi.Module.Rbac.Domain.Entities;
 using Yi.Framework.SqlSugarCore.Abstractions;
+using Yi.Framework.Operation.Abstractions.Attributes;
 
 namespace Yi.Module.Rbac.Application.Services.RecordLog
 {
+    [PermissionResource("monitor", "loginlog")]
     public class LoginLogService : YiCrudAppService<LoginLogAggregateRoot, LoginLogGetListOutputDto, Guid, LoginLogGetListInputVo>
     {
         private readonly ISqlSugarRepository<LoginLogAggregateRoot> _repository;

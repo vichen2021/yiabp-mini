@@ -17,6 +17,7 @@ namespace Yi.Module.Rbac.Application.Services
     /// <summary>
     /// Menu服务实现
     /// </summary>
+    [PermissionResource("system", "menu")]
     [OperLogEntity("菜单")]
     public class MenuService : YiCrudAppService<MenuAggregateRoot, MenuGetOutputDto, MenuGetListOutputDto, Guid, MenuGetListInputVo, MenuCreateInputVo, MenuUpdateInputVo>,
        IMenuService

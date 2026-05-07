@@ -24,6 +24,7 @@ namespace Yi.Module.Rbac.Application.Services
     /// <summary>
     /// Role服务实现
     /// </summary>
+    [PermissionResource("system", "role")]
     [OperLogEntity("角色")]
     public class RoleService : YiCrudAppService<RoleAggregateRoot, RoleGetOutputDto, RoleGetListOutputDto, Guid,
             RoleGetListInputVo, RoleCreateInputVo, RoleUpdateInputVo>,

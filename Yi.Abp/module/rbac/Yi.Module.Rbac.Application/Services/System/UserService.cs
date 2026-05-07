@@ -24,6 +24,7 @@ namespace Yi.Module.Rbac.Application.Services
     /// <summary>
     /// User服务实现
     /// </summary>
+    [PermissionResource("system", "user")]
     [OperLogEntity("用户")]
     public class UserService : YiCrudAppService<UserAggregateRoot, UserGetOutputDto, UserGetListOutputDto, Guid,
         UserGetListInputVo, UserCreateInputVo, UserUpdateInputVo>, IUserService

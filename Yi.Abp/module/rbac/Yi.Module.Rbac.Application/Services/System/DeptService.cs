@@ -16,6 +16,7 @@ namespace Yi.Module.Rbac.Application.Services
     /// <summary>
     /// Dept服务实现
     /// </summary>
+    [PermissionResource("system", "dept")]
     [OperLogEntity("部门")]
     public class DeptService : YiCrudAppService<DeptAggregateRoot, DeptGetOutputDto, DeptGetListOutputDto, Guid,
         DeptGetListInputVo, DeptCreateInputVo, DeptUpdateInputVo>, IDeptService

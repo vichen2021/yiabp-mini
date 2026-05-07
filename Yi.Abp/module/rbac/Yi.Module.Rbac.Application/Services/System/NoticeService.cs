@@ -15,6 +15,7 @@ namespace Yi.Module.Rbac.Application.Services
     /// <summary>
     /// Notice服务实现
     /// </summary>
+    [PermissionResource("system", "notice")]
     [OperLogEntity("通知公告")]
     public class NoticeService : YiCrudAppService<NoticeAggregateRoot, NoticeGetOutputDto, NoticeGetListOutputDto, Guid, NoticeGetListInput, NoticeCreateInput, NoticeUpdateInput>,
        INoticeService

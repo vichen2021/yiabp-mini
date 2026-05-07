@@ -13,6 +13,7 @@ namespace Yi.Module.Rbac.Application.Services
     /// <summary>
     /// Post服务实现
     /// </summary>
+    [PermissionResource("system", "post")]
     [OperLogEntity("岗位")]
     public class PostService : YiCrudAppService<PostAggregateRoot, PostGetOutputDto, PostGetListOutputDto, Guid,
             PostGetListInputVo, PostCreateInputVo, PostUpdateInputVo>,

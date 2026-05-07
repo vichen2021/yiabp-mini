@@ -9,12 +9,14 @@ using Yi.Module.TenantManagement.Application.Contracts.IServices;
 using Yi.Module.TenantManagement.Domain;
 using Yi.Module.TenantManagement.Domain.Entities;
 using Yi.Framework.SqlSugarCore.Abstractions;
+using Yi.Framework.Operation.Abstractions.Attributes;
 
 namespace Yi.Module.TenantManagement.Application.Services
 {
     /// <summary>
     /// 租户套餐服务实现
     /// </summary>
+    [PermissionResource("system", "tenant-package")]
     public class TenantPackageService : YiCrudAppService<TenantPackageAggregateRoot, TenantPackageGetOutputDto, TenantPackageGetListOutputDto, Guid,
         TenantPackageGetListInputVo, TenantPackageCreateInputVo, TenantPackageUpdateInputVo>, ITenantPackageService
     {

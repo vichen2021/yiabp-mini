@@ -15,6 +15,7 @@ namespace Yi.Module.Rbac.Application.Services
     /// <summary>
     /// Config服务实现
     /// </summary>
+    [PermissionResource("system", "config")]
     [OperLogEntity("参数配置")]
     public class ConfigService : YiCrudAppService<ConfigAggregateRoot, ConfigGetOutputDto, ConfigGetListOutputDto, Guid,
             ConfigGetListInputVo, ConfigCreateInputVo, ConfigUpdateInputVo>,
