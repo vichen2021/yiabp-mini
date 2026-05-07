@@ -61,85 +61,88 @@ namespace Yi.Framework.Operation.Core.Metadata
                 identity.HasExplicitResource = true;
             }
 
-            // 2. 解析方法级 PermissionAction
-            var actionAttr = methodInfo.GetCustomAttribute<PermissionActionAttribute>();
+            // 2. 解析方法级 PermissionAction（三层查找：当前方法 → 基类方法 → 接口方法）
+            var actionAttr = ResolvePermissionAction(methodInfo, serviceType);
             if (actionAttr != null)
             {
                 identity.CrudAction = actionAttr.Action;
                 identity.HasExplicitAction = true;
             }
 
-            // 3. 识别 CRUD 方法（仅当无显式 PermissionAction 时）
-            if (!identity.HasExplicitAction)
-            {
-                identity.CrudAction = InferCrudAction(methodInfo.Name);
-                identity.IsCrudAction = identity.CrudAction != null;
-            }
-
-            // 4. 推断 Resource（仅当无显式声明时）
+            // 3. 推断 Resource（仅当无显式声明时）
             if (!identity.HasExplicitResource)
             {
                 identity.Resource = InferResourceName(serviceType);
             }
 
-            // 5. 推断 Module（仅当无显式声明时）
+            // 4. 推断 Module（仅当无显式声明时）
             if (!identity.HasExplicitResource)
             {
                 identity.Module = InferModuleName(serviceType);
             }
 
-            // 6. 解析 RemoteServiceName（从 ABP 配置）
+            // 5. 解析 RemoteServiceName（从 ABP 配置）
             identity.RemoteServiceName = GetRemoteServiceName(serviceType);
 
             return identity;
         }
 
         /// <summary>
-        /// 推断 CRUD 动作（仅识别确定的 CRUD 方法）
+        /// 解析 PermissionAction 特性（三层查找）
+        /// 1. 优先读取当前方法上的 [PermissionAction]
+        /// 2. 当前方法没有时，读取 GetBaseDefinition() 对应基类方法上的 [PermissionAction]
+        /// 3. 如果方法来自接口代理，还需要查找接口方法上的 [PermissionAction]
         /// </summary>
-        private string? InferCrudAction(string methodName)
+        private PermissionActionAttribute? ResolvePermissionAction(MethodInfo methodInfo, Type serviceType)
         {
-            return methodName switch
+            // 1. 当前方法上的特性
+            var actionAttr = methodInfo.GetCustomAttribute<PermissionActionAttribute>();
+            if (actionAttr != null)
             {
-                // 标准查询
-                "GetListAsync" or "GetSelectDataListAsync" => "query",
-                "GetAsync" => "query",
+                return actionAttr;
+            }
 
-                // 标准写入
-                "CreateAsync" => "add",
-                "UpdateAsync" => "edit",
+            // 2. 基类方法上的特性（GetBaseDefinition）
+            var baseMethod = methodInfo.GetBaseDefinition();
+            if (baseMethod != null && baseMethod != methodInfo)
+            {
+                actionAttr = baseMethod.GetCustomAttribute<PermissionActionAttribute>();
+                if (actionAttr != null)
+                {
+                    return actionAttr;
+                }
+            }
 
-                // DeleteAsync 是特殊情况：基类有两个 DeleteAsync 方法
-                // 单参数 DeleteAsync(TKey) 和批量 DeleteAsync(IEnumerable<TKey>)
-                // 都映射为 remove
-                "DeleteAsync" => "remove",
+            // 3. 接口方法上的特性（ABP 动态代理场景）
+            var interfaceMethods = FindInterfaceMethods(serviceType, methodInfo);
+            foreach (var interfaceMethod in interfaceMethods)
+            {
+                actionAttr = interfaceMethod.GetCustomAttribute<PermissionActionAttribute>();
+                if (actionAttr != null)
+                {
+                    return actionAttr;
+                }
+            }
 
-                // Excel
-                "GetExportExcelAsync" => "export",
-                "PostImportExcelAsync" => "import",
-
-                // 明确动作前缀推断
-                _ => InferByPrefix(methodName)
-            };
+            return null;
         }
 
         /// <summary>
-        /// 前缀推断（仅保留明确语义的前缀）
+        /// 查找服务类型对应接口中匹配的方法
         /// </summary>
-        private string? InferByPrefix(string methodName)
+        private IEnumerable<MethodInfo> FindInterfaceMethods(Type serviceType, MethodInfo methodInfo)
         {
-            if (methodName.StartsWith("Create") || methodName.StartsWith("Add") || methodName.StartsWith("Insert"))
-                return "add";
-            if (methodName.StartsWith("Update") || methodName.StartsWith("Edit") || methodName.StartsWith("Modify"))
-                return "edit";
-            if (methodName.StartsWith("Delete") || methodName.StartsWith("Remove") || methodName.StartsWith("Clear"))
-                return "remove";
-            if (methodName.StartsWith("Export"))
-                return "export";
-            if (methodName.StartsWith("Import"))
-                return "import";
-
-            return null;
+            var interfaces = serviceType.GetInterfaces();
+            foreach (var interfaceType in interfaces)
+            {
+                var interfaceMethod = interfaceType.GetMethod(
+                    methodInfo.Name,
+                    methodInfo.GetParameters().Select(p => p.ParameterType).ToArray());
+                if (interfaceMethod != null)
+                {
+                    yield return interfaceMethod;
+                }
+            }
         }
 
         /// <summary>
