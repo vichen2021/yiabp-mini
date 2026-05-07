@@ -6,29 +6,28 @@ using Volo.Abp.DependencyInjection;
 using Yi.Module.AuditLogging.Domain.Entities;
 using Yi.Framework.Operation.Abstractions;
 using Yi.Framework.Operation.Abstractions.Attributes;
-using Yi.Framework.Operation.Abstractions.Enums;
 using Yi.Framework.Operation.Abstractions.Metadata;
 
 namespace Yi.Module.AuditLogging.Domain
 {
     /// <summary>
     /// 默认操作日志映射器
-    /// 使用统一 IActionMetadataResolver 解析元数据
+    /// 使用 IOperationLogRequirementResolver 解析日志要求
     /// </summary>
     public class DefaultOperationLogMapper : IOperationLogMapper, ITransientDependency
     {
         private readonly YiAuditLoggingOptions _yiOptions;
         private readonly OperationOptions _operationOptions;
-        private readonly IActionMetadataResolver _metadataResolver;
+        private readonly IOperationLogRequirementResolver _logResolver;
 
         public DefaultOperationLogMapper(
             IOptions<YiAuditLoggingOptions> yiOptions,
             IOptions<OperationOptions> operationOptions,
-            IActionMetadataResolver metadataResolver)
+            IOperationLogRequirementResolver logResolver)
         {
             _yiOptions = yiOptions.Value;
             _operationOptions = operationOptions.Value;
-            _metadataResolver = metadataResolver;
+            _logResolver = logResolver;
         }
 
         public OperationLogEntity? TryMap(AuditLogInfo auditLogInfo)
@@ -64,11 +63,11 @@ namespace Yi.Module.AuditLogging.Domain
             var operLogAttr = methodInfo.GetCustomAttribute<OperLogAttribute>();
             var hasExplicitLog = operLogAttr != null;
 
-            // 使用统一元数据解析器
-            var metadata = _metadataResolver.Resolve(serviceType, methodInfo);
+            // 使用日志要求解析器
+            var requirement = _logResolver.Resolve(serviceType, methodInfo);
 
             // 检查是否忽略日志
-            if (metadata.IgnoreLog)
+            if (requirement.Ignore)
             {
                 return null;
             }
@@ -82,7 +81,7 @@ namespace Yi.Module.AuditLogging.Domain
             }
 
             // 查询操作日志控制
-            if (metadata.ActionName == "list" || metadata.ActionName == "detail" || !metadata.IsWriteOperation)
+            if (!requirement.IsWriteOperation)
             {
                 if (!_operationOptions.LogReadOperations && !hasExplicitLog)
                 {
@@ -90,16 +89,16 @@ namespace Yi.Module.AuditLogging.Domain
                 }
             }
 
-            // 使用显式日志信息或推断结果
-            var operType = metadata.ExplicitLogInfo?.OperType ?? metadata.OperType;
+            // 获取操作类型
+            var operType = requirement.OperType;
             if (operType == null)
             {
                 // 无法推断操作类型，不生成操作日志
                 return null;
             }
 
-            // 使用显式标题或推断标题
-            var title = metadata.ExplicitLogInfo?.Title ?? metadata.LogTitle;
+            // 获取标题
+            var title = requirement.Title;
             if (string.IsNullOrWhiteSpace(title))
             {
                 return null;
@@ -118,7 +117,7 @@ namespace Yi.Module.AuditLogging.Domain
             );
 
             // 请求参数
-            if ((_yiOptions.SaveRequestData || operLogAttr?.IsSaveRequestData == true) && actionInfo.Parameters != null)
+            if ((_yiOptions.SaveRequestData || requirement.SaveRequestData) && actionInfo.Parameters != null)
             {
                 entity.RequestParam = Truncate(JsonSerializer.Serialize(actionInfo.Parameters), _yiOptions.MaxRequestParamLength);
             }
