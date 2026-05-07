@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<Import Project="..\..\..\common.props" />
 
 	<ItemGroup>
@@ -8,6 +8,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\Yi.Framework.Ddd.Application.Contracts\Yi.Framework.Ddd.Application.Contracts.csproj" />
+	  <ProjectReference Include="..\..\operation\Yi.Framework.Operation.Abstractions\Yi.Framework.Operation.Abstractions.csproj" />
 	</ItemGroup>
 
 </Project>
