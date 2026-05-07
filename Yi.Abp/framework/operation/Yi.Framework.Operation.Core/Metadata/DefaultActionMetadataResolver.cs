@@ -123,28 +123,35 @@ namespace Yi.Framework.Operation.Core.Metadata
         }
 
         /// <summary>
-        /// 推断模块名（目前基于命名空间，后续可扩展 RemoteServiceName）
+        /// 推断模块名（从 RemoteServiceName）
         /// </summary>
         private string InferModuleName(Type serviceType)
         {
-            var ns = serviceType.Namespace ?? "";
+            // 从 RemoteServiceName 推断
+            var assembly = serviceType.Assembly;
+            var assemblyName = assembly.GetName().Name;
 
-            // Yi.Module.* 命名空间（业务模块）
-            if (ns.Contains("Yi.Module.Rbac")) return "system";
-            if (ns.Contains("Yi.Module.TenantManagement")) return "system";
-            if (ns.Contains("Yi.Module.AuditLogging")) return "monitor";
-            if (ns.Contains("Yi.Module.SettingManagement")) return "system";
+            if (assemblyName != null && assemblyName.StartsWith("Yi.Module."))
+            {
+                var modulePart = assemblyName.Substring("Yi.Module.".Length);
+                if (modulePart.Contains(".Application"))
+                {
+                    modulePart = modulePart.Substring(0, modulePart.IndexOf(".Application"));
+                }
 
-            // Yi.Framework.* 命名空间（框架模块）
-            if (ns.Contains(".TenantManagement")) return "system";
-            if (ns.Contains(".Services.System")) return "system";
-            if (ns.Contains(".Services.Monitor")) return "monitor";
-            if (ns.Contains(".Services.RecordLog")) return "log";
-            if (ns.Contains(".Services.Authentication")) return "auth";
-            if (ns.Contains(".AuditLogging")) return "monitor";
+                // 映射已知模块
+                return modulePart switch
+                {
+                    "Rbac" => "system",
+                    "TenantManagement" => "system",
+                    "AuditLogging" => "monitor",
+                    "SettingManagement" => "system",
+                    _ => modulePart.ToLowerInvariant()
+                };
+            }
 
-            // 默认为 system
-            return "system";
+            // 未解析返回 null（不再有默认 system）
+            return "unknown";
         }
 
         /// <summary>
@@ -163,11 +170,11 @@ namespace Yi.Framework.Operation.Core.Metadata
 
         /// <summary>
         /// 推断操作名（权限码的 action 部分）
-        /// 统一规则：精确匹配 + HTTP 方法前缀匹配
+        /// 统一规则：精确匹配标准 CRUD 方法
         /// </summary>
         private string? InferActionName(string methodName)
         {
-            // 1. 精确匹配标准 CRUD 方法
+            // 精确匹配标准 CRUD 方法
             return methodName switch
             {
                 "GetListAsync" or "GetSelectDataListAsync" => "list",
@@ -177,62 +184,8 @@ namespace Yi.Framework.Operation.Core.Metadata
                 "DeleteAsync" => "delete",
                 "GetExportExcelAsync" or "ExportAsync" => "export",
                 "PostImportExcelAsync" or "ImportAsync" => "import",
-                _ => InferByPrefix(methodName)
+                _ => null // 不再按前缀推断，自定义方法必须显式声明
             };
-        }
-
-        /// <summary>
-        /// 前缀匹配补充规则
-        /// Post* -> add, Put* -> edit, Delete* -> delete
-        /// </summary>
-        private string? InferByPrefix(string methodName)
-        {
-            // HTTP 方法前缀映射
-            if (methodName.StartsWith("Post"))
-            {
-                // PostImportExcelAsync -> import
-                if (methodName.Contains("Import")) return "import";
-                return "add";
-            }
-            if (methodName.StartsWith("Put"))
-            {
-                return "edit";
-            }
-            if (methodName.StartsWith("Delete"))
-            {
-                return "delete";
-            }
-            if (methodName.StartsWith("Get"))
-            {
-                // GetExportExcelAsync -> export
-                if (methodName.Contains("Export")) return "export";
-                // 其他 Get 方法不生成权限码（查询类）
-                return null;
-            }
-
-            // 方法名前缀映射
-            if (methodName.StartsWith("Create") || methodName.StartsWith("Add") || methodName.StartsWith("Insert"))
-            {
-                return "add";
-            }
-            if (methodName.StartsWith("Update") || methodName.StartsWith("Edit") || methodName.StartsWith("Modify"))
-            {
-                return "edit";
-            }
-            if (methodName.StartsWith("Remove") || methodName.StartsWith("Clear"))
-            {
-                return "delete";
-            }
-            if (methodName.StartsWith("Export"))
-            {
-                return "export";
-            }
-            if (methodName.StartsWith("Import"))
-            {
-                return "import";
-            }
-
-            return null;
         }
 
         /// <summary>

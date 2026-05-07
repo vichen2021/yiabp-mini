@@ -160,35 +160,19 @@ namespace Yi.Framework.Operation.Core.Metadata
         }
 
         /// <summary>
-        /// 推断模块名（从 RemoteServiceName 或命名空间）
+        /// 推断模块名（从 RemoteServiceName）
         /// 注意：这是 fallback，优先使用 PermissionResource
         /// </summary>
         private string? InferModuleName(Type serviceType)
         {
-            // 1. 从 RemoteServiceName 推断
+            // 从 RemoteServiceName 推断
             var remoteServiceName = GetRemoteServiceName(serviceType);
             if (!string.IsNullOrEmpty(remoteServiceName))
             {
-                // kebab-case 转 camelCase 或保持原样
-                // audit-logging -> monitor (需要映射)
-                // tenant-management -> system (需要映射)
                 return MapRemoteServiceNameToModule(remoteServiceName);
             }
 
-            // 2. 从命名空间推断（Legacy，Phase 5 删除）
-            var ns = serviceType.Namespace ?? "";
-            if (ns.Contains("Yi.Module.Rbac")) return "system";
-            if (ns.Contains("Yi.Module.TenantManagement")) return "system";
-            if (ns.Contains("Yi.Module.AuditLogging")) return "monitor";
-            if (ns.Contains("Yi.Module.SettingManagement")) return "system";
-
-            // 3. Framework 服务
-            if (ns.Contains(".TenantManagement")) return "system";
-            if (ns.Contains(".Services.System")) return "system";
-            if (ns.Contains(".Services.Monitor")) return "monitor";
-            if (ns.Contains(".AuditLogging")) return "monitor";
-
-            // 4. 未解析返回 null（Phase 5 后不再有默认 system）
+            // 未解析返回 null（不再有默认 system）
             return null;
         }
 
