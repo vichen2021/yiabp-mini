@@ -7,6 +7,7 @@ using Yi.Framework.SqlSugarCore.Abstractions;
 using Yi.Framework.Authorization.Abstractions.Permissions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Yi.Module.Rbac.SqlSugarCore.DataSeeds.TenantDataSeeds;
 
 namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
 {
@@ -16,37 +17,27 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
         private IGuidGenerator _guidGenerator;
         private IServiceProvider _serviceProvider;
         private ILogger<MenuDataSeed> _logger;
+        private TenantMenuDataSeed _tenantMenuDataSeed;
 
         public MenuDataSeed(
             ISqlSugarRepository<MenuAggregateRoot> repository,
             IGuidGenerator guidGenerator,
             IServiceProvider serviceProvider,
-            ILogger<MenuDataSeed> logger)
+            ILogger<MenuDataSeed> logger,
+            TenantMenuDataSeed tenantMenuDataSeed)
         {
             _repository = repository;
             _guidGenerator = guidGenerator;
             _serviceProvider = serviceProvider;
             _logger = logger;
+            _tenantMenuDataSeed = tenantMenuDataSeed;
         }
 
         public async Task SeedAsync(DataSeedContext context)
         {
             if (!await _repository.IsAnyAsync(x => x.MenuName == "系统管理"&&x.MenuSource==MenuSourceEnum.Ruoyi))
             {
-                var seedData = GetSeedData();
-
-                // 租户上下文：排除宿主专属菜单（租户管理、租户套餐）
-                if (context.TenantId != null)
-                {
-                    seedData = seedData.Where(x =>
-                        x.MenuName != "租户管理" &&
-                        x.MenuName != "租户套餐" &&
-                        x.MenuName != "套餐查询" &&
-                        x.MenuName != "套餐新增" &&
-                        x.MenuName != "套餐修改" &&
-                        x.MenuName != "套餐删除").ToList();
-                }
-
+                var seedData = GetSeedData(context.TenantId == null);
                 ValidatePermissionCodes(seedData);
                 await _repository.InsertManyAsync(seedData);
             }
@@ -70,7 +61,7 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
             var validationResult = permissionDefinitionValidator.Validate(usedPermissionCodes);
         }
 
-        public List<MenuAggregateRoot> GetSeedData()
+        public List<MenuAggregateRoot> GetSeedData(bool includeTenantModule = true)
         {
             List<MenuAggregateRoot> entities = new List<MenuAggregateRoot>();
 
@@ -89,6 +80,10 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
                 IsDeleted = false
             };
             entities.Add(system);
+            if (includeTenantModule)
+            {
+                entities.AddRange(_tenantMenuDataSeed.GetSeedData(system.Id));
+            }
             
             
             //系统监控
@@ -188,134 +183,6 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
             };
             entities.Add(swagger);
 
-
-            //租户管理
-            MenuAggregateRoot tenant = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-                MenuName = "租户管理",
-                PermissionCode = "system:tenant:query",
-                MenuType = MenuTypeEnum.Menu,
-                Router = "tenant",
-                IsShow = true,
-                IsLink = false,
-                IsCache = true,
-                Component = "system/tenant/index",
-                MenuIcon = "tabler:users",
-                OrderNum = 101,
-                ParentId = system.Id,
-                IsDeleted = false
-            };
-            entities.Add(tenant);
-
-            MenuAggregateRoot tenantQuery = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-
-                MenuName = "租户查询",
-                PermissionCode = "system:tenant:query",
-                MenuType = MenuTypeEnum.Component,
-                OrderNum = 100,
-                ParentId = tenant.Id,
-                IsDeleted = false
-            };
-            entities.Add(tenantQuery);
-
-            MenuAggregateRoot tenantAdd = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-
-                MenuName = "租户新增",
-                PermissionCode = "system:tenant:add",
-                MenuType = MenuTypeEnum.Component,
-                OrderNum = 100,
-                ParentId = tenant.Id,
-                IsDeleted = false
-            };
-            entities.Add(tenantAdd);
-
-            MenuAggregateRoot tenantEdit = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-
-                MenuName = "租户修改",
-                PermissionCode = "system:tenant:edit",
-                MenuType = MenuTypeEnum.Component,
-                OrderNum = 100,
-                ParentId = tenant.Id,
-                IsDeleted = false
-            };
-            entities.Add(tenantEdit);
-
-            MenuAggregateRoot tenantRemove = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-
-                MenuName = "租户删除",
-                PermissionCode = "system:tenant:remove",
-                MenuType = MenuTypeEnum.Component,
-                OrderNum = 100,
-                ParentId = tenant.Id,
-                IsDeleted = false
-            };
-            entities.Add(tenantRemove);
-
-            //租户套餐
-            MenuAggregateRoot tenantPackage = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-                MenuName = "租户套餐",
-                PermissionCode = "system:tenantPackage:query",
-                MenuType = MenuTypeEnum.Menu,
-                Router = "tenant-package",
-                IsShow = true,
-                IsLink = false,
-                IsCache = true,
-                Component = "system/tenant-package/index",
-                MenuIcon = "tabler:package",
-                OrderNum = 102,
-                ParentId = system.Id,
-                IsDeleted = false
-            };
-            entities.Add(tenantPackage);
-
-            MenuAggregateRoot tenantPackageQuery = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-                MenuName = "套餐查询",
-                PermissionCode = "system:tenantPackage:query",
-                MenuType = MenuTypeEnum.Component,
-                OrderNum = 100,
-                ParentId = tenantPackage.Id,
-                IsDeleted = false
-            };
-            entities.Add(tenantPackageQuery);
-
-            MenuAggregateRoot tenantPackageAdd = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-                MenuName = "套餐新增",
-                PermissionCode = "system:tenantPackage:add",
-                MenuType = MenuTypeEnum.Component,
-                OrderNum = 99,
-                ParentId = tenantPackage.Id,
-                IsDeleted = false
-            };
-            entities.Add(tenantPackageAdd);
-
-            MenuAggregateRoot tenantPackageEdit = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-                MenuName = "套餐修改",
-                PermissionCode = "system:tenantPackage:edit",
-                MenuType = MenuTypeEnum.Component,
-                OrderNum = 98,
-                ParentId = tenantPackage.Id,
-                IsDeleted = false
-            };
-            entities.Add(tenantPackageEdit);
-
-            MenuAggregateRoot tenantPackageRemove = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-                MenuName = "套餐删除",
-                PermissionCode = "system:tenantPackage:remove",
-                MenuType = MenuTypeEnum.Component,
-                OrderNum = 97,
-                ParentId = tenantPackage.Id,
-                IsDeleted = false
-            };
-            entities.Add(tenantPackageRemove);
 
             //用户管理
             MenuAggregateRoot user = new MenuAggregateRoot(_guidGenerator.Create())
