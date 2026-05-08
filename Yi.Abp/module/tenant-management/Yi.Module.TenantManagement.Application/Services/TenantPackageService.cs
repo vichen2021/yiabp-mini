@@ -16,7 +16,8 @@ namespace Yi.Module.TenantManagement.Application.Services
     /// <summary>
     /// 租户套餐服务实现
     /// </summary>
-    [PermissionResource("system", "tenant-package")]
+    [PermissionResource("system", "tenantPackage")]
+    [OperLogEntity("租户套餐")]
     public class TenantPackageService : YiCrudAppService<TenantPackageAggregateRoot, TenantPackageGetOutputDto, TenantPackageGetListOutputDto, Guid,
         TenantPackageGetListInputVo, TenantPackageCreateInputVo, TenantPackageUpdateInputVo>, ITenantPackageService
     {
@@ -188,6 +189,7 @@ namespace Yi.Module.TenantManagement.Application.Services
         /// </summary>
         /// <param name="packageId">套餐ID</param>
         /// <returns>菜单ID列表</returns>
+        [PermissionAction("query")]
         public async Task<List<Guid>> GetMenuIdsByPackageIdAsync(Guid packageId)
         {
             return await _tenantPackageMenuRepository._DbQueryable
@@ -200,6 +202,7 @@ namespace Yi.Module.TenantManagement.Application.Services
         /// 获取套餐菜单树
         /// </summary>
         /// <param name="packageId">套餐ID，空Guid表示新增模式</param>
+        [PermissionAction("query")]
         public async Task<MenuTreeResultDto> GetMenuTreeAsync(Guid? packageId)
         {
             var result = new MenuTreeResultDto();

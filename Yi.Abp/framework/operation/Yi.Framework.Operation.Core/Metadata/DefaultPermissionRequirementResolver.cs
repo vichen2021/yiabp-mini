@@ -54,7 +54,7 @@ namespace Yi.Framework.Operation.Core.Metadata
             }
 
             // 3. 检查是否有 Module 和 Resource
-            if (string.IsNullOrEmpty(identity.Module) && string.IsNullOrEmpty(identity.Resource))
+            if (string.IsNullOrEmpty(identity.Module) || string.IsNullOrEmpty(identity.Resource))
             {
                 requirement.IsResolved = false;
                 requirement.UnresolvedReason = "No PermissionResource on class and no module/resource fallback";

@@ -160,13 +160,13 @@ function handleDownloadExcel() {
       <template #toolbar-tools>
         <Space>
           <a-button
-            v-access:code="['monitor:logininfor:remove']"
+            v-access:code="['monitor:loginlog:remove']"
             @click="handleClear"
           >
             {{ $t('pages.common.clear') }}
           </a-button>
           <a-button
-            v-access:code="['monitor:logininfor:export']"
+            v-access:code="['monitor:loginlog:export']"
             @click="handleDownloadExcel"
           >
             {{ $t('pages.common.export') }}
@@ -175,7 +175,7 @@ function handleDownloadExcel() {
             :disabled="!vxeCheckboxChecked(tableApi as any)"
             danger
             type="primary"
-            v-access:code="['monitor:logininfor:remove']"
+            v-access:code="['monitor:loginlog:remove']"
             @click="handleMultiDelete"
           >
             {{ $t('pages.common.delete') }}
@@ -183,7 +183,7 @@ function handleDownloadExcel() {
           <a-button
             :disabled="!canUnlock"
             type="primary"
-            v-access:code="['monitor:logininfor:unlock']"
+            v-access:code="['monitor:loginlog:edit']"
             @click="handleUnlock"
           >
             {{ $t('pages.common.unlock') }}
@@ -203,7 +203,7 @@ function handleDownloadExcel() {
           >
             <ghost-button
               danger
-              v-access:code="['monitor:logininfor:remove']"
+              v-access:code="['monitor:loginlog:remove']"
               @click.stop=""
             >
               {{ $t('pages.common.delete') }}

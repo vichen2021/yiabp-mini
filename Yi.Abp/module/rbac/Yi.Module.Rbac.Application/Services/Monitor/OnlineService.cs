@@ -3,12 +3,14 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
+using Yi.Framework.Operation.Abstractions.Attributes;
 using Yi.Module.Rbac.Application.Contracts.IServices;
 using Yi.Module.Rbac.Application.SignalRHubs;
 using Yi.Module.Rbac.Domain.Shared.Model;
 
 namespace Yi.Module.Rbac.Application.Services.Monitor
 {
+    [PermissionResource("monitor", "online")]
     public class OnlineService : ApplicationService, IOnlineService
     {
         private ILogger<OnlineService> _logger;
@@ -25,6 +27,7 @@ namespace Yi.Module.Rbac.Application.Services.Monitor
         /// </summary>
         /// <param name="online"></param>
         /// <returns></returns>
+        [PermissionAction("query")]
         public Task<PagedResultDto<OnlineUserModel>> GetListAsync([FromQuery] OnlineUserModel online)
         {
             var data = OnlineHub.ClientUsersDic;
@@ -52,6 +55,7 @@ namespace Yi.Module.Rbac.Application.Services.Monitor
         /// <returns></returns>
         [HttpDelete]
         [Route("online/{connnectionId}")]
+        [PermissionAction("edit")]
         public async Task<bool> ForceOut(string connnectionId)
         {
             if (OnlineHub.ClientUsersDic.ContainsKey(connnectionId))

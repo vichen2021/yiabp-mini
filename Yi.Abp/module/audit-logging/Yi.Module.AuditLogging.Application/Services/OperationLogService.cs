@@ -26,7 +26,7 @@ namespace Yi.Module.AuditLogging.Application.Services
             _repository = repository;
         }
 
-        [Permission("monitor:operlog:list")]
+        [Permission("monitor:operlog:query")]
         public virtual async Task<PagedResultDto<OperationLogGetListOutputDto>> GetListAsync(OperationLogGetListInputVo input)
         {
             RefAsync<int> total = 0;

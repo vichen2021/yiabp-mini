@@ -125,7 +125,6 @@ namespace Yi.Abp.Web
             });
             Configure<YiAuditLoggingOptions>(configuration.GetSection("AuditLogging"));
             Configure<OperationOptions>(configuration.GetSection("Operation"));
-            Configure<PermissionOptions>(configuration.GetSection("Operation:Permission"));
 
             //采用furion格式的规范化api，默认不开启，使用abp优雅的方式
             //前置：需要将管道工作单元前加上app.Properties.Add("_AbpExceptionHandlingMiddleware_Added",false);

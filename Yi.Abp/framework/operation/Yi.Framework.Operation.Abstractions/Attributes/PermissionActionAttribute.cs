@@ -3,7 +3,7 @@ namespace Yi.Framework.Operation.Abstractions.Attributes
     /// <summary>
     /// 权限动作声明特性
     /// 用于方法，声明动作段（权限码第三段）
-    /// 示例: [PermissionAction("update")] -> 结合类级资源生成 system:user:update
+    /// 示例: [PermissionAction("edit")] -> 结合类级资源生成 system:user:edit
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
     public sealed class PermissionActionAttribute : Attribute

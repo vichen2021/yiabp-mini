@@ -31,6 +31,7 @@ namespace Yi.Module.Rbac.Application.Services
             (_repository, _tenantPackageService) = (repository, tenantPackageService);
 
         [Route("menu/list")]
+        [PermissionAction("query")]
         public async Task<List<MenuGetListOutputDto>> GetListAsync(MenuGetListInputVo input)
         {
             var entities = await _repository._DbQueryable.WhereIF(!string.IsNullOrEmpty(input.MenuName), x => x.MenuName.Contains(input.MenuName!))
@@ -45,6 +46,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// 获取菜单树
         /// </summary>
         /// <returns></returns>
+        [PermissionAction("query")]
         public async Task<List<MenuTreeDto>> GetTreeAsync()
         {
             var menuList = await _repository._DbQueryable.ToListAsync();
@@ -56,6 +58,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// </summary>
         /// <param name="packageId">套餐ID，空Guid表示新增模式</param>
         /// <returns>包含 CheckedKeys 和 Menus 的结果</returns>
+        [PermissionAction("query")]
         public async Task<MenuTreeResultDto> GetTenantPackageMenuTreeAsync(Guid? packageId)
         {
             return await _tenantPackageService.GetMenuTreeAsync(packageId);

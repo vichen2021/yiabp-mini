@@ -89,6 +89,7 @@ namespace Yi.Module.TenantManagement.Application
         /// 租户选项
         /// </summary>
         /// <returns></returns>
+        [PermissionAction("query")]
         public async Task<List<TenantSelectOutputDto>> GetSelectAsync()
         {
             var entites = await _repository._DbQueryable.ToListAsync();
@@ -157,6 +158,8 @@ namespace Yi.Module.TenantManagement.Application
         /// <param name="input">初始化参数（包含管理员账号密码）</param>
         /// <returns></returns>
         [HttpPut("tenant/init/{id}")]
+        [PermissionAction("edit")]
+        [OperLog("初始化租户", Yi.Framework.Operation.Abstractions.Enums.OperEnum.Update)]
         public async Task<TenantInitOutputDto> InitAsync([FromRoute] Guid id, [FromBody] TenantInitInput input)
         {
             var tenant = await _repository.GetByIdAsync(id);
@@ -231,6 +234,8 @@ namespace Yi.Module.TenantManagement.Application
         /// </summary>
         /// <param name="tenantId">租户ID</param>
         /// <param name="packageId">套餐ID</param>
+        [PermissionAction("edit")]
+        [OperLog("同步租户套餐", Yi.Framework.Operation.Abstractions.Enums.OperEnum.Update)]
         public async Task SyncPackageAsync(Guid tenantId, Guid packageId)
         {
             // 查询套餐关联的菜单ID（在宿主机上下文中）

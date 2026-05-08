@@ -52,6 +52,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <returns></returns>
         ///
         [Route("config/config-key/{configKey}")]
+        [PermissionAction("query")]
         public async Task<string> GetConfigKeyAsync(string configKey)
         {
             var entity = await _repository.GetAsync(x => x.ConfigKey == configKey);

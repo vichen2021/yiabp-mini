@@ -4,11 +4,10 @@ import type { LoginLog } from '#/api/monitor/logininfo/model';
 import { ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
-import { DictEnum } from '@vben/constants';
 
 import { Descriptions, DescriptionsItem } from 'ant-design-vue';
 
-import { renderBrowserIcon, renderDict, renderOsIcon } from '#/utils/render';
+import { renderBrowserIcon, renderOsIcon } from '#/utils/render';
 
 const loginInfo = ref<LoginLog>();
 const [BasicModal, modalApi] = useVbenModal({

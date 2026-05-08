@@ -140,7 +140,7 @@ const [FileUploadModal, fileUploadApi] = useVbenModal({
       <template #toolbar-tools>
         <Space>
           <!-- <a-button
-            v-access:code="['system:fileConfig:list']"
+            v-access:code="['system:fileConfig:query']"
             @click="handleToSettings"
           >
             配置管理

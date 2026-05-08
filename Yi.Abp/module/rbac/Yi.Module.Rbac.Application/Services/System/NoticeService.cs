@@ -49,6 +49,8 @@ namespace Yi.Module.Rbac.Application.Services
         /// </summary>
         /// <returns></returns>
         [HttpPost("notice/online/{id}")]
+        [PermissionAction("edit")]
+        [OperLog("发送在线通知", Yi.Framework.Operation.Abstractions.Enums.OperEnum.Update)]
         public async Task SendOnlineAsync([FromRoute] Guid id)
         {
             var entity = await _repository._DbQueryable.FirstAsync(x => x.Id == id);
@@ -59,6 +61,8 @@ namespace Yi.Module.Rbac.Application.Services
         /// </summary>
         /// <returns></returns>
         [HttpPost("notice/offline/{id}")]
+        [PermissionAction("edit")]
+        [OperLog("发送离线通知", Yi.Framework.Operation.Abstractions.Enums.OperEnum.Update)]
         public async Task SendOfflineAsync([FromRoute] Guid id)
         {
             //先发送一个在线

@@ -138,7 +138,7 @@ const isSuperAdmin = computed(() => {
             :disabled="!vxeCheckboxChecked(tableApi)"
             danger
             type="primary"
-            v-access:code="['system:tenantPackage:delete']"
+            v-access:code="['system:tenantPackage:remove']"
             @click="handleMultiDelete"
           >
             {{ $t('pages.common.delete') }}
@@ -176,7 +176,7 @@ const isSuperAdmin = computed(() => {
           >
             <ghost-button
               danger
-              v-access:code="['system:tenantPackage:delete']"
+              v-access:code="['system:tenantPackage:remove']"
               @click.stop=""
             >
               {{ $t('pages.common.delete') }}

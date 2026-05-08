@@ -3,10 +3,7 @@ import type { VNode } from 'vue';
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { DictEnum } from '@vben/constants';
-
-import { getDictOptions } from '#/utils/dict';
-import { renderBrowserIcon, renderDict, renderOsIcon } from '#/utils/render';
+import { renderBrowserIcon, renderOsIcon } from '#/utils/render';
 
 export const querySchema: FormSchemaGetter = () => [
   {

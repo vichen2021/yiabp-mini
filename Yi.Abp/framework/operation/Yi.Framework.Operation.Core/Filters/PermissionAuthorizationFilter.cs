@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Extensions.Options;
 using Yi.Framework.Operation.Abstractions.Metadata;
 using Yi.Framework.Operation.Abstractions.Permissions;
 
@@ -14,24 +13,20 @@ namespace Yi.Framework.Operation.Core.Filters
     /// 1. [AllowAnonymous] -> 放行
     /// 2. PermissionRequirement.Ignore = true -> 放行
     /// 3. ABP RemoteService 禁用 -> 放行
-    /// 4. 白名单 -> 放行
-    /// 5. PermissionRequirement.IsResolved + Code -> 校验权限码
-    /// 6. 未解析 -> 403
+    /// 4. PermissionRequirement.IsResolved + Code -> 校验权限码
+    /// 5. 未解析 -> 403
     /// </summary>
     public class PermissionAuthorizationFilter : IAsyncAuthorizationFilter
     {
         private readonly IPermissionRequirementResolver _permissionResolver;
         private readonly IPermissionHandler _permissionHandler;
-        private readonly PermissionOptions _options;
 
         public PermissionAuthorizationFilter(
             IPermissionRequirementResolver permissionResolver,
-            IPermissionHandler permissionHandler,
-            IOptions<PermissionOptions> options)
+            IPermissionHandler permissionHandler)
         {
             _permissionResolver = permissionResolver;
             _permissionHandler = permissionHandler;
-            _options = options.Value;
         }
 
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
@@ -60,21 +55,9 @@ namespace Yi.Framework.Operation.Core.Filters
                 return;
             }
 
-            // 5. 检查白名单
-            if (IsInWhitelist(descriptor))
-            {
-                return;
-            }
-
-            // 6. 已解析权限码 -> 校验
+            // 5. 已解析权限码 -> 校验
             if (requirement.IsResolved && !string.IsNullOrEmpty(requirement.Code))
             {
-                // AutoCheckResolvedActions 控制是否校验已解析权限
-                if (!_options.AutoCheckResolvedActions)
-                {
-                    return;
-                }
-
                 var isGranted = await _permissionHandler.IsGrantedAsync(requirement.Code);
                 if (!isGranted)
                 {
@@ -83,12 +66,8 @@ namespace Yi.Framework.Operation.Core.Filters
                 return;
             }
 
-            // 7. 未解析 -> 根据配置决定是否放行
-            if (!_options.AllowUnresolvedActions)
-            {
-                // 严格模式：返回 403
-                context.Result = new ForbidResult();
-            }
+            // 6. 未解析 -> 固定 403
+            context.Result = new ForbidResult();
         }
 
         /// <summary>
@@ -143,13 +122,5 @@ namespace Yi.Framework.Operation.Core.Filters
             return false;
         }
 
-        /// <summary>
-        /// 检查白名单
-        /// </summary>
-        private bool IsInWhitelist(ControllerActionDescriptor descriptor)
-        {
-            var actionKey = $"{descriptor.ControllerTypeInfo.Name}:{descriptor.MethodInfo.Name}";
-            return _options.WhitelistActions.Contains(actionKey);
-        }
     }
 }

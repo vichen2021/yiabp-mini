@@ -5,10 +5,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Volo.Abp.Application.Services;
 using Yi.Framework.Core.Helper;
+using Yi.Framework.Operation.Abstractions.Attributes;
 using Yi.Module.Rbac.Application.Contracts.IServices;
 
 namespace Yi.Module.Rbac.Application.Services.Monitor
 {
+    [PermissionResource("monitor", "server")]
     public class MonitorServerService : ApplicationService, IMonitorServerService
     {
         private IWebHostEnvironment _hostEnvironment;
@@ -19,6 +21,7 @@ namespace Yi.Module.Rbac.Application.Services.Monitor
             _httpContextAccessor = httpContextAccessor;
         }
         [HttpGet("monitor-server/info")]
+        [PermissionAction("query")]
         public object GetInfo()
         {
       

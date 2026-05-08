@@ -86,6 +86,17 @@ namespace Yi.Framework.Ddd.Application
         }
 
         /// <summary>
+        /// 获取实体详情
+        /// </summary>
+        /// <param name="id">实体ID</param>
+        /// <returns>实体DTO</returns>
+        [PermissionAction("query")]
+        public override Task<TGetOutputDto> GetAsync(TKey id)
+        {
+            return base.GetAsync(id);
+        }
+
+        /// <summary>
         /// 更新实体
         /// </summary>
         /// <param name="id">实体ID</param>

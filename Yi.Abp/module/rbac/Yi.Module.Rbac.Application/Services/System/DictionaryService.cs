@@ -53,6 +53,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <param name="dicType"></param>
         /// <returns></returns>
         [Route("dictionary/dict-type/{dictType}")]
+        [PermissionAction("query")]
         public async Task<List<DictionaryGetListOutputDto>> GetDicType([FromRoute] string dictType)
         {
             var entities = await _repository.GetListAsync(u => u.DictType == dictType && u.State == true);

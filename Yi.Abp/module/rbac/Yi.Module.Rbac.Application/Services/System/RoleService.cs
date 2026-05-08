@@ -17,6 +17,7 @@ using Yi.Module.Rbac.Domain.Shared.Consts;
 using Yi.Module.Rbac.Domain.Shared.Dtos;
 using Yi.Module.Rbac.Domain.Shared.Enums;
 using Yi.Framework.Operation.Abstractions.Attributes;
+using Yi.Framework.Operation.Abstractions.Enums;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
 namespace Yi.Module.Rbac.Application.Services
@@ -51,6 +52,8 @@ namespace Yi.Module.Rbac.Application.Services
 
         private IDeptRepository _deptRepository;
 
+        [Permission("system:role:edit")]
+        [OperLog("更新角色数据权限", OperEnum.Update)]
         public async Task UpdateDataScopeAsync(UpdateDataScopeInput input)
         {
             //只有自定义的需要特殊处理
@@ -133,6 +136,8 @@ namespace Yi.Module.Rbac.Application.Services
         /// <param name="state"></param>
         /// <returns></returns>
         [Route("role/{id}/{state}")]
+        [Permission("system:role:edit")]
+        [OperLog("更新角色状态", OperEnum.Update)]
         public async Task<RoleGetOutputDto> UpdateStateAsync([FromRoute] Guid id, [FromRoute] bool state)
         {
             var entity = await _repository.GetByIdAsync(id);
@@ -155,6 +160,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <param name="isAllocated">是否在该角色下</param>
         /// <returns></returns>
         [Route("role/auth-user/{roleId}/{isAllocated}")]
+        [Permission("system:role:edit")]
         public async Task<PagedResultDto<UserGetListOutputDto>> GetAuthUserByRoleIdAsync([FromRoute] Guid roleId,
             [FromRoute] bool isAllocated, [FromQuery] RoleAuthUserGetListInput input)
         {
@@ -207,6 +213,8 @@ namespace Yi.Module.Rbac.Application.Services
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
+        [Permission("system:role:edit")]
+        [OperLog("角色分配用户", OperEnum.Update)]
         public async Task CreateAuthUserAsync([FromBody] RoleAuthUserCreateOrDeleteInput input)
         {
             var userRoleEntities = input.UserIds.Select(u => new UserRoleEntity { RoleId = input.RoleId, UserId = u })
@@ -220,6 +228,8 @@ namespace Yi.Module.Rbac.Application.Services
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
+        [Permission("system:role:edit")]
+        [OperLog("取消角色用户授权", OperEnum.Update)]
         public async Task DeleteAuthUserAsync([FromBody] RoleAuthUserCreateOrDeleteInput input)
         {
             await _userRoleRepository._Db.Deleteable<UserRoleEntity>().Where(x => x.RoleId == input.RoleId)
@@ -233,6 +243,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// </summary>
         /// <param name="roleId"></param>
         /// <returns></returns>
+        [Permission("system:role:edit")]
         public async Task<ActionResult> GetMenuTreeAsync(Guid roleId)
         {
             var checkedKeys = await _menuRepository._DbQueryable
@@ -252,6 +263,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// </summary>
         /// <param name="roleId"></param>
         /// <returns></returns>
+        [Permission("system:role:edit")]
         public async Task<ActionResult> GetDeptTreeAsync(Guid roleId)
         {
             var checkedKeys = await _deptRepository._DbQueryable

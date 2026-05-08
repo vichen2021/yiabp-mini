@@ -21,6 +21,7 @@ namespace Yi.Module.Rbac.Application.Services.Authentication
     /// <summary>
     /// 第三方授权服务
     /// </summary>
+    [PermissionResource("system", "auth")]
     public class AuthService :
         YiCrudAppService<AuthAggregateRoot, AuthOutputDto, Guid, AuthGetListInput, AuthCreateOrUpdateInputDto>,
         IAuthService
@@ -48,6 +49,7 @@ namespace Yi.Module.Rbac.Application.Services.Authentication
         /// <returns></returns>
         /// <exception cref="UserFriendlyException"></exception>
         [HttpGet("auth/oauth/login/{scheme}")]
+        [AllowAnonymous]
         public async Task<object> AuthOauthLoginAsync([FromRoute] string scheme, [FromQuery] string code)
         {
             (var openId, var _) = await GetOpenIdAndNameAsync(scheme);
@@ -71,6 +73,7 @@ namespace Yi.Module.Rbac.Application.Services.Authentication
         /// <exception cref="UserFriendlyException"></exception>
         [HttpPost("auth/oauth/bind/{scheme}")]
         [Authorize]
+        [IgnorePermission]
         public async Task AuthOauthBindAsync([FromRoute] string scheme, [FromQuery] string code)
         {
             (var openId, var name) = await GetOpenIdAndNameAsync(scheme);
@@ -111,6 +114,7 @@ namespace Yi.Module.Rbac.Application.Services.Authentication
         /// <param name="input"></param>
         /// <returns></returns>
         [Authorize]
+        [IgnorePermission]
         public async Task<IReadOnlyList<AuthOutputDto>> GetListAccountAsync(AuthGetListInput input)
         {
             input.UserId = CurrentUser.Id;
@@ -119,6 +123,7 @@ namespace Yi.Module.Rbac.Application.Services.Authentication
             return (await GetListAsync(input)).Items;
         }
 
+        [RemoteService(IsEnabled = false)]
         public async Task<AuthOutputDto?> TryGetAuthInfoAsync(string? openId, string authType,Guid? userId=null)
         {
             var entity = await _repository._DbQueryable

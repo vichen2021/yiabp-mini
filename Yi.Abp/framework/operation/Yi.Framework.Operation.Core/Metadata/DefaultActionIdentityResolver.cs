@@ -20,7 +20,7 @@ namespace Yi.Framework.Operation.Core.Metadata
 
         public ActionIdentity Resolve(ControllerActionDescriptor descriptor)
         {
-            var cacheKey = $"MVC:{descriptor.ControllerTypeInfo.FullName}:{descriptor.MethodInfo.Name}";
+            var cacheKey = BuildCacheKey("MVC", descriptor.ControllerTypeInfo.AsType(), descriptor.MethodInfo);
             if (_cache.TryGetValue(cacheKey, out var cached) && cached != null)
             {
                 return cached;
@@ -33,7 +33,7 @@ namespace Yi.Framework.Operation.Core.Metadata
 
         public ActionIdentity Resolve(Type serviceType, MethodInfo methodInfo)
         {
-            var cacheKey = $"Service:{serviceType.FullName}:{methodInfo.Name}";
+            var cacheKey = BuildCacheKey("Service", serviceType, methodInfo);
             if (_cache.TryGetValue(cacheKey, out var cached) && cached != null)
             {
                 return cached;
@@ -42,6 +42,13 @@ namespace Yi.Framework.Operation.Core.Metadata
             var identity = ParseIdentity(serviceType, methodInfo);
             _cache.Set(cacheKey, identity);
             return identity;
+        }
+
+        private static string BuildCacheKey(string prefix, Type serviceType, MethodInfo methodInfo)
+        {
+            var parameterTypes = string.Join(",", methodInfo.GetParameters()
+                .Select(parameter => parameter.ParameterType.FullName ?? parameter.ParameterType.Name));
+            return $"{prefix}:{serviceType.FullName}:{methodInfo.Name}({parameterTypes})";
         }
 
         private ActionIdentity ParseIdentity(Type serviceType, MethodInfo methodInfo)
@@ -113,7 +120,17 @@ namespace Yi.Framework.Operation.Core.Metadata
                 }
             }
 
-            // 3. 接口方法上的特性（ABP 动态代理场景）
+            // 3. 基类中按签名查找（泛型基类方法场景）
+            foreach (var candidate in FindBaseMethods(serviceType, methodInfo))
+            {
+                actionAttr = candidate.GetCustomAttribute<PermissionActionAttribute>();
+                if (actionAttr != null)
+                {
+                    return actionAttr;
+                }
+            }
+
+            // 4. 接口方法上的特性（ABP 动态代理场景）
             var interfaceMethods = FindInterfaceMethods(serviceType, methodInfo);
             foreach (var interfaceMethod in interfaceMethods)
             {
@@ -125,6 +142,23 @@ namespace Yi.Framework.Operation.Core.Metadata
             }
 
             return null;
+        }
+
+        private IEnumerable<MethodInfo> FindBaseMethods(Type serviceType, MethodInfo methodInfo)
+        {
+            var current = serviceType.BaseType;
+            while (current != null && current != typeof(object))
+            {
+                foreach (var candidate in current.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+                {
+                    if (IsSameSignature(candidate, methodInfo))
+                    {
+                        yield return candidate;
+                    }
+                }
+
+                current = current.BaseType;
+            }
         }
 
         /// <summary>
@@ -143,6 +177,45 @@ namespace Yi.Framework.Operation.Core.Metadata
                     yield return interfaceMethod;
                 }
             }
+        }
+
+        private static bool IsSameSignature(MethodInfo candidate, MethodInfo methodInfo)
+        {
+            if (!string.Equals(candidate.Name, methodInfo.Name, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            var candidateParameters = candidate.GetParameters();
+            var methodParameters = methodInfo.GetParameters();
+            if (candidateParameters.Length != methodParameters.Length)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < candidateParameters.Length; i++)
+            {
+                var candidateType = candidateParameters[i].ParameterType;
+                var methodType = methodParameters[i].ParameterType;
+                if (candidateType == methodType)
+                {
+                    continue;
+                }
+
+                if (candidateType.IsGenericParameter)
+                {
+                    continue;
+                }
+
+                if (candidateType.ContainsGenericParameters && methodType.IsConstructedGenericType)
+                {
+                    continue;
+                }
+
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -185,9 +258,9 @@ namespace Yi.Framework.Operation.Core.Metadata
             {
                 "rbac" => "system",
                 "tenant-management" => "system",
-                "audit" => "monitor",
+                "audit-logging" => "monitor",
                 "setting-management" => "system",
-                _ => remoteServiceName.Replace("-", "") // fallback：去除 kebab-case
+                _ => remoteServiceName
             };
         }
 
@@ -204,7 +277,7 @@ namespace Yi.Framework.Operation.Core.Metadata
             if (assemblyName == null) return null;
 
             // Yi.Module.Rbac.Application -> rbac
-            // Yi.Module.AuditLogging.Application -> audit
+            // Yi.Module.AuditLogging.Application -> audit-logging
             if (assemblyName.StartsWith("Yi.Module."))
             {
                 var modulePart = assemblyName.Substring("Yi.Module.".Length);
@@ -212,10 +285,32 @@ namespace Yi.Framework.Operation.Core.Metadata
                 {
                     modulePart = modulePart.Substring(0, modulePart.IndexOf(".Application"));
                 }
-                return modulePart.ToLowerInvariant();
+                return ToKebabCase(modulePart);
             }
 
             return null;
+        }
+
+        private static string ToKebabCase(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return value;
+            }
+
+            var chars = new List<char>(value.Length + 4);
+            for (var i = 0; i < value.Length; i++)
+            {
+                var current = value[i];
+                if (char.IsUpper(current) && i > 0)
+                {
+                    chars.Add('-');
+                }
+
+                chars.Add(char.ToLowerInvariant(current));
+            }
+
+            return new string(chars.ToArray());
         }
     }
 }
