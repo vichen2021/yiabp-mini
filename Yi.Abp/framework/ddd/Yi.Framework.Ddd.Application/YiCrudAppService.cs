@@ -6,6 +6,7 @@ using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Repositories;
 using Yi.Framework.Core.Data;
+using Yi.Framework.Authorization.Abstractions.Enums;
 using Yi.Framework.Authorization.Abstractions.Attributes;
 using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Framework.OperationRecord.Abstractions.Enums;
@@ -92,7 +93,7 @@ namespace Yi.Framework.Ddd.Application
         /// </summary>
         /// <param name="id">实体ID</param>
         /// <returns>实体DTO</returns>
-        [PermissionAction("query")]
+        [PermissionAction(PermissionActionEnum.Query)]
         public override Task<TGetOutputDto> GetAsync(TKey id)
         {
             return base.GetAsync(id);
@@ -104,7 +105,7 @@ namespace Yi.Framework.Ddd.Application
         /// <param name="id">实体ID</param>
         /// <param name="input">更新输入</param>
         /// <returns>更新后的实体DTO</returns>
-        [PermissionAction("edit")]
+        [PermissionAction(PermissionActionEnum.Edit)]
         [OperLog(OperEnum.Update)]
         public override async Task<TGetOutputDto> UpdateAsync(TKey id, TUpdateInput input)
         {
@@ -137,7 +138,7 @@ namespace Yi.Framework.Ddd.Application
         /// </summary>
         /// <param name="input">创建输入</param>
         /// <returns>创建后的实体DTO</returns>
-        [PermissionAction("add")]
+        [PermissionAction(PermissionActionEnum.Add)]
         [OperLog(OperEnum.Insert)]
         public override async Task<TGetOutputDto> CreateAsync(TCreateInput input)
         {
@@ -172,7 +173,7 @@ namespace Yi.Framework.Ddd.Application
         /// </summary>
         /// <param name="input">查询输入</param>
         /// <returns>分页结果</returns>
-        [PermissionAction("query")]
+        [PermissionAction(PermissionActionEnum.Query)]
         public override async Task<PagedResultDto<TGetListOutputDto>> GetListAsync(TGetListInput input)
         {
             List<TEntity> entities;
@@ -205,7 +206,7 @@ namespace Yi.Framework.Ddd.Application
         /// </summary>
         /// <param name="keywords">查询关键字</param>
         /// <returns></returns>
-        [PermissionAction("query")]
+        [PermissionAction(PermissionActionEnum.Query)]
         public virtual async Task<List<TGetListOutputDto>> GetSelectDataListAsync(string? keywords = null)
         {
             List<TEntity> entities = await Repository.GetListAsync();
@@ -220,7 +221,7 @@ namespace Yi.Framework.Ddd.Application
         /// </summary>
         /// <param name="ids">实体ID集合</param>
         [RemoteService(isEnabled: true)]
-        [PermissionAction("remove")]
+        [PermissionAction(PermissionActionEnum.Remove)]
         [OperLog(OperEnum.Delete)]
         public virtual async Task DeleteAsync(IEnumerable<TKey> ids)
         {
@@ -242,7 +243,7 @@ namespace Yi.Framework.Ddd.Application
         /// </summary>
         /// <param name="input">查询条件</param>
         /// <returns>Excel文件</returns>
-        [PermissionAction("export")]
+        [PermissionAction(PermissionActionEnum.Export)]
         [OperLog(OperEnum.Export)]
         public virtual async Task<IActionResult> GetExportExcelAsync(TGetListInput input)
         {
@@ -283,7 +284,7 @@ namespace Yi.Framework.Ddd.Application
         /// <summary>
         /// 导入Excel(需要实现类重写此方法)
         /// </summary>
-        [PermissionAction("import")]
+        [PermissionAction(PermissionActionEnum.Import)]
         [OperLog(OperEnum.Import)]
         public virtual Task PostImportExcelAsync(List<TCreateInput> input)
         {

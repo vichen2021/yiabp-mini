@@ -8,6 +8,7 @@ using Volo.Abp.Application.Services;
 using Volo.Abp.Caching;
 using Volo.Abp.DependencyInjection;
 using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Enums;
 using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Module.Rbac.Application.Contracts.Dtos.MonitorCache;
 using Yi.Module.Rbac.Application.Contracts.IServices;
@@ -42,7 +43,7 @@ namespace Yi.Module.Rbac.Application.Services.Monitor
         /// </summary>
         /// <returns></returns>
         [HttpGet("monitor-cache/name")]
-        [PermissionAction("query")]
+        [PermissionAction(PermissionActionEnum.Query)]
         public List<MonitorCacheNameGetListOutputDto> GetName()
         {
             VerifyRedisCacheEnable();
@@ -87,7 +88,7 @@ namespace Yi.Module.Rbac.Application.Services.Monitor
         }
 
         [HttpGet("monitor-cache/key/{cacaheName}")]
-        [PermissionAction("query")]
+        [PermissionAction(PermissionActionEnum.Query)]
         public List<string> GetKey(string cacaheName)
         {
             VerifyRedisCacheEnable();
@@ -97,7 +98,7 @@ namespace Yi.Module.Rbac.Application.Services.Monitor
 
         //全部不为空
         [HttpGet("monitor-cache/value/{cacaheName}/{cacaheKey}")]
-        [PermissionAction("query")]
+        [PermissionAction(PermissionActionEnum.Query)]
         public MonitorCacheGetListOutputDto GetValue(string cacaheName, string cacaheKey)
         {
             var value = RedisClient.HGet($"{cacaheName}:{cacaheKey}", "data");
@@ -107,7 +108,7 @@ namespace Yi.Module.Rbac.Application.Services.Monitor
 
 
         [HttpDelete("monitor-cache/key/{cacaheName}")]
-        [PermissionAction("remove")]
+        [PermissionAction(PermissionActionEnum.Remove)]
         public bool DeleteKey(string cacaheName)
         {
             VerifyRedisCacheEnable();
@@ -116,7 +117,7 @@ namespace Yi.Module.Rbac.Application.Services.Monitor
         }
 
         [HttpDelete("monitor-cache/value/{cacaheName}/{cacaheKey}")]
-        [PermissionAction("remove")]
+        [PermissionAction(PermissionActionEnum.Remove)]
         public bool DeleteValue(string cacaheName, string cacaheKey)
         {
             RedisClient.Del($"{cacaheName}:{cacaheKey}");
@@ -124,7 +125,7 @@ namespace Yi.Module.Rbac.Application.Services.Monitor
         }
 
         [HttpDelete("monitor-cache/clear")]
-        [PermissionAction("remove")]
+        [PermissionAction(PermissionActionEnum.Remove)]
         public bool DeleteClear()
         {
             RedisClient.FlushDb();

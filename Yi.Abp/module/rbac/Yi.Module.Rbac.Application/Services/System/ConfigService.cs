@@ -3,6 +3,7 @@ using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Yi.Framework.Ddd.Application;
 using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Enums;
 using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Module.Rbac.Application.Contracts.Dtos.Config;
 using Yi.Module.Rbac.Application.Contracts.IServices;
@@ -53,7 +54,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <returns></returns>
         ///
         [Route("config/config-key/{configKey}")]
-        [PermissionAction("query")]
+        [PermissionAction(PermissionActionEnum.Query)]
         public async Task<string> GetConfigKeyAsync(string configKey)
         {
             var entity = await _repository.GetAsync(x => x.ConfigKey == configKey);

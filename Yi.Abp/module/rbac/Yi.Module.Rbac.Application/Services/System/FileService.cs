@@ -6,6 +6,7 @@ using Volo.Abp.Application.Dtos;
 using Volo.Abp.BlobStoring;
 using Yi.Framework.Ddd.Application;
 using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Enums;
 using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Module.Rbac.Application.Contracts.Dtos;
 using Yi.Module.Rbac.Application.Contracts.IServices;
@@ -56,7 +57,7 @@ public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutput
     /// 单查
     /// </summary>
     [HttpGet("file/get/{id}")]
-    [PermissionAction("query")]
+    [PermissionAction(PermissionActionEnum.Query)]
     public new async Task<FileStreamResult> GetAsync(Guid id)
     {
         var fileObject = await _fileManager.GetAsync(id);
@@ -91,7 +92,7 @@ public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutput
     /// <summary>
     /// 上传文件，返回落库后的文件 id 列表（与入参 files 顺序一致）
     /// </summary>
-    [PermissionAction("add")]
+    [PermissionAction(PermissionActionEnum.Add)]
     public async Task<List<Guid>> BatchUploadAsync(List<IFormFile> files)
     {
         var ids = new List<Guid>();
@@ -115,7 +116,7 @@ public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutput
     /// <summary>
     /// 上传单个文件，返回文件访问链接
     /// </summary>
-    [PermissionAction("add")]
+    [PermissionAction(PermissionActionEnum.Add)]
     public async Task<string> UploadAsync(IFormFile file)
     {
         using var memoryStream = new MemoryStream();
@@ -137,7 +138,7 @@ public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutput
     /// <summary>
     /// 下载文件
     /// </summary>
-    [PermissionAction("query")]
+    [PermissionAction(PermissionActionEnum.Query)]
     public async Task<FileStreamResult> DownloadAsync(Guid id)
     {
         var fileObject = await _fileManager.GetAsync(id);

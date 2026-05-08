@@ -4,6 +4,7 @@ using SqlSugar;
 using Volo.Abp.Application.Dtos;
 using Yi.Framework.Ddd.Application;
 using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Enums;
 using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Module.Rbac.Application.Contracts.Dtos.Notice;
 using Yi.Module.Rbac.Application.Contracts.IServices;
@@ -50,7 +51,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// </summary>
         /// <returns></returns>
         [HttpPost("notice/online/{id}")]
-        [PermissionAction("edit")]
+        [PermissionAction(PermissionActionEnum.Edit)]
         [OperLog("发送在线通知", Yi.Framework.OperationRecord.Abstractions.Enums.OperEnum.Update)]
         public async Task SendOnlineAsync([FromRoute] Guid id)
         {
@@ -62,7 +63,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// </summary>
         /// <returns></returns>
         [HttpPost("notice/offline/{id}")]
-        [PermissionAction("edit")]
+        [PermissionAction(PermissionActionEnum.Edit)]
         [OperLog("发送离线通知", Yi.Framework.OperationRecord.Abstractions.Enums.OperEnum.Update)]
         public async Task SendOfflineAsync([FromRoute] Guid id)
         {

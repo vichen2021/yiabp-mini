@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Enums;
 using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Module.Rbac.Application.Contracts.IServices;
 using Yi.Module.Rbac.Application.SignalRHubs;
@@ -28,7 +29,7 @@ namespace Yi.Module.Rbac.Application.Services.Monitor
         /// </summary>
         /// <param name="online"></param>
         /// <returns></returns>
-        [PermissionAction("query")]
+        [PermissionAction(PermissionActionEnum.Query)]
         public Task<PagedResultDto<OnlineUserModel>> GetListAsync([FromQuery] OnlineUserModel online)
         {
             var data = OnlineHub.ClientUsersDic;
@@ -56,7 +57,7 @@ namespace Yi.Module.Rbac.Application.Services.Monitor
         /// <returns></returns>
         [HttpDelete]
         [Route("online/{connnectionId}")]
-        [PermissionAction("edit")]
+        [PermissionAction(PermissionActionEnum.Edit)]
         public async Task<bool> ForceOut(string connnectionId)
         {
             if (OnlineHub.ClientUsersDic.ContainsKey(connnectionId))

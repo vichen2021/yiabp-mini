@@ -12,6 +12,7 @@ using Volo.Abp.Modularity;
 using Volo.Abp.Uow;
 using Yi.Framework.Ddd.Application;
 using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Enums;
 using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Module.Rbac.Domain.Entities;
 using Yi.Module.Rbac.Domain.Managers;
@@ -164,7 +165,7 @@ namespace Yi.Module.TenantManagement.Application
         /// <param name="input">初始化参数（包含管理员账号密码）</param>
         /// <returns></returns>
         [HttpPut("tenant/init/{id}")]
-        [PermissionAction("edit")]
+        [PermissionAction(PermissionActionEnum.Edit)]
         [OperLog("初始化租户", Yi.Framework.OperationRecord.Abstractions.Enums.OperEnum.Update)]
         public async Task<TenantInitOutputDto> InitAsync
             ([FromRoute] Guid id, [FromBody] TenantInitInput input)
@@ -243,7 +244,7 @@ namespace Yi.Module.TenantManagement.Application
         /// </summary>
         /// <param name="tenantId">租户ID</param>
         /// <param name="packageId">套餐ID</param>
-        [PermissionAction("edit")]
+        [PermissionAction(PermissionActionEnum.Edit)]
         [OperLog("同步租户套餐", Yi.Framework.OperationRecord.Abstractions.Enums.OperEnum.Update)]
         public async Task SyncPackageAsync(Guid tenantId, Guid packageId)
         {

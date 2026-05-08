@@ -1,3 +1,6 @@
+using Yi.Framework.Authorization.Abstractions.Enums;
+using Yi.Framework.Authorization.Abstractions.Extensions;
+
 namespace Yi.Framework.Authorization.Abstractions.Attributes
 {
     /// <summary>
@@ -11,9 +14,20 @@ namespace Yi.Framework.Authorization.Abstractions.Attributes
         /// </summary>
         public string Action { get; }
 
+        /// <summary>
+        /// 使用字符串声明权限动作（兼容历史代码和自定义动作）
+        /// </summary>
         public PermissionActionAttribute(string action)
         {
             Action = action;
+        }
+
+        /// <summary>
+        /// 使用枚举声明标准权限动作
+        /// </summary>
+        public PermissionActionAttribute(PermissionActionEnum action)
+        {
+            Action = action.ToPermissionCode();
         }
     }
 }

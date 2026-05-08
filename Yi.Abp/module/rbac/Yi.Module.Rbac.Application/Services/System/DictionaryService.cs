@@ -4,6 +4,7 @@ using Volo.Abp.Application.Dtos;
 using Volo.Abp.Domain.Repositories;
 using Yi.Framework.Ddd.Application;
 using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Enums;
 using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Module.Rbac.Application.Contracts.Dtos.Dictionary;
 using Yi.Module.Rbac.Application.Contracts.IServices;
@@ -54,7 +55,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <param name="dicType"></param>
         /// <returns></returns>
         [Route("dictionary/dict-type/{dictType}")]
-        [PermissionAction("query")]
+        [PermissionAction(PermissionActionEnum.Query)]
         public async Task<List<DictionaryGetListOutputDto>> GetDicType([FromRoute] string dictType)
         {
             var entities = await _repository.GetListAsync(u => u.DictType == dictType && u.State == true);
