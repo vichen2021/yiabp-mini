@@ -7,7 +7,8 @@ using Yi.Module.Rbac.Application.Contracts.Dtos.Dept;
 using Yi.Module.Rbac.Application.Contracts.IServices;
 using Yi.Module.Rbac.Domain.Entities;
 using Yi.Module.Rbac.Domain.Repositories;
-using Yi.Framework.Operation.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Module.Rbac.Domain.Shared.Consts;
 using Yi.Module.Rbac.Domain.Shared.Dtos;
 

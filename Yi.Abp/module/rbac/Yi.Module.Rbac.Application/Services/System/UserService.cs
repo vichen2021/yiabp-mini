@@ -9,14 +9,15 @@ using Volo.Abp.Users;
 using Yi.Framework.Ddd.Application;
 using Yi.Module.Rbac.Application.Contracts.Dtos.User;
 using Yi.Module.Rbac.Application.Contracts.IServices;
-using Yi.Framework.Operation.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Module.Rbac.Domain.Entities;
 using Yi.Module.Rbac.Domain.Managers;
 using Yi.Module.Rbac.Domain.Repositories;
 using Yi.Module.Rbac.Domain.Shared.Caches;
 using Yi.Module.Rbac.Domain.Shared.Consts;
 using Yi.Module.Rbac.Domain.Shared.Etos;
-using Yi.Framework.Operation.Abstractions.Enums;
+using Yi.Framework.OperationRecord.Abstractions.Enums;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
 namespace Yi.Module.Rbac.Application.Services

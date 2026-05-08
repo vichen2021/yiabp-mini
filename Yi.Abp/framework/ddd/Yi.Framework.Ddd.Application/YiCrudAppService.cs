@@ -6,7 +6,9 @@ using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Repositories;
 using Yi.Framework.Core.Data;
-using Yi.Framework.Operation.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.OperationRecord.Abstractions.Attributes;
+using Yi.Framework.OperationRecord.Abstractions.Enums;
 
 namespace Yi.Framework.Ddd.Application
 {
@@ -103,6 +105,7 @@ namespace Yi.Framework.Ddd.Application
         /// <param name="input">更新输入</param>
         /// <returns>更新后的实体DTO</returns>
         [PermissionAction("edit")]
+        [OperLog(OperEnum.Update)]
         public override async Task<TGetOutputDto> UpdateAsync(TKey id, TUpdateInput input)
         {
             // 检查更新权限
@@ -135,6 +138,7 @@ namespace Yi.Framework.Ddd.Application
         /// <param name="input">创建输入</param>
         /// <returns>创建后的实体DTO</returns>
         [PermissionAction("add")]
+        [OperLog(OperEnum.Insert)]
         public override async Task<TGetOutputDto> CreateAsync(TCreateInput input)
         {
             // 检查创建权限
@@ -217,6 +221,7 @@ namespace Yi.Framework.Ddd.Application
         /// <param name="ids">实体ID集合</param>
         [RemoteService(isEnabled: true)]
         [PermissionAction("remove")]
+        [OperLog(OperEnum.Delete)]
         public virtual async Task DeleteAsync(IEnumerable<TKey> ids)
         {
             await Repository.DeleteManyAsync(ids);
@@ -238,6 +243,7 @@ namespace Yi.Framework.Ddd.Application
         /// <param name="input">查询条件</param>
         /// <returns>Excel文件</returns>
         [PermissionAction("export")]
+        [OperLog(OperEnum.Export)]
         public virtual async Task<IActionResult> GetExportExcelAsync(TGetListInput input)
         {
             // 重置分页参数以获取全部数据
@@ -278,6 +284,7 @@ namespace Yi.Framework.Ddd.Application
         /// 导入Excel(需要实现类重写此方法)
         /// </summary>
         [PermissionAction("import")]
+        [OperLog(OperEnum.Import)]
         public virtual Task PostImportExcelAsync(List<TCreateInput> input)
         {
             throw new NotImplementedException("请在实现类中重写此方法以支持Excel导入");

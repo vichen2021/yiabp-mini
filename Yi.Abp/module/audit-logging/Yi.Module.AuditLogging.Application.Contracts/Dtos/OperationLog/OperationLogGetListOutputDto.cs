@@ -1,5 +1,5 @@
 using Volo.Abp.Application.Dtos;
-using Yi.Framework.Operation.Abstractions.Enums;
+using Yi.Framework.OperationRecord.Abstractions.Enums;
 
 namespace Yi.Module.AuditLogging.Application.Contracts.Dtos.OperationLog
 {

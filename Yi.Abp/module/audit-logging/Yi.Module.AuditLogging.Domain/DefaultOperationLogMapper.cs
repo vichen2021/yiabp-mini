@@ -4,35 +4,30 @@ using Microsoft.Extensions.Options;
 using Volo.Abp.Auditing;
 using Volo.Abp.DependencyInjection;
 using Yi.Module.AuditLogging.Domain.Entities;
-using Yi.Framework.Operation.Abstractions;
-using Yi.Framework.Operation.Abstractions.Attributes;
-using Yi.Framework.Operation.Abstractions.Metadata;
+using Yi.Framework.OperationRecord.Abstractions.Metadata;
 
 namespace Yi.Module.AuditLogging.Domain
 {
     /// <summary>
-    /// 默认操作日志映射器
-    /// 使用 IOperationLogRequirementResolver 解析日志要求
+    /// 默认操作记录映射器
+    /// 使用 IOperationLogRequirementResolver 解析操作记录要求
     /// </summary>
     public class DefaultOperationLogMapper : IOperationLogMapper, ITransientDependency
     {
         private readonly YiAuditLoggingOptions _yiOptions;
-        private readonly OperationOptions _operationOptions;
         private readonly IOperationLogRequirementResolver _logResolver;
 
         public DefaultOperationLogMapper(
             IOptions<YiAuditLoggingOptions> yiOptions,
-            IOptions<OperationOptions> operationOptions,
             IOperationLogRequirementResolver logResolver)
         {
             _yiOptions = yiOptions.Value;
-            _operationOptions = operationOptions.Value;
             _logResolver = logResolver;
         }
 
         public OperationLogEntity? TryMap(AuditLogInfo auditLogInfo)
         {
-            // 不保存操作日志时返回 null
+            // 不保存操作记录时返回 null
             if (!_yiOptions.SaveOperationLog)
             {
                 return null;
@@ -59,31 +54,28 @@ namespace Yi.Module.AuditLogging.Domain
                 return null;
             }
 
-            // 检查显式 [OperLog] 特性
-            var operLogAttr = methodInfo.GetCustomAttribute<OperLogAttribute>();
-            var hasExplicitLog = operLogAttr != null;
-
-            // 使用日志要求解析器
+            // 使用操作记录要求解析器
             var requirement = _logResolver.Resolve(serviceType, methodInfo);
+            var hasExplicitLog = requirement.Source == "OperLog";
 
-            // 检查是否忽略日志
+            // 检查是否忽略操作记录
             if (requirement.Ignore)
             {
                 return null;
             }
 
-            // 自动写操作日志开关控制
+            // 自动写操作记录开关控制
             // 显式 [OperLog] 不受 AutoLogWriteOperations 控制
-            if (!hasExplicitLog && !_operationOptions.AutoLogWriteOperations)
+            if (!hasExplicitLog && !_yiOptions.AutoLogWriteOperations)
             {
-                // 关闭自动写操作日志时，只有显式声明才记录
+                // 关闭自动写操作记录时，只有显式声明才记录
                 return null;
             }
 
-            // 查询操作日志控制
+            // 查询操作记录控制
             if (!requirement.IsWriteOperation)
             {
-                if (!_operationOptions.LogReadOperations && !hasExplicitLog)
+                if (!_yiOptions.LogReadOperations && !hasExplicitLog)
                 {
                     return null;
                 }
@@ -93,7 +85,7 @@ namespace Yi.Module.AuditLogging.Domain
             var operType = requirement.OperType;
             if (operType == null)
             {
-                // 无法推断操作类型，不生成操作日志
+                // 无法推断操作类型，不生成操作记录
                 return null;
             }
 
@@ -138,7 +130,7 @@ namespace Yi.Module.AuditLogging.Domain
         {
             if (string.IsNullOrEmpty(url)) return false;
 
-            foreach (var prefix in _operationOptions.IgnoredUrlPrefixes)
+            foreach (var prefix in _yiOptions.IgnoredUrlPrefixes)
             {
                 if (url.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
                 {

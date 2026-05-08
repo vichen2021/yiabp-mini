@@ -9,7 +9,8 @@ using Yi.Module.TenantManagement.Application.Contracts.IServices;
 using Yi.Module.TenantManagement.Domain;
 using Yi.Module.TenantManagement.Domain.Entities;
 using Yi.Framework.SqlSugarCore.Abstractions;
-using Yi.Framework.Operation.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.OperationRecord.Abstractions.Attributes;
 
 namespace Yi.Module.TenantManagement.Application.Services
 {

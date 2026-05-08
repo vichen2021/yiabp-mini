@@ -6,6 +6,7 @@ import { computed, onMounted, ref, shallowRef, unref } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { useAccess } from '@vben/access';
+import { DEFAULT_TENANT_ID } from '@vben/constants';
 import { useTabs } from '@vben/hooks';
 import { $t } from '@vben/locales';
 
@@ -15,6 +16,7 @@ import { storeToRefs } from 'pinia';
 import { tenantDynamicClear, tenantDynamicToggle } from '#/api/system/tenant';
 import { useDictStore } from '#/store/dict';
 import { useTenantStore } from '#/store/tenant';
+import { useLoginTenantId } from '#/utils/tenant';
 
 const { hasAccessByRoles } = useAccess();
 
@@ -26,15 +28,23 @@ const selected = ref<string>();
 const tenantStore = useTenantStore();
 const { initTenant, setChecked } = tenantStore;
 const { tenantEnable, tenantList } = storeToRefs(tenantStore);
+const { loginTenantId } = useLoginTenantId();
 
 const showToggle = computed<boolean>(() => {
   // 超级管理员 && 启用租户
-  return hasAccessByRoles(['superadmin']) && unref(tenantEnable);
+  return (
+    loginTenantId.value === DEFAULT_TENANT_ID &&
+    hasAccessByRoles(['superadmin']) &&
+    unref(tenantEnable)
+  );
 });
 
 onMounted(async () => {
   // 没有超级管理员权限 不会调用接口
-  if (!hasAccessByRoles(['superadmin'])) {
+  if (
+    loginTenantId.value !== DEFAULT_TENANT_ID ||
+    !hasAccessByRoles(['superadmin'])
+  ) {
     return;
   }
   await initTenant();

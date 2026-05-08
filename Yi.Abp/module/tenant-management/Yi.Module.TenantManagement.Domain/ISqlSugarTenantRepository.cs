@@ -1,4 +1,5 @@
 ﻿using Yi.Framework.SqlSugarCore.Abstractions;
+using Yi.Module.TenantManagement.Domain.Entities;
 
 namespace Yi.Module.TenantManagement.Domain
 {

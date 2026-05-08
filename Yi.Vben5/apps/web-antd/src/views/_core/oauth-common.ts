@@ -1,8 +1,7 @@
 import type { Component, CSSProperties } from 'vue';
 
-import { markRaw, ref } from 'vue';
+import { markRaw } from 'vue';
 
-import { DEFAULT_TENANT_ID } from '@vben/constants';
 import {
   GiteeIcon,
   GithubOAuthIcon,
@@ -11,9 +10,10 @@ import {
   SvgWechatIcon,
 } from '@vben/icons';
 
-import { createGlobalState } from '@vueuse/core';
-
 import { authBinding } from '#/api/core/auth';
+import { useLoginTenantId } from '#/utils/tenant';
+
+export { useLoginTenantId };
 
 /**
  * @description: oauth登录
@@ -38,19 +38,6 @@ export interface BindItem extends ListItem {
   source: string;
   bound?: boolean;
 }
-
-/**
- * 这里存储登录页的tenantId 由于个人中心也会用到 需要共享
- * 所以使用`createGlobalState`
- * @see https://vueuse.org/shared/createGlobalState/
- */
-export const useLoginTenantId = createGlobalState(() => {
-  const loginTenantId = ref(DEFAULT_TENANT_ID);
-
-  return {
-    loginTenantId,
-  };
-});
 
 /**
  * 绑定授权

@@ -16,8 +16,9 @@ using Yi.Module.Rbac.Domain.Repositories;
 using Yi.Module.Rbac.Domain.Shared.Consts;
 using Yi.Module.Rbac.Domain.Shared.Dtos;
 using Yi.Module.Rbac.Domain.Shared.Enums;
-using Yi.Framework.Operation.Abstractions.Attributes;
-using Yi.Framework.Operation.Abstractions.Enums;
+using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.OperationRecord.Abstractions.Attributes;
+using Yi.Framework.OperationRecord.Abstractions.Enums;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
 namespace Yi.Module.Rbac.Application.Services

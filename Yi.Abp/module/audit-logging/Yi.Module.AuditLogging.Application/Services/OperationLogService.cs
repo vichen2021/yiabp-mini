@@ -6,17 +6,18 @@ using Volo.Abp.Application.Services;
 using Yi.Module.AuditLogging.Application.Contracts.Dtos.OperationLog;
 using Yi.Module.AuditLogging.Application.Contracts.IServices;
 using Yi.Module.AuditLogging.Domain.Entities;
-using Yi.Framework.Operation.Abstractions.Attributes;
-using Yi.Framework.Operation.Abstractions.Enums;
+using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.OperationRecord.Abstractions.Attributes;
+using Yi.Framework.OperationRecord.Abstractions.Enums;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
 namespace Yi.Module.AuditLogging.Application.Services
 {
     /// <summary>
-    /// 操作日志服务
+    /// 操作记录服务
     /// </summary>
     [PermissionResource("monitor", "operlog")]
-    [OperLogEntity("操作日志")]
+    [OperLogEntity("操作记录")]
     public class OperationLogService : ApplicationService, IOperationLogService
     {
         private readonly ISqlSugarRepository<OperationLogEntity, Guid> _repository;
@@ -46,21 +47,21 @@ namespace Yi.Module.AuditLogging.Application.Services
         }
 
         [Permission("monitor:operlog:remove")]
-        [OperLog("删除操作日志", OperEnum.Delete)]
+        [OperLog("删除操作记录", OperEnum.Delete)]
         public virtual async Task DeleteAsync(IEnumerable<Guid> ids)
         {
             await _repository.DeleteManyAsync(ids);
         }
 
         [Permission("monitor:operlog:remove")]
-        [OperLog("清空操作日志", OperEnum.Clear)]
+        [OperLog("清空操作记录", OperEnum.Clear)]
         public virtual async Task DeleteCleanAsync()
         {
             await _repository._Db.Deleteable<OperationLogEntity>().ExecuteCommandAsync();
         }
 
         [Permission("monitor:operlog:export")]
-        [OperLog("导出操作日志", OperEnum.Export)]
+        [OperLog("导出操作记录", OperEnum.Export)]
         public virtual async Task<IActionResult> PostExportAsync(OperationLogGetListInputVo input)
         {
             var entities = await BuildQuery(input)

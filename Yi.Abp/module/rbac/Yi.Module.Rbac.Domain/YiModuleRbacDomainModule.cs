@@ -13,14 +13,12 @@ using Volo.Abp.Modularity;
 using Yi.Framework.Caching.FreeRedis;
 using Yi.Module.Rbac.Domain.Shared;
 using Yi.Module.Rbac.Domain.Shared.Options;
-using Yi.Framework.Operation.Abstractions;
 
 namespace Yi.Module.Rbac.Domain
 {
     [DependsOn(
         typeof(YiModuleRbacDomainSharedModule),
         typeof(YiFrameworkCachingFreeRedisModule),
-        typeof(YiFrameworkOperationAbstractionsModule),
         typeof(AbpAspNetCoreSignalRModule),
         typeof(AbpDddDomainModule),
         typeof(AbpCachingModule),

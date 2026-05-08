@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\..\common.props" />
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Yi.Framework.OperationRecord.Core</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Yi.Framework.OperationRecord.Abstractions\Yi.Framework.OperationRecord.Abstractions.csproj" />
+    <ProjectReference Include="..\..\action-metadata\Yi.Framework.ActionMetadata.Core\Yi.Framework.ActionMetadata.Core.csproj" />
+  </ItemGroup>
+</Project>

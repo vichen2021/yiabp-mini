@@ -1,12 +1,12 @@
 using SqlSugar;
 using Volo.Abp.Auditing;
 using Volo.Abp.Domain.Entities;
-using Yi.Framework.Operation.Abstractions.Enums;
+using Yi.Framework.OperationRecord.Abstractions.Enums;
 
 namespace Yi.Module.AuditLogging.Domain.Entities
 {
     /// <summary>
-    /// 操作日志表
+    /// 操作记录表
     ///</summary>
     [SugarTable("OperationLog")]
     [SugarIndex($"index_{nameof(CreationTime)}", nameof(CreationTime), OrderByType.Desc)]

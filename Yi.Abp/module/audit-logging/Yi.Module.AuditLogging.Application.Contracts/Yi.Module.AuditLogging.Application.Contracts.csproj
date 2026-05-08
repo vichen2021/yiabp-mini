@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\framework\ddd\Yi.Framework.Ddd.Application.Contracts\Yi.Framework.Ddd.Application.Contracts.csproj" />
-    <ProjectReference Include="..\..\..\framework\operation\Yi.Framework.Operation.Abstractions\Yi.Framework.Operation.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\framework\operation-record\Yi.Framework.OperationRecord.Abstractions\Yi.Framework.OperationRecord.Abstractions.csproj" />
     <ProjectReference Include="..\Yi.Module.AuditLogging.Domain.Shared\Yi.Module.AuditLogging.Domain.Shared.csproj" />
   </ItemGroup>
 </Project>

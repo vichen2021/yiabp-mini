@@ -1,7 +1,8 @@
 using SqlSugar;
 using Volo.Abp.Application.Dtos;
 using Yi.Framework.Ddd.Application;
-using Yi.Framework.Operation.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Module.Rbac.Application.Contracts.Dtos.Post;
 using Yi.Module.Rbac.Application.Contracts.IServices;
 using Yi.Module.Rbac.Domain.Entities;

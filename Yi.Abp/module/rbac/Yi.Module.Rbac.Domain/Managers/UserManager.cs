@@ -129,14 +129,60 @@ namespace Yi.Module.Rbac.Domain.Managers
 
         }
 
+        public async Task<UserAggregateRoot> CreateOrUpdateAdminAsync(string userName, string password, string? nick = null)
+        {
+            if (password.Length < 6)
+            {
+                throw new UserFriendlyException(UserConst.Create_Passworld_Error);
+            }
+
+            var user = await _repository.GetFirstAsync(x => x.UserName == userName);
+            if (user is null)
+            {
+                user = new UserAggregateRoot(userName, password, null, nick);
+                await CreateAsync(user);
+                user = await _repository.GetFirstAsync(x => x.UserName == userName);
+                if (user is null)
+                {
+                    throw new UserFriendlyException("租户管理员创建失败");
+                }
+            }
+            else
+            {
+                ValidateUserName(user);
+                user.EncryPassword.Password = password;
+                user.BuildPassword();
+                user.Nick = string.IsNullOrWhiteSpace(nick) ? user.Nick : nick.Trim();
+                user.State = true;
+                user.IsDeleted = false;
+                await _repository.UpdateAsync(user);
+            }
+
+            await SetAdminRoleAsync(user.Id);
+            return user;
+        }
+
 
         public async Task SetDefautRoleAsync(Guid userId)
         {
-            var role = await _roleRepository.GetFirstAsync(x => x.RoleCode == UserConst.DefaultRoleCode);
+            await SetRoleByCodeAsync(userId, UserConst.DefaultRoleCode);
+        }
+
+        public async Task SetAdminRoleAsync(Guid userId)
+        {
+            await SetRoleByCodeAsync(userId, UserConst.AdminRolesCode);
+        }
+
+        public async Task SetRoleByCodeAsync(Guid userId, string roleCode)
+        {
+            var role = await _roleRepository.GetFirstAsync(x => x.RoleCode == roleCode);
             if (role is not null)
             {
                 await GiveUserSetRoleAsync(new List<Guid> { userId }, new List<Guid> { role.Id });
+                return;
             }
+
+            throw new UserFriendlyException($"角色不存在：{roleCode}");
         }
 
         private void ValidateUserName(UserAggregateRoot input)

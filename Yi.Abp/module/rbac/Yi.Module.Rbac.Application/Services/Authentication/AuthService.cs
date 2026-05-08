@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +11,8 @@ using Volo.Abp.Users;
 using Yi.Framework.Ddd.Application;
 using Yi.Module.Rbac.Application.Contracts.Dtos.Account;
 using Yi.Module.Rbac.Application.Contracts.IServices;
-using Yi.Framework.Operation.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Module.Rbac.Domain.Authorization;
 using Yi.Module.Rbac.Domain.Managers;
 using Yi.Framework.SqlSugarCore.Abstractions;

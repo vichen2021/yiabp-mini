@@ -8,7 +8,8 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\Yi.Framework.Ddd.Application.Contracts\Yi.Framework.Ddd.Application.Contracts.csproj" />
-	  <ProjectReference Include="..\..\operation\Yi.Framework.Operation.Abstractions\Yi.Framework.Operation.Abstractions.csproj" />
+	  <ProjectReference Include="..\..\authorization\Yi.Framework.Authorization.Abstractions\Yi.Framework.Authorization.Abstractions.csproj" />
+	  <ProjectReference Include="..\..\operation-record\Yi.Framework.OperationRecord.Abstractions\Yi.Framework.OperationRecord.Abstractions.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.SignalR;
 using SqlSugar;
 using Volo.Abp.Application.Dtos;
 using Yi.Framework.Ddd.Application;
-using Yi.Framework.Operation.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Module.Rbac.Application.Contracts.Dtos.Notice;
 using Yi.Module.Rbac.Application.Contracts.IServices;
 using Yi.Module.Rbac.Application.SignalRHubs;
@@ -50,7 +51,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <returns></returns>
         [HttpPost("notice/online/{id}")]
         [PermissionAction("edit")]
-        [OperLog("发送在线通知", Yi.Framework.Operation.Abstractions.Enums.OperEnum.Update)]
+        [OperLog("发送在线通知", Yi.Framework.OperationRecord.Abstractions.Enums.OperEnum.Update)]
         public async Task SendOnlineAsync([FromRoute] Guid id)
         {
             var entity = await _repository._DbQueryable.FirstAsync(x => x.Id == id);
@@ -62,7 +63,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <returns></returns>
         [HttpPost("notice/offline/{id}")]
         [PermissionAction("edit")]
-        [OperLog("发送离线通知", Yi.Framework.Operation.Abstractions.Enums.OperEnum.Update)]
+        [OperLog("发送离线通知", Yi.Framework.OperationRecord.Abstractions.Enums.OperEnum.Update)]
         public async Task SendOfflineAsync([FromRoute] Guid id)
         {
             //先发送一个在线

@@ -1,4 +1,4 @@
-﻿using FreeRedis;
+using FreeRedis;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -7,7 +7,8 @@ using TencentCloud.Mna.V20210119.Models;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Caching;
 using Volo.Abp.DependencyInjection;
-using Yi.Framework.Operation.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Module.Rbac.Application.Contracts.Dtos.MonitorCache;
 using Yi.Module.Rbac.Application.Contracts.IServices;
 

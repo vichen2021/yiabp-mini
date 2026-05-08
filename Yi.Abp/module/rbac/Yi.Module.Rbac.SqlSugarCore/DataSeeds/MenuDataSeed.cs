@@ -4,6 +4,9 @@ using Volo.Abp.Guids;
 using Yi.Module.Rbac.Domain.Entities;
 using Yi.Module.Rbac.Domain.Shared.Enums;
 using Yi.Framework.SqlSugarCore.Abstractions;
+using Yi.Framework.Authorization.Abstractions.Permissions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
 {
@@ -11,10 +14,19 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
     {
         private ISqlSugarRepository<MenuAggregateRoot> _repository;
         private IGuidGenerator _guidGenerator;
-        public MenuDataSeed(ISqlSugarRepository<MenuAggregateRoot> repository, IGuidGenerator guidGenerator)
+        private IServiceProvider _serviceProvider;
+        private ILogger<MenuDataSeed> _logger;
+
+        public MenuDataSeed(
+            ISqlSugarRepository<MenuAggregateRoot> repository,
+            IGuidGenerator guidGenerator,
+            IServiceProvider serviceProvider,
+            ILogger<MenuDataSeed> logger)
         {
             _repository = repository;
             _guidGenerator = guidGenerator;
+            _serviceProvider = serviceProvider;
+            _logger = logger;
         }
 
         public async Task SeedAsync(DataSeedContext context)
@@ -35,9 +47,29 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
                         x.MenuName != "套餐删除").ToList();
                 }
 
+                ValidatePermissionCodes(seedData);
                 await _repository.InsertManyAsync(seedData);
             }
         }
+
+        private void ValidatePermissionCodes(List<MenuAggregateRoot> seedData)
+        {
+            var permissionDefinitionValidator = _serviceProvider.GetService<IPermissionDefinitionValidator>();
+            if (permissionDefinitionValidator == null)
+            {
+                return;
+            }
+
+            var usedPermissionCodes = seedData
+                .Select(menu => menu.PermissionCode)
+                .Where(code => !string.IsNullOrWhiteSpace(code))
+                .Select(code => code!)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            var validationResult = permissionDefinitionValidator.Validate(usedPermissionCodes);
+        }
+
         public List<MenuAggregateRoot> GetSeedData()
         {
             List<MenuAggregateRoot> entities = new List<MenuAggregateRoot>();
@@ -927,11 +959,11 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
             };
             entities.Add(log);
 
-            //操作日志
+            //操作记录
             MenuAggregateRoot operationLog = new MenuAggregateRoot(_guidGenerator.Create())
             {
 
-                MenuName = "操作日志",
+                MenuName = "操作记录",
                 PermissionCode = "monitor:operlog:query",
                 MenuType = MenuTypeEnum.Menu,
                 Router = "operlog",

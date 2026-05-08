@@ -44,10 +44,9 @@ using Yi.Module.AuditLogging.Application;
 using Yi.Module.AuditLogging.Domain;
 using Yi.Framework.BackgroundWorkers.Hangfire;
 using Yi.Framework.Core.Json;
-using Yi.Framework.Operation.Abstractions;
-using Yi.Framework.Operation.Abstractions.Permissions;
-using Yi.Framework.Operation.Core;
-using Yi.Framework.Operation.Core.Filters;
+using Yi.Framework.Authorization.Core;
+using Yi.Framework.Authorization.Core.Filters;
+using Yi.Framework.OperationRecord.Core;
 using Yi.Module.Rbac.Application;
 using Yi.Module.Rbac.Domain.Authorization;
 using Yi.Module.Rbac.Domain.Shared.Consts;
@@ -70,7 +69,8 @@ namespace Yi.Abp.Web
         typeof(YiFrameworkAspNetCoreAuthenticationOAuthModule),
 
         typeof(YiModuleAuditLoggingApplicationModule),
-        typeof(YiFrameworkOperationCoreModule),
+        typeof(YiFrameworkAuthorizationCoreModule),
+        typeof(YiFrameworkOperationRecordCoreModule),
         typeof(YiFrameworkBackgroundWorkersHangfireModule),
         typeof(AbpAutofacModule)
     )]
@@ -117,21 +117,20 @@ namespace Yi.Abp.Web
                 options.IsEnabled = true;
                 options.IsEnabledForGetRequests = false;
             });
-            //忽略审计日志路径
+            //忽略审计记录路径
             Configure<AbpAspNetCoreAuditingOptions>(options =>
             {
                 options.IgnoredUrls.Add("/api/app/file/");
                 options.IgnoredUrls.Add("/hangfire");
             });
             Configure<YiAuditLoggingOptions>(configuration.GetSection("AuditLogging"));
-            Configure<OperationOptions>(configuration.GetSection("Operation"));
 
             //采用furion格式的规范化api，默认不开启，使用abp优雅的方式
             //前置：需要将管道工作单元前加上app.Properties.Add("_AbpExceptionHandlingMiddleware_Added",false);
             //你没看错。。。
             service.AddFurionUnifyResultApi();
 
-            //注册 Operation 全局过滤器（权限准入）
+            //注册权限全局过滤器
             service.AddControllers(options =>
             {
                 options.Filters.Add<PermissionAuthorizationFilter>();
@@ -370,7 +369,7 @@ namespace Yi.Abp.Web
             app.UseAuthentication();
 
             //多租户
-            //app.UseMultiTenancy();
+            app.UseMultiTenancy();
 
             //swagger
             app.UseYiSwagger();
@@ -405,7 +404,7 @@ namespace Yi.Abp.Web
             //授权
             app.UseAuthorization();
 
-            //审计日志
+            //审计记录
             app.UseAuditing();
 
             //日志记录
