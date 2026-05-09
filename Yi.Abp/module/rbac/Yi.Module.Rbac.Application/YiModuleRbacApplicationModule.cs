@@ -49,11 +49,11 @@ namespace Yi.Module.Rbac.Application
                     {
                         container.UseAliyun(aliyun =>
                         {
-                            aliyun.AccessKeyId = configuration["AliyunOptions:AccessKeyId"] ?? "";
-                            aliyun.AccessKeySecret = configuration["AliyunOptions:AccessKeySecret"] ?? "";
-                            aliyun.Endpoint = configuration["AliyunOptions:Oss:Endpoint"] ?? "";
-                            aliyun.ContainerName = configuration["AliyunOptions:Oss:ContainerName"] ?? "";
-                            aliyun.CreateContainerIfNotExists = configuration.GetValue<bool>("AliyunOptions:Oss:CreateContainerIfNotExists");
+                            aliyun.AccessKeyId = configuration["BlobStoring:Aliyun:AccessKeyId"] ?? "";
+                            aliyun.AccessKeySecret = configuration["BlobStoring:Aliyun:AccessKeySecret"] ?? "";
+                            aliyun.Endpoint = configuration["BlobStoring:Aliyun:Endpoint"] ?? "";
+                            aliyun.ContainerName = configuration["BlobStoring:Aliyun:ContainerName"] ?? "";
+                            aliyun.CreateContainerIfNotExists = configuration.GetValue<bool>("BlobStoring:Aliyun:CreateContainerIfNotExists");
                         });
                     }
                     else

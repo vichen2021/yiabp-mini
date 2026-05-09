@@ -60,10 +60,13 @@ docs/.vitepress/cache
 PublishProfiles
 /publish
 
-
 lefthook.yml
 *.user
 .docs
 *.db
 
 **/FileStorage
+
+# Local application settings
+Yi.Abp/src/Yi.Abp.Web/appsettings.Development.json
+Yi.Abp/src/Yi.Abp.Web/appsettings.Local.json
