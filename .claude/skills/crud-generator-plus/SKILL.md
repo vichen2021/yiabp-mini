@@ -141,7 +141,7 @@ Application.Contracts/Dtos/{Entity}/
 └── {Entity}UpdateInputVo.cs
 
 Application.Contracts/IServices/I{Entity}Service.cs  ← 包含 SelectListAsync 接口
-Application/Services/{Entity}Service.cs              ← 包含 SelectListAsync 实现
+Application/Services/{Entity}Service.cs              ← 包含 PermissionResource + SelectListAsync 实现
 ```
 
 **前端（5个文件）**:
@@ -180,6 +180,27 @@ export function {entity}SelectList(keywords?: string) {
 - 表单中的下拉选择框
 - 关联实体的选择列表
 - 搜索框的候选数据
+
+### 新增功能：权限资源声明（PermissionResource）
+
+生成的 Service 会自动添加类级权限资源声明：
+
+```csharp
+[PermissionResource("{module}", "{entityLower}")]
+public class {Entity}Service : YiCrudAppService<...>
+```
+
+并自动引入：
+
+```csharp
+using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Enums;
+```
+
+生成规则：
+- 第一段 `{module}`：命令行 `--module` 参数原值
+- 第二段 `{entityLower}`：实体名首字母小写，如 `ProductCategory` → `productCategory`
+- `SelectListAsync` 自动标注 `[PermissionAction(PermissionActionEnum.Query)]`
 
 ### 新增功能：自动查询条件生成
 

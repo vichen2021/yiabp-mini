@@ -1,6 +1,6 @@
-# 权限与操作日志
+# 权限与操作记录
 
-2.0 后权限和操作日志由 `Yi.Framework.Operation` 提供统一的 Action 元数据解析能力。权限码和操作日志标题可以自动推断，也可以通过特性显式指定。
+权限和操作记录由授权抽象层与操作记录模块共同提供。Service 通过 `PermissionResource` 声明资源，通过 `PermissionAction` 声明动作，通过 `OperLogEntity` 和 `OperLog` 声明操作记录元数据。
 
 ## 权限码格式
 
@@ -13,12 +13,23 @@
 示例：
 
 ```text
-system:user:list
+system:user:query
 system:user:add
 system:user:edit
-system:user:delete
-monitor:operlog:list
+system:user:remove
+monitor:operlog:query
 ```
+
+当前服务层推荐使用统一动作：
+
+| 动作 | 含义 |
+|------|------|
+| `query` | 查询、详情、下拉、树等读操作 |
+| `add` | 新增、上传、创建等写入操作 |
+| `edit` | 编辑、状态变更、同步等更新操作 |
+| `remove` | 删除、清空等移除操作 |
+| `export` | 导出操作 |
+| `import` | 导入操作 |
 
 ## 权限解析顺序
 
@@ -31,6 +42,80 @@ monitor:operlog:list
 5. 显式 `[Permission("...")]`，校验指定权限码。
 6. 自动推断出权限码时，根据 `AutoCheckResolvedActions` 决定是否校验。
 7. 未能推断权限码时，根据 `AllowUnresolvedActions` 决定放行或 403。
+
+## Service 权限配置
+
+### 声明资源
+
+在应用服务类上使用 `[PermissionResource]` 声明模块码和资源码：
+
+```csharp
+[PermissionResource("system", "file")]
+[OperLogEntity("文件")]
+public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutputDto, Guid, FileGetListInputVo>
+{
+}
+```
+
+资源声明后，方法动作会组合为：
+
+```text
+system:file:{action}
+```
+
+例如：
+
+```text
+system:file:query
+system:file:add
+system:file:remove
+```
+
+### 声明动作
+
+新增代码推荐使用 `PermissionActionEnum`，避免裸字符串拼写错误：
+
+```csharp
+[PermissionAction(PermissionActionEnum.Query)]
+public async Task<FileStreamResult> DownloadAsync(Guid id)
+{
+}
+```
+
+常用枚举：
+
+| 枚举 | 输出动作 |
+|------|----------|
+| `PermissionActionEnum.Query` | `query` |
+| `PermissionActionEnum.Add` | `add` |
+| `PermissionActionEnum.Edit` | `edit` |
+| `PermissionActionEnum.Remove` | `remove` |
+| `PermissionActionEnum.Export` | `export` |
+| `PermissionActionEnum.Import` | `import` |
+
+字符串构造方式仍可兼容历史代码，但新增功能优先使用枚举。
+
+### CRUD 基类
+
+继承 `YiCrudAppService` 的标准 CRUD 方法会带有统一动作语义。业务服务只需要在类上声明资源和操作记录实体：
+
+```csharp
+[PermissionResource("system", "tenantPackage")]
+[OperLogEntity("租户套餐")]
+public class TenantPackageService : YiCrudAppService<TenantPackageAggregateRoot, TenantPackageGetOutputDto, TenantPackageGetListOutputDto, Guid,
+    TenantPackageGetListInputVo, TenantPackageCreateInputVo, TenantPackageUpdateInputVo>
+{
+}
+```
+
+对非标准方法，应显式声明动作：
+
+```csharp
+[PermissionAction(PermissionActionEnum.Query)]
+public async Task<MenuTreeResultDto> GetMenuTreeAsync(Guid? packageId)
+{
+}
+```
 
 ## 自动推断规则
 
@@ -54,16 +139,15 @@ OperationLogService -> operationlog
 
 | 方法 | action |
 |------|--------|
-| `GetListAsync` / `GetSelectDataListAsync` | `list` |
-| `GetAsync` | `detail` |
+| `GetListAsync` / `GetSelectDataListAsync` / `GetAsync` | `query` |
 | `CreateAsync` / `Post*` | `add` |
 | `UpdateAsync` / `Put*` | `edit` |
-| `DeleteAsync` / `Delete*` / `Remove*` / `Clear*` | `delete` |
+| `DeleteAsync` / `Delete*` / `Remove*` / `Clear*` | `remove` |
 | `ExportAsync` / `GetExportExcelAsync` | `export` |
 | `ImportAsync` / `PostImportExcelAsync` | `import` |
 
 ::: warning 兼容说明
-历史菜单种子中存在 `remove`、`query`、`resetPwd` 等权限码。新功能建议使用标准 action；历史权限码如需保留，应通过显式 `[Permission]` 或配置映射保持兼容。
+如果历史菜单种子中存在自定义权限码，例如 `resetPwd`，应通过显式 `[Permission]` 或配置映射保持兼容。新增功能建议使用统一动作。
 :::
 
 ## 显式权限
@@ -71,7 +155,7 @@ OperationLogService -> operationlog
 当自动推断不满足需求时，在方法上声明：
 
 ```csharp
-[Permission("system:user:list")]
+[Permission("system:user:query")]
 public override async Task<PagedResultDto<UserGetListOutputDto>> GetListAsync(UserGetListInputVo input)
 {
 }
@@ -111,15 +195,15 @@ public async Task<LoginOutputDto> LoginAsync(LoginInputVo input)
 
 映射优先级低于 `[Permission]`，高于自动推断。
 
-## 操作日志
+## 操作记录
 
-操作日志同样使用 Action 元数据。
+操作记录同样使用 Service 的 Action 元数据。
 
 类上可以声明实体显示名：
 
 ```csharp
-[OperLogEntity("用户")]
-public class UserService : ApplicationService
+[OperLogEntity("文件")]
+public class FileService : ApplicationService
 {
 }
 ```
@@ -133,7 +217,17 @@ public override async Task<UserGetOutputDto> CreateAsync(UserCreateInputVo input
 }
 ```
 
-如果没有显式 `[OperLog]`，系统会根据 action 推断日志类型和标题。
+如果没有显式 `[OperLog]`，系统会根据 action 和 `[OperLogEntity]` 推断日志类型和标题。
+
+对于特殊业务动作，建议显式声明：
+
+```csharp
+[PermissionAction(PermissionActionEnum.Edit)]
+[OperLog("同步租户套餐", OperEnum.Update)]
+public async Task SyncPackageAsync(Guid tenantId, Guid packageId)
+{
+}
+```
 
 ## 前端按钮权限
 
@@ -148,5 +242,6 @@ public override async Task<UserGetOutputDto> CreateAsync(UserCreateInputVo input
 ## 相关文档
 
 - [模块开发](/guide/backend/module)
+- [基础能力配置](/guide/backend/infrastructure)
 - [菜单管理](/guide/frontend/features/menu)
 - [前端权限](/guide/in-depth/access)
