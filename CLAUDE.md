@@ -4,6 +4,31 @@
 
 项目采用 **Monorepo（单体仓库）** 架构，后端与前端代码统一管理在同一仓库中，便于版本同步、依赖共享和跨项目重构。
 
+## AI 开发基本姿势
+
+使用 Claude、Cursor、Windsurf 等 AI 工具开发时，优先打开项目根目录 `yiabp-mini`，不要只打开 `Yi.Abp` 或 `Yi.Vben5` 子目录。只有在完全专注后端开发时，才考虑将 `.claude` 配置迁移到 `Yi.Abp` 目录下。
+
+常用启动命令：
+
+```bash
+dotnet run --project Yi.Abp\src\Yi.Abp.Web\Yi.Abp.Web.csproj
+```
+
+```bash
+pnpm --dir Yi.Vben5 run dev:antd
+```
+
+新增业务模块时，不要直接让 AI 写代码。推荐流程：
+
+1. 使用 `superpowers` skill 与 AI 沟通需求，并输出开发文档。
+2. 开发文档确认后，使用 `module-generator` skill 创建模块结构。
+3. 定义实体后，使用 `crud-generator-plus` skill 生成基础业务模块脚手架。
+4. 人工审查代码，补充业务规则、权限动作、操作记录和测试验证。
+
+开发文档一般包含：业务目标、模块边界、实体设计、菜单权限、系统字典/枚举、接口约定、前后端范围和验收标准。
+
+`Superpowers` skill 不内置在项目中。由于该 skill 更新频繁，且每个人使用的 IDE 和 AI 工具不同，需要根据自己的开发环境自行安装。
+
 ## 技术栈
 
 ### 后端
@@ -264,19 +289,25 @@ PreConfigure<AbpAspNetCoreMvcOptions>(options =>
 
 自动映射规则：`UserService.GetListAsync()` → `GET /api/user`，`CreateAsync()` → `POST /api/user`。
 
-### 权限与操作日志
+### 权限与操作记录
 
-权限码格式：`{模块}:{实体}:{操作}`，通过 `[Permission]` 特性控制：
+权限码格式：`{模块}:{实体}:{操作}`。服务类通过 `[PermissionResource]` 声明资源，通过 `[PermissionAction]` 声明动作，特殊场景可使用 `[Permission]` 显式指定完整权限码：
 
 ```csharp
-[Permission("system:user:list")]
+[PermissionResource("system", "user")]
+[OperLogEntity("用户")]
+public class UserService : YiCrudAppService<...>
+
+[PermissionAction(PermissionActionEnum.Query)]
 public override async Task<PagedResultDto<UserGetListOutputDto>> GetListAsync(...)
 
 [Permission("system:user:add")]
 public async override Task<UserGetOutputDto> CreateAsync(...)
 ```
 
-操作日志通过 `[OperLog]` 特性记录：
+统一动作：`query`、`add`、`edit`、`remove`、`export`、`import`。新增代码优先使用 `PermissionActionEnum`，避免裸字符串拼写错误。
+
+操作记录通过 `[OperLogEntity]` 和 `[OperLog]` 特性记录：
 
 ```csharp
 [OperLog("添加用户", OperEnum.Insert)]
@@ -542,9 +573,12 @@ private readonly ISqlSugarRepository<ModuleBEntity, Guid> _moduleBRepository;
 项目集成了以下 Claude Skills（位于 `.claude/skills/`）：
 
 - **module-generator** — 自动生成 ABP 模块的完整 5 层项目结构
+- **crud-generator-plus** — 基于实体生成基础业务模块脚手架（后端 + 前端 + 菜单/系统字典种子数据）
 - **field-sync** — 实体字段变更后同步 DTO、服务、前端及字典种子数据
 - **simplify** — 审查变更代码，发现并修复质量、复用性问题
 - **skill-creator** — 创建新 Skill 的指南工具
+
+`superpowers` 用于需求沟通、方案梳理和开发文档输出，但不内置在项目中，需要开发者按自己的 IDE 和 AI 工具环境自行安装。
 
 ### 环境要求
 
@@ -559,20 +593,14 @@ private readonly ISqlSugarRepository<ModuleBEntity, Guid> _moduleBRepository;
 
 ### 新模块开发推荐流程
 
-**示例**：
-```
-/using-superpowers 帮我设计一个 book-manage 模块，包含图书、分类、借阅记录三个实体，分类是树形结构，生成开发文档
-```
+以产品管理模块为例：
 
-生成开发文档后，
-1.  /module-generator {模块名} — 创建模块结构
-2. /crud-generator-plus 基于开发文档 @docs/开发文档.md 逐个生成实体 CRUD
-
-如果 `/using-superpowers` 未安装，Claude Code 二选一执行，其他IDE自行搜索安装方法：
-```
-/plugin install superpowers@claude-plugins-official --global    # 全局安装
-/plugin install superpowers@claude-plugins-official             # 项目级安装
- ```
+1. 先使用 `superpowers` 沟通需求并输出开发文档。
+2. 在开发文档中明确 `Product` 模块边界、实体字段、菜单权限、系统字典、接口约定和验收标准。
+3. 使用 `module-generator` 创建 `Product` 模块的 5 层项目结构。
+4. 使用 `crud-generator-plus` 基于实体生成后端、前端、菜单种子数据和系统字典种子数据。
+5. 补充产品编码唯一性、上下架、库存、价格等业务规则。
+6. 运行后端构建、前端类型检查和页面功能测试。
 
 ### ⚠️ 已记录的严重错误（警示）
 
