@@ -535,6 +535,8 @@ string GenerateService(EntityInfo entity)
     sb.AppendLine("using Volo.Abp.Application.Dtos;");
     if (entity.IsTree)
         sb.AppendLine("using Microsoft.AspNetCore.Mvc;");
+    sb.AppendLine("using Yi.Framework.Authorization.Abstractions.Attributes;");
+    sb.AppendLine("using Yi.Framework.Authorization.Abstractions.Enums;");
     sb.AppendLine("using Yi.Framework.Ddd.Application;");
     sb.AppendLine($"using Yi.Module.{entity.ModuleNamespace}.Application.Contracts.Dtos.{entity.EntityName};");
     sb.AppendLine($"using Yi.Module.{entity.ModuleNamespace}.Application.Contracts.IServices;");
@@ -548,6 +550,7 @@ string GenerateService(EntityInfo entity)
     sb.AppendLine($"    /// <summary>");
     sb.AppendLine($"    /// {entity.EntityComment}服务实现");
     sb.AppendLine($"    /// </summary>");
+    sb.AppendLine($"    [PermissionResource(\"{entity.Module}\", \"{entity.EntityNameLower}\")]");
     sb.AppendLine($"    public class {entity.EntityName}Service : YiCrudAppService<{entity.EntityName}AggregateRoot, {entity.EntityName}GetOutputDto, {entity.EntityName}GetListOutputDto, Guid,");
     sb.AppendLine($"        {entity.EntityName}GetListInputVo, {entity.EntityName}CreateInputVo, {entity.EntityName}UpdateInputVo>, I{entity.EntityName}Service");
     sb.AppendLine("    {");
@@ -666,6 +669,7 @@ string GenerateService(EntityInfo entity)
     sb.AppendLine($"        /// <summary>");
     sb.AppendLine($"        /// {entity.EntityComment}下拉列表");
     sb.AppendLine($"        /// </summary>");
+    sb.AppendLine("        [PermissionAction(PermissionActionEnum.Query)]");
     sb.AppendLine($"        public async Task<List<{entity.EntityName}GetOutputDto>> SelectListAsync(string? keywords = null)");
     sb.AppendLine("        {");
     sb.AppendLine($"            var query = _repository._DbQueryable.Where(x => x.State == true)");
