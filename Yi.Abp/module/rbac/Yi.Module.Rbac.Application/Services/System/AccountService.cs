@@ -17,6 +17,7 @@ using Volo.Abp.EventBus.Local;
 using Volo.Abp.Guids;
 using Volo.Abp.Uow;
 using Volo.Abp.Users;
+using Yi.Framework.Aliyun.Sms;
 using Yi.Module.Rbac.Application.Contracts.Dtos.Account;
 using Yi.Module.Rbac.Application.Contracts.IServices;
 using Yi.Module.Rbac.Domain.Entities;
@@ -114,6 +115,28 @@ namespace Yi.Module.Rbac.Application.Services
             UserAggregateRoot user = new();
             //校验
             await _accountManager.LoginValidationAsync(input.UserName, input.Password, x => user = x);
+
+            return await PostLoginAsync(user.Id);
+        }
+
+        [HttpPost("account/phone-login")]
+        [AllowAnonymous]
+        public async Task<LoginOutputDto> PostPhoneLoginAsync(PhoneLoginInputVo input)
+        {
+            await ValidationPhone(input.Phone);
+            var phone = long.Parse(input.Phone);
+            await ValidationPhoneCaptchaAsync(ValidationPhoneTypeEnum.Login, phone, input.Code);
+
+            var user = await _userRepository.GetFirstAsync(x => x.Phone == phone);
+            if (user is null)
+            {
+                throw new UserFriendlyException("该手机号码未注册");
+            }
+
+            if (!user.State)
+            {
+                throw new UserFriendlyException("该用户已禁用");
+            }
 
             return await PostLoginAsync(user.Id);
         }
@@ -221,6 +244,13 @@ namespace Yi.Module.Rbac.Application.Services
         {
             return await PostCaptchaPhoneAsync(ValidationPhoneTypeEnum.Bind, input);
         }
+
+        [HttpPost("account/captcha-phone/login")]
+        [AllowAnonymous]
+        public async Task<object> PostCaptchaPhoneForLoginAsync(PhoneCaptchaImageDto input)
+        {
+            return await PostCaptchaPhoneAsync(ValidationPhoneTypeEnum.Login, input);
+        }
         
         /// <summary>
         /// 手机验证码-需通过图形验证码
@@ -241,6 +271,12 @@ namespace Yi.Module.Rbac.Application.Services
                 throw new UserFriendlyException("该手机号已被注册！");
             }
 
+            if (validationPhoneType == ValidationPhoneTypeEnum.Login &&
+                !await _userRepository.IsAnyAsync(x => x.Phone.ToString() == input.Phone && x.State))
+            {
+                throw new UserFriendlyException("该手机号码未注册或用户已禁用");
+            }
+
             var value = await _phoneCache.GetAsync(new CaptchaPhoneCacheKey(validationPhoneType, input.Phone));
 
             //防止暴刷
@@ -249,10 +285,10 @@ namespace Yi.Module.Rbac.Application.Services
                 throw new UserFriendlyException($"{input.Phone}已发送过验证码，10分钟后可重试");
             }
 
-            //生成一个4位数的验证码
+            //生成一个6位数字验证码
             //发送短信，同时生成uuid
             ////key： 电话号码  value:验证码+uuid  
-            var code = Guid.NewGuid().ToString().Substring(0, 4);
+            var code = Random.Shared.Next(100000, 999999).ToString();
             var uuid = Guid.NewGuid();
             await _aliyunSmsManager.SendSmsAsync(input.Phone, code);
 
@@ -276,7 +312,7 @@ namespace Yi.Module.Rbac.Application.Services
             if (item is not null && item.Code.Equals($"{code}"))
             {
                 //成功，需要清空
-                await _phoneCache.RemoveAsync(new CaptchaPhoneCacheKey(validationPhoneType, code.ToString()));
+                await _phoneCache.RemoveAsync(new CaptchaPhoneCacheKey(validationPhoneType, phone.ToString()));
                 return;
             }
 
