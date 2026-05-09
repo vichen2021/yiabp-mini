@@ -54,7 +54,11 @@ pnpm run dev:antd
 
 ## 3. 使用 Skill 快速开发 ⚡
 
-充分利用项目集成的 Claude Skills（模块生成器、CRUD 生成器等），可以快速生成完整的业务模块代码，让你**更专注于业务逻辑**，无需担心基础的 CRUD 代码编写。
+正式开发前，建议先使用 `superpowers` skill 与 AI 充分沟通需求，并输出一份开发文档。开发文档用于记录业务目标、模块边界、实体设计、菜单权限、字典枚举、接口约定、前后端范围和验收标准。
+
+::: tip 提示
+系统没有内置 `Superpowers` skill。由于该 skill 更新频繁，且每个人使用的 IDE 和 AI 工具不同，需要根据自己的开发环境自行安装。
+:::
 
 ::: warning 注意
 使用 AI 工具时，请选择高质量的模型（如 Claude、GPT-5 等），**不要使用垃圾模型**，否则生成的代码质量无法保证，反而会增加调试成本，甚至不如古法编程😄。
@@ -62,32 +66,69 @@ pnpm run dev:antd
 
 ### 可用的 Skills
 
-- **Module Generator**：自动生成完整的 ABP 框架模块结构
-- **CRUD Generator**：初始化完整的业务模块脚手架（后端+前端）
+- **Superpowers**：与 AI 沟通需求、梳理方案、建立开发文档
+- **Module Generator**：自动生成完整的 ABP 模块结构
+- **CRUD Generator Plus**：基于实体生成基础业务模块脚手架（后端+前端+菜单/系统字典种子数据）
 - **Field Sync**：同步实体字段变更到整个代码库
 - **Skill Creator**：创建自定义技能的指南
 
 详细使用说明请查看 [Claude Skills 文档](/guide/skills/module-generator)。
 
-## 4. 理解项目架构再开发 📐
+## 4. 正确开发项目姿势：以产品管理模块为例 📐
 
-在开始开发前，建议先了解项目的整体架构：
+新增业务模块不要直接让 AI 写代码，推荐先沟通、再建文档、再生成模块、最后补业务逻辑。以 `Product` 产品管理模块为例，推荐流程如下。
 
-- **后端**：基于 ABP Framework + SqlSugar 的分层架构
-  - Domain.Shared：共享领域模型
-  - Domain：领域层（实体、仓储接口）
-  - Application.Contracts：应用服务接口和 DTO
-  - Application：应用服务实现
-  - SqlSugarCore：数据访问层
+### 第一步：使用 Superpowers 建立开发文档
 
-- **前端**：基于 Vben5 + Ant Design Vue 的模块化架构
-  - API 层：`api/{module-name}/{entity-name}/`
-  - 视图层：`views/{module-name}/{entity-name}/`
-  - 组件层：可复用的业务组件
+先向 AI 描述产品管理模块需求，让 `superpowers` 帮你追问并形成开发文档。
 
-- **数据流**：Entity → DTO → Service → Controller → API → Frontend
+开发文档一般包含：
 
-理解架构后，AI 工具能更准确地生成符合项目规范的代码。
+- **业务目标**：产品管理要解决什么问题
+- **模块名称**：例如 `Product`
+- **实体设计**：产品名称、编码、分类、状态、价格、库存等字段
+- **字典/枚举**：产品状态、产品类型等
+- **菜单权限**：菜单、按钮、权限码范围
+- **前端页面**：列表、表单、详情、导入导出等
+- **后端服务**：CRUD、校验规则、特殊业务动作
+- **验收标准**：构建通过、菜单可见、CRUD 可用、权限生效
+
+### 第二步：使用 Module Generator 创建 Product 模块
+
+开发文档确认后，再使用 `module-generator` skill 创建 `Product` 模块。
+
+它会生成完整的 ABP 模块结构：
+
+- **Domain.Shared**：共享领域模型、枚举、常量
+- **Domain**：领域实体、领域服务
+- **Application.Contracts**：应用服务接口和 DTO
+- **Application**：应用服务实现
+- **SqlSugarCore**：数据库上下文、种子数据、模块数据库配置
+
+生成后先运行后端构建，确保模块结构正确。
+
+### 第三步：使用 CRUD Generator Plus 生成基础业务脚手架
+
+模块结构创建完成后，定义产品实体类，再使用 `crud-generator-plus` skill 生成基础业务代码。
+
+`crud-generator-plus` 会根据实体生成：
+
+- **后端代码**：实体、DTO、应用服务、接口、查询条件、映射关系
+- **前端代码**：API、类型定义、列表页、表单配置、操作按钮
+- **菜单种子数据**：模块菜单、列表菜单、按钮权限
+- **系统字典种子数据**：枚举或字典字段对应的数据项
+
+### 第四步：补充业务逻辑并验证
+
+脚手架生成后，再补充产品管理的业务逻辑，例如：
+
+- 产品编码唯一性校验
+- 产品上下架状态变更
+- 库存和价格校验
+- 导入导出
+- 权限动作和操作记录细化
+
+完成后执行后端构建、前端类型检查和页面功能测试。
 
 ## 5. 善用 AI 工具但保持代码审查 🔍
 
@@ -102,31 +143,7 @@ pnpm run dev:antd
 AI 是辅助工具，最终代码质量的责任在开发者。建议在提交代码前进行充分的测试和审查。
 :::
 
-## 6. 开发流程建议 💡
-
-### 使用 Module Generator 创建新模块
-
-当你需要在 `src/WebApi/module` 目录下创建新的 ABP 模块时，可以使用 Module Generator 快速生成完整的模块结构。
-
-1. **确定模块名称**：确定新模块的名称（如 "ContentManagement"、"OrderManagement"）
-2. **使用 Skill**：使用 Module Generator 生成模块结构
-3. **验证生成**：检查生成的 5 个项目层是否正确
-   - Domain.Shared：共享领域模型
-   - Domain：领域层
-   - Application.Contracts：应用服务接口和 DTO
-   - Application：应用服务实现
-   - SqlSugarCore：数据访问层
-4. **构建验证**：运行 `dotnet build` 确保模块结构正确
-5. **后续开发**：在生成的模块基础上使用 CRUD Generator 创建业务实体
-
-### 使用 CRUD Generator 生成所有基础代码
-
-1. **明确需求**：确定实体名称、属性和业务规则
-2. **使用 Skill**：使用 CRUD Generator 生成完整模块
-3. **代码审查**：检查生成的代码是否符合规范
-4. **构建验证**：运行 `dotnet build` 和前端类型检查
-5. **功能测试**：测试 CRUD 功能是否正常
-6. **业务完善**：添加业务逻辑和特殊处理
+## 6. 实体变更后的同步建议 💡
 
 ### 使用 Field Sync 修改实体
 
