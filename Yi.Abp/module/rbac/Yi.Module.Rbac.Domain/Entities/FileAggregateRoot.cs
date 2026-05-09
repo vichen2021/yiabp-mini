@@ -24,12 +24,19 @@ public class FileAggregateRoot : AggregateRoot<Guid>, IAuditedObject
         string fileName,
         long fileSize,
         string contentType,
-        Guid? tenantId = null
+        string storageKey,
+        string hash,
+        string provider
     ) : base(id)
     {
         SetFileSize(fileSize);
         SetContentType(contentType);
         SetFileName(fileName);
+        SetStorageKey(storageKey);
+        SetExtension(fileName);
+        SetFileType(fileName);
+        SetHash(hash);
+        SetProvider(provider);
         CreationTime = DateTime.Now;
     }
 
@@ -51,6 +58,20 @@ public class FileAggregateRoot : AggregateRoot<Guid>, IAuditedObject
     /// 文件类型
     /// </summary>
     public string ContentType { get; private set; } = string.Empty;
+
+    [SugarColumn(Length = 256)]
+    public string StorageKey { get; private set; } = string.Empty;
+
+    [SugarColumn(Length = 32)]
+    public string Extension { get; private set; } = string.Empty;
+
+    public FileTypeEnum FileType { get; private set; }
+
+    [SugarColumn(Length = 64)]
+    public string Hash { get; private set; } = string.Empty;
+
+    [SugarColumn(Length = 32)]
+    public string Provider { get; private set; } = string.Empty;
 
     public DateTime CreationTime { get; set; }
     public Guid? CreatorId { get; set; }
@@ -80,19 +101,57 @@ public class FileAggregateRoot : AggregateRoot<Guid>, IAuditedObject
     /// </summary>
     private void SetFileName(string fileName)
     {
-        if (string.IsNullOrWhiteSpace(fileName) || fileName.Length > 128)
-            throw new ArgumentException("FileName cannot be null, empty or exceed 128 characters.", nameof(fileName));
+        if (string.IsNullOrWhiteSpace(fileName) || fileName.Length > 256)
+            throw new ArgumentException("FileName cannot be null, empty or exceed 256 characters.", nameof(fileName));
         FileName = fileName;
+    }
+
+    private void SetStorageKey(string storageKey)
+    {
+        if (string.IsNullOrWhiteSpace(storageKey) || storageKey.Length > 256)
+            throw new ArgumentException("StorageKey cannot be null, empty or exceed 256 characters.", nameof(storageKey));
+        StorageKey = storageKey;
+    }
+
+    private void SetExtension(string fileName)
+    {
+        var extension = System.IO.Path.GetExtension(fileName);
+        if (extension.Length > 32)
+            throw new ArgumentException("Extension cannot exceed 32 characters.", nameof(fileName));
+        Extension = extension;
+    }
+
+    private void SetFileType(string fileName)
+    {
+        FileType = MimeHelper.GetFileType(fileName);
+    }
+
+    private void SetHash(string hash)
+    {
+        if (hash.Length > 64)
+            throw new ArgumentException("Hash cannot exceed 64 characters.", nameof(hash));
+        Hash = hash;
+    }
+
+    private void SetProvider(string provider)
+    {
+        if (string.IsNullOrWhiteSpace(provider) || provider.Length > 32)
+            throw new ArgumentException("Provider cannot be null, empty or exceed 32 characters.", nameof(provider));
+        Provider = provider;
     }
 
     /// <summary>
     /// 更新文件
     /// </summary>
-    public void Update(long fileSize, string contentType, string fileName)
+    public void Update(long fileSize, string contentType, string fileName, string hash, string provider)
     {
         SetFileSize(fileSize);
         SetContentType(contentType);
         SetFileName(fileName);
+        SetExtension(fileName);
+        SetFileType(fileName);
+        SetHash(hash);
+        SetProvider(provider);
     }
 
     /// <summary>

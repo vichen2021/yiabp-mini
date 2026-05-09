@@ -1,3 +1,5 @@
+using Yi.Framework.Core.Enums;
+
 namespace Yi.Module.Rbac.Domain.Shared.File;
 
 /// <summary>
@@ -29,4 +31,12 @@ public class FileDto
     /// 文件名称
     /// </summary>
     public string FileName { get; set; } = string.Empty;
+
+    public string StorageKey { get; set; } = string.Empty;
+
+    public string Extension { get; set; } = string.Empty;
+
+    public FileTypeEnum FileType { get; set; }
+
+    public string Hash { get; set; } = string.Empty;
 }

@@ -1,4 +1,5 @@
 using Volo.Abp.Application.Dtos;
+using Yi.Framework.Core.Enums;
 using Yi.Module.Rbac.Domain.Shared.Consts;
 
 namespace Yi.Module.Rbac.Application.Contracts.Dtos;
@@ -27,6 +28,14 @@ public class FileGetListOutputDto : EntityDto<Guid>
     /// 文件名称
     /// </summary>
     public string FileName { get; set; } = string.Empty;
+
+    public string StorageKey { get; set; } = string.Empty;
+
+    public string Extension { get; set; } = string.Empty;
+
+    public FileTypeEnum FileType { get; set; }
+
+    public string Hash { get; set; } = string.Empty;
 
     /// <summary>
     /// 创建时间

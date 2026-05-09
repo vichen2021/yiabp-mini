@@ -4,12 +4,10 @@ using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.Processing;
-using SqlSugar;
+using System.Security.Cryptography;
 using Volo.Abp;
 using Volo.Abp.BlobStoring;
 using Volo.Abp.Domain.Services;
-using Volo.Abp.Imaging;
-using Volo.Abp.MultiTenancy;
 using Yi.Framework.Core.Enums;
 using Yi.Framework.Core.Helper;
 using Yi.Module.Rbac.Domain.Shared.Consts;
@@ -23,19 +21,13 @@ public class FileManager : DomainService
 {
     private readonly IBlobContainer<FileManagementContainer> _blobContainer;
     private readonly ISqlSugarRepository<FileAggregateRoot, Guid> _repository;
-    private readonly ICurrentTenant _currentTenant;
-    private readonly IImageCompressor _imageCompressor;
 
     public FileManager(
         IBlobContainer<FileManagementContainer> blobContainer,
-        ISqlSugarRepository<FileAggregateRoot, Guid> repository,
-        ICurrentTenant currentTenant,
-        IImageCompressor imageCompressor)
+        ISqlSugarRepository<FileAggregateRoot, Guid> repository)
     {
         _blobContainer = blobContainer;
         _repository = repository;
-        _currentTenant = currentTenant;
-        _imageCompressor = imageCompressor;
     }
 
     /// <summary>
@@ -58,6 +50,8 @@ public class FileManager : DomainService
         long fileSize,
         string contentType,
         byte[] content,
+        string storageKey,
+        string provider,
         bool overwrite = false
     )
     {
@@ -69,26 +63,16 @@ public class FileManager : DomainService
         if (FileTypeEnum.image == fileType)
         {
             // 创建临时实体用于压缩
-            var tempEntity = new FileAggregateRoot(id, fileName, fileSize, contentType, _currentTenant?.Id);
+            var tempEntity = new FileAggregateRoot(id, fileName, fileSize, contentType, storageKey, string.Empty, provider);
             finalContent = await CompressImageAsync(tempEntity, content);
             finalFileSize = finalContent.Length;
         }
 
-        var entity = (await _repository._DbQueryable.Where(x => x.FileName == fileName).Take(1).ToListAsync()).FirstOrDefault();
-        if (entity != null)
-        {
-            if (!overwrite)
-                throw new UserFriendlyException(FileManagementConsts.FileAlreadyExist);
-            entity.Update(finalFileSize, contentType, fileName);
-            await _repository.UpdateAsync(entity);
-        }
-        else
-        {
-            entity = new FileAggregateRoot(id, fileName, finalFileSize, contentType, _currentTenant?.Id);
-            await _repository.InsertAsync(entity);
-        }
+        var hash = Convert.ToHexString(SHA256.HashData(finalContent));
+        var entity = new FileAggregateRoot(id, fileName, finalFileSize, contentType, storageKey, hash, provider);
+        await _repository.InsertAsync(entity);
 
-        await _blobContainer.SaveAsync(entity.Id.ToString(), finalContent, overwrite);
+        await _blobContainer.SaveAsync(entity.StorageKey, finalContent, overwrite);
         return EntityMapToDto(entity);
     }
 
@@ -193,7 +177,7 @@ public class FileManager : DomainService
         if (entity == null)
             throw new UserFriendlyException(FileManagementConsts.FileNotFound);
         await _repository.DeleteAsync(entity);
-        await _blobContainer.DeleteAsync(id.ToString());
+        await _blobContainer.DeleteAsync(entity.StorageKey);
     }
 
     private static FileDto EntityMapToDto(FileAggregateRoot entity)
@@ -204,7 +188,11 @@ public class FileManager : DomainService
             CreationTime = entity.CreationTime,
             FileSize = entity.FileSize,
             ContentType = entity.ContentType,
-            FileName = entity.FileName
+            FileName = entity.FileName,
+            StorageKey = entity.StorageKey,
+            Extension = entity.Extension,
+            FileType = entity.FileType,
+            Hash = entity.Hash
         };
     }
 }
