@@ -41,7 +41,7 @@ namespace Yi.Module.Rbac.Application.Services
         private readonly ICaptcha _captcha;
         private readonly IGuidGenerator _guidGenerator;
         private readonly RbacOptions _rbacOptions;
-        private readonly IAliyunManger _aliyunManger;
+        private readonly IAliyunSmsManager _aliyunSmsManager;
         private IDistributedCache<UserInfoCacheItem, UserInfoCacheKey> _userCache;
         private UserManager _userManager;
         private IHttpContextAccessor _httpContextAccessor;
@@ -55,7 +55,7 @@ namespace Yi.Module.Rbac.Application.Services
             ICaptcha captcha,
             IGuidGenerator guidGenerator,
             IOptions<RbacOptions> options,
-            IAliyunManger aliyunManger,
+            IAliyunSmsManager aliyunSmsManager,
             UserManager userManager, IHttpContextAccessor httpContextAccessor)
         {
             _userRepository = userRepository;
@@ -66,7 +66,7 @@ namespace Yi.Module.Rbac.Application.Services
             _captcha = captcha;
             _guidGenerator = guidGenerator;
             _rbacOptions = options.Value;
-            _aliyunManger = aliyunManger;
+            _aliyunSmsManager = aliyunSmsManager;
             _userCache = userCache;
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
@@ -254,7 +254,7 @@ namespace Yi.Module.Rbac.Application.Services
             ////key： 电话号码  value:验证码+uuid  
             var code = Guid.NewGuid().ToString().Substring(0, 4);
             var uuid = Guid.NewGuid();
-            await _aliyunManger.SendSmsAsync(input.Phone, code);
+            await _aliyunSmsManager.SendSmsAsync(input.Phone, code);
 
             await _phoneCache.SetAsync(new CaptchaPhoneCacheKey(validationPhoneType, input.Phone),
                 new CaptchaPhoneCacheItem(code),
