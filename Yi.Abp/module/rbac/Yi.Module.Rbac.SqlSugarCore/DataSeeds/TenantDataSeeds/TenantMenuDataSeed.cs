@@ -14,7 +14,7 @@ public class TenantMenuDataSeed : ITransientDependency
         _guidGenerator = guidGenerator;
     }
 
-    public List<MenuAggregateRoot> GetSeedData(Guid systemMenuId)
+    public List<MenuAggregateRoot> GetSeedData()
     {
         var entities = new List<MenuAggregateRoot>();
 
@@ -30,7 +30,6 @@ public class TenantMenuDataSeed : ITransientDependency
             Component = "system/tenant/index",
             MenuIcon = "tabler:users",
             OrderNum = 101,
-            ParentId = systemMenuId,
             IsDeleted = false
         };
         entities.Add(tenant);
@@ -91,7 +90,6 @@ public class TenantMenuDataSeed : ITransientDependency
             Component = "system/tenant-package/index",
             MenuIcon = "tabler:package",
             OrderNum = 102,
-            ParentId = systemMenuId,
             IsDeleted = false
         };
         entities.Add(tenantPackage);

@@ -82,10 +82,10 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
             entities.Add(system);
             if (includeTenantModule)
             {
-                entities.AddRange(_tenantMenuDataSeed.GetSeedData(system.Id));
+                entities.AddRange(_tenantMenuDataSeed.GetSeedData());
             }
-            
-            
+
+
             //系统监控
             MenuAggregateRoot monitoring = new MenuAggregateRoot(_guidGenerator.Create())
             {
