@@ -18,9 +18,23 @@ public class TenantMenuDataSeed : ITransientDependency
     {
         var entities = new List<MenuAggregateRoot>();
 
-        MenuAggregateRoot tenant = new MenuAggregateRoot(_guidGenerator.Create())
+        //租户管理（顶级目录）
+        MenuAggregateRoot tenantManagement = new MenuAggregateRoot(_guidGenerator.Create(), Guid.Empty)
         {
             MenuName = "租户管理",
+            MenuType = MenuTypeEnum.Catalogue,
+            Router = "/tenant-management",
+            IsShow = true,
+            IsLink = false,
+            MenuIcon = "tabler:building-community",
+            OrderNum = 98,
+            IsDeleted = false
+        };
+        entities.Add(tenantManagement);
+
+        MenuAggregateRoot tenant = new MenuAggregateRoot(_guidGenerator.Create())
+        {
+            MenuName = "租户列表",
             PermissionCode = "system:tenant:query",
             MenuType = MenuTypeEnum.Menu,
             Router = "tenant",
@@ -30,6 +44,7 @@ public class TenantMenuDataSeed : ITransientDependency
             Component = "system/tenant/index",
             MenuIcon = "tabler:users",
             OrderNum = 101,
+            ParentId = tenantManagement.Id,
             IsDeleted = false
         };
         entities.Add(tenant);
@@ -90,6 +105,7 @@ public class TenantMenuDataSeed : ITransientDependency
             Component = "system/tenant-package/index",
             MenuIcon = "tabler:package",
             OrderNum = 102,
+            ParentId = tenantManagement.Id,
             IsDeleted = false
         };
         entities.Add(tenantPackage);
