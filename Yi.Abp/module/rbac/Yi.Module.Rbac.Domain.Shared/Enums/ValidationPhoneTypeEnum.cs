@@ -13,5 +13,9 @@ public enum ValidationPhoneTypeEnum
     /// <summary>
     /// 绑定
     /// </summary>
-    Bind
+    Bind,
+    /// <summary>
+    /// 登录
+    /// </summary>
+    Login
 }

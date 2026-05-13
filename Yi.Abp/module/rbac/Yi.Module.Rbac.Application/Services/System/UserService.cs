@@ -9,14 +9,15 @@ using Volo.Abp.Users;
 using Yi.Framework.Ddd.Application;
 using Yi.Module.Rbac.Application.Contracts.Dtos.User;
 using Yi.Module.Rbac.Application.Contracts.IServices;
-using Yi.Framework.Operation.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Module.Rbac.Domain.Entities;
 using Yi.Module.Rbac.Domain.Managers;
 using Yi.Module.Rbac.Domain.Repositories;
 using Yi.Module.Rbac.Domain.Shared.Caches;
 using Yi.Module.Rbac.Domain.Shared.Consts;
 using Yi.Module.Rbac.Domain.Shared.Etos;
-using Yi.Framework.Operation.Abstractions.Enums;
+using Yi.Framework.OperationRecord.Abstractions.Enums;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
 namespace Yi.Module.Rbac.Application.Services
@@ -24,6 +25,7 @@ namespace Yi.Module.Rbac.Application.Services
     /// <summary>
     /// User服务实现
     /// </summary>
+    [PermissionResource("system", "user")]
     [OperLogEntity("用户")]
     public class UserService : YiCrudAppService<UserAggregateRoot, UserGetOutputDto, UserGetListOutputDto, Guid,
         UserGetListInputVo, UserCreateInputVo, UserUpdateInputVo>, IUserService
@@ -53,7 +55,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        [Permission("system:user:list")]
+        [Permission("system:user:query")]
         public override async Task<PagedResultDto<UserGetListOutputDto>> GetListAsync(UserGetListInputVo input)
         {
             RefAsync<int> total = 0;
@@ -126,7 +128,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [Permission("system:user:list")]
+        [Permission("system:user:query")]
         public override async Task<UserGetOutputDto> GetAsync(Guid id)
         {
             //使用导航树形查询
@@ -177,6 +179,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
+        [IgnorePermission]
         [OperLog("更新个人信息", OperEnum.Update)]
         public async Task<UserGetOutputDto> UpdateProfileAsync(ProfileUpdateInputVo input)
         {
@@ -197,7 +200,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <returns></returns>
         [Route("user/{id}/{state}")]
         [OperLog("更新用户状态", OperEnum.Update)]
-        [Permission("system:user:update")]
+        [Permission("system:user:edit")]
         public async Task<UserGetOutputDto> UpdateStateAsync([FromRoute] Guid id, [FromRoute] bool state)
         {
             var entity = await _repository.GetByIdAsync(id);
@@ -212,7 +215,7 @@ namespace Yi.Module.Rbac.Application.Services
         }
 
         [OperLog("删除用户", OperEnum.Delete)]
-        [Permission("system:user:delete")]
+        [Permission("system:user:remove")]
         public override async Task DeleteAsync(Guid id)
         {
             await base.DeleteAsync(id);
@@ -237,7 +240,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <returns>用户列表</returns>
         [HttpGet]
         [Route("user/dept/{deptId}")]
-        [Permission("system:user:list")]
+        [Permission("system:user:query")]
         public async Task<List<UserGetListOutputDto>> GetUsersByDeptAsync(Guid deptId)
         {
             // 获取当前部门及其所有子部门的ID列表

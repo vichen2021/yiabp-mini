@@ -4,7 +4,7 @@ import type { UserInfo } from '@vben/types';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { LOGIN_PATH } from '@vben/constants';
+import { DEFAULT_TENANT_ID, LOGIN_PATH } from '@vben/constants';
 import { preferences } from '@vben/preferences';
 import { resetAllStores, useAccessStore, useUserStore } from '@vben/stores';
 
@@ -13,6 +13,7 @@ import { defineStore } from 'pinia';
 
 import { doLogout, getUserInfoApi, loginApi } from '#/api';
 import { $t } from '#/locales';
+import { useLoginTenantId } from '#/utils/tenant';
 import { startSignalRConnection, stopSignalRConnection } from '#/utils/signalr';
 
 import { useDictStore } from './dict';
@@ -37,6 +38,9 @@ export const useAuthStore = defineStore('auth', () => {
     let userInfo: null | UserInfo = null;
     try {
       loginLoading.value = true;
+      const { loginTenantId } = useLoginTenantId();
+      loginTenantId.value =
+        (params as { tenantId?: string }).tenantId ?? DEFAULT_TENANT_ID;
       const { token, refreshToken } = await loginApi(params);
 
       // 将 accessToken 存储到 accessStore 中
@@ -89,6 +93,8 @@ export const useAuthStore = defineStore('auth', () => {
     } finally {
       resetAllStores();
       accessStore.setLoginExpired(false);
+      const { loginTenantId } = useLoginTenantId();
+      loginTenantId.value = DEFAULT_TENANT_ID;
 
       // 回登陆页带上当前路由地址
       await router.replace({

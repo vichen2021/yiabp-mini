@@ -7,7 +7,9 @@ using Yi.Module.Rbac.Application.Contracts.Dtos.Dept;
 using Yi.Module.Rbac.Application.Contracts.IServices;
 using Yi.Module.Rbac.Domain.Entities;
 using Yi.Module.Rbac.Domain.Repositories;
-using Yi.Framework.Operation.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Enums;
+using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Module.Rbac.Domain.Shared.Consts;
 using Yi.Module.Rbac.Domain.Shared.Dtos;
 
@@ -16,6 +18,7 @@ namespace Yi.Module.Rbac.Application.Services
     /// <summary>
     /// Dept服务实现
     /// </summary>
+    [PermissionResource("system", "dept")]
     [OperLogEntity("部门")]
     public class DeptService : YiCrudAppService<DeptAggregateRoot, DeptGetOutputDto, DeptGetListOutputDto, Guid,
         DeptGetListInputVo, DeptCreateInputVo, DeptUpdateInputVo>, IDeptService
@@ -38,6 +41,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// </summary>
         /// <returns></returns>
         //[Route("{roleId}")]
+        [PermissionAction(PermissionActionEnum.Query)]
         public async Task<List<DeptGetListOutputDto>> GetRoleIdAsync(Guid roleId)
         {
             var result = await _repository._DbQueryable
@@ -69,6 +73,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <param name="input"></param>
         /// <returns></returns>
         [Route("dept/list")]
+        [PermissionAction(PermissionActionEnum.Query)]
         public async Task<List<DeptGetListOutputDto>> GetListAsync(DeptGetListInputVo input)
         {
             var result = await _repository._DbQueryable
@@ -166,6 +171,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// 获取树形结构的部门列表
         /// </summary>
         /// <returns>树形结构的部门列表</returns>
+        [PermissionAction(PermissionActionEnum.Query)]
         public async Task<List<DeptTreeDto>> GetTreeAsync()
         {
             // 获取所有启用的部门
@@ -183,6 +189,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <returns>排除后的部门列表</returns>
         [HttpGet]
         [Route("dept/list/exclude/{id}")]
+        [PermissionAction(PermissionActionEnum.Query)]
         public async Task<List<DeptGetListOutputDto>> GetListExcludeAsync(Guid id)
         {
             // 获取要排除的部门及其所有子孙部门的ID

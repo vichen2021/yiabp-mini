@@ -23,14 +23,23 @@
     <Project Path="framework/ddd/Yi.Framework.Ddd.Application/Yi.Framework.Ddd.Application.csproj" />
   </Folder>
   <Folder Name="/framework/integrations/">
+    <Project Path="framework/integrations/Yi.Framework.Aliyun.Sms/Yi.Framework.Aliyun.Sms.csproj" />
     <Project Path="framework/integrations/Yi.Framework.WeChat.MiniProgram/Yi.Framework.WeChat.MiniProgram.csproj" />
   </Folder>
   <Folder Name="/framework/mapping/">
     <Project Path="framework/mapping/Yi.Framework.Mapster/Yi.Framework.Mapster.csproj" />
   </Folder>
-  <Folder Name="/framework/operation/">
-    <Project Path="framework/operation/Yi.Framework.Operation.Abstractions/Yi.Framework.Operation.Abstractions.csproj" />
-    <Project Path="framework/operation/Yi.Framework.Operation.Core/Yi.Framework.Operation.Core.csproj" />
+  <Folder Name="/framework/action-metadata/">
+    <Project Path="framework/action-metadata/Yi.Framework.ActionMetadata.Abstractions/Yi.Framework.ActionMetadata.Abstractions.csproj" />
+    <Project Path="framework/action-metadata/Yi.Framework.ActionMetadata.Core/Yi.Framework.ActionMetadata.Core.csproj" />
+  </Folder>
+  <Folder Name="/framework/authorization/">
+    <Project Path="framework/authorization/Yi.Framework.Authorization.Abstractions/Yi.Framework.Authorization.Abstractions.csproj" />
+    <Project Path="framework/authorization/Yi.Framework.Authorization.Core/Yi.Framework.Authorization.Core.csproj" />
+  </Folder>
+  <Folder Name="/framework/operation-record/">
+    <Project Path="framework/operation-record/Yi.Framework.OperationRecord.Abstractions/Yi.Framework.OperationRecord.Abstractions.csproj" />
+    <Project Path="framework/operation-record/Yi.Framework.OperationRecord.Core/Yi.Framework.OperationRecord.Core.csproj" />
   </Folder>
   <Folder Name="/framework/sqlsugar/">
     <Project Path="framework/sqlsugar/Yi.Framework.SqlSugarCore.Abstractions/Yi.Framework.SqlSugarCore.Abstractions.csproj" />

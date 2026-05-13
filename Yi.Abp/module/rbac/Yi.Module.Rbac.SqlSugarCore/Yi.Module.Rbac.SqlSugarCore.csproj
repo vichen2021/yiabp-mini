@@ -3,6 +3,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\framework\mapping\Yi.Framework.Mapster\Yi.Framework.Mapster.csproj" />
+    <ProjectReference Include="..\..\..\framework\authorization\Yi.Framework.Authorization.Abstractions\Yi.Framework.Authorization.Abstractions.csproj" />
     <ProjectReference Include="..\..\..\framework\sqlsugar\Yi.Framework.SqlSugarCore\Yi.Framework.SqlSugarCore.csproj" />
     <ProjectReference Include="..\Yi.Module.Rbac.Domain\Yi.Module.Rbac.Domain.csproj" />
   </ItemGroup>

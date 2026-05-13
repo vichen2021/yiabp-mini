@@ -19,6 +19,11 @@ namespace Yi.Framework.Core.Helper
             ".jpg",".png",".jpeg"
         };
 
+        public static List<string> ExcelType { get; set; } = new List<string>
+        {
+            ".xls",".xlsx",".xlsm",".xlt",".xltx",".csv"
+        };
+
         private static Hashtable _mimeMappingTable;
 
         private static void AddMimeMapping(string extension, string MimeType)
@@ -46,6 +51,8 @@ namespace Yi.Framework.Core.Helper
             var extension = Path.GetExtension(fileName);
             if (ImageType.Contains(extension.ToLower()))
                 return FileTypeEnum.image;
+            if (ExcelType.Contains(extension.ToLower()))
+                return FileTypeEnum.excel;
             return FileTypeEnum.file;
 
 

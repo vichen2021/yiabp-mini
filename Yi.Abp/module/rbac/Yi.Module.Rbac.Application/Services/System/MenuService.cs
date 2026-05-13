@@ -5,7 +5,9 @@ using Yi.Module.Rbac.Application.Contracts.Dtos.Menu;
 using Yi.Module.Rbac.Application.Contracts.IServices;
 using Yi.Module.Rbac.Domain.Entities;
 using Yi.Module.Rbac.Domain.Shared.Consts;
-using Yi.Framework.Operation.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Enums;
+using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Framework.SqlSugarCore.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using Yi.Module.Rbac.Domain.Shared.Dtos;
@@ -17,6 +19,7 @@ namespace Yi.Module.Rbac.Application.Services
     /// <summary>
     /// Menu服务实现
     /// </summary>
+    [PermissionResource("system", "menu")]
     [OperLogEntity("菜单")]
     public class MenuService : YiCrudAppService<MenuAggregateRoot, MenuGetOutputDto, MenuGetListOutputDto, Guid, MenuGetListInputVo, MenuCreateInputVo, MenuUpdateInputVo>,
        IMenuService
@@ -30,6 +33,7 @@ namespace Yi.Module.Rbac.Application.Services
             (_repository, _tenantPackageService) = (repository, tenantPackageService);
 
         [Route("menu/list")]
+        [PermissionAction(PermissionActionEnum.Query)]
         public async Task<List<MenuGetListOutputDto>> GetListAsync(MenuGetListInputVo input)
         {
             var entities = await _repository._DbQueryable.WhereIF(!string.IsNullOrEmpty(input.MenuName), x => x.MenuName.Contains(input.MenuName!))
@@ -44,6 +48,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// 获取菜单树
         /// </summary>
         /// <returns></returns>
+        [PermissionAction(PermissionActionEnum.Query)]
         public async Task<List<MenuTreeDto>> GetTreeAsync()
         {
             var menuList = await _repository._DbQueryable.ToListAsync();
@@ -55,6 +60,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// </summary>
         /// <param name="packageId">套餐ID，空Guid表示新增模式</param>
         /// <returns>包含 CheckedKeys 和 Menus 的结果</returns>
+        [PermissionAction(PermissionActionEnum.Query)]
         public async Task<MenuTreeResultDto> GetTenantPackageMenuTreeAsync(Guid? packageId)
         {
             return await _tenantPackageService.GetMenuTreeAsync(packageId);

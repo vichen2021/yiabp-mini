@@ -3,7 +3,9 @@ using SqlSugar;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Domain.Repositories;
 using Yi.Framework.Ddd.Application;
-using Yi.Framework.Operation.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Enums;
+using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Module.Rbac.Application.Contracts.Dtos.Dictionary;
 using Yi.Module.Rbac.Application.Contracts.IServices;
 using Yi.Module.Rbac.Domain.Entities;
@@ -15,6 +17,7 @@ namespace Yi.Module.Rbac.Application.Services
     /// <summary>
     /// Dictionary服务实现
     /// </summary>
+    [PermissionResource("system", "dict")]
     [OperLogEntity("字典数据")]
     public class DictionaryService : YiCrudAppService<DictionaryEntity, DictionaryGetOutputDto, DictionaryGetListOutputDto, Guid, DictionaryGetListInputVo, DictionaryCreateInputVo, DictionaryUpdateInputVo>,
        IDictionaryService
@@ -52,6 +55,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <param name="dicType"></param>
         /// <returns></returns>
         [Route("dictionary/dict-type/{dictType}")]
+        [PermissionAction(PermissionActionEnum.Query)]
         public async Task<List<DictionaryGetListOutputDto>> GetDicType([FromRoute] string dictType)
         {
             var entities = await _repository.GetListAsync(u => u.DictType == dictType && u.State == true);

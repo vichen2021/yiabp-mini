@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<Import Project="..\..\..\common.props" />
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -9,7 +9,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\rbac\Yi.Module.Rbac.Domain\Yi.Module.Rbac.Domain.csproj" />
     <ProjectReference Include="..\..\..\framework\ddd\Yi.Framework.Ddd.Application\Yi.Framework.Ddd.Application.csproj" />
-    <ProjectReference Include="..\..\..\framework\operation\Yi.Framework.Operation.Abstractions\Yi.Framework.Operation.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\framework\authorization\Yi.Framework.Authorization.Abstractions\Yi.Framework.Authorization.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\framework\operation-record\Yi.Framework.OperationRecord.Abstractions\Yi.Framework.OperationRecord.Abstractions.csproj" />
     <ProjectReference Include="..\Yi.Module.TenantManagement.Application.Contracts\Yi.Module.TenantManagement.Application.Contracts.csproj" />
     <ProjectReference Include="..\Yi.Module.TenantManagement.Domain\Yi.Module.TenantManagement.Domain.csproj" />
   </ItemGroup>

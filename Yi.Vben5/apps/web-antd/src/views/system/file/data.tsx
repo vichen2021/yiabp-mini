@@ -1,6 +1,24 @@
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
+const fileTypeTextMap: Record<string, string> = {
+  0: '普通文件',
+  1: '图片',
+  2: '缩略图',
+  3: 'Excel',
+  4: '临时文件',
+  excel: 'Excel',
+  file: '普通文件',
+  image: '图片',
+  temp: '临时文件',
+  thumbnail: '缩略图',
+};
+
+const providerTextMap: Record<string, string> = {
+  Aliyun: '云端',
+  FileSystem: '本地',
+};
+
 /**
  * 查询表单 - 对应后端 FileGetListInputVo（fileName, startCreationTime, endCreationTime）
  */
@@ -33,9 +51,39 @@ export const columns: VxeGridProps['columns'] = [
     width: 100,
   },
   {
-    title: '文件类型',
+    title: '文件后缀',
+    field: 'extension',
+    width: 100,
+    formatter: ({ cellValue }) => cellValue || '-',
+  },
+  {
+    title: '文件分类',
+    field: 'fileType',
+    width: 100,
+    formatter: ({ cellValue }) => fileTypeTextMap[String(cellValue)] ?? cellValue ?? '-',
+  },
+  {
+    title: '存储来源',
+    field: 'provider',
+    width: 100,
+    formatter: ({ cellValue }) => providerTextMap[String(cellValue)] ?? cellValue ?? '-',
+  },
+  {
+    title: 'MIME类型',
     field: 'contentType',
-    width: 140,
+    width: 180,
+    showOverflow: true,
+  },
+  {
+    title: '存储Key',
+    field: 'storageKey',
+    width: 180,
+    showOverflow: true,
+  },
+  {
+    title: 'Hash',
+    field: 'hash',
+    width: 180,
     showOverflow: true,
   },
   {

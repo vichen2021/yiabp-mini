@@ -1,14 +1,18 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Volo.Abp.Application.Services;
 using Yi.Framework.Core.Helper;
+using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Enums;
+using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Module.Rbac.Application.Contracts.IServices;
 
 namespace Yi.Module.Rbac.Application.Services.Monitor
 {
+    [PermissionResource("monitor", "server")]
     public class MonitorServerService : ApplicationService, IMonitorServerService
     {
         private IWebHostEnvironment _hostEnvironment;
@@ -19,6 +23,7 @@ namespace Yi.Module.Rbac.Application.Services.Monitor
             _httpContextAccessor = httpContextAccessor;
         }
         [HttpGet("monitor-server/info")]
+        [PermissionAction(PermissionActionEnum.Query)]
         public object GetInfo()
         {
       

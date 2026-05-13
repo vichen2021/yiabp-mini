@@ -2,6 +2,7 @@
 using Yi.Framework.SqlSugarCore.Abstractions;
 using Yi.Framework.SqlSugarCore.Repositories;
 using Yi.Module.TenantManagement.Domain;
+using Yi.Module.TenantManagement.Domain.Entities;
 
 namespace Yi.Module.TenantManagement.SqlSugarCore
 {

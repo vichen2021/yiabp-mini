@@ -83,6 +83,7 @@ export async function fileDownload(
     `${Api.root}/${fileId}/download`,
     undefined,
     {
+      isTransformResponse: false,
       responseType: 'blob',
       timeout: 60 * 1000,
       onDownloadProgress,

@@ -14,6 +14,7 @@ import { Alert, message } from 'ant-design-vue';
 import { tenantList } from '#/api/core/auth';
 import { sendSmsCode } from '#/api/core/captcha';
 import { useAuthStore } from '#/store';
+import { useLoginTenantId } from '#/utils/tenant';
 
 defineOptions({ name: 'CodeLogin' });
 
@@ -21,6 +22,7 @@ const loading = ref(false);
 const CODE_LENGTH = 4;
 
 const tenantInfo = ref<TenantResp[]>([]);
+const { loginTenantId } = useLoginTenantId();
 
 const codeLoginRef = useTemplateRef('codeLoginRef');
 async function loadTenant() {
@@ -51,7 +53,10 @@ const formSchema = computed((): VbenFormSchema[] => {
       defaultValue: DEFAULT_TENANT_ID,
       dependencies: {
         if: () => tenantInfo.value.length > 0,
-        triggerFields: [''],
+        trigger: (model) => {
+          loginTenantId.value = model?.tenantId ?? DEFAULT_TENANT_ID;
+        },
+        triggerFields: ['', 'tenantId'],
       },
       fieldName: 'tenantId',
       label: $t('authentication.selectAccount'),

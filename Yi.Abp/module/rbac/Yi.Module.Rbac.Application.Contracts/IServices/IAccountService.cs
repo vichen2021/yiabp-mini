@@ -10,6 +10,7 @@ namespace Yi.Module.Rbac.Application.Contracts.IServices
         Task<UserRoleMenuDto> GetAsync();
         Task<CaptchaImageDto> GetCaptchaImageAsync();
         Task<LoginOutputDto> PostLoginAsync(LoginInputVo input);
+        Task<LoginOutputDto> PostPhoneLoginAsync(PhoneLoginInputVo input);
         Task PostRegisterAsync(RegisterDto input);
         Task<bool> ResetPasswordAsync(Guid userId, RestPasswordDto input);
 

@@ -52,7 +52,10 @@
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
       "Bash(git push *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "WebSearch",
+      "WebFetch(domain:docs.abp.io)",
+      "Bash(dotnet test *)"
     ]
   }
 }

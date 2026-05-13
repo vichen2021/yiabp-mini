@@ -6,7 +6,12 @@ export interface FileItem {
   fileSize: number;
   beautifySize: string;
   contentType: string;
+  extension: string;
   fileName: string;
+  fileType: number | string;
+  hash: string;
+  provider: string;
+  storageKey: string;
   creationTime: string;
 }
 

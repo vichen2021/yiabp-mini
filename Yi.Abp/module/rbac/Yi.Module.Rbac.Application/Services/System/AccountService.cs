@@ -17,6 +17,7 @@ using Volo.Abp.EventBus.Local;
 using Volo.Abp.Guids;
 using Volo.Abp.Uow;
 using Volo.Abp.Users;
+using Yi.Framework.Aliyun.Sms;
 using Yi.Module.Rbac.Application.Contracts.Dtos.Account;
 using Yi.Module.Rbac.Application.Contracts.IServices;
 using Yi.Module.Rbac.Domain.Entities;
@@ -29,7 +30,8 @@ using Yi.Module.Rbac.Domain.Shared.Enums;
 using Yi.Module.Rbac.Domain.Shared.Etos;
 using Yi.Module.Rbac.Domain.Shared.Options;
 using Yi.Framework.SqlSugarCore.Abstractions;
-using Yi.Framework.Operation.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.OperationRecord.Abstractions.Attributes;
 
 namespace Yi.Module.Rbac.Application.Services
 {
@@ -40,7 +42,7 @@ namespace Yi.Module.Rbac.Application.Services
         private readonly ICaptcha _captcha;
         private readonly IGuidGenerator _guidGenerator;
         private readonly RbacOptions _rbacOptions;
-        private readonly IAliyunManger _aliyunManger;
+        private readonly IAliyunSmsManager _aliyunSmsManager;
         private IDistributedCache<UserInfoCacheItem, UserInfoCacheKey> _userCache;
         private UserManager _userManager;
         private IHttpContextAccessor _httpContextAccessor;
@@ -54,7 +56,7 @@ namespace Yi.Module.Rbac.Application.Services
             ICaptcha captcha,
             IGuidGenerator guidGenerator,
             IOptions<RbacOptions> options,
-            IAliyunManger aliyunManger,
+            IAliyunSmsManager aliyunSmsManager,
             UserManager userManager, IHttpContextAccessor httpContextAccessor)
         {
             _userRepository = userRepository;
@@ -65,7 +67,7 @@ namespace Yi.Module.Rbac.Application.Services
             _captcha = captcha;
             _guidGenerator = guidGenerator;
             _rbacOptions = options.Value;
-            _aliyunManger = aliyunManger;
+            _aliyunSmsManager = aliyunSmsManager;
             _userCache = userCache;
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
@@ -117,6 +119,28 @@ namespace Yi.Module.Rbac.Application.Services
             return await PostLoginAsync(user.Id);
         }
 
+        [HttpPost("account/phone-login")]
+        [AllowAnonymous]
+        public async Task<LoginOutputDto> PostPhoneLoginAsync(PhoneLoginInputVo input)
+        {
+            await ValidationPhone(input.Phone);
+            var phone = long.Parse(input.Phone);
+            await ValidationPhoneCaptchaAsync(ValidationPhoneTypeEnum.Login, phone, input.Code);
+
+            var user = await _userRepository.GetFirstAsync(x => x.Phone == phone);
+            if (user is null)
+            {
+                throw new UserFriendlyException("该手机号码未注册");
+            }
+
+            if (!user.State)
+            {
+                throw new UserFriendlyException("该用户已禁用");
+            }
+
+            return await PostLoginAsync(user.Id);
+        }
+
 
         /// <summary>
         /// 提供其他服务使用，根据用户id，直接返回token
@@ -149,6 +173,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <param name="refresh_token"></param>
         /// <returns></returns>
         [Authorize(AuthenticationSchemes = TokenTypeConst.Refresh)]
+        [IgnorePermission]
         public async Task<object> PostRefreshAsync([FromQuery] string refresh_token)
         {
             var userId = CurrentUser.Id.Value;
@@ -202,6 +227,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <param name="input"></param>
         /// <returns></returns>
         [HttpPost("account/captcha-phone/repassword")]
+        [AllowAnonymous]
         public async Task<object> PostCaptchaPhoneForRetrievePasswordAsync(PhoneCaptchaImageDto input)
         {
             return await PostCaptchaPhoneAsync(ValidationPhoneTypeEnum.RetrievePassword, input);
@@ -217,6 +243,13 @@ namespace Yi.Module.Rbac.Application.Services
         public async Task<object> PostCaptchaPhoneForBindAsync(PhoneCaptchaImageDto input)
         {
             return await PostCaptchaPhoneAsync(ValidationPhoneTypeEnum.Bind, input);
+        }
+
+        [HttpPost("account/captcha-phone/login")]
+        [AllowAnonymous]
+        public async Task<object> PostCaptchaPhoneForLoginAsync(PhoneCaptchaImageDto input)
+        {
+            return await PostCaptchaPhoneAsync(ValidationPhoneTypeEnum.Login, input);
         }
         
         /// <summary>
@@ -238,6 +271,12 @@ namespace Yi.Module.Rbac.Application.Services
                 throw new UserFriendlyException("该手机号已被注册！");
             }
 
+            if (validationPhoneType == ValidationPhoneTypeEnum.Login &&
+                !await _userRepository.IsAnyAsync(x => x.Phone.ToString() == input.Phone && x.State))
+            {
+                throw new UserFriendlyException("该手机号码未注册或用户已禁用");
+            }
+
             var value = await _phoneCache.GetAsync(new CaptchaPhoneCacheKey(validationPhoneType, input.Phone));
 
             //防止暴刷
@@ -246,12 +285,12 @@ namespace Yi.Module.Rbac.Application.Services
                 throw new UserFriendlyException($"{input.Phone}已发送过验证码，10分钟后可重试");
             }
 
-            //生成一个4位数的验证码
+            //生成一个6位数字验证码
             //发送短信，同时生成uuid
             ////key： 电话号码  value:验证码+uuid  
-            var code = Guid.NewGuid().ToString().Substring(0, 4);
+            var code = Random.Shared.Next(100000, 999999).ToString();
             var uuid = Guid.NewGuid();
-            await _aliyunManger.SendSmsAsync(input.Phone, code);
+            await _aliyunSmsManager.SendSmsAsync(input.Phone, code);
 
             await _phoneCache.SetAsync(new CaptchaPhoneCacheKey(validationPhoneType, input.Phone),
                 new CaptchaPhoneCacheItem(code),
@@ -265,6 +304,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <summary>
         /// 校验电话验证码，需要与电话号码绑定
         /// </summary>
+        [RemoteService(isEnabled: false)]
         public async Task ValidationPhoneCaptchaAsync(ValidationPhoneTypeEnum validationPhoneType, long phone,
             string code)
         {
@@ -272,7 +312,7 @@ namespace Yi.Module.Rbac.Application.Services
             if (item is not null && item.Code.Equals($"{code}"))
             {
                 //成功，需要清空
-                await _phoneCache.RemoveAsync(new CaptchaPhoneCacheKey(validationPhoneType, code.ToString()));
+                await _phoneCache.RemoveAsync(new CaptchaPhoneCacheKey(validationPhoneType, phone.ToString()));
                 return;
             }
 
@@ -426,6 +466,8 @@ namespace Yi.Module.Rbac.Application.Services
         /// 退出登录
         /// </summary>
         /// <returns></returns>
+        [Authorize]
+        [IgnorePermission]
         public async Task<bool> PostLogout()
         {
             //通过鉴权jwt获取到用户的id
@@ -446,6 +488,9 @@ namespace Yi.Module.Rbac.Application.Services
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
+        [Authorize]
+        [IgnorePermission]
+        [OperLog("更新个人密码", Yi.Framework.OperationRecord.Abstractions.Enums.OperEnum.Update)]
         public async Task<bool> UpdatePasswordAsync(UpdatePasswordDto input)
         {
             if (input.OldPassword.Equals(input.NewPassword))
@@ -470,6 +515,8 @@ namespace Yi.Module.Rbac.Application.Services
         /// <param name="input"></param>
         /// <returns></returns>
         [HttpPut]
+        [Permission("system:user:resetPwd")]
+        [OperLog("重置用户密码", Yi.Framework.OperationRecord.Abstractions.Enums.OperEnum.Update)]
         public async Task<bool> ResetPasswordAsync(Guid userId, RestPasswordDto input)
         {
             if (string.IsNullOrEmpty(input.Password))
@@ -486,6 +533,9 @@ namespace Yi.Module.Rbac.Application.Services
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
+        [Authorize]
+        [IgnorePermission]
+        [OperLog("更新用户头像", Yi.Framework.OperationRecord.Abstractions.Enums.OperEnum.Update)]
         public async Task<bool> UpdateIconAsync(UpdateIconDto input)
         {
             Guid userId = input.UserId == null ? _currentUser.GetId() : input.UserId.Value;

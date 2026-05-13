@@ -20,7 +20,7 @@ import { message, Modal } from 'ant-design-vue';
 import { DEFAULT_TENANT_ID } from '@vben/constants';
 
 import { useAuthStore } from '#/store';
-import { useLoginTenantId } from '#/views/_core/oauth-common';
+import { useLoginTenantId } from '#/utils/tenant';
 import {
   decryptBase64,
   decryptWithAes,
@@ -226,9 +226,11 @@ function createRequestClient(baseURL: string) {
          * 需要判断下载二进制的情况 正常是返回二进制 报错会返回json
          * 当type为blob且content-type为application/json时 则判断已经下载出错
          */
+        const contentType = response.headers['content-type'];
         if (
           response.config.responseType === 'blob' &&
-          response.headers['content-type']?.includes?.('application/json')
+          typeof contentType === 'string' &&
+          contentType.includes('application/json')
         ) {
           // 这时候的data为blob类型
           const blob = response.data as unknown as Blob;
@@ -248,8 +250,7 @@ function createRequestClient(baseURL: string) {
 
       console.log('axiosResponseData', axiosResponseData);
       // 适配后端数据结构: { statusCode, data, succeeded, errors, extras, timestamp }
-      const { statusCode, data, succeeded, errors, extras, timestamp } =
-        axiosResponseData;
+      const { statusCode, data, succeeded, errors } = axiosResponseData;
 
       // 业务状态码为200且succeeded为true则请求成功
       const hasSuccess = statusCode === 200 && succeeded === true;

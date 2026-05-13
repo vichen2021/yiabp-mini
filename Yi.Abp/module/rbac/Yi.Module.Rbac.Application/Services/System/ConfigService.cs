@@ -2,7 +2,9 @@ using SqlSugar;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Yi.Framework.Ddd.Application;
-using Yi.Framework.Operation.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Enums;
+using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Module.Rbac.Application.Contracts.Dtos.Config;
 using Yi.Module.Rbac.Application.Contracts.IServices;
 using Yi.Module.Rbac.Domain.Entities;
@@ -15,6 +17,7 @@ namespace Yi.Module.Rbac.Application.Services
     /// <summary>
     /// Config服务实现
     /// </summary>
+    [PermissionResource("system", "config")]
     [OperLogEntity("参数配置")]
     public class ConfigService : YiCrudAppService<ConfigAggregateRoot, ConfigGetOutputDto, ConfigGetListOutputDto, Guid,
             ConfigGetListInputVo, ConfigCreateInputVo, ConfigUpdateInputVo>,
@@ -51,6 +54,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <returns></returns>
         ///
         [Route("config/config-key/{configKey}")]
+        [PermissionAction(PermissionActionEnum.Query)]
         public async Task<string> GetConfigKeyAsync(string configKey)
         {
             var entity = await _repository.GetAsync(x => x.ConfigKey == configKey);

@@ -7,6 +7,7 @@ using Volo.Abp.Data;
 using Volo.Abp.MultiTenancy;
 using Volo.Abp.MultiTenancy.ConfigurationStore;
 using Volo.Abp.Uow;
+using Yi.Module.TenantManagement.Domain.Entities;
 
 namespace Yi.Module.TenantManagement.Domain
 {

@@ -66,13 +66,13 @@ public class AuditingStore : IAuditingStore, ITransientDependency
 
         using (var uow = UnitOfWorkManager.Begin())
         {
-            // 保存详细审计日志（如果配置开启）
+            // 保存详细审计记录（如果配置开启）
             if (YiOptions.SaveAuditLog)
             {
                 await AuditLogRepository.InsertAsync(await Converter.ConvertAsync(auditInfo));
             }
 
-            // 映射并保存操作日志
+            // 映射并保存操作记录
             var operationLog = OperationLogMapper.TryMap(auditInfo);
             if (operationLog != null)
             {

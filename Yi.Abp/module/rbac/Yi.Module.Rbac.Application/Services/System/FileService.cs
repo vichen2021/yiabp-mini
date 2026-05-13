@@ -1,10 +1,14 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using SqlSugar;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.BlobStoring;
 using Yi.Framework.Ddd.Application;
+using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Enums;
+using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Module.Rbac.Application.Contracts.Dtos;
 using Yi.Module.Rbac.Application.Contracts.IServices;
 using Yi.Module.Rbac.Domain.Entities;
@@ -16,6 +20,8 @@ namespace Yi.Module.Rbac.Application.Services;
 /// <summary>
 /// 文件应用服务
 /// </summary>
+[PermissionResource("system", "file")]
+[OperLogEntity("文件")]
 public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutputDto, Guid, FileGetListInputVo>,
     IFileService
 {
@@ -23,15 +29,17 @@ public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutput
     private readonly FileManager _fileManager;
     private readonly IBlobContainer<FileManagementContainer> _blobContainer;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IConfiguration _configuration;
 
     public FileService(
         ISqlSugarRepository<FileAggregateRoot, Guid> repository,
         FileManager fileManager,
         IBlobContainer<FileManagementContainer> blobContainer,
-        IHttpContextAccessor httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor,
+        IConfiguration configuration)
         : base(repository) =>
-        (_repository, _fileManager, _blobContainer, _httpContextAccessor) =
-        (repository, fileManager, blobContainer, httpContextAccessor);
+        (_repository, _fileManager, _blobContainer, _httpContextAccessor, _configuration) =
+        (repository, fileManager, blobContainer, httpContextAccessor, configuration);
 
     /// <summary>
     /// 多查
@@ -52,10 +60,11 @@ public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutput
     /// 单查
     /// </summary>
     [HttpGet("file/get/{id}")]
+    [PermissionAction(PermissionActionEnum.Query)]
     public new async Task<FileStreamResult> GetAsync(Guid id)
     {
         var fileObject = await _fileManager.GetAsync(id);
-        var stream = await _blobContainer.GetAsync(id.ToString());
+        var stream = await _blobContainer.GetAsync(fileObject.StorageKey);
         return new FileStreamResult(stream, fileObject.ContentType);
     }
 
@@ -86,6 +95,7 @@ public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutput
     /// <summary>
     /// 上传文件，返回落库后的文件 id 列表（与入参 files 顺序一致）
     /// </summary>
+    [PermissionAction(PermissionActionEnum.Add)]
     public async Task<List<Guid>> BatchUploadAsync(List<IFormFile> files)
     {
         var ids = new List<Guid>();
@@ -94,13 +104,16 @@ public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutput
             using var memoryStream = new MemoryStream();
             await formFile.CopyToAsync(memoryStream);
             var fileBytes = memoryStream.ToArray();
+            var id = GuidGenerator.Create();
             var dto = await _fileManager.CreateAsync(
-                GuidGenerator.Create(),
+                id,
                 formFile.FileName,
                 formFile.Length,
                 formFile.ContentType,
                 fileBytes,
-                overwrite: true);
+                CreateStorageKey(id),
+                GetCurrentProvider(),
+                overwrite: false);
             ids.Add(dto.Id);
         }
         return ids;
@@ -109,18 +122,22 @@ public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutput
     /// <summary>
     /// 上传单个文件，返回文件访问链接
     /// </summary>
+    [PermissionAction(PermissionActionEnum.Add)]
     public async Task<string> UploadAsync(IFormFile file)
     {
         using var memoryStream = new MemoryStream();
         await file.CopyToAsync(memoryStream);
         var fileBytes = memoryStream.ToArray();
+        var id = GuidGenerator.Create();
         var dto = await _fileManager.CreateAsync(
-            GuidGenerator.Create(),
+            id,
             file.FileName,
             file.Length,
             file.ContentType,
             fileBytes,
-            overwrite: true);
+            CreateStorageKey(id),
+            GetCurrentProvider(),
+            overwrite: false);
 
         var request = _httpContextAccessor.HttpContext?.Request;
         var baseUrl = $"{request?.Scheme}://{request?.Host.Value}";
@@ -130,13 +147,26 @@ public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutput
     /// <summary>
     /// 下载文件
     /// </summary>
+    [PermissionAction(PermissionActionEnum.Query)]
     public async Task<FileStreamResult> DownloadAsync(Guid id)
     {
         var fileObject = await _fileManager.GetAsync(id);
-        var stream = await _blobContainer.GetAsync(id.ToString());
+        var stream = await _blobContainer.GetAsync(fileObject.StorageKey);
         return new FileStreamResult(stream, fileObject.ContentType)
         {
             FileDownloadName = fileObject.FileName
         };
+    }
+
+    private string GetCurrentProvider()
+    {
+        return _configuration["BlobStoring:Provider"] ?? "FileSystem";
+    }
+
+    private string CreateStorageKey(Guid id)
+    {
+        var pathPrefix = _configuration["BlobStoring:PathPrefix"] ?? "default";
+        pathPrefix = string.IsNullOrWhiteSpace(pathPrefix) ? "default" : pathPrefix.Trim('/');
+        return $"{pathPrefix}/{id}";
     }
 }

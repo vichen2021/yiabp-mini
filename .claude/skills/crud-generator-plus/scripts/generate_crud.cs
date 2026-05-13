@@ -529,7 +529,6 @@ string GenerateIService(EntityInfo entity)
 string GenerateService(EntityInfo entity)
 {
     var indexField = entity.Fields.FirstOrDefault(f => f.IsIndex);
-    var operLogEntityName = EscapeCSharpString(string.IsNullOrWhiteSpace(entity.EntityComment) ? entity.EntityName : entity.EntityComment);
     var sb = new StringBuilder();
     sb.AppendLine("using SqlSugar;");
     sb.AppendLine("using Volo.Abp;");
@@ -542,7 +541,6 @@ string GenerateService(EntityInfo entity)
     sb.AppendLine($"using Yi.Module.{entity.ModuleNamespace}.Domain.Entities;");
     if (entity.EnumTypes.Count > 0)
         sb.AppendLine($"using Yi.Module.{entity.ModuleNamespace}.Domain.Shared.Enums;");
-    sb.AppendLine("using Yi.Framework.Operation.Abstractions.Attributes;");
     sb.AppendLine("using Yi.Framework.SqlSugarCore.Abstractions;");
     sb.AppendLine();
     sb.AppendLine($"namespace Yi.Module.{entity.ModuleNamespace}.Application.Services");
@@ -551,6 +549,7 @@ string GenerateService(EntityInfo entity)
     sb.AppendLine($"    /// {entity.EntityComment}服务实现");
     sb.AppendLine($"    /// </summary>");
     sb.AppendLine($"    [OperLogEntity(\"{operLogEntityName}\")]");
+    sb.AppendLine($"    [PermissionResource(\"{entity.Module}\", \"{entity.EntityNameLower}\")]");
     sb.AppendLine($"    public class {entity.EntityName}Service : YiCrudAppService<{entity.EntityName}AggregateRoot, {entity.EntityName}GetOutputDto, {entity.EntityName}GetListOutputDto, Guid,");
     sb.AppendLine($"        {entity.EntityName}GetListInputVo, {entity.EntityName}CreateInputVo, {entity.EntityName}UpdateInputVo>, I{entity.EntityName}Service");
     sb.AppendLine("    {");
@@ -1428,11 +1427,6 @@ string ToSnakeCaseUpper(string? value)
         result.Append(char.ToUpperInvariant(c));
     }
     return result.ToString();
-}
-
-string EscapeCSharpString(string value)
-{
-    return value.Replace("\\", "\\\\").Replace("\"", "\\\"");
 }
 
 ParsedArgs ParseArgs(IList<string> args)

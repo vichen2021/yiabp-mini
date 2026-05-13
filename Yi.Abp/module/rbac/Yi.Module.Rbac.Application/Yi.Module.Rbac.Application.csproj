@@ -13,12 +13,14 @@
 	  <PackageReference Include="Volo.Abp.BackgroundJobs.Hangfire" Version="$(AbpVersion)" />
 	  <PackageReference Include="Volo.Abp.BlobStoring" Version="$(AbpVersion)" />
 	  <PackageReference Include="Volo.Abp.BlobStoring.FileSystem" Version="$(AbpVersion)" />
+		  <PackageReference Include="Volo.Abp.BlobStoring.Aliyun" Version="$(AbpVersion)" />
 	  <PackageReference Include="Volo.Abp.Guids" Version="$(AbpVersion)" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\framework\ddd\Yi.Framework.Ddd.Application\Yi.Framework.Ddd.Application.csproj" />
-    <ProjectReference Include="..\..\..\framework\operation\Yi.Framework.Operation.Abstractions\Yi.Framework.Operation.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\framework\authorization\Yi.Framework.Authorization.Abstractions\Yi.Framework.Authorization.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\framework\operation-record\Yi.Framework.OperationRecord.Abstractions\Yi.Framework.OperationRecord.Abstractions.csproj" />
     <ProjectReference Include="..\..\tenant-management\Yi.Module.TenantManagement.Application.Contracts\Yi.Module.TenantManagement.Application.Contracts.csproj" />
     <ProjectReference Include="..\Yi.Module.Rbac.Application.Contracts\Yi.Module.Rbac.Application.Contracts.csproj" />
     <ProjectReference Include="..\Yi.Module.Rbac.Domain\Yi.Module.Rbac.Domain.csproj" />

@@ -4,6 +4,10 @@ using Volo.Abp.Guids;
 using Yi.Module.Rbac.Domain.Entities;
 using Yi.Module.Rbac.Domain.Shared.Enums;
 using Yi.Framework.SqlSugarCore.Abstractions;
+using Yi.Framework.Authorization.Abstractions.Permissions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using Yi.Module.Rbac.SqlSugarCore.DataSeeds.TenantDataSeeds;
 
 namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
 {
@@ -11,20 +15,53 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
     {
         private ISqlSugarRepository<MenuAggregateRoot> _repository;
         private IGuidGenerator _guidGenerator;
-        public MenuDataSeed(ISqlSugarRepository<MenuAggregateRoot> repository, IGuidGenerator guidGenerator)
+        private IServiceProvider _serviceProvider;
+        private ILogger<MenuDataSeed> _logger;
+        private TenantMenuDataSeed _tenantMenuDataSeed;
+
+        public MenuDataSeed(
+            ISqlSugarRepository<MenuAggregateRoot> repository,
+            IGuidGenerator guidGenerator,
+            IServiceProvider serviceProvider,
+            ILogger<MenuDataSeed> logger,
+            TenantMenuDataSeed tenantMenuDataSeed)
         {
             _repository = repository;
             _guidGenerator = guidGenerator;
+            _serviceProvider = serviceProvider;
+            _logger = logger;
+            _tenantMenuDataSeed = tenantMenuDataSeed;
         }
 
         public async Task SeedAsync(DataSeedContext context)
         {
             if (!await _repository.IsAnyAsync(x => x.MenuName == "系统管理"&&x.MenuSource==MenuSourceEnum.Ruoyi))
             {
-                await _repository.InsertManyAsync(GetSeedData());
+                var seedData = GetSeedData(context.TenantId == null);
+                ValidatePermissionCodes(seedData);
+                await _repository.InsertManyAsync(seedData);
             }
         }
-        public List<MenuAggregateRoot> GetSeedData()
+
+        private void ValidatePermissionCodes(List<MenuAggregateRoot> seedData)
+        {
+            var permissionDefinitionValidator = _serviceProvider.GetService<IPermissionDefinitionValidator>();
+            if (permissionDefinitionValidator == null)
+            {
+                return;
+            }
+
+            var usedPermissionCodes = seedData
+                .Select(menu => menu.PermissionCode)
+                .Where(code => !string.IsNullOrWhiteSpace(code))
+                .Select(code => code!)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            var validationResult = permissionDefinitionValidator.Validate(usedPermissionCodes);
+        }
+
+        public List<MenuAggregateRoot> GetSeedData(bool includeTenantModule = true)
         {
             List<MenuAggregateRoot> entities = new List<MenuAggregateRoot>();
 
@@ -43,8 +80,12 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
                 IsDeleted = false
             };
             entities.Add(system);
-            
-            
+            if (includeTenantModule)
+            {
+                entities.AddRange(_tenantMenuDataSeed.GetSeedData());
+            }
+
+
             //系统监控
             MenuAggregateRoot monitoring = new MenuAggregateRoot(_guidGenerator.Create())
             {
@@ -64,7 +105,7 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
             MenuAggregateRoot online = new MenuAggregateRoot(_guidGenerator.Create(), monitoring.Id)
             {
                 MenuName = "在线用户",
-                PermissionCode = "monitor:online:list",
+                PermissionCode = "monitor:online:query",
                 MenuType = MenuTypeEnum.Menu,
                 Router = "online",
                 IsShow = true,
@@ -81,7 +122,7 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
             MenuAggregateRoot cache = new MenuAggregateRoot(_guidGenerator.Create(), monitoring.Id)
             {
                 MenuName = "缓存列表",
-                PermissionCode = "monitor:cache:list",
+                PermissionCode = "monitor:cache:query",
                 MenuType = MenuTypeEnum.Menu,
                 Router = "cacheList",
                 IsShow = true,
@@ -98,7 +139,7 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
             MenuAggregateRoot server = new MenuAggregateRoot(_guidGenerator.Create(), monitoring.Id)
             {
                 MenuName = "服务监控",
-                PermissionCode = "monitor:server:list",
+                PermissionCode = "monitor:server:query",
                 MenuType = MenuTypeEnum.Menu,
                 Router = "server",
                 IsShow = true,
@@ -143,140 +184,12 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
             entities.Add(swagger);
 
 
-            //租户管理
-            MenuAggregateRoot tenant = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-                MenuName = "租户管理",
-                PermissionCode = "system:tenant:list",
-                MenuType = MenuTypeEnum.Menu,
-                Router = "tenant",
-                IsShow = true,
-                IsLink = false,
-                IsCache = true,
-                Component = "system/tenant/index",
-                MenuIcon = "tabler:users",
-                OrderNum = 101,
-                ParentId = system.Id,
-                IsDeleted = false
-            };
-            entities.Add(tenant);
-
-            MenuAggregateRoot tenantQuery = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-
-                MenuName = "租户查询",
-                PermissionCode = "system:tenant:query",
-                MenuType = MenuTypeEnum.Component,
-                OrderNum = 100,
-                ParentId = tenant.Id,
-                IsDeleted = false
-            };
-            entities.Add(tenantQuery);
-
-            MenuAggregateRoot tenantAdd = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-
-                MenuName = "租户新增",
-                PermissionCode = "system:tenant:add",
-                MenuType = MenuTypeEnum.Component,
-                OrderNum = 100,
-                ParentId = tenant.Id,
-                IsDeleted = false
-            };
-            entities.Add(tenantAdd);
-
-            MenuAggregateRoot tenantEdit = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-
-                MenuName = "租户修改",
-                PermissionCode = "system:tenant:edit",
-                MenuType = MenuTypeEnum.Component,
-                OrderNum = 100,
-                ParentId = tenant.Id,
-                IsDeleted = false
-            };
-            entities.Add(tenantEdit);
-
-            MenuAggregateRoot tenantRemove = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-
-                MenuName = "租户删除",
-                PermissionCode = "system:tenant:remove",
-                MenuType = MenuTypeEnum.Component,
-                OrderNum = 100,
-                ParentId = tenant.Id,
-                IsDeleted = false
-            };
-            entities.Add(tenantRemove);
-
-            //租户套餐
-            MenuAggregateRoot tenantPackage = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-                MenuName = "租户套餐",
-                PermissionCode = "system:tenantPackage:list",
-                MenuType = MenuTypeEnum.Menu,
-                Router = "tenant-package",
-                IsShow = true,
-                IsLink = false,
-                IsCache = true,
-                Component = "system/tenant-package/index",
-                MenuIcon = "tabler:package",
-                OrderNum = 102,
-                ParentId = system.Id,
-                IsDeleted = false
-            };
-            entities.Add(tenantPackage);
-
-            MenuAggregateRoot tenantPackageQuery = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-                MenuName = "套餐查询",
-                PermissionCode = "system:tenantPackage:list",
-                MenuType = MenuTypeEnum.Component,
-                OrderNum = 100,
-                ParentId = tenantPackage.Id,
-                IsDeleted = false
-            };
-            entities.Add(tenantPackageQuery);
-
-            MenuAggregateRoot tenantPackageAdd = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-                MenuName = "套餐新增",
-                PermissionCode = "system:tenantPackage:add",
-                MenuType = MenuTypeEnum.Component,
-                OrderNum = 99,
-                ParentId = tenantPackage.Id,
-                IsDeleted = false
-            };
-            entities.Add(tenantPackageAdd);
-
-            MenuAggregateRoot tenantPackageEdit = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-                MenuName = "套餐修改",
-                PermissionCode = "system:tenantPackage:edit",
-                MenuType = MenuTypeEnum.Component,
-                OrderNum = 98,
-                ParentId = tenantPackage.Id,
-                IsDeleted = false
-            };
-            entities.Add(tenantPackageEdit);
-
-            MenuAggregateRoot tenantPackageRemove = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-                MenuName = "套餐删除",
-                PermissionCode = "system:tenantPackage:delete",
-                MenuType = MenuTypeEnum.Component,
-                OrderNum = 97,
-                ParentId = tenantPackage.Id,
-                IsDeleted = false
-            };
-            entities.Add(tenantPackageRemove);
-
             //用户管理
             MenuAggregateRoot user = new MenuAggregateRoot(_guidGenerator.Create())
             {
 
                 MenuName = "用户管理",
-                PermissionCode = "system:user:list",
+                PermissionCode = "system:user:query",
                 MenuType = MenuTypeEnum.Menu,
                 Router = "user",
                 IsShow = true,
@@ -357,7 +270,7 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
             {
 
                 MenuName = "角色管理",
-                PermissionCode = "system:role:list",
+                PermissionCode = "system:role:query",
                 MenuType = MenuTypeEnum.Menu,
                 Router = "role",
                 IsShow = true,
@@ -443,7 +356,7 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
             {
 
                 MenuName = "菜单管理",
-                PermissionCode = "system:menu:list",
+                PermissionCode = "system:menu:query",
                 MenuType = MenuTypeEnum.Menu,
                 Router = "menu",
                 IsShow = true,
@@ -510,7 +423,7 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
             {
 
                 MenuName = "部门管理",
-                PermissionCode = "system:dept:list",
+                PermissionCode = "system:dept:query",
                 MenuType = MenuTypeEnum.Menu,
                 Router = "dept",
                 IsShow = true,
@@ -579,7 +492,7 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
             {
 
                 MenuName = "岗位管理",
-                PermissionCode = "system:post:list",
+                PermissionCode = "system:post:query",
                 MenuType = MenuTypeEnum.Menu,
                 Router = "post",
                 IsShow = true,
@@ -646,7 +559,7 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
             {
 
                 MenuName = "字典管理",
-                PermissionCode = "system:dict:list",
+                PermissionCode = "system:dict:query",
                 MenuType = MenuTypeEnum.Menu,
                 Router = "dict",
                 IsShow = true,
@@ -714,7 +627,7 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
             {
 
                 MenuName = "参数设置",
-                PermissionCode = "system:config:list",
+                PermissionCode = "system:config:query",
                 MenuType = MenuTypeEnum.Menu,
                 Router = "config",
                 IsShow = true,
@@ -784,7 +697,7 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
             {
 
                 MenuName = "通知公告",
-                PermissionCode = "system:notice:list",
+                PermissionCode = "system:notice:query",
                 MenuType = MenuTypeEnum.Menu,
                 Router = "notice",
                 IsShow = true,
@@ -850,7 +763,7 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
             MenuAggregateRoot file = new MenuAggregateRoot(_guidGenerator.Create())
             {
                 MenuName = "文件管理",
-                PermissionCode = "system:file:list",
+                PermissionCode = "system:file:query",
                 MenuType = MenuTypeEnum.Menu,
                 Router = "file",
                 IsShow = true,
@@ -913,12 +826,12 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
             };
             entities.Add(log);
 
-            //操作日志
+            //操作记录
             MenuAggregateRoot operationLog = new MenuAggregateRoot(_guidGenerator.Create())
             {
 
-                MenuName = "操作日志",
-                PermissionCode = "monitor:operlog:list",
+                MenuName = "操作记录",
+                PermissionCode = "monitor:operlog:query",
                 MenuType = MenuTypeEnum.Menu,
                 Router = "operlog",
                 IsShow = true,
@@ -962,13 +875,13 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
             {
 
                 MenuName = "登录日志",
-                PermissionCode = "monitor:logininfor:list",
+                PermissionCode = "monitor:loginlog:query",
                 MenuType = MenuTypeEnum.Menu,
-                Router = "logininfor",
+                Router = "loginlog",
                 IsShow = true,
                 IsLink = false,
                 IsCache = true,
-                Component = "monitor/logininfor/index",
+                Component = "monitor/loginlog/index",
                 MenuIcon = "tabler:align-box-right-middle",
                 OrderNum = 100,
                 ParentId = log.Id,
@@ -980,7 +893,7 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
             {
 
                 MenuName = "登录查询",
-                PermissionCode = "monitor:logininfor:query",
+                PermissionCode = "monitor:loginlog:query",
                 MenuType = MenuTypeEnum.Component,
                 OrderNum = 100,
                 ParentId = loginLog.Id,
@@ -992,7 +905,7 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
             {
 
                 MenuName = "登录删除",
-                PermissionCode = "monitor:logininfor:remove",
+                PermissionCode = "monitor:loginlog:remove",
                 MenuType = MenuTypeEnum.Component,
                 OrderNum = 100,
                 ParentId = loginLog.Id,
