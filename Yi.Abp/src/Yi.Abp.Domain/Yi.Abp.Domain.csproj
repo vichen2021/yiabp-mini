@@ -14,7 +14,8 @@
     <ProjectReference Include="..\..\module\setting-management\Yi.Module.SettingManagement.Domain\Yi.Module.SettingManagement.Domain.csproj" />
     <ProjectReference Include="..\..\module\tenant-management\Yi.Module.TenantManagement.Domain\Yi.Module.TenantManagement.Domain.csproj" />
     <ProjectReference Include="..\Yi.Abp.Domain.Shared\Yi.Abp.Domain.Shared.csproj" />
-  </ItemGroup>
+      <ProjectReference Include="..\..\module\file-management\Yi.Module.FileManagement.Domain\Yi.Module.FileManagement.Domain.csproj" />
+</ItemGroup>
 
 
 	<ItemGroup>

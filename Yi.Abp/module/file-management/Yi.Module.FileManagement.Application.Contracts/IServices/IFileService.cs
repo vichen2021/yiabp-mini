@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Yi.Framework.Ddd.Application.Contracts;
-using Yi.Module.Rbac.Application.Contracts.Dtos;
+using Yi.Module.FileManagement.Application.Contracts.Dtos;
 
-namespace Yi.Module.Rbac.Application.Contracts.IServices;
+namespace Yi.Module.FileManagement.Application.Contracts.IServices;
 
 /// <summary>
 /// 文件应用服务接口
@@ -25,3 +25,4 @@ public interface IFileService : IYiCrudAppService<FileGetListOutputDto, Guid, Fi
     /// </summary>
     Task<FileStreamResult> DownloadAsync(Guid id);
 }
+

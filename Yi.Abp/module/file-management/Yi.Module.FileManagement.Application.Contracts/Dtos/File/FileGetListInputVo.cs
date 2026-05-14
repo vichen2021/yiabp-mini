@@ -1,6 +1,6 @@
 using Volo.Abp.Application.Dtos;
 
-namespace Yi.Module.Rbac.Application.Contracts.Dtos;
+namespace Yi.Module.FileManagement.Application.Contracts.Dtos;
 
 /// <summary>
 /// 文件列表查询参数
@@ -22,3 +22,4 @@ public class FileGetListInputVo : PagedAndSortedResultRequestDto
     /// </summary>
     public DateTime? EndTime { get; set; }
 }
+

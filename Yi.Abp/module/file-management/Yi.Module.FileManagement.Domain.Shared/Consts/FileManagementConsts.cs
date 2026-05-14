@@ -1,4 +1,4 @@
-namespace Yi.Module.Rbac.Domain.Shared.Consts;
+namespace Yi.Module.FileManagement.Domain.Shared.Consts;
 
 public static class FileManagementConsts
 {
@@ -10,3 +10,4 @@ public static class FileManagementConsts
     public const string FileAlreadyExist = "文件已存在";
     public const string FileNotFound = "文件未找到";
 }
+

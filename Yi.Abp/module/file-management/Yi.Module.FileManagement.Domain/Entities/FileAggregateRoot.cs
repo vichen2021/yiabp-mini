@@ -5,9 +5,9 @@ using Volo.Abp.MultiTenancy;
 using Yi.Framework.Core.Data;
 using Yi.Framework.Core.Enums;
 using Yi.Framework.Core.Helper;
-using Yi.Module.Rbac.Domain.Shared.File;
+using Yi.Module.FileManagement.Domain.Shared.File;
 
-namespace Yi.Module.Rbac.Domain.Entities;
+namespace Yi.Module.FileManagement.Domain.Entities;
 
 /// <summary>
 /// 文件
@@ -170,3 +170,4 @@ public class FileAggregateRoot : AggregateRoot<Guid>, IAuditedObject
         return MimeHelper.GetMimeMapping(FileName);
     }
 }
+

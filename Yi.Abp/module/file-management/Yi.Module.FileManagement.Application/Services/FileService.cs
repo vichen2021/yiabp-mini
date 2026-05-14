@@ -9,13 +9,13 @@ using Yi.Framework.Ddd.Application;
 using Yi.Framework.Authorization.Abstractions.Attributes;
 using Yi.Framework.Authorization.Abstractions.Enums;
 using Yi.Framework.OperationRecord.Abstractions.Attributes;
-using Yi.Module.Rbac.Application.Contracts.Dtos;
-using Yi.Module.Rbac.Application.Contracts.IServices;
-using Yi.Module.Rbac.Domain.Entities;
-using Yi.Module.Rbac.Domain.File;
+using Yi.Module.FileManagement.Application.Contracts.Dtos;
+using Yi.Module.FileManagement.Application.Contracts.IServices;
+using Yi.Module.FileManagement.Domain.Entities;
+using Yi.Module.FileManagement.Domain.File;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
-namespace Yi.Module.Rbac.Application.Services;
+namespace Yi.Module.FileManagement.Application.Services;
 
 /// <summary>
 /// 文件应用服务
@@ -170,3 +170,4 @@ public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutput
         return $"{pathPrefix}/{id}";
     }
 }
+

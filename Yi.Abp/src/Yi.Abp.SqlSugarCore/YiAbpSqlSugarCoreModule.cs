@@ -4,6 +4,7 @@ using Yi.Abp.Domain;
 using Yi.Abp.SqlSugarCore;
 using Yi.Module.AuditLogging.SqlSugarCore;
 using Yi.Framework.Mapster;
+using Yi.Module.FileManagement.SqlSugarCore;
 using Yi.Module.Rbac.SqlSugarCore;
 using Yi.Module.SettingManagement.SqlSugarCore;
 using Yi.Framework.SqlSugarCore;
@@ -18,8 +19,8 @@ namespace Yi.Abp.SqlsugarCore
         typeof(YiModuleAuditLoggingSqlSugarCoreModule),
         typeof(YiModuleTenantManagementSqlSugarCoreModule),
         typeof(YiFrameworkMapsterModule),
-        typeof(YiFrameworkSqlSugarCoreModule)
-        )]
+        typeof(YiFrameworkSqlSugarCoreModule),
+        typeof(YiModuleFileManagementSqlSugarCoreModule))]
     public class YiAbpSqlSugarCoreModule : AbpModule
     {
         public override void ConfigureServices(ServiceConfigurationContext context)

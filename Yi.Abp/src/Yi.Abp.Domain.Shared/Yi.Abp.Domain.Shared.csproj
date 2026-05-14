@@ -8,7 +8,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\module\audit-logging\Yi.Module.AuditLogging.Domain.Shared\Yi.Module.AuditLogging.Domain.Shared.csproj" />
     <ProjectReference Include="..\..\module\rbac\Yi.Module.Rbac.Domain.Shared\Yi.Module.Rbac.Domain.Shared.csproj" />
-  </ItemGroup>
+      <ProjectReference Include="..\..\module\file-management\Yi.Module.FileManagement.Domain.Shared\Yi.Module.FileManagement.Domain.Shared.csproj" />
+</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Volo.Abp.SettingManagement.Domain.Shared" Version="$(AbpVersion)" />

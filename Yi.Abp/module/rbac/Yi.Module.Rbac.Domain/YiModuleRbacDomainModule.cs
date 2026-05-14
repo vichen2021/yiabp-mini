@@ -4,11 +4,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 using Volo.Abp.AspNetCore.SignalR;
-using Volo.Abp.BlobStoring;
 using Volo.Abp.Caching;
 using Volo.Abp.DistributedLocking;
 using Volo.Abp.Domain;
-using Volo.Abp.Imaging;
 using Volo.Abp.Modularity;
 using Yi.Framework.Aliyun.Sms;
 using Yi.Framework.Caching.FreeRedis;
@@ -22,9 +20,7 @@ namespace Yi.Module.Rbac.Domain
         typeof(AbpAspNetCoreSignalRModule),
         typeof(AbpDddDomainModule),
         typeof(AbpCachingModule),
-        typeof(AbpImagingImageSharpModule),
         typeof(AbpDistributedLockingModule),
-        typeof(AbpBlobStoringModule),
         typeof(YiFrameworkAliyunSmsModule)
         )]
     public class YiModuleRbacDomainModule : AbpModule

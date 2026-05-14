@@ -6,7 +6,6 @@ using Volo.Abp.Users;
 using Yi.Module.Rbac.Domain.Authorization;
 using Yi.Module.Rbac.Domain.Entities;
 using Yi.Module.Rbac.Domain.Extensions;
-using Yi.Module.Rbac.Domain.File;
 using Yi.Module.Rbac.Domain.Shared.Consts;
 using Yi.Module.Rbac.Domain.Shared.Enums;
 using Yi.Framework.SqlSugarCore;

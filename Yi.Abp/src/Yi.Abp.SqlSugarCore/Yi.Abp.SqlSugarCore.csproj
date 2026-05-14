@@ -9,7 +9,8 @@
     <ProjectReference Include="..\..\module\setting-management\Yi.Module.SettingManagement.SqlSugarCore\Yi.Module.SettingManagement.SqlSugarCore.csproj" />
     <ProjectReference Include="..\..\module\tenant-management\Yi.Module.TenantManagement.SqlSugarCore\Yi.Module.TenantManagement.SqlSugarCore.csproj" />
     <ProjectReference Include="..\Yi.Abp.Domain\Yi.Abp.Domain.csproj" />
-  </ItemGroup>
+      <ProjectReference Include="..\..\module\file-management\Yi.Module.FileManagement.SqlSugarCore\Yi.Module.FileManagement.SqlSugarCore.csproj" />
+</ItemGroup>
 
 
   <ItemGroup>

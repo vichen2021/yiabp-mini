@@ -10,12 +10,12 @@ using Volo.Abp.BlobStoring;
 using Volo.Abp.Domain.Services;
 using Yi.Framework.Core.Enums;
 using Yi.Framework.Core.Helper;
-using Yi.Module.Rbac.Domain.Shared.Consts;
-using Yi.Module.Rbac.Domain.Shared.File;
-using Yi.Module.Rbac.Domain.Entities;
+using Yi.Module.FileManagement.Domain.Shared.Consts;
+using Yi.Module.FileManagement.Domain.Shared.File;
+using Yi.Module.FileManagement.Domain.Entities;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
-namespace Yi.Module.Rbac.Domain.File;
+namespace Yi.Module.FileManagement.Domain.File;
 
 public class FileManager : DomainService
 {
@@ -196,3 +196,4 @@ public class FileManager : DomainService
         };
     }
 }
+

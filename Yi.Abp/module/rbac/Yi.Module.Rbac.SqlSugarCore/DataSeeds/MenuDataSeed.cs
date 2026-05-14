@@ -7,6 +7,7 @@ using Yi.Framework.SqlSugarCore.Abstractions;
 using Yi.Framework.Authorization.Abstractions.Permissions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Yi.Module.Rbac.SqlSugarCore.DataSeeds.FileManagementDataSeeds;
 using Yi.Module.Rbac.SqlSugarCore.DataSeeds.TenantDataSeeds;
 
 namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
@@ -17,6 +18,7 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
         private IGuidGenerator _guidGenerator;
         private IServiceProvider _serviceProvider;
         private ILogger<MenuDataSeed> _logger;
+        private FileManagementMenuDataSeed _fileManagementMenuDataSeed;
         private TenantMenuDataSeed _tenantMenuDataSeed;
 
         public MenuDataSeed(
@@ -24,12 +26,14 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
             IGuidGenerator guidGenerator,
             IServiceProvider serviceProvider,
             ILogger<MenuDataSeed> logger,
+            FileManagementMenuDataSeed fileManagementMenuDataSeed,
             TenantMenuDataSeed tenantMenuDataSeed)
         {
             _repository = repository;
             _guidGenerator = guidGenerator;
             _serviceProvider = serviceProvider;
             _logger = logger;
+            _fileManagementMenuDataSeed = fileManagementMenuDataSeed;
             _tenantMenuDataSeed = tenantMenuDataSeed;
         }
 
@@ -759,56 +763,7 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
             };
             entities.Add(noticeRemove);
 
-            // 文件管理
-            MenuAggregateRoot file = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-                MenuName = "文件管理",
-                PermissionCode = "system:file:query",
-                MenuType = MenuTypeEnum.Menu,
-                Router = "file",
-                IsShow = true,
-                IsLink = false,
-                IsCache = true,
-                Component = "system/file/index",
-                MenuIcon = "tabler:file",
-                OrderNum = 100,
-                ParentId = system.Id,
-                IsDeleted = false
-            };
-            entities.Add(file);
-            
-            MenuAggregateRoot fileQuery = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-                MenuName = "文件查询",
-                PermissionCode = "system:file:query",
-                MenuType = MenuTypeEnum.Component,
-                OrderNum = 100,
-                ParentId = file.Id,
-                IsDeleted = false
-            };
-            entities.Add(fileQuery);
-            
-            MenuAggregateRoot fileAdd = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-                MenuName = "文件新增",
-                PermissionCode = "system:file:add",
-                MenuType = MenuTypeEnum.Component,
-                OrderNum = 100,
-                ParentId = file.Id,
-                IsDeleted = false
-            };
-            entities.Add(fileAdd);
-            
-            MenuAggregateRoot fileRemove = new MenuAggregateRoot(_guidGenerator.Create())
-            {
-                MenuName = "文件删除",
-                PermissionCode = "system:file:remove",
-                MenuType = MenuTypeEnum.Component,
-                OrderNum = 100,
-                ParentId = file.Id,
-                IsDeleted = false
-            };
-            entities.Add(fileRemove);
+            entities.AddRange(_fileManagementMenuDataSeed.GetSeedData(system.Id));
 
             //日志管理
             MenuAggregateRoot log = new MenuAggregateRoot(_guidGenerator.Create())

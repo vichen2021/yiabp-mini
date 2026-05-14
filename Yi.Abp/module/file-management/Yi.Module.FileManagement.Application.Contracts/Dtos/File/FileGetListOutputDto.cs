@@ -1,8 +1,8 @@
 using Volo.Abp.Application.Dtos;
 using Yi.Framework.Core.Enums;
-using Yi.Module.Rbac.Domain.Shared.Consts;
+using Yi.Module.FileManagement.Domain.Shared.Consts;
 
-namespace Yi.Module.Rbac.Application.Contracts.Dtos;
+namespace Yi.Module.FileManagement.Application.Contracts.Dtos;
 
 /// <summary>
 /// 文件列表输出
@@ -92,3 +92,4 @@ public class FileGetListOutputDto : EntityDto<Guid>
         return s.EndsWith("00") ? ((int)size).ToString() : s;
     }
 }
+

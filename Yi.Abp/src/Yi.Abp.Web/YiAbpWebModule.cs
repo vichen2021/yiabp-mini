@@ -47,6 +47,7 @@ using Yi.Framework.Core.Json;
 using Yi.Framework.Authorization.Core;
 using Yi.Framework.Authorization.Core.Filters;
 using Yi.Framework.OperationRecord.Core;
+using Yi.Module.FileManagement.Application;
 using Yi.Module.Rbac.Application;
 using Yi.Module.Rbac.Domain.Authorization;
 using Yi.Module.Rbac.Domain.Shared.Consts;
@@ -83,6 +84,9 @@ namespace Yi.Abp.Web
             //动态Api-改进在pre中配置，启动更快
             PreConfigure<AbpAspNetCoreMvcOptions>(options =>
             {
+                options.ConventionalControllers.Create(typeof(YiModuleFileManagementApplicationModule).Assembly,
+                    options => options.RemoteServiceName = "file-management");
+
                 options.ConventionalControllers.Create(typeof(YiModuleRbacApplicationModule).Assembly,
                     options => options.RemoteServiceName = "rbac");
                 options.ConventionalControllers.Create(typeof(YiAbpApplicationModule).Assembly,

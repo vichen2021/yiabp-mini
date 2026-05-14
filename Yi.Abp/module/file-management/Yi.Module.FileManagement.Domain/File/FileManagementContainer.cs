@@ -1,8 +1,9 @@
 using Volo.Abp.BlobStoring;
 
-namespace Yi.Module.Rbac.Domain.File;
+namespace Yi.Module.FileManagement.Domain.File;
 
 [BlobContainerName("file-management")]
 public class FileManagementContainer
 {
 }
+

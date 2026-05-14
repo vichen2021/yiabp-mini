@@ -1,6 +1,6 @@
 using Yi.Framework.Core.Enums;
 
-namespace Yi.Module.Rbac.Domain.Shared.File;
+namespace Yi.Module.FileManagement.Domain.Shared.File;
 
 /// <summary>
 /// 文件 DTO
@@ -40,3 +40,4 @@ public class FileDto
 
     public string Hash { get; set; } = string.Empty;
 }
+
