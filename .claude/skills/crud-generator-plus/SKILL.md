@@ -5,7 +5,7 @@ description: 快速生成完整 CRUD 代码，基于实体类.cs 直接解析生
 
 # CRUD Generator Plus
 
-高性能 CRUD 代码生成器，核心思路：**实体类.cs → C# 脚本直接解析 → 批量生成代码**。
+高性能 CRUD 代码生成器，核心思路：**实体类.cs → 实体规范检查 → C# 脚本直接解析 → 批量生成代码**。
 
 
 ## 工作流程
@@ -17,18 +17,25 @@ description: 快速生成完整 CRUD 代码，基于实体类.cs 直接解析生
 │  - 生成枚举类（如有枚举字段）                                    │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  Step 2: 实体规范检查（必须通过）                                │
+│  - 检查命名、继承、SugarTable、主键、接口字段                    │
+│  - 检查所有 public 属性必须有 XML summary                        │
+│  - 检查失败时先修复实体，不得继续生成 CRUD                       │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
          ┌────────────────────┴────────────────────┐
          │                                         │
 ┌─────────────────────────┐     ┌───────────────────────────────┐
-│  Step 2a: 调用脚本生成   │     │  Step 2b: Agent 生成种子数据   │
+│  Step 3a: 调用脚本生成   │     │  Step 3b: Agent 生成种子数据   │
 │  - 解析实体类字段        │     │  - 菜单种子数据                │
 │  - 生成后端 DTOs+Service │     │  - 字典种子数据                │
 │  - 生成前端 API+Views    │     │  - dict-enum.ts 常量           │
 └─────────────────────────┘     └───────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│  Step 3: 构建验证                                           │
-│  - 构建 Application 项目 和 前端 pnpm检查                                     │
+│  Step 4: 构建验证                                                │
+│  - 构建 Application 项目和前端 pnpm 检查                         │
 │  - 检查生成文件质量                                             │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -83,20 +90,54 @@ namespace Yi.Module.{Module}.Domain.Entities;
 [SugarIndex($"index_{nameof({NameField})}", nameof({NameField}), OrderByType.Asc)]
 public class {Entity}AggregateRoot : AggregateRoot<Guid>, ISoftDelete, IAuditedObject, IOrderNum, IState
 {
+    /// <summary>
+    /// 主键
+    /// </summary>
     [SugarColumn(IsPrimaryKey = true)]
     public override Guid Id { get; protected set; }
 
-    // 业务字段（用户定义）
+    // 业务字段（用户定义）：每个 public 属性必须包含 XML summary
     
     // 标准字段（默认包含）
+    /// <summary>
+    /// 状态
+    /// </summary>
     public bool State { get; set; } = true;
+
+    /// <summary>
+    /// 排序号
+    /// </summary>
     public int OrderNum { get; set; } = 0;
+
+    /// <summary>
+    /// 备注
+    /// </summary>
     [SugarColumn(Length = 500, IsNullable = true)]
     public string? Remark { get; set; }
+
+    /// <summary>
+    /// 软删除标记
+    /// </summary>
     public bool IsDeleted { get; set; }
+
+    /// <summary>
+    /// 创建时间
+    /// </summary>
     public DateTime CreationTime { get; set; } = DateTime.Now;
+
+    /// <summary>
+    /// 创建者ID
+    /// </summary>
     public Guid? CreatorId { get; set; }
+
+    /// <summary>
+    /// 最后修改者ID
+    /// </summary>
     public Guid? LastModifierId { get; set; }
+
+    /// <summary>
+    /// 最后修改时间
+    /// </summary>
     public DateTime? LastModificationTime { get; set; }
 }
 ```
@@ -117,11 +158,29 @@ public enum {Enum}Enum
 }
 ```
 
-## Step 2: 并行执行脚本和种子数据 Agent
+## Step 2: 实体规范检查（生成前置门禁）
 
-**关键**：生成实体类后，在同一消息中**并行**执行脚本调用和种子数据 Agent。
+**关键**：生成实体类和枚举类后，必须先执行实体规范检查。检查失败时，先根据输出修复实体，再重新检查；检查通过前不得执行 CRUD 生成脚本。
 
-### 2a: 调用脚本生成代码
+```bash
+dotnet run --file .claude/skills/crud-generator-plus/scripts/check_entities.cs -- \
+  --path "Yi.Abp/module/{module}/Yi.Module.{Module}.Domain/Entities/{Entity}AggregateRoot.cs"
+```
+
+**检查要求**：
+- 实体文件名与类名一致，后缀支持 `AggregateRoot.cs` 和 `Entity.cs`
+- `AggregateRoot` 类继承 `AggregateRoot<Guid>`
+- `Entity` 类继承 `Entity<Guid>`
+- 必须包含 `[SugarTable]`
+- 必须包含 `[SugarColumn(IsPrimaryKey = true)]` 的 `Id` 主键
+- 接口字段必须完整匹配：`ISoftDelete`、`IAuditedObject`、`IOrderNum`、`IState`
+- 所有 `public` 属性必须包含 XML `summary`
+
+## Step 3: 检查通过后并行执行脚本和种子数据 Agent
+
+**关键**：只有实体规范检查通过后，才能在同一消息中**并行**执行 CRUD 生成脚本和种子数据 Agent。
+
+### 3a: 调用脚本生成代码
 
 ```bash
 dotnet run --file .claude/skills/crud-generator-plus/scripts/generate_crud.cs -- \
@@ -225,7 +284,7 @@ Domain/Repositories/I{Entity}Repository.cs
 SqlSugarCore/Repositories/{Entity}Repository.cs
 ```
 
-### 2b: 种子数据 Agent（单个 Agent 处理菜单和字典）
+### 3b: 种子数据 Agent（单个 Agent 处理菜单和字典）
 
 ```markdown
 任务：生成模块独立的菜单和字典种子数据（IDataSeedContributor 模式）
@@ -276,7 +335,7 @@ SqlSugarCore/Repositories/{Entity}Repository.cs
 报告：创建的文件、菜单项、权限码、字典项、常量列表。
 ```
 
-## Step 3: 增量构建验证
+## Step 4: 增量构建验证
 
 ### 后端验证
 
@@ -338,6 +397,7 @@ grep DictEnum Yi.Vben5/apps/web-antd/src/views/{module}/{entity}/data.ts
 crud-generator-plus/
 ├── SKILL.md                          # 本文件
 ├── scripts/
+│   ├── check_entities.cs             # 实体规范检查脚本
 │   └── generate_crud.cs              # 核心生成脚本
 └── references/
     └── troubleshooting.md            # 常见问题（可选）
@@ -350,20 +410,23 @@ crud-generator-plus/
 
 **LLM 执行**:
 1. 直接生成实体类（含默认审计字段）+ 枚举类
-2. **并行执行**：
+2. 运行实体规范检查脚本，失败则先修复实体并复查
+3. 检查通过后**并行执行**：
    - 调用脚本生成代码
    - 启动种子数据 Agent
-3. 构建验证
-4. 输出完成报告
+4. 构建验证
+5. 输出完成报告
 
 ---
 
 ## ⚠️ 关键约束
 
 1. **默认包含审计字段** — 用户未明确说明时，自动包含 State、OrderNum、Remark、IsDeleted、CreationTime、CreatorId、LastModifierId、LastModificationTime
-2. **脚本和 Agent 并行执行** — Step 2a 和 Step 2b 在同一消息中并行启动
-3. **单个 Agent 处理种子数据** — 菜单和字典由一个 Agent 统一处理
-4. **仅构建 Application 项目** — 不构建整个解决方案
-5. **不使用 Agent 生成 DTO/Service** — 直接调用脚本生成
-6. **前端验证必须运行 pnpm typecheck** — 确保生成的 TypeScript 文件类型正确
-7. **字典常量命名一致性** — dict-enum.ts 的常量名必须与 data.ts 引用完全匹配（格式：`{MODULE}_{ENTITY}_{ENUM}`）
+2. **实体先检查再生成** — 生成实体类和枚举类后，必须先运行 `check_entities.cs`，检查通过前不得执行 CRUD 生成
+3. **所有 public 属性必须有 XML summary** — 缺少 summary 属于错误，必须先修复
+4. **脚本和 Agent 并行执行** — 仅在实体规范检查通过后，Step 3a 和 Step 3b 才能在同一消息中并行启动
+5. **单个 Agent 处理种子数据** — 菜单和字典由一个 Agent 统一处理
+6. **仅构建 Application 项目** — 不构建整个解决方案
+7. **不使用 Agent 生成 DTO/Service** — 直接调用脚本生成
+8. **前端验证必须运行 pnpm typecheck** — 确保生成的 TypeScript 文件类型正确
+9. **字典常量命名一致性** — dict-enum.ts 的常量名必须与 data.ts 引用完全匹配（格式：`{MODULE}_{ENTITY}_{ENUM}`）
