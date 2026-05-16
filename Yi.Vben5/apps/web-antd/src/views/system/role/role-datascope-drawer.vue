@@ -9,6 +9,7 @@ import { cloneDeep } from '@vben/utils';
 import { useVbenForm } from '#/adapter/form';
 import { roleDataScope, roleDeptTree, roleInfo } from '#/api/system/role';
 import { TreeSelectPanel } from '#/components/tree';
+import { emptyGuidToNull } from '#/utils/guid';
 import { defaultFormValueGetter, useBeforeCloseDiff } from '#/utils/popup';
 
 import { authModalSchemas } from './data';
@@ -26,9 +27,6 @@ const [BasicForm, formApi] = useVbenForm({
   showDefaultActions: false,
 });
 
-// 空GUID，用于判断根节点
-const EMPTY_GUID = '00000000-0000-0000-0000-000000000000';
-
 const deptTree = ref<DeptOption[]>([]);
 async function setupDeptTree(id: number | string) {
   const resp = await roleDeptTree(id);
@@ -37,8 +35,7 @@ async function setupDeptTree(id: number | string) {
     const processNode = (node: DeptOption): DeptOption => {
       return {
         ...node,
-        parentId:
-          !node.parentId || node.parentId === EMPTY_GUID ? null : node.parentId,
+        parentId: emptyGuidToNull(node.parentId),
         children: node.children?.map(processNode) ?? null,
       };
     };

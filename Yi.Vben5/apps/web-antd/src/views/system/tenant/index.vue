@@ -14,7 +14,6 @@ import { Form, Input, Modal, Popconfirm, Space } from 'ant-design-vue';
 
 import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
 import {
-  dictSyncTenant,
   tenantExport,
   tenantInit,
   tenantList,
@@ -137,18 +136,6 @@ const isSuperAdmin = computed(() => {
   return hasAccessByRoles(['superadmin']);
 });
 
-function handleSyncTenantDict() {
-  Modal.confirm({
-    title: '提示',
-    iconType: 'warning',
-    content: '确认同步租户字典？',
-    onOk: async () => {
-      await dictSyncTenant();
-      await tableApi.query();
-    },
-  });
-}
-
 const initModalVisible = ref(false);
 const initTenantId = ref('');
 const initUsername = ref('');
@@ -201,12 +188,6 @@ async function handleInitConfirm() {
     <BasicTable table-title="租户列表">
       <template #toolbar-tools>
         <Space>
-          <!-- <a-button
-            v-access:code="['system:tenant:edit']"
-            @click="handleSyncTenantDict"
-          >
-            同步租户字典
-          </a-button> -->
           <a-button
             v-access:code="['system:tenant:export']"
             @click="handleDownloadExcel"

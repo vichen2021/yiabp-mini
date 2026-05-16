@@ -74,7 +74,6 @@ const gridOptions: VxeGridProps = {
   },
   id: 'system-role-assign-index',
 };
-// @ts-expect-error TS2589: User 与 proxyConfig 组合导致类型实例化层级过深；运行时泛型已被擦除，可控，先压制报错。
 const [BasicTable, tableApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,

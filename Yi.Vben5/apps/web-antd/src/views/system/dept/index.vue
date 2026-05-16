@@ -13,6 +13,7 @@
   
   import { useVbenVxeGrid } from '#/adapter/vxe-table';
   import { deptList, deptRemove } from '#/api/system/dept';
+  import { emptyGuidToNull } from '#/utils/guid';
   
   import { columns, querySchema } from './data';
   import deptDrawer from './dept-drawer.vue';
@@ -28,9 +29,6 @@
     wrapperClass: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
   };
   
-  // 空GUID，用于判断根节点
-  const EMPTY_GUID = '00000000-0000-0000-0000-000000000000';
-
   const gridOptions: VxeGridProps = {
     columns,
     height: 'auto',
@@ -47,7 +45,7 @@
           // 将根节点的 parentId 置为 null，以便 vxe-table 正确识别根节点
           const items = resp.map((item) => ({
             ...item,
-            parentId: item.parentId === EMPTY_GUID ? null : item.parentId,
+            parentId: emptyGuidToNull(item.parentId),
           }));
           return { items };
         },

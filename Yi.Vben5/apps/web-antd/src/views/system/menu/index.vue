@@ -15,12 +15,10 @@ import { Popconfirm, Space, Switch, Tooltip } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { menuCascadeRemove, menuList, menuRemove } from '#/api/system/menu';
+import { emptyGuidToNull } from '#/utils/guid';
 
 import { columns, querySchema } from './data';
 import menuDrawer from './menu-drawer.vue';
-
-// 空GUID，用于判断根节点
-const EMPTY_GUID = '00000000-0000-0000-0000-000000000000';
 
 type MenuRow = Omit<Menu, 'parentId'> & {
   menuId: string;
@@ -60,11 +58,7 @@ const gridOptions: VxeGridProps<Record<string, any>> = {
             menuId,
             // 将根节点的 parentId 置为 null，以便 vxe-table 正确识别根节点
             parentId:
-              !parentId ||
-              parentId === EMPTY_GUID ||
-              parentId === menuId
-                ? null
-                : parentId,
+              parentId === menuId ? null : emptyGuidToNull(parentId),
           } as MenuRow;
         });
         return { items };
@@ -90,7 +84,6 @@ const gridOptions: VxeGridProps<Record<string, any>> = {
   },
   id: 'system-menu-index',
 };
-// @ts-expect-error TS2589: MenuRow 与 proxyConfig 组合导致类型实例化层级过深；运行时泛型已被擦除，可控，先压制报错。
 const [BasicTable, tableApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,

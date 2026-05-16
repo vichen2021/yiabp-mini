@@ -12,12 +12,10 @@ import {
 
 import { useVbenForm } from '#/adapter/form';
 import { menuAdd, menuInfo, menuList, menuUpdate } from '#/api/system/menu';
+import { EMPTY_GUID } from '#/utils/guid';
 import { defaultFormValueGetter, useBeforeCloseDiff } from '#/utils/popup';
 
 import { drawerSchema } from './data';
-
-// 空GUID，用于判断根节点
-const EMPTY_GUID = '00000000-0000-0000-0000-000000000000';
 
 interface ModalProps {
   id?: string;

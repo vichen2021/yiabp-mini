@@ -4,6 +4,7 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 import { DictEnum } from '@vben/constants';
 import { getPopupContainer } from '@vben/utils';
 
+import { isEmptyGuid } from '#/utils/guid';
 import { renderDict } from '#/utils/render';
 
 export const querySchema: FormSchemaGetter = () => [
@@ -82,7 +83,7 @@ export const drawerSchema: FormSchemaGetter = () => [
       getPopupContainer,
     },
     dependencies: {
-      show: (model) => model.parentId !== '00000000-0000-0000-0000-000000000000',
+      show: (model) => !isEmptyGuid(model.parentId),
       triggerFields: ['parentId'],
     },
     fieldName: 'parentId',

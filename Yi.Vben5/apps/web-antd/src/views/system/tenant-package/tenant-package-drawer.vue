@@ -18,6 +18,7 @@ import {
   tenantPackageUpdate,
 } from '#/api/system/tenant-package';
 import { MenuSelectTable } from '#/components/tree';
+import { EMPTY_GUID } from '#/utils/guid';
 import { defaultFormValueGetter, useBeforeCloseDiff } from '#/utils/popup';
 
 import { drawerSchema } from './data';
@@ -41,10 +42,8 @@ const [BasicForm, formApi] = useVbenForm({
 
 const menuTree = ref<MenuOption[]>([]);
 async function setupMenuTree(id?: string) {
-  // 新增使用空 获取除了`租户管理`的所有菜单
-  const emptyGuid: string = '00000000-0000-0000-0000-000000000000'
-  
-  const resp = await tenantPackageMenuTreeSelect(id ?? emptyGuid);
+  // 新增使用空 GUID 获取除了`租户管理`的所有菜单
+  const resp = await tenantPackageMenuTreeSelect(id ?? EMPTY_GUID);
   const menus = resp.menus;
   // i18n处理
   eachTree(menus, (node) => {
@@ -92,7 +91,7 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
       await formApi.setValues(omit(record, ['menuIds']));
     }
     // init菜单 注意顺序要放在赋值record之后 内部watch会依赖record
-    await setupMenuTree(id);
+    await setupMenuTree(id?.toString());
     await markInitialized();
 
     drawerApi.drawerLoading(false);
