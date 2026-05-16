@@ -41,9 +41,12 @@ async function setupDeptSelect() {
     {
       componentProps: {
         fieldNames: { label: 'deptName', value: 'id' },
+        showSearch: true,
         treeData: deptTree,
         treeDefaultExpandAll: true,
         treeLine: { showLeafIcon: false },
+        // 筛选的字段
+        treeNodeFilterProp: 'deptName',
         // 选中后显示在输入框的值
         treeNodeLabelProp: 'fullName',
       },
