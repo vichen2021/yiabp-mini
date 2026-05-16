@@ -6,6 +6,7 @@ import { requestClient } from '#/api/request';
 
 enum Api {
   menuList = '/menu/list',
+  menuSelectList = '/menu/select-data-list',
   menuTreeSelect = '/menu/tree',
   root = '/menu',
   tenantPackageMenuTreeselect = '/menu/tenant-package-menu-tree',
@@ -18,6 +19,10 @@ enum Api {
  */
 export function menuList(params?: MenuQuery) {
   return requestClient.get<Menu[]>(Api.menuList, { params });
+}
+
+export function menuSelectList(params?: { keywords?: string }) {
+  return requestClient.get<Menu[]>(Api.menuSelectList, { params });
 }
 
 /**

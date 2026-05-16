@@ -11,7 +11,7 @@ import {
 } from '@vben/utils';
 
 import { useVbenForm } from '#/adapter/form';
-import { menuAdd, menuInfo, menuList, menuUpdate } from '#/api/system/menu';
+import { menuAdd, menuInfo, menuSelectList, menuUpdate } from '#/api/system/menu';
 import { EMPTY_GUID } from '#/utils/guid';
 import { defaultFormValueGetter, useBeforeCloseDiff } from '#/utils/popup';
 
@@ -44,7 +44,7 @@ const [BasicForm, formApi] = useVbenForm({
 
 async function setupMenuSelect() {
   // menu
-  const menuArray = await menuList();
+  const menuArray = await menuSelectList();
   // support i18n
   menuArray.forEach((item) => {
     item.menuName = $t(item.menuName);

@@ -5,17 +5,17 @@ import { computed, h, onMounted, ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
 import { $t } from '@vben/locales';
-import { addFullName, cloneDeep, getPopupContainer } from '@vben/utils';
+import { addFullName, cloneDeep, getPopupContainer, listToTree } from '@vben/utils';
 
 import { Tag } from 'ant-design-vue';
 
 import { useVbenForm } from '#/adapter/form';
 import { configInfoByKey } from '#/api/system/config';
+import { deptSelectList } from '#/api/system/dept';
 import { postOptionSelect } from '#/api/system/post';
 import { roleOptionSelect } from '#/api/system/role';
 import {
   findUserInfo,
-  getDeptTree,
   userAdd,
   userUpdate,
 } from '#/api/system/user';
@@ -126,11 +126,12 @@ async function setupPostOptions(deptId?: string) {
 async function setupDeptSelect() {
   try {
     // updateSchema
-    const deptTree = await getDeptTree();
+    const deptOptions = await deptSelectList();
     // 确保返回的是数组
-    const deptList = Array.isArray(deptTree) ? deptTree : [];
+    const deptList = Array.isArray(deptOptions) ? deptOptions : [];
+    const deptTree = listToTree(deptList, { id: 'id', pid: 'parentId' });
     // 选中后显示在输入框的值 即父节点 / 子节点
-    addFullName(deptList, 'deptName', ' / ');
+    addFullName(deptTree, 'deptName', ' / ');
     formApi.updateSchema([
       {
         componentProps: {
@@ -144,7 +145,7 @@ async function setupDeptSelect() {
           getPopupContainer,
           placeholder: '请选择',
           showSearch: true,
-          treeData: deptList,
+          treeData: deptTree,
           treeDefaultExpandAll: true,
           treeLine: { showLeafIcon: false },
           // 筛选的字段

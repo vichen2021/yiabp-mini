@@ -16,6 +16,7 @@ import {
   deptUpdate,
 } from '#/api/system/dept';
 import { listUserByDeptId } from '#/api/system/user';
+import { emptyGuidToNull, toGuidOrEmpty } from '#/utils/guid';
 import { defaultFormValueGetter, useBeforeCloseDiff } from '#/utils/popup';
 
 import { drawerSchema } from './data';
@@ -46,9 +47,14 @@ const [BasicForm, formApi] = useVbenForm({
 });
 
 async function getDeptTree(deptId?: number | string, exclude = false) {
-  let ret: Dept[] = [];
-  ret = await (!deptId || exclude ? deptList({}) : deptNodeList(deptId));
-  const treeData = listToTree(ret, { id: 'id', pid: 'parentId' });
+  const ret = await (!deptId || !exclude ? deptList({}) : deptNodeList(deptId));
+  const treeData = listToTree(
+    ret.map((item) => ({
+      ...item,
+      parentId: emptyGuidToNull(item.parentId),
+    })),
+    { id: 'id', pid: 'parentId' },
+  );
   // 添加部门名称 如 xx-xx-xx
   addFullName(treeData, 'deptName', ' / ');
   return treeData;
@@ -56,7 +62,7 @@ async function getDeptTree(deptId?: number | string, exclude = false) {
 
 async function initDeptSelect(deptId?: number | string) {
   // 需要动态更新TreeSelect组件 这里允许为空
-  const treeData = await getDeptTree(deptId, !isUpdate.value);
+  const treeData = await getDeptTree(deptId, isUpdate.value);
   formApi.updateSchema([
     {
       componentProps: {
@@ -128,12 +134,14 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
     const { id, update } = drawerApi.getData() as DrawerProps;
     isUpdate.value = update;
 
-    if (id) {
+    if (id && !update) {
       await formApi.setFieldValue('parentId', id);
-      if (update) {
-        const record = await deptInfo(id);
-        await formApi.setValues(record);
-      }
+    }
+
+    if (update && id) {
+      const record = await deptInfo(id);
+      record.parentId = emptyGuidToNull(record.parentId);
+      await formApi.setValues(record);
     }
 
     await (update && id ? initDeptUsers(id) : setLeaderOptions());
@@ -153,6 +161,7 @@ async function handleConfirm() {
       return;
     }
     const data = cloneDeep(await formApi.getValues());
+    data.parentId = toGuidOrEmpty(data.parentId);
     await (isUpdate.value ? deptUpdate(data) : deptAdd(data));
     resetInitialized();
     emit('reload');

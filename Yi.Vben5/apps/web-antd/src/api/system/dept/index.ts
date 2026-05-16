@@ -6,6 +6,7 @@ import { requestClient } from '#/api/request';
 
 enum Api {
   deptList = '/dept/list',
+  deptSelectList = '/dept/select-data-list',
   deptNodeInfo = '/dept/list/exclude',
   root = '/dept',
 }
@@ -16,6 +17,10 @@ enum Api {
  */
 export function deptList(params?: { deptName?: string; status?: string }) {
   return requestClient.get<Dept[]>(Api.deptList, { params });
+}
+
+export function deptSelectList(params?: { keywords?: string }) {
+  return requestClient.get<Dept[]>(Api.deptSelectList, { params });
 }
 
 /**

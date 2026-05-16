@@ -9,6 +9,7 @@ import { $t } from '@vben/locales';
 import { getPopupContainer } from '@vben/utils';
 
 import { z } from '#/adapter/form';
+import { EMPTY_GUID } from '#/utils/guid';
 import { renderDict } from '#/utils/render';
 
 export const querySchema: FormSchemaGetter = () => [
@@ -199,7 +200,7 @@ export const drawerSchema: FormSchemaGetter = () => [
   },
   {
     component: 'TreeSelect',
-    defaultValue: 0,
+    defaultValue: EMPTY_GUID,
     fieldName: 'parentId',
     label: '上级菜单',
     rules: 'selectRequired',

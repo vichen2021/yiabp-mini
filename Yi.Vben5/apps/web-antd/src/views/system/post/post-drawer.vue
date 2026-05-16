@@ -3,11 +3,11 @@ import { computed, ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
 import { $t } from '@vben/locales';
-import { addFullName, cloneDeep } from '@vben/utils';
+import { addFullName, cloneDeep, listToTree } from '@vben/utils';
 
 import { useVbenForm } from '#/adapter/form';
+import { deptSelectList } from '#/api/system/dept';
 import { postAdd, postInfo, postUpdate } from '#/api/system/post';
-import { getDeptTree } from '#/api/system/user';
 import { defaultFormValueGetter, useBeforeCloseDiff } from '#/utils/popup';
 
 import { drawerSchema } from './data';
@@ -33,7 +33,8 @@ const [BasicForm, formApi] = useVbenForm({
 });
 
 async function setupDeptSelect() {
-  const deptTree = await getDeptTree();
+  const deptOptions = await deptSelectList();
+  const deptTree = listToTree(deptOptions, { id: 'id', pid: 'parentId' });
   // 选中后显示在输入框的值 即父节点 / 子节点
   addFullName(deptTree, 'deptName', ' / ');
   formApi.updateSchema([
