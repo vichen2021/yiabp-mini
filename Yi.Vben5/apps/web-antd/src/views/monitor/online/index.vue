@@ -59,7 +59,7 @@ const gridOptions: VxeGridProps = {
 const [BasicTable, tableApi] = useVbenVxeGrid({ formOptions, gridOptions });
 
 async function handleForceOffline(row: OnlineUser) {
-  await forceLogout(row.connnectionId ? [row.connnectionId] : []);
+  await forceLogout(row.connnectionId ?? '');
   await tableApi.query();
 }
 </script>
