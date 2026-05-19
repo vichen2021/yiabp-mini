@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Volo.Abp.Data;
+using Yi.Module.Rbac.Domain.Shared.Authorization;
 
-namespace Yi.Module.Rbac.Domain.Authorization
+namespace Yi.Module.Rbac.Domain.Extensions
 {
     public static class DataPermissionExtensions
     {

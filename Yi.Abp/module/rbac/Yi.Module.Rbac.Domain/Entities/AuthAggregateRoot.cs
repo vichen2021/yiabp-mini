@@ -1,10 +1,10 @@
-﻿using SqlSugar;
+using SqlSugar;
 using Volo.Abp;
 using Volo.Abp.Auditing;
 using Volo.Abp.Data;
 using Volo.Abp.Domain.Entities;
 
-namespace Yi.Module.Rbac.Domain.Authorization
+namespace Yi.Module.Rbac.Domain.Entities
 {    /// <summary>
      /// 第三方授权表
      ///</summary>

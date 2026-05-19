@@ -13,7 +13,7 @@ using Yi.Module.Rbac.Application.Contracts.Dtos.Account;
 using Yi.Module.Rbac.Application.Contracts.IServices;
 using Yi.Framework.Authorization.Abstractions.Attributes;
 using Yi.Framework.OperationRecord.Abstractions.Attributes;
-using Yi.Module.Rbac.Domain.Authorization;
+using Yi.Module.Rbac.Domain.Entities;
 using Yi.Module.Rbac.Domain.Managers;
 using Yi.Framework.SqlSugarCore.Abstractions;
 

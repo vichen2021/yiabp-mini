@@ -49,7 +49,7 @@ using Yi.Framework.Authorization.Core.Filters;
 using Yi.Framework.OperationRecord.Core;
 using Yi.Module.FileManagement.Application;
 using Yi.Module.Rbac.Application;
-using Yi.Module.Rbac.Domain.Authorization;
+using Yi.Module.Rbac.Application.Authorization;
 using Yi.Module.Rbac.Domain.Shared.Consts;
 using Yi.Module.Rbac.Domain.Shared.Options;
 using Yi.Module.TenantManagement.Application;

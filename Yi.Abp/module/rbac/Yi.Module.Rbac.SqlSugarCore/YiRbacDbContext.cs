@@ -3,7 +3,7 @@ using SqlSugar;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Users;
-using Yi.Module.Rbac.Domain.Authorization;
+using Yi.Module.Rbac.Domain.Shared.Authorization;
 using Yi.Module.Rbac.Domain.Entities;
 using Yi.Module.Rbac.Domain.Extensions;
 using Yi.Module.Rbac.Domain.Shared.Consts;

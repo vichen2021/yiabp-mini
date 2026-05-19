@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
@@ -13,7 +8,7 @@ using Volo.Abp.Security.Claims;
 using Yi.Module.Rbac.Domain.Managers;
 using Yi.Module.Rbac.Domain.Shared.Consts;
 
-namespace Yi.Module.Rbac.Domain.Authorization
+namespace Yi.Module.Rbac.Application.Authorization
 {
     [DebuggerStepThrough]
     public class RefreshTokenMiddleware : IMiddleware, ITransientDependency
@@ -60,5 +55,4 @@ namespace Yi.Module.Rbac.Domain.Authorization
 
         }
     }
-
 }
