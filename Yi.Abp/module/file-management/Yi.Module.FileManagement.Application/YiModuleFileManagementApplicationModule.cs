@@ -36,6 +36,7 @@ namespace Yi.Module.FileManagement.Application
                     {
                         container.UseAliyun(aliyun =>
                         {
+                            // 如果第一次打开报错，请在 appsettings.json 或 appsettings.Development.json 中填写配置
                             aliyun.AccessKeyId = configuration["BlobStoring:Aliyun:AccessKeyId"] ?? "";
                             aliyun.AccessKeySecret = configuration["BlobStoring:Aliyun:AccessKeySecret"] ?? "";
                             aliyun.Endpoint = configuration["BlobStoring:Aliyun:Endpoint"] ?? "";
