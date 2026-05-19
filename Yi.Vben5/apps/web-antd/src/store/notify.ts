@@ -1,6 +1,6 @@
 import type { NotificationItem } from '@vben/layouts';
 
-import { computed, onUnmounted, ref } from 'vue';
+import { computed, ref } from 'vue';
 
 import { SvgMessageUrl } from '@vben/icons';
 import { $t } from '@vben/locales';

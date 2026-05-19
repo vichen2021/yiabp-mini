@@ -8,7 +8,6 @@ import { onMounted, ref } from 'vue';
 import { Alert, Avatar, Card, Empty, Modal, Tooltip } from 'ant-design-vue';
 
 import { authUnbinding } from '#/api';
-import { socialList } from '#/api/system/social';
 import { message } from 'ant-design-vue';
 import { accountBindList, handleAuthBinding } from '../../oauth-common';
 
@@ -23,7 +22,7 @@ async function loadData() {
 
   // const resp = await socialList();
 
-  const resp = [];
+  const resp: SocialInfo[] = [];
   // messgae提示，暂不支持
   message.error('暂不支持');
 

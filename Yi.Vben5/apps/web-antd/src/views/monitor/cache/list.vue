@@ -221,7 +221,7 @@ onMounted(() => {
               <template v-else-if="column.key === 'action'">
                 <Popconfirm
                   title="确认清理此缓存名称吗？"
-                  @confirm="handleClearCacheName(record)"
+                  @confirm="handleClearCacheName(record as CacheName)"
                 >
                   <Button type="text" danger size="small">
                     <template #icon>
@@ -271,7 +271,7 @@ onMounted(() => {
               <template v-else-if="column.key === 'action'">
                 <Popconfirm
                   title="确认清理此缓存键名吗？"
-                  @confirm="handleClearCacheKey(record)"
+                  @confirm="handleClearCacheKey(record as unknown as string)"
                 >
                   <Button type="text" danger size="small">
                     <template #icon>

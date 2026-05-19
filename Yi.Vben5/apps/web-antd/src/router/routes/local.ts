@@ -2,10 +2,6 @@ import type { RouteRecordStringComponent } from '@vben/types';
 
 import { $t } from '@vben/locales';
 
-const {
-  version,
-  // vite inject-metadata 插件注入的全局变量
-} = __VBEN_ADMIN_METADATA__ || {};
 
 /**
  * 该文件放非后台返回的路由 比如个人中心 等需要跳转显示的页面

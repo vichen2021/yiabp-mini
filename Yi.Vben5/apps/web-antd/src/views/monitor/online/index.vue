@@ -41,7 +41,7 @@ const gridOptions: VxeGridProps = {
         const resp = await onlineList({
           ...formValues,
         });
-        onlineCount.value = resp.total;
+        onlineCount.value = resp.totalCount;
         return resp;
       },
     },

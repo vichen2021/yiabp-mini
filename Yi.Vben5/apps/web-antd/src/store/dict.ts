@@ -27,7 +27,7 @@ export function dictToOptions(
 ): DictOption[] {
   return data.map((item) => ({
     ...item,
-    label: item.dictLabel,
+    label: item.dictLabel ?? '',
     value: formatNumber ? Number(item.dictValue) : item.dictValue,
   }));
 }
