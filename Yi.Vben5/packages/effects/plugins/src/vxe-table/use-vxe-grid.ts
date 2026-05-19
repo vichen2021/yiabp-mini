@@ -25,8 +25,8 @@ export function useVbenVxeGrid<
       onBeforeUnmount(() => {
         api.unmount();
       });
-      api.setState({ ...props, ...attrs });
-      return () => h(VxeGrid, { ...props, ...attrs, api: extendedApi }, slots);
+      api.setState({ ...props, ...(attrs as Partial<VxeGridProps<T, D>>) });
+      return () => h(VxeGrid, { ...props, ...(attrs as Partial<VxeGridProps<T, D>>), api: extendedApi }, slots);
     },
     {
       name: 'VbenVxeGrid',

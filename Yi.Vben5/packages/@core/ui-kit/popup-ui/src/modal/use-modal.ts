@@ -109,7 +109,7 @@ export function useVbenModal<TParentModalProps extends ModalProps = ModalProps>(
           VbenModal,
           {
             ...props,
-            ...attrs,
+            ...(attrs as Partial<ModalProps>),
             modalApi: extendedApi,
           },
           slots,

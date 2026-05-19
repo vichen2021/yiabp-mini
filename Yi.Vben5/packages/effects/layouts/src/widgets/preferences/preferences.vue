@@ -5,13 +5,15 @@ import { preferences, updatePreferences } from '@vben/preferences';
 import { capitalizeFirstLetter } from '@vben/utils';
 import { useVbenDrawer } from '@vben-core/popup-ui';
 import { VbenButton } from '@vben-core/shadcn-ui';
-import { computed } from 'vue';
+import { computed, useAttrs } from 'vue';
 
 import PreferencesDrawer from './preferences-drawer.vue';
 
 const [Drawer, drawerApi] = useVbenDrawer({
   connectedComponent: PreferencesDrawer,
 });
+
+const vAttrs = useAttrs();
 
 /**
  * preferences 转成 vue props
@@ -51,10 +53,12 @@ const listen = computed(() => {
   }
   return result;
 });
+
+const drawerBindings = computed((): Record<string, any> => ({ ...vAttrs, ...attrs.value }));
 </script>
 <template>
   <div>
-    <Drawer v-bind="{ ...$attrs, ...attrs }" v-on="listen" />
+    <Drawer v-bind="drawerBindings" v-on="listen" />
 
     <div @click="() => drawerApi.open()">
       <slot>
