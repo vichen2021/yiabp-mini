@@ -72,7 +72,6 @@ const gridOptions: VxeGridProps = {
   id: 'system-dict-data-index',
 };
 
-// @ts-expect-error TS2589: DictData + proxyConfig causes deep instantiation; generics are manageable at runtime.
 const [BasicTable, tableApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,

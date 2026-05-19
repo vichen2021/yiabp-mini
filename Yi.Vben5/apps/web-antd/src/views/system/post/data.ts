@@ -4,7 +4,6 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 import { DictEnum } from '@vben/constants';
 import { getPopupContainer } from '@vben/utils';
 
-import { getDictOptions } from '#/utils/dict';
 import { renderDict } from '#/utils/render';
 
 export const querySchema: FormSchemaGetter = () => [

@@ -5,8 +5,7 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { FileItem } from '#/api/system/file/model';
 import type { PageQuery } from '#/api/common';
 
-import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref } from 'vue';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 import { getVxePopupContainer } from '@vben/utils';
@@ -118,11 +117,6 @@ function handleMultiDelete() {
       await tableApi.query();
     },
   });
-}
-
-const router = useRouter();
-function handleToSettings() {
-  router.push('/system/file-config/index');
 }
 
 const [ImageUploadModal, imageUploadApi] = useVbenModal({

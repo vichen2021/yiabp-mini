@@ -15,6 +15,8 @@ import { cloneDeep } from '@vben/utils';
 import { Form, FormItem, Input, RadioGroup } from 'ant-design-vue';
 import { pick } from 'lodash-es';
 
+import type { Notice } from '#/api/system/notice/model';
+
 import { noticeAdd, noticeInfo, noticeUpdate } from '#/api/system/notice';
 import { Tinymce } from '#/components/tinymce';
 import { getDictOptions } from '#/utils/dict';
@@ -125,7 +127,7 @@ async function handleConfirm() {
     if (typeof data.state === 'string') {
       data.state = data.state === '1' || data.state === 'true';
     }
-    await (isUpdate.value ? noticeUpdate(data) : noticeAdd(data));
+    await (isUpdate.value ? noticeUpdate(data) : noticeAdd(data as Partial<Notice>));
     resetInitialized();
     emit('reload');
     modalApi.close();

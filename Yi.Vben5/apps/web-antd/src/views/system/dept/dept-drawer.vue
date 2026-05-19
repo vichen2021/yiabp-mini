@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { Dept } from '#/api/system/dept/model';
-
 import { computed, ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';

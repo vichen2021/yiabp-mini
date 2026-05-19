@@ -124,7 +124,6 @@ const gridOptions: VxeGridProps = {
   },
   id: 'system-user-index',
 };
-// @ts-expect-error 类型实例化过深
 const [BasicTable, tableApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,
