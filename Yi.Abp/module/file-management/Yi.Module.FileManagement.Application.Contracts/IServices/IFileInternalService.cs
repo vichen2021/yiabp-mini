@@ -1,9 +1,11 @@
+using Volo.Abp.Application.Services;
+
 namespace Yi.Module.FileManagement.Application.Contracts.IServices;
 
 /// <summary>
 /// 文件内部存储服务
 /// </summary>
-public interface IFileInternalService
+public interface IFileInternalService : IApplicationService
 {
     /// <summary>
     /// 以字节数组方式写入文件，返回落库后的文件 ID

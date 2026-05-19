@@ -1,6 +1,8 @@
-﻿namespace Yi.Module.Rbac.Application.Contracts.IServices
+﻿using Volo.Abp.Application.Services;
+
+namespace Yi.Module.Rbac.Application.Contracts.IServices
 {
-    public interface IMonitorServerService
+    public interface IMonitorServerService : IApplicationService
     {
     }
 }

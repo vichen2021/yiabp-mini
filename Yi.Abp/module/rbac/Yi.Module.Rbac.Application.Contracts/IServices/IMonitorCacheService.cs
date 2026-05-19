@@ -1,6 +1,8 @@
-﻿namespace Yi.Module.Rbac.Application.Contracts.IServices
+﻿using Volo.Abp.Application.Services;
+
+namespace Yi.Module.Rbac.Application.Contracts.IServices
 {
-    public interface IMonitorCacheService
+    public interface IMonitorCacheService : IApplicationService
     {
     }
 }
