@@ -11,13 +11,13 @@ using Volo.Abp.Data;
 using Volo.Abp.Modularity;
 using Volo.Abp.Uow;
 using Yi.Framework.Ddd.Application;
+using Yi.Framework.SqlSugarCore.Abstractions;
 using Yi.Framework.Authorization.Abstractions.Attributes;
 using Yi.Framework.Authorization.Abstractions.Enums;
 using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Module.Rbac.Domain.Entities;
 using Yi.Module.Rbac.Domain.Managers;
 using Yi.Module.Rbac.Domain.Shared.Consts;
-using Yi.Framework.SqlSugarCore.Abstractions;
 using Yi.Module.TenantManagement.Application.Contracts;
 using Yi.Module.TenantManagement.Application.Contracts.Dtos;
 using Yi.Module.TenantManagement.Domain;
@@ -34,7 +34,7 @@ namespace Yi.Module.TenantManagement.Application
         YiCrudAppService<TenantAggregateRoot, TenantGetOutputDto, TenantGetListOutputDto, Guid, TenantGetListInput,
             TenantCreateInput, TenantUpdateInput>, ITenantService
     {
-        private ISqlSugarRepository<TenantAggregateRoot, Guid> _repository;
+        private ISqlSugarTenantRepository _repository;
         private IDataSeeder _dataSeeder;
         private readonly DbConnOptions _dbConnOptions;
         private readonly SqlSugarAndConfigurationTenantStore _tenantStore;
@@ -44,7 +44,7 @@ namespace Yi.Module.TenantManagement.Application
         private readonly ISqlSugarRepository<RoleMenuEntity> _roleMenuRepository;
         private readonly ISqlSugarRepository<MenuAggregateRoot, Guid> _menuRepository;
 
-        public TenantService(ISqlSugarRepository<TenantAggregateRoot, Guid> repository, IDataSeeder dataSeeder,
+        public TenantService(ISqlSugarTenantRepository repository, IDataSeeder dataSeeder,
             IOptions<DbConnOptions> dbConnOptions, SqlSugarAndConfigurationTenantStore tenantStore, UserManager userManager,
             ISqlSugarRepository<TenantPackageMenuEntity> tenantPackageMenuRepository,
             ISqlSugarRepository<RoleAggregateRoot, Guid> roleRepository,
@@ -186,23 +186,11 @@ namespace Yi.Module.TenantManagement.Application
             {
                 using (var checkUow = UnitOfWorkManager.Begin(requiresNew: true, isTransactional: false))
                 {
-                    ISqlSugarClient db = await _repository.GetDbContextAsync();
-                    try
-                    {
-                        var dbs = db.DbMaintenance.GetDataBaseList();
-                        databaseExists = dbs.Any(x => x?.ToString() == tenant.Name);
-                    }
-                    catch
-                    {
-                        databaseExists = false;
-                    }
-
+                    databaseExists = await _repository.DatabaseExistsAsync(tenant.Name);
                     if (databaseExists)
                     {
-                        var tables = db.DbMaintenance.GetTableInfoList();
-                        tableCount = tables.Count;
+                        tableCount = await _repository.GetTableCountAsync();
                     }
-
                     await checkUow.CompleteAsync();
                 }
             }
@@ -410,8 +398,7 @@ namespace Yi.Module.TenantManagement.Application
             //没有数据库，不能创工作单元，创建库，先关闭
             using (var uow = UnitOfWorkManager.Begin(requiresNew: true, isTransactional: false))
             {
-                ISqlSugarClient db = await _repository.GetDbContextAsync();
-                db.DbMaintenance.CreateDatabase(databaseName);
+                await _repository.CreateDatabaseAsync(databaseName);
 
                 List<Type> types = new List<Type>();
                 foreach (var module in moduleContainer.Modules)
@@ -425,7 +412,7 @@ namespace Yi.Module.TenantManagement.Application
 
                 if (types.Count > 0)
                 {
-                    db.CodeFirst.InitTables(types.ToArray());
+                    await _repository.InitTablesAsync(types.ToArray());
                 }
 
                 await uow.CompleteAsync();

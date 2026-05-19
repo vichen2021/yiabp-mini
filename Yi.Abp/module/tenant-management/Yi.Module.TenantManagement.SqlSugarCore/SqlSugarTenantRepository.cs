@@ -30,5 +30,36 @@ namespace Yi.Module.TenantManagement.SqlSugarCore
                 .OrderByIF(!string.IsNullOrEmpty(sorting), sorting)
                 .ToPageListAsync(skipCount, maxResultCount);
         }
+
+        public Task<bool> DatabaseExistsAsync(string dbName)
+        {
+            try
+            {
+                var dbs = _Db.DbMaintenance.GetDataBaseList();
+                return Task.FromResult(dbs.Any(x => x?.ToString() == dbName));
+            }
+            catch
+            {
+                return Task.FromResult(false);
+            }
+        }
+
+        public Task<int> GetTableCountAsync()
+        {
+            var tables = _Db.DbMaintenance.GetTableInfoList();
+            return Task.FromResult(tables.Count);
+        }
+
+        public Task CreateDatabaseAsync(string dbName)
+        {
+            _Db.DbMaintenance.CreateDatabase(dbName);
+            return Task.CompletedTask;
+        }
+
+        public Task InitTablesAsync(Type[] entityTypes)
+        {
+            _Db.CodeFirst.InitTables(entityTypes);
+            return Task.CompletedTask;
+        }
     }
 }

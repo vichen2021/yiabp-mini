@@ -17,5 +17,13 @@ namespace Yi.Module.TenantManagement.Domain
         Task<long> GetCountAsync(
             string filter = null);
 
+        Task<bool> DatabaseExistsAsync(string dbName);
+
+        Task<int> GetTableCountAsync();
+
+        Task CreateDatabaseAsync(string dbName);
+
+        Task InitTablesAsync(Type[] entityTypes);
+
     }
 }
