@@ -1,15 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
 using MiniExcelLibs;
-using SqlSugar;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
-using Yi.Module.AuditLogging.Application.Contracts.Dtos.OperationLog;
-using Yi.Module.AuditLogging.Application.Contracts.IServices;
-using Yi.Module.AuditLogging.Domain.Entities;
 using Yi.Framework.Authorization.Abstractions.Attributes;
 using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Framework.OperationRecord.Abstractions.Enums;
-using Yi.Framework.SqlSugarCore.Abstractions;
+using Yi.Module.AuditLogging.Application.Contracts.Dtos.OperationLog;
+using Yi.Module.AuditLogging.Application.Contracts.IServices;
+using Yi.Module.AuditLogging.Domain.Entities;
+using Yi.Module.AuditLogging.Domain.Repositories;
 
 namespace Yi.Module.AuditLogging.Application.Services
 {
@@ -20,9 +19,9 @@ namespace Yi.Module.AuditLogging.Application.Services
     [OperLogEntity("操作记录")]
     public class OperationLogService : ApplicationService, IOperationLogService
     {
-        private readonly ISqlSugarRepository<OperationLogEntity, Guid> _repository;
+        private readonly IOperationLogRepository _repository;
 
-        public OperationLogService(ISqlSugarRepository<OperationLogEntity, Guid> repository)
+        public OperationLogService(IOperationLogRepository repository)
         {
             _repository = repository;
         }
@@ -30,11 +29,9 @@ namespace Yi.Module.AuditLogging.Application.Services
         [Permission("monitor:operlog:query")]
         public virtual async Task<PagedResultDto<OperationLogGetListOutputDto>> GetListAsync(OperationLogGetListInputVo input)
         {
-            RefAsync<int> total = 0;
-
-            var entities = await BuildQuery(input)
-                .OrderByDescending(x => x.CreationTime)
-                .ToPageListAsync(input.SkipCount, input.MaxResultCount, total);
+            var (entities, total) = await _repository.GetFilteredPagedAsync(
+                input.OperType, input.OperUser, input.Title, input.IsSuccess,
+                input.StartTime, input.EndTime, input.SkipCount, input.MaxResultCount);
 
             return new PagedResultDto<OperationLogGetListOutputDto>(total, ObjectMapper.Map<List<OperationLogEntity>, List<OperationLogGetListOutputDto>>(entities));
         }
@@ -57,16 +54,16 @@ namespace Yi.Module.AuditLogging.Application.Services
         [OperLog("清空操作记录", OperEnum.Clear)]
         public virtual async Task DeleteCleanAsync()
         {
-            await _repository._Db.Deleteable<OperationLogEntity>().ExecuteCommandAsync();
+            await _repository.DeleteAllAsync();
         }
 
         [Permission("monitor:operlog:export")]
         [OperLog("导出操作记录", OperEnum.Export)]
         public virtual async Task<IActionResult> PostExportAsync(OperationLogGetListInputVo input)
         {
-            var entities = await BuildQuery(input)
-                .OrderByDescending(x => x.CreationTime)
-                .ToListAsync();
+            var entities = await _repository.GetFilteredListAsync(
+                input.OperType, input.OperUser, input.Title, input.IsSuccess,
+                input.StartTime, input.EndTime);
             var output = ObjectMapper.Map<List<OperationLogEntity>, List<OperationLogGetListOutputDto>>(entities);
 
             var tempPath = Path.Combine(AppContext.BaseDirectory, "temp", "exports");
@@ -80,15 +77,5 @@ namespace Yi.Module.AuditLogging.Application.Services
             return new PhysicalFileResult(filePath, "application/vnd.ms-excel");
         }
 
-        private ISugarQueryable<OperationLogEntity> BuildQuery(OperationLogGetListInputVo input)
-        {
-            return _repository._DbQueryable
-                .WhereIF(input.OperType is not null, x => x.OperType == input.OperType)
-                .WhereIF(!string.IsNullOrEmpty(input.OperUser), x => x.OperUser.Contains(input.OperUser!))
-                .WhereIF(!string.IsNullOrEmpty(input.Title), x => x.Title.Contains(input.Title!))
-                .WhereIF(input.IsSuccess is not null, x => x.IsSuccess == input.IsSuccess)
-                .WhereIF(input.StartTime is not null && input.EndTime is not null,
-                    x => x.CreationTime >= input.StartTime && x.CreationTime <= input.EndTime);
-        }
     }
 }
