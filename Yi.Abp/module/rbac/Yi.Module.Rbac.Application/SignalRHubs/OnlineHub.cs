@@ -33,7 +33,7 @@ namespace Yi.Module.Rbac.Application.SignalRHubs
             }
 
             var name = CurrentUser.UserName;
-            var loginUser = new LoginLogAggregateRoot().GetInfoByHttpContext(httpContext);
+            var loginUser = LoginLogFactory.CreateFromHttpContext(httpContext);
 
             OnlineUserModel user = new(Context.ConnectionId)
             {

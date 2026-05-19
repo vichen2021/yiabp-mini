@@ -1,10 +1,6 @@
-using IPTools.Core;
-using Microsoft.AspNetCore.Http;
 using SqlSugar;
-using UAParser;
 using Volo.Abp.Auditing;
 using Volo.Abp.Domain.Entities;
-using Yi.Framework.Core.Extensions;
 
 namespace Yi.Module.Rbac.Domain.Entities
 {
@@ -48,52 +44,6 @@ namespace Yi.Module.Rbac.Domain.Entities
         public string? LogMsg { get; set; }
 
         public Guid? CreatorId { get; set; }
-
-
-        public LoginLogAggregateRoot GetInfoByHttpContext(HttpContext context)
-        {
-            ClientInfo GetClientInfo(HttpContext context)
-            {
-                var str = context.GetUserAgent();
-                var uaParser = Parser.GetDefault();
-                ClientInfo c;
-                try
-                {
-                     c = uaParser.Parse(str);
-                }
-                catch
-                {
-                    c = new ClientInfo("null",new OS("null", "null", "null", "null", "null"),new Device("null","null","null"), new UserAgent("null", "null", "null", "null"));
-                }
-                return c;
-            }
-            var ipAddr = context.GetClientIp();
-            IpInfo location;
-            if (ipAddr == "127.0.0.1")
-            {
-                location = new IpInfo() { Province = "本地", City = "本机" };
-            }
-            else
-            {
-                try
-                {
-                    location = IpTool.Search(ipAddr);
-                }
-                catch
-                {
-                    location = new IpInfo() { Province = ipAddr, City = "未知地区" };
-                }
-            }
-            ClientInfo clientInfo = GetClientInfo(context);
-            LoginLogAggregateRoot entity = new()
-            {
-                Browser = clientInfo.Device.Family,
-                Os = clientInfo.OS.ToString(),
-                LoginIp = ipAddr,
-                LoginLocation = location.Province + "-" + location.City
-            };
-            return entity;
-        }
     }
 
 }

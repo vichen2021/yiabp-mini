@@ -157,7 +157,7 @@ namespace Yi.Module.Rbac.Application.Services
             //这里抛出一个登录的事件,也可以在全部流程走完，在应用层组装
             if (_httpContextAccessor.HttpContext is not null)
             {
-                var loginEntity = new LoginLogAggregateRoot().GetInfoByHttpContext(_httpContextAccessor.HttpContext);
+                var loginEntity = LoginLogFactory.CreateFromHttpContext(_httpContextAccessor.HttpContext);
                 var loginEto = loginEntity.Adapt<LoginEventArgs>();
                 loginEto.UserName = userInfo.User.UserName;
                 loginEto.UserId = userInfo.User.Id;
