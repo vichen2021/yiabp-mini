@@ -64,13 +64,13 @@ const displayedList = computed(() => {
     <AvatarGroup v-if="userListModel.length > 0">
       <Tooltip
         v-for="user in displayedList"
-        :key="user.userId"
+        :key="user.id"
         :title="user.nick"
         placement="top"
       >
         <div>
           <VbenAvatar
-            :alt="user.nick"
+            :alt="user.nick ?? undefined"
             class="bg-primary size-[36px] cursor-pointer rounded-full border text-white"
             src=""
           />

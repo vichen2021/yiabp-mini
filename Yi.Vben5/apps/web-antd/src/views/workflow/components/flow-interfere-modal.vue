@@ -61,7 +61,7 @@ function handleTransfer(userList: User[]) {
     centered: true,
     onOk: async () => {
       await taskOperation(
-        { taskId: taskInfo.value!.id, userId: current!.userId },
+        { taskId: taskInfo.value!.id, userId: current!.id },
         'transferTask',
       );
       emit('complete');
@@ -93,7 +93,7 @@ const [AddSignatureModal, addSignatureModalApi] = useVbenModal({
 });
 function handleAddSignature(userList: User[]) {
   if (userList.length === 0 || !taskInfo.value) return;
-  const userIds = userList.map((user) => user.userId);
+  const userIds = userList.map((user) => user.id);
   Modal.confirm({
     title: '提示',
     content: '确认加签吗?',
@@ -113,7 +113,7 @@ const [ReductionSignatureModal, reductionSignatureModalApi] = useVbenModal({
 });
 function handleReductionSignature(userList: User[]) {
   if (userList.length === 0 || !taskInfo.value) return;
-  const userIds = userList.map((user) => user.userId);
+  const userIds = userList.map((user) => user.id);
   Modal.confirm({
     title: '提示',
     content: '确认减签吗?',

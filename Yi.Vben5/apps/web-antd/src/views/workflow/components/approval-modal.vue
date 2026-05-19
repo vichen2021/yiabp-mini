@@ -181,7 +181,7 @@ async function handleSubmit() {
       const assigneeMap: { [key: string]: string } = {};
       nextNodeInfo.value.forEach((item) => {
         assigneeMap[item.nodeCode] = item.selectUserList
-          .map((u) => u.userId)
+          .map((u) => u.id)
           .join(',');
       });
       requestData.assigneeMap = assigneeMap;

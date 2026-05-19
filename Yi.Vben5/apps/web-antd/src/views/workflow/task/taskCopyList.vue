@@ -77,8 +77,8 @@ async function reload(resetFields: boolean = false) {
     SkipCount: page.value,
     ...formData.value,
   });
-  taskList.value = resp.rows.map((item) => ({ ...item, active: false }));
-  taskTotal.value = resp.total;
+  taskList.value = resp.items.map((item) => ({ ...item, active: false }));
+  taskTotal.value = resp.totalCount;
 
   loading.value = false;
   // 默认选中第一个
@@ -112,7 +112,7 @@ const handleScroll = debounce(async (e: Event) => {
       ...formData.value,
     });
     taskList.value.push(
-      ...resp.rows.map((item) => ({ ...item, active: false })),
+      ...resp.items.map((item) => ({ ...item, active: false })),
     );
     loading.value = false;
   }
@@ -140,7 +140,7 @@ const selectedUserList = ref<User[]>([]);
 function handleFinish(userList: User[]) {
   popoverOpen.value = true;
   selectedUserList.value = userList;
-  formData.value.createByIds = userList.map((item) => item.userId);
+  formData.value.createByIds = userList.map((item) => item.id);
 }
 
 const treeData = ref<any[]>([]);
