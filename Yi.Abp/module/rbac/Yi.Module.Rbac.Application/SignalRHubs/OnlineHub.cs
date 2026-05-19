@@ -49,12 +49,16 @@ namespace Yi.Module.Rbac.Application.SignalRHubs
             if (CurrentUser.IsAuthenticated)
             {
                 ClientUsersDic.RemoveAll(u => u.Value.UserId == CurrentUser.Id);
+            }
+
+            ClientUsersDic.AddOrUpdate(Context.ConnectionId, user, (_, _) => user);
+
+            if (CurrentUser.IsAuthenticated)
+            {
                 _logger.LogDebug(
                     "{Time}：{Name},{ConnectionId}连接服务端success，当前已连接{Count}个",
                     DateTime.Now, name, Context.ConnectionId, ClientUsersDic.Count);
             }
-
-            ClientUsersDic.AddOrUpdate(Context.ConnectionId, user, (_, _) => user);
             Clients.All.SendAsync("onlineNum", ClientUsersDic.Count);
 
             return base.OnConnectedAsync();
