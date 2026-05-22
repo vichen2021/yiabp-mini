@@ -10,13 +10,23 @@ using Volo.Abp.Uow;
 
 namespace Yi.Module.SettingManagement.Domain;
 
+/// <summary>
+/// <see cref="ISettingManagementStore"/> 的实现，封装对 <see cref="ISettingRepository"/> 的所有 CRUD 操作，
+/// 并在读取时引入分布式缓存层以减少数据库压力。
+/// 写入和删除同时更新缓存，实现最终一致性。
+/// </summary>
 public class SettingManagementStore : ISettingManagementStore, ITransientDependency
 {
+    /// <summary>分布式缓存，用于缓存 Setting 值避免重复查询数据库。</summary>
     protected IDistributedCache<SettingCacheItem> Cache { get; }
+    /// <summary>Setting 定义管理器，用于批量刷新缓存时遍历所有已定义的 Setting。</summary>
     protected ISettingDefinitionManager SettingDefinitionManager { get; }
+    /// <summary>Setting 聚合根仓储，提供底层数据库操作。</summary>
     protected ISettingRepository SettingRepository { get; }
+    /// <summary>GUID 生成器，用于新建 Setting 记录时生成主键。</summary>
     protected IGuidGenerator GuidGenerator { get; }
 
+    /// <summary>注入存储、GUID 生成器、缓存和 Setting 定义管理器。</summary>
     public SettingManagementStore(
         ISettingRepository settingRepository,
         IGuidGenerator guidGenerator,
@@ -29,12 +39,18 @@ public class SettingManagementStore : ISettingManagementStore, ITransientDepende
         SettingDefinitionManager = settingDefinitionManager;
     }
 
+    /// <summary>
+    /// 读取单个 Setting 值，优先命中缓存；未命中时批量刷新同一 Provider 维度下的全部 Setting 缓存。
+    /// </summary>
     [UnitOfWork]
     public virtual async Task<string> GetOrNullAsync(string name, string providerName, string providerKey)
     {
         return (await GetCacheItemAsync(name, providerName, providerKey)).Value;
     }
 
+    /// <summary>
+    /// 写入一个 Setting 值（不存则新增，已存则更新），并同时刷新对应缓存项。
+    /// </summary>
     [UnitOfWork]
     public virtual async Task SetAsync(string name, string value, string providerName, string providerKey)
     {
@@ -53,12 +69,14 @@ public class SettingManagementStore : ISettingManagementStore, ITransientDepende
         await Cache.SetAsync(CalculateCacheKey(name, providerName, providerKey), new SettingCacheItem(setting?.Value), considerUow: true);
     }
 
+    /// <summary>读取指定 Provider 维度下所有 Setting 记录（直接查库，不经过缓存）。</summary>
     public virtual async Task<List<SettingValue>> GetListAsync(string providerName, string providerKey)
     {
         var settings = await SettingRepository.GetListAsync(providerName, providerKey);
         return settings.Select(s => new SettingValue(s.Name, s.Value)).ToList();
     }
 
+    /// <summary>删除指定 Provider 维度下的 Setting 记录，并移除对应缓存项。</summary>
     [UnitOfWork]
     public virtual async Task DeleteAsync(string name, string providerName, string providerKey)
     {
@@ -70,6 +88,7 @@ public class SettingManagementStore : ISettingManagementStore, ITransientDepende
         }
     }
 
+    /// <summary>读取单个 Setting 缓存项；未命中时触发 <see cref="SetCacheItemsAsync(string, string, string, SettingCacheItem)"/> 批量刷新。</summary>
     protected virtual async Task<SettingCacheItem> GetCacheItemAsync(string name, string providerName, string providerKey)
     {
         var cacheKey = CalculateCacheKey(name, providerName, providerKey);
@@ -87,6 +106,7 @@ public class SettingManagementStore : ISettingManagementStore, ITransientDepende
         return cacheItem;
     }
 
+    /// <summary>批量刷新指定 Provider 维度下所有 Setting 的缓存，并回填 <paramref name="currentCacheItem"/>。</summary>
     private async Task SetCacheItemsAsync(
         string providerName,
         string providerKey,
@@ -119,6 +139,7 @@ public class SettingManagementStore : ISettingManagementStore, ITransientDepende
         await Cache.SetManyAsync(cacheItems, considerUow: true);
     }
 
+    /// <summary>按名称数组批量读取 Setting 值，优先命中缓存，未命中部分按需对数据库批量补充。</summary>
     [UnitOfWork]
     public async Task<List<SettingValue>> GetListAsync(string[] names, string providerName, string providerKey)
     {
@@ -142,6 +163,7 @@ public class SettingManagementStore : ISettingManagementStore, ITransientDepende
         return result;
     }
 
+    /// <summary>批量读取缓存项；对于缺失项自动补充并合并返回最终结果。</summary>
     protected virtual async Task<List<KeyValuePair<string, SettingCacheItem>>> GetCacheItemsAsync(string[] names, string providerName, string providerKey)
     {
         var cacheKeys = names.Select(x => CalculateCacheKey(x, providerName, providerKey)).ToList();
@@ -172,6 +194,7 @@ public class SettingManagementStore : ISettingManagementStore, ITransientDepende
         return result;
     }
 
+    /// <summary>根据缺失的缓存 Key 列表查询数据库并回写缓存。</summary>
     private async Task<List<KeyValuePair<string, SettingCacheItem>>> SetCacheItemsAsync(
         string providerName,
         string providerKey,
@@ -201,11 +224,13 @@ public class SettingManagementStore : ISettingManagementStore, ITransientDepende
     }
 
 
+    /// <summary>计算缓存 Key，委托给 <see cref="SettingCacheItem.CalculateCacheKey"/>。</summary>
     protected virtual string CalculateCacheKey(string name, string providerName, string providerKey)
     {
         return SettingCacheItem.CalculateCacheKey(name, providerName, providerKey);
     }
 
+    /// <summary>从缓存 Key 反向解析 Setting 名称，委托给 <see cref="SettingCacheItem.GetSettingNameFormCacheKeyOrNull"/>。</summary>
     protected virtual string GetSettingNameFormCacheKeyOrNull(string key)
     {
         //TODO: throw ex when name is null?

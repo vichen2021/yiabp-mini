@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\rbac\Yi.Module.Rbac.Domain\Yi.Module.Rbac.Domain.csproj" />
+    <ProjectReference Include="..\..\setting-management\Yi.Module.SettingManagement.Domain.Shared\Yi.Module.SettingManagement.Domain.Shared.csproj" />
+    <ProjectReference Include="..\..\file-management\Yi.Module.FileManagement.Domain.Shared\Yi.Module.FileManagement.Domain.Shared.csproj" />
     <ProjectReference Include="..\..\..\framework\ddd\Yi.Framework.Ddd.Application\Yi.Framework.Ddd.Application.csproj" />
     <ProjectReference Include="..\..\..\framework\authorization\Yi.Framework.Authorization.Abstractions\Yi.Framework.Authorization.Abstractions.csproj" />
     <ProjectReference Include="..\..\..\framework\operation-record\Yi.Framework.OperationRecord.Abstractions\Yi.Framework.OperationRecord.Abstractions.csproj" />

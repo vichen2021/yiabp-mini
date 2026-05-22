@@ -63,6 +63,7 @@
   <Folder Name="/module/setting-management/">
     <Project Path="module/setting-management/Yi.Module.SettingManagement.Application/Yi.Module.SettingManagement.Application.csproj" />
     <Project Path="module/setting-management/Yi.Module.SettingManagement.Domain/Yi.Module.SettingManagement.Domain.csproj" />
+    <Project Path="module/setting-management/Yi.Module.SettingManagement.Domain.Shared/Yi.Module.SettingManagement.Domain.Shared.csproj" />
     <Project Path="module/setting-management/Yi.Module.SettingManagement.SqlSugarCore/Yi.Module.SettingManagement.SqlSugarCore.csproj" />
   </Folder>
   <Folder Name="/module/tenant-management/">

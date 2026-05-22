@@ -3,6 +3,7 @@ using Volo.Abp.Domain;
 using Volo.Abp.Modularity;
 using Volo.Abp.SettingManagement;
 using Volo.Abp.Settings;
+using Yi.Module.SettingManagement.Domain.Shared;
 
 namespace Yi.Module.SettingManagement.Domain
 {
@@ -10,10 +11,14 @@ namespace Yi.Module.SettingManagement.Domain
         typeof(AbpSettingsModule),
         typeof(AbpDddDomainModule),
         typeof(AbpSettingManagementDomainSharedModule),
-        typeof(AbpCachingModule)
+        typeof(AbpCachingModule),
+        typeof(YiModuleSettingManagementDomainSharedModule)
         )]
     public class YiModuleSettingManagementDomainModule : AbpModule
     {
+        /// <summary>
+        /// 配置 <see cref="SettingManagementOptions"/>，按优先级从低到高注册 Provider。
+        /// </summary>
         public override void ConfigureServices(ServiceConfigurationContext context)
         {
             Configure<SettingManagementOptions>(options =>
