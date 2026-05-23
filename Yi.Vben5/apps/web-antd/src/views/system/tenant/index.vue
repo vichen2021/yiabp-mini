@@ -27,7 +27,6 @@ import { commonDownloadExcel } from '#/utils/file/download';
 
 import { columns, querySchema } from './data';
 import tenantDrawer from './tenant-drawer.vue';
-import tenantOssDrawer from './tenant-oss-drawer.vue';
 
 const formOptions: VbenFormProps = {
   commonConfig: {
@@ -80,10 +79,6 @@ const [TenantDrawer, drawerApi] = useVbenDrawer({
   connectedComponent: tenantDrawer,
 });
 
-const [TenantOssDrawer, ossDrawerApi] = useVbenDrawer({
-  connectedComponent: tenantOssDrawer,
-});
-
 function handleAdd() {
   drawerApi.setData({});
   drawerApi.open();
@@ -92,11 +87,6 @@ function handleAdd() {
 async function handleEdit(record: Tenant) {
   drawerApi.setData({ id: record.id });
   drawerApi.open();
-}
-
-function handleOssSettings(record: Tenant) {
-  ossDrawerApi.setData({ tenantId: record.tenantId || record.id });
-  ossDrawerApi.open();
 }
 
 async function handleSync(record: Tenant) {
@@ -245,12 +235,6 @@ async function handleInitConfirm() {
           >
             初始化
           </ghost-button>
-          <ghost-button
-            v-access:code="['system:tenant:edit']"
-            @click="handleOssSettings(row)"
-          >
-            OSS设置
-          </ghost-button>
           <Popconfirm
             :get-popup-container="getVxePopupContainer"
             :title="`确认同步[${row.name || row.companyName}]的套餐吗?`"
@@ -282,7 +266,6 @@ async function handleInitConfirm() {
       </template>
     </BasicTable>
     <TenantDrawer @reload="tableApi.query()" />
-    <TenantOssDrawer />
     <Modal
       v-model:open="initModalVisible"
       title="初始化租户"

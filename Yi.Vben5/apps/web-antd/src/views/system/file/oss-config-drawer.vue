@@ -2,10 +2,7 @@
 import { useVbenDrawer } from '@vben/common-ui';
 
 import { useVbenForm } from '#/adapter/form';
-import {
-  tenantOssSettingGet,
-  tenantOssSettingUpdate,
-} from '#/api/system/tenant-oss-settings';
+import { ossSettingGet, ossSettingUpdate } from '#/api/system/tenant-oss-settings';
 
 const [BasicForm, formApi] = useVbenForm({
   commonConfig: {
@@ -107,11 +104,8 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
   async onOpenChange(isOpen) {
     if (!isOpen) return;
     drawerApi.drawerLoading(true);
-
-    const { tenantId } = drawerApi.getData() as { tenantId: string };
-    const data = await tenantOssSettingGet(tenantId);
+    const data = await ossSettingGet();
     await formApi.setValues(data);
-
     drawerApi.drawerLoading(false);
   },
 });
@@ -121,10 +115,8 @@ async function handleConfirm() {
     drawerApi.lock(true);
     const { valid } = await formApi.validate();
     if (!valid) return;
-
-    const { tenantId } = drawerApi.getData() as { tenantId: string };
     const values = await formApi.getValues();
-    await tenantOssSettingUpdate(tenantId, {
+    await ossSettingUpdate({
       provider: values.provider,
       pathPrefix: values.pathPrefix,
       accessKeyId: values.accessKeyId,

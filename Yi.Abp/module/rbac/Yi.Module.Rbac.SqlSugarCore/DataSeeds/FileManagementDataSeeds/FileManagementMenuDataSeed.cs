@@ -68,6 +68,28 @@ public class FileManagementMenuDataSeed : ITransientDependency
         };
         entities.Add(fileRemove);
 
+        MenuAggregateRoot ossSettingsQuery = new MenuAggregateRoot(_guidGenerator.Create())
+        {
+            MenuName = "OSS设置查询",
+            PermissionCode = "system:tenantOSSSettings:query",
+            MenuType = MenuTypeEnum.Component,
+            OrderNum = 100,
+            ParentId = file.Id,
+            IsDeleted = false
+        };
+        entities.Add(ossSettingsQuery);
+
+        MenuAggregateRoot ossSettingsEdit = new MenuAggregateRoot(_guidGenerator.Create())
+        {
+            MenuName = "OSS设置编辑",
+            PermissionCode = "system:tenantOSSSettings:edit",
+            MenuType = MenuTypeEnum.Component,
+            OrderNum = 100,
+            ParentId = file.Id,
+            IsDeleted = false
+        };
+        entities.Add(ossSettingsEdit);
+
         return entities;
     }
 }

@@ -7,7 +7,7 @@ import type { PageQuery } from '#/api/common';
 
 import { ref } from 'vue';
 
-import { Page, useVbenModal } from '@vben/common-ui';
+import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
 import { getVxePopupContainer } from '@vben/utils';
 
 import { message, Modal, Popconfirm, Space } from 'ant-design-vue';
@@ -24,6 +24,7 @@ import { downloadByData } from '#/utils/file/download';
 import { columns, querySchema } from './data';
 import fileUploadModal from './file-upload-modal.vue';
 import imageUploadModal from './image-upload-modal.vue';
+import ossDrawer from './oss-config-drawer.vue';
 
 const formOptions: VbenFormProps = {
   commonConfig: {
@@ -126,6 +127,10 @@ const [ImageUploadModal, imageUploadApi] = useVbenModal({
 const [FileUploadModal, fileUploadApi] = useVbenModal({
   connectedComponent: fileUploadModal,
 });
+
+const [OssDrawer, ossDrawerApi] = useVbenDrawer({
+  connectedComponent: ossDrawer,
+});
 </script>
 
 <template>
@@ -133,12 +138,12 @@ const [FileUploadModal, fileUploadApi] = useVbenModal({
     <BasicTable table-title="文件列表">
       <template #toolbar-tools>
         <Space>
-          <!-- <a-button
-            v-access:code="['system:fileConfig:query']"
-            @click="handleToSettings"
+          <a-button
+            v-access:code="['system:tenantOSSSettings:query']"
+            @click="ossDrawerApi.open()"
           >
-            配置管理
-          </a-button> -->
+            存储设置
+          </a-button>
           <a-button
             :disabled="!vxeCheckboxChecked(tableApi)"
             danger
@@ -189,5 +194,6 @@ const [FileUploadModal, fileUploadApi] = useVbenModal({
     </BasicTable>
     <ImageUploadModal @reload="tableApi.query" />
     <FileUploadModal @reload="tableApi.query" />
+    <OssDrawer />
   </Page>
 </template>

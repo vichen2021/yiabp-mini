@@ -38,6 +38,11 @@ public class FileGetListOutputDto : EntityDto<Guid>
     public string Hash { get; set; } = string.Empty;
 
     /// <summary>
+    /// 存储来源（FileSystem / Aliyun 等）
+    /// </summary>
+    public string Provider { get; set; } = string.Empty;
+
+    /// <summary>
     /// 创建时间
     /// </summary>
     public DateTime CreationTime { get; set; }
