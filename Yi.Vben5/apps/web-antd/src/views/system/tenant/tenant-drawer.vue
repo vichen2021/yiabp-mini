@@ -83,7 +83,7 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
       {
         fieldName: 'packageId',
         componentProps: {
-          disabled: isUpdate.value,
+          disabled: false,
         },
       },
     ]);

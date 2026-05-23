@@ -14,10 +14,10 @@ import { Modal, Popconfirm, Space } from 'ant-design-vue';
 
 import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
 import {
-  tenantPackageChangeStatus,
   tenantPackageExport,
   tenantPackageList,
   tenantPackageRemove,
+  tenantPackageUpdate,
 } from '#/api/system/tenant-package';
 import { TableSwitch } from '#/components/table';
 import { commonDownloadExcel } from '#/utils/file/download';
@@ -129,7 +129,7 @@ const isSuperAdmin = computed(() => {
       <template #toolbar-tools>
         <Space>
           <a-button
-            v-access:code="['system:tenantPackage:export']"
+            v-access:code="['system:tenant-package:export']"
             @click="handleDownloadExcel"
           >
             {{ $t('pages.common.export') }}
@@ -138,14 +138,14 @@ const isSuperAdmin = computed(() => {
             :disabled="!vxeCheckboxChecked(tableApi)"
             danger
             type="primary"
-            v-access:code="['system:tenantPackage:remove']"
+            v-access:code="['system:tenant-package:remove']"
             @click="handleMultiDelete"
           >
             {{ $t('pages.common.delete') }}
           </a-button>
           <a-button
             type="primary"
-            v-access:code="['system:tenantPackage:add']"
+            v-access:code="['system:tenant-package:add']"
             @click="handleAdd"
           >
             {{ $t('pages.common.add') }}
@@ -154,16 +154,16 @@ const isSuperAdmin = computed(() => {
       </template>
       <template #status="{ row }">
         <TableSwitch
-          v-model:value="row.status"
-          :api="() => tenantPackageChangeStatus(row)"
-          :disabled="!hasAccessByCodes(['system:tenantPackage:edit'])"
+          v-model:value="row.state"
+          :api="() => tenantPackageUpdate(row)"
+          :disabled="!hasAccessByCodes(['system:tenant-package:edit'])"
           @reload="tableApi.query()"
         />
       </template>
       <template #action="{ row }">
         <Space>
           <ghost-button
-            v-access:code="['system:tenantPackage:edit']"
+            v-access:code="['system:tenant-package:edit']"
             @click="handleEdit(row)"
           >
             {{ $t('pages.common.edit') }}
@@ -176,7 +176,7 @@ const isSuperAdmin = computed(() => {
           >
             <ghost-button
               danger
-              v-access:code="['system:tenantPackage:remove']"
+              v-access:code="['system:tenant-package:remove']"
               @click.stop=""
             >
               {{ $t('pages.common.delete') }}

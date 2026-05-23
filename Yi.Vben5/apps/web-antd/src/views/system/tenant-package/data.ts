@@ -68,4 +68,18 @@ export const drawerSchema: FormSchemaGetter = () => [
     fieldName: 'remark',
     label: '备注',
   },
+  {
+    component: 'RadioGroup',
+    componentProps: {
+      buttonStyle: 'solid',
+      options: [
+        { label: '启用', value: true },
+        { label: '禁用', value: false },
+      ],
+      optionType: 'button',
+    },
+    defaultValue: true,
+    fieldName: 'state',
+    label: '状态',
+  },
 ];

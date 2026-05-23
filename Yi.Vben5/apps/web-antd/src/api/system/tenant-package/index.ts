@@ -40,11 +40,6 @@ export function tenantPackageSelectList(keywords?: string) {
   });
 }
 
-/** 租户套餐状态变更 */
-export function tenantPackageChangeStatus(data: Partial<TenantPackage>) {
-  return requestClient.putWithMsg<void>(`${Api.root}/changeStatus`, data);
-}
-
 /** 租户套餐导出 */
 export function tenantPackageExport(data: Partial<TenantPackage>) {
   return requestClient.get<Blob>(`${Api.root}/export`, {

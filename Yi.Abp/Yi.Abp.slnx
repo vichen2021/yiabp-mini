@@ -101,6 +101,9 @@
     <Project Path="src/Yi.Abp.SqlSugarCore/Yi.Abp.SqlSugarCore.csproj" />
     <Project Path="src/Yi.Abp.Web/Yi.Abp.Web.csproj" />
   </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/Yi.Abp.DbMigrator/Yi.Abp.DbMigrator.csproj" />
+  </Folder>
   <Folder Name="/test/">
     <Project Path="test/Yi.Abp.Test/Yi.Abp.Test.csproj" />
     <Project Path="test/Yi.Module.Rbac.Test/Yi.Module.Rbac.Test.csproj" />

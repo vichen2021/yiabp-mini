@@ -12,7 +12,7 @@ enum Api {
   tenantDynamicClear = '/tenant/dynamic/clear',
   tenantExport = '/tenant/export',
   tenantInit = '/tenant/init',
-  tenantSyncPackage = '/tenant/syncTenantPackage',
+  tenantSyncPackage = '/tenant/sync-package',
 }
 
 /**
@@ -95,9 +95,8 @@ export function tenantDynamicClear() {
  * @returns void
  */
 export function tenantSyncPackage(tenantId: string, packageId: string) {
-  return requestClient.get<void>(Api.tenantSyncPackage, {
-    params: { packageId, tenantId },
-    successMessageMode: 'message',
+  return requestClient.postWithMsg<void>(Api.tenantSyncPackage, undefined, {
+    params: { tenantId, packageId },
   });
 }
 

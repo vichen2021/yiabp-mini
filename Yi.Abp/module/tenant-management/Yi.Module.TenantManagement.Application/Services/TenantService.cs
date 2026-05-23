@@ -99,8 +99,11 @@ namespace Yi.Module.TenantManagement.Application
         [AllowAnonymous]
         public async Task<List<TenantSelectOutputDto>> GetSelectAsync()
         {
-            var entites = await _repository._DbQueryable.ToListAsync();
-            return entites.Select(x => new TenantSelectOutputDto { Id = x.Id, Name = x.Name }).ToList();
+            using (CurrentTenant.Change(null))
+            {
+                var entites = await _repository._DbQueryable.ToListAsync();
+                return entites.Select(x => new TenantSelectOutputDto { Id = x.Id, Name = x.Name }).ToList();
+            }
         }
 
 
@@ -139,9 +142,16 @@ namespace Yi.Module.TenantManagement.Application
                 throw new UserFriendlyException("租户名已经存在");
             }
 
+            var oldPackageId = oldTenant.PackageId;
+
             var result = await base.UpdateAsync(id, input);
 
             await _tenantStore.RemoveCacheAsync(id, oldTenant.Name);
+
+            if (input.PackageId.HasValue && input.PackageId != oldPackageId)
+            {
+                await SyncPackageAsync(id, input.PackageId.Value);
+            }
 
             return result;
         }
@@ -150,7 +160,7 @@ namespace Yi.Module.TenantManagement.Application
         /// <summary>
         /// 租户删除
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="ids"></param>
         /// <returns></returns>
         public override Task DeleteAsync(IEnumerable<Guid> ids)
         {
@@ -236,7 +246,7 @@ namespace Yi.Module.TenantManagement.Application
         [OperLog("同步租户套餐", Yi.Framework.OperationRecord.Abstractions.Enums.OperEnum.Update)]
         public async Task SyncPackageAsync(Guid tenantId, Guid packageId)
         {
-            // 查询套餐关联的宿主菜单，并映射为租户本地菜单。不同租户初始化时菜单 ID 会重新生成，不能跨库复用宿主菜单 ID。
+            // 查询套餐关联的宿主菜单 ID
             var packageMenuIds = await _tenantPackageMenuRepository._DbQueryable
                 .Where(x => x.PackageId == packageId)
                 .Select(x => x.MenuId)
@@ -247,19 +257,31 @@ namespace Yi.Module.TenantManagement.Application
                 throw new UserFriendlyException("同步失败，租户套餐未配置任何菜单");
             }
 
-            var packageMenus = await _menuRepository._DbQueryable
-                .Where(x => packageMenuIds.Contains(x.Id))
-                .ToListAsync();
+            // 获取宿主全量菜单（用于父级链查找）
+            var allHostMenus = await _menuRepository._DbQueryable.ToListAsync();
+            var allHostMenuMap = allHostMenus.ToDictionary(x => x.Id);
 
+            var packageMenus = allHostMenus.Where(x => packageMenuIds.Contains(x.Id)).ToList();
             if (packageMenus.Count == 0)
             {
                 throw new UserFriendlyException("同步失败，租户套餐菜单不存在");
             }
 
-            // 在租户上下文中查询角色并更新菜单关联
+            // 套餐菜单 + 所有祖先节点
+            var requiredHostMenuIds = CollectMenuIdsWithAncestors(packageMenuIds, allHostMenuMap);
+            var requiredHostMenus = allHostMenus.Where(x => requiredHostMenuIds.Contains(x.Id)).ToList();
+
+            // 在租户上下文中补全缺失菜单，再更新角色菜单关联
             using (CurrentTenant.Change(tenantId))
             {
                 var tenantMenus = await _menuRepository._DbQueryable.ToListAsync();
+
+                // 补全宿主有而租户缺失的菜单
+                await EnsureMenusExistInTenantAsync(requiredHostMenus, allHostMenuMap, tenantMenus);
+
+                // 补全后重新加载租户菜单
+                tenantMenus = await _menuRepository._DbQueryable.ToListAsync();
+
                 var tenantMenuIds = ResolveTenantMenuIds(packageMenus, tenantMenus);
 
                 if (tenantMenuIds.Count == 0)
@@ -275,10 +297,8 @@ namespace Yi.Module.TenantManagement.Application
                     // 管理员角色：全量替换
                     if (role.RoleCode == UserConst.AdminRolesCode)
                     {
-                        // 删除该角色的所有菜单关联
                         await _roleMenuRepository.DeleteAsync(x => x.RoleId == role.Id);
 
-                        // 插入套餐的菜单
                         var roleMenus = tenantMenuIds.Select(menuId => new RoleMenuEntity
                         {
                             RoleId = role.Id,
@@ -300,6 +320,126 @@ namespace Yi.Module.TenantManagement.Application
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// 收集指定菜单 ID 及其所有祖先 ID
+        /// </summary>
+        private static HashSet<Guid> CollectMenuIdsWithAncestors(
+            List<Guid> menuIds,
+            Dictionary<Guid, MenuAggregateRoot> allMenuMap)
+        {
+            var result = new HashSet<Guid>(menuIds);
+            foreach (var id in menuIds)
+            {
+                var current = id;
+                while (allMenuMap.TryGetValue(current, out var menu) && menu.ParentId != Guid.Empty)
+                {
+                    if (!result.Add(menu.ParentId)) break;
+                    current = menu.ParentId;
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 将宿主有而租户缺失的菜单按拓扑顺序插入租户库（需在租户上下文中调用）
+        /// </summary>
+        private async Task EnsureMenusExistInTenantAsync(
+            List<MenuAggregateRoot> requiredHostMenus,
+            Dictionary<Guid, MenuAggregateRoot> allHostMenuMap,
+            List<MenuAggregateRoot> currentTenantMenus)
+        {
+            var tenantByPermCode = currentTenantMenus
+                .Where(x => !string.IsNullOrWhiteSpace(x.PermissionCode))
+                .GroupBy(x => x.PermissionCode!, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+            var tenantByStableKey = currentTenantMenus
+                .Where(x => string.IsNullOrWhiteSpace(x.PermissionCode))
+                .GroupBy(GetMenuStableKey, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+
+            // 找出租户缺失的宿主菜单
+            var missingHostMenus = requiredHostMenus.Where(m =>
+                string.IsNullOrWhiteSpace(m.PermissionCode)
+                    ? !tenantByStableKey.ContainsKey(GetMenuStableKey(m))
+                    : !tenantByPermCode.ContainsKey(m.PermissionCode!)).ToList();
+
+            if (missingHostMenus.Count == 0) return;
+
+            // 拓扑排序：父节点先于子节点
+            var sortedMissing = TopologicalSort(missingHostMenus, allHostMenuMap);
+
+            // 建立 宿主ID → 租户ID 映射（含已存在的菜单）
+            var hostToTenantId = new Dictionary<Guid, Guid>();
+            foreach (var tenantMenu in currentTenantMenus)
+            {
+                var matched = requiredHostMenus.FirstOrDefault(m =>
+                    !string.IsNullOrWhiteSpace(m.PermissionCode)
+                        ? string.Equals(m.PermissionCode, tenantMenu.PermissionCode, StringComparison.OrdinalIgnoreCase)
+                        : GetMenuStableKey(m) == GetMenuStableKey(tenantMenu));
+                if (matched != null)
+                    hostToTenantId[matched.Id] = tenantMenu.Id;
+            }
+
+            var toInsert = new List<MenuAggregateRoot>();
+            foreach (var hostMenu in sortedMissing)
+            {
+                var tenantParentId = Guid.Empty;
+                if (hostMenu.ParentId != Guid.Empty)
+                    hostToTenantId.TryGetValue(hostMenu.ParentId, out tenantParentId);
+
+                var newId = Guid.NewGuid();
+                var newMenu = new MenuAggregateRoot(newId, tenantParentId)
+                {
+                    MenuName = hostMenu.MenuName,
+                    RouterName = hostMenu.RouterName,
+                    MenuType = hostMenu.MenuType,
+                    PermissionCode = hostMenu.PermissionCode,
+                    MenuIcon = hostMenu.MenuIcon,
+                    Router = hostMenu.Router,
+                    IsLink = hostMenu.IsLink,
+                    IsCache = hostMenu.IsCache,
+                    IsShow = hostMenu.IsShow,
+                    Remark = hostMenu.Remark,
+                    Component = hostMenu.Component,
+                    MenuSource = hostMenu.MenuSource,
+                    Query = hostMenu.Query,
+                    OrderNum = hostMenu.OrderNum,
+                    State = hostMenu.State,
+                };
+                toInsert.Add(newMenu);
+                hostToTenantId[hostMenu.Id] = newId;
+            }
+
+            if (toInsert.Count > 0)
+                await _menuRepository.InsertRangeAsync(toInsert);
+        }
+
+        /// <summary>
+        /// 对待插入菜单做拓扑排序，确保父节点先于子节点
+        /// </summary>
+        private static List<MenuAggregateRoot> TopologicalSort(
+            List<MenuAggregateRoot> menus,
+            Dictionary<Guid, MenuAggregateRoot> allMenuMap)
+        {
+            var ids = menus.Select(x => x.Id).ToHashSet();
+            var result = new List<MenuAggregateRoot>();
+            var visited = new HashSet<Guid>();
+
+            void Visit(MenuAggregateRoot menu)
+            {
+                if (!visited.Add(menu.Id)) return;
+                if (menu.ParentId != Guid.Empty && ids.Contains(menu.ParentId)
+                    && allMenuMap.TryGetValue(menu.ParentId, out var parent))
+                    Visit(parent);
+                result.Add(menu);
+            }
+
+            foreach (var menu in menus)
+                Visit(menu);
+
+            return result;
         }
 
         private async Task SyncAllTenantMenusToAdminRoleAsync(Guid tenantId)

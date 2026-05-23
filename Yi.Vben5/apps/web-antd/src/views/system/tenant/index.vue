@@ -92,10 +92,12 @@ async function handleEdit(record: Tenant) {
 async function handleSync(record: Tenant) {
   const tenantId = record.tenantId || record.id;
   const packageId = record.packageId;
-  if (tenantId && packageId) {
-    await tenantSyncPackage(tenantId, packageId);
-    await tableApi.query();
+  if (!packageId) {
+    Modal.warning({ title: '提示', content: '该租户未绑定套餐，无法同步' });
+    return;
   }
+  await tenantSyncPackage(tenantId, packageId);
+  await tableApi.query();
 }
 
 const tenantStore = useTenantStore();

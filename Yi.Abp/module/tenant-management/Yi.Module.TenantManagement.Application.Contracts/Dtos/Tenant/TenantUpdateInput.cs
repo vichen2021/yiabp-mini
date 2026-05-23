@@ -19,5 +19,6 @@ namespace Yi.Module.TenantManagement.Application.Contracts.Dtos
         public string? LicenseNumber { get; set; }
         public string? Intro { get; set; }
         public string? Remark { get; set; }
+        public Guid? PackageId { get; set; }
     }
 }

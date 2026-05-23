@@ -21,5 +21,6 @@ namespace Yi.Module.TenantManagement.Application.Contracts.Dtos
         public string? ContactPhone { get; set; }
         public DateTime? ExpireTime { get; set; }
         public int AccountCount { get; set; }
+        public Guid? PackageId { get; set; }
     }
 }
