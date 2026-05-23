@@ -18,7 +18,7 @@ namespace Yi.Module.TenantManagement.Application.Services
     /// <summary>
     /// 租户套餐服务实现
     /// </summary>
-    [PermissionResource("system", "tenantPackage")]
+    [PermissionResource("system", "tenant-package")]
     [OperLogEntity("租户套餐")]
     public class TenantPackageService : YiCrudAppService<TenantPackageAggregateRoot, TenantPackageGetOutputDto, TenantPackageGetListOutputDto, Guid,
         TenantPackageGetListInputVo, TenantPackageCreateInputVo, TenantPackageUpdateInputVo>, ITenantPackageService
