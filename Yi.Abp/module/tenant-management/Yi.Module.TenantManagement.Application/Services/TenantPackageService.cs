@@ -5,6 +5,7 @@ using Volo.Abp.Application.Dtos;
 using Yi.Framework.Ddd.Application;
 using Yi.Module.Rbac.Domain.Entities;
 using Yi.Module.TenantManagement.Application.Contracts.Dtos.TenantPackage;
+using Yi.Module.TenantManagement.Application.Contracts;
 using Yi.Module.TenantManagement.Application.Contracts.IServices;
 using Yi.Module.TenantManagement.Domain;
 using Yi.Module.TenantManagement.Domain.Entities;
@@ -27,14 +28,16 @@ namespace Yi.Module.TenantManagement.Application.Services
         private readonly ISqlSugarRepository<TenantPackageMenuEntity> _tenantPackageMenuRepository;
         private readonly ISqlSugarRepository<TenantAggregateRoot, Guid> _tenantRepository;
         private readonly ISqlSugarRepository<MenuAggregateRoot, Guid> _menuRepository;
+        private readonly ITenantService _tenantService;
 
         public TenantPackageService(
             ISqlSugarRepository<TenantPackageAggregateRoot, Guid> repository,
             ISqlSugarRepository<TenantPackageMenuEntity> tenantPackageMenuRepository,
             ISqlSugarRepository<TenantAggregateRoot, Guid> tenantRepository,
-            ISqlSugarRepository<MenuAggregateRoot, Guid> menuRepository) : base(repository) =>
-            (_repository, _tenantPackageMenuRepository, _tenantRepository, _menuRepository) =
-            (repository, tenantPackageMenuRepository, tenantRepository, menuRepository);
+            ISqlSugarRepository<MenuAggregateRoot, Guid> menuRepository,
+            ITenantService tenantService) : base(repository) =>
+            (_repository, _tenantPackageMenuRepository, _tenantRepository, _menuRepository, _tenantService) =
+            (repository, tenantPackageMenuRepository, tenantRepository, menuRepository, tenantService);
 
         public override async Task<PagedResultDto<TenantPackageGetListOutputDto>> GetListAsync(TenantPackageGetListInputVo input)
         {
@@ -117,6 +120,17 @@ namespace Yi.Module.TenantManagement.Application.Services
                     MenuId = menuId
                 }).ToList();
                 await _tenantPackageMenuRepository.InsertRangeAsync(packageMenus);
+            }
+
+            // 自动同步所有绑定该套餐的租户
+            var boundTenants = await _tenantRepository._DbQueryable
+                .Where(x => x.PackageId == id)
+                .Select(x => x.Id)
+                .ToListAsync();
+
+            foreach (var tenantId in boundTenants)
+            {
+                await _tenantService.SyncPackageAsync(tenantId, id);
             }
 
             return entity.Adapt<TenantPackageGetOutputDto>();

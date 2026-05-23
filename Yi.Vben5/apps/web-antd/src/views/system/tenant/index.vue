@@ -19,7 +19,6 @@ import {
   tenantList,
   tenantRemove,
   tenantUpdate,
-  tenantSyncPackage,
 } from '#/api/system/tenant';
 import { TableSwitch } from '#/components/table';
 import { useTenantStore } from '#/store/tenant';
@@ -87,17 +86,6 @@ function handleAdd() {
 async function handleEdit(record: Tenant) {
   drawerApi.setData({ id: record.id });
   drawerApi.open();
-}
-
-async function handleSync(record: Tenant) {
-  const tenantId = record.tenantId || record.id;
-  const packageId = record.packageId;
-  if (!packageId) {
-    Modal.warning({ title: '提示', content: '该租户未绑定套餐，无法同步' });
-    return;
-  }
-  await tenantSyncPackage(tenantId, packageId);
-  await tableApi.query();
 }
 
 const tenantStore = useTenantStore();
@@ -237,19 +225,6 @@ async function handleInitConfirm() {
           >
             初始化
           </ghost-button>
-          <Popconfirm
-            :get-popup-container="getVxePopupContainer"
-            :title="`确认同步[${row.name || row.companyName}]的套餐吗?`"
-            placement="left"
-            @confirm="handleSync(row)"
-          >
-            <ghost-button
-              class="btn-success"
-              v-access:code="['system:tenant:edit']"
-            >
-              {{ $t('pages.common.sync') }}
-            </ghost-button>
-          </Popconfirm>
           <Popconfirm
             :get-popup-container="getVxePopupContainer"
             placement="left"
