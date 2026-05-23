@@ -1,12 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
 using Volo.Abp;
 using Volo.Abp.Application.Services;
+using Yi.Framework.Authorization.Abstractions.Attributes;
+using Yi.Framework.Authorization.Abstractions.Enums;
+using Yi.Framework.OperationRecord.Abstractions.Attributes;
+using Yi.Module.FileManagement.Application.Contracts.Dtos;
+using Yi.Module.FileManagement.Application.Contracts.IServices;
 using Yi.Module.FileManagement.Domain.Shared.Settings;
 using Yi.Module.SettingManagement.Domain.Shared;
-using Yi.Module.TenantManagement.Application.Contracts.Dtos;
-using Yi.Module.TenantManagement.Application.Contracts.IServices;
 
-namespace Yi.Module.TenantManagement.Application.Services;
+namespace Yi.Module.FileManagement.Application.Services;
 
 /// <summary>
 /// 租户 OSS 设置管理服务（宿主管理员使用）。
@@ -16,6 +19,8 @@ namespace Yi.Module.TenantManagement.Application.Services;
 /// </para>
 /// </summary>
 [RemoteService]
+[PermissionResource("system", "tenantOSSSettings")]
+[OperLogEntity("租户OSS设置")]
 public class TenantOssSettingsService : ApplicationService, ITenantOssSettingsService
 {
     private readonly ISettingManager _settingManager;
@@ -28,7 +33,8 @@ public class TenantOssSettingsService : ApplicationService, ITenantOssSettingsSe
     /// <summary>
     /// 读取指定租户的 OSS 设置。AccessKeySecret 不回显。
     /// </summary>
-    [HttpGet("tenant-management/tenants/{tenantId}/oss-settings")]
+    [HttpGet("file-management/tenants/{tenantId}/oss-settings")]
+    [PermissionAction(PermissionActionEnum.Query)]
     public async Task<TenantOssSettingDto> GetAsync([FromRoute] Guid tenantId)
     {
         return new TenantOssSettingDto
@@ -48,7 +54,8 @@ public class TenantOssSettingsService : ApplicationService, ITenantOssSettingsSe
     /// <summary>
     /// 更新指定租户的 OSS 设置。
     /// </summary>
-    [HttpPut("tenant-management/tenants/{tenantId}/oss-settings")]
+    [HttpPut("file-management/tenants/{tenantId}/oss-settings")]
+    [PermissionAction(PermissionActionEnum.Edit)]
     public async Task UpdateAsync([FromRoute] Guid tenantId, [FromBody] TenantOssSettingDto input)
     {
         await _settingManager.SetForTenantAsync(tenantId, FileManagementSettingNames.Provider, input.Provider);

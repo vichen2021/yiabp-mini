@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Yi.Module.TenantManagement.Application.Contracts.Dtos;
+using Yi.Module.FileManagement.Application.Contracts.Dtos;
 
-namespace Yi.Module.TenantManagement.Application.Contracts.IServices;
+namespace Yi.Module.FileManagement.Application.Contracts.IServices;
 
 /// <summary>
 /// 租户 OSS 设置管理服务接口（宿主管理员使用，按租户 ID 操作）。

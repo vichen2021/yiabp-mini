@@ -149,13 +149,13 @@ const [FileUploadModal, fileUploadApi] = useVbenModal({
             {{ $t('pages.common.delete') }}
           </a-button>
           <a-button
-            v-access:code="['system:file:upload']"
+            v-access:code="['system:file:add']"
             @click="fileUploadApi.open"
           >
             文件上传
           </a-button>
           <a-button
-            v-access:code="['system:file:upload']"
+            v-access:code="['system:file:add']"
             @click="imageUploadApi.open"
           >
             图片上传
@@ -165,7 +165,7 @@ const [FileUploadModal, fileUploadApi] = useVbenModal({
       <template #action="{ row }">
         <Space>
           <ghost-button
-            v-access:code="['system:file:download']"
+            v-access:code="['system:file:query']"
             @click="handleDownload(row)"
           >
             {{ $t('pages.common.download') }}

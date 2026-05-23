@@ -15,5 +15,6 @@
     <ProjectReference Include="..\..\..\framework\operation-record\Yi.Framework.OperationRecord.Abstractions\Yi.Framework.OperationRecord.Abstractions.csproj" />
     <ProjectReference Include="..\Yi.Module.FileManagement.Application.Contracts\Yi.Module.FileManagement.Application.Contracts.csproj" />
     <ProjectReference Include="..\Yi.Module.FileManagement.Domain\Yi.Module.FileManagement.Domain.csproj" />
+    <ProjectReference Include="..\..\setting-management\Yi.Module.SettingManagement.Domain.Shared\Yi.Module.SettingManagement.Domain.Shared.csproj" />
   </ItemGroup>
 </Project>

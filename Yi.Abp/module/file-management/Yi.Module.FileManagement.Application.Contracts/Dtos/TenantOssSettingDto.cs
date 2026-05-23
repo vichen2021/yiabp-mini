@@ -1,4 +1,4 @@
-namespace Yi.Module.TenantManagement.Application.Contracts.Dtos;
+namespace Yi.Module.FileManagement.Application.Contracts.Dtos;
 
 /// <summary>
 /// 租户 OSS 设置读写 DTO。
