@@ -71,7 +71,7 @@ public class FileManagementMenuDataSeed : ITransientDependency
         MenuAggregateRoot ossSettingsQuery = new MenuAggregateRoot(_guidGenerator.Create())
         {
             MenuName = "OSS设置查询",
-            PermissionCode = "system:tenantOSSSettings:query",
+            PermissionCode = "system:tenant-oss-settings:query",
             MenuType = MenuTypeEnum.Component,
             OrderNum = 100,
             ParentId = file.Id,
@@ -82,7 +82,7 @@ public class FileManagementMenuDataSeed : ITransientDependency
         MenuAggregateRoot ossSettingsEdit = new MenuAggregateRoot(_guidGenerator.Create())
         {
             MenuName = "OSS设置编辑",
-            PermissionCode = "system:tenantOSSSettings:edit",
+            PermissionCode = "system:tenant-oss-settings:edit",
             MenuType = MenuTypeEnum.Component,
             OrderNum = 100,
             ParentId = file.Id,

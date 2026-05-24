@@ -96,7 +96,7 @@ public class TenantMenuDataSeed : ITransientDependency
         MenuAggregateRoot tenantPackage = new MenuAggregateRoot(_guidGenerator.Create())
         {
             MenuName = "租户套餐",
-            PermissionCode = "system:tenantPackage:query",
+            PermissionCode = "system:tenant-package:query",
             MenuType = MenuTypeEnum.Menu,
             Router = "tenant-package",
             IsShow = true,
@@ -113,7 +113,7 @@ public class TenantMenuDataSeed : ITransientDependency
         MenuAggregateRoot tenantPackageQuery = new MenuAggregateRoot(_guidGenerator.Create())
         {
             MenuName = "套餐查询",
-            PermissionCode = "system:tenantPackage:query",
+            PermissionCode = "system:tenant-package:query",
             MenuType = MenuTypeEnum.Component,
             OrderNum = 100,
             ParentId = tenantPackage.Id,
@@ -124,7 +124,7 @@ public class TenantMenuDataSeed : ITransientDependency
         MenuAggregateRoot tenantPackageAdd = new MenuAggregateRoot(_guidGenerator.Create())
         {
             MenuName = "套餐新增",
-            PermissionCode = "system:tenantPackage:add",
+            PermissionCode = "system:tenant-package:add",
             MenuType = MenuTypeEnum.Component,
             OrderNum = 99,
             ParentId = tenantPackage.Id,
@@ -135,7 +135,7 @@ public class TenantMenuDataSeed : ITransientDependency
         MenuAggregateRoot tenantPackageEdit = new MenuAggregateRoot(_guidGenerator.Create())
         {
             MenuName = "套餐修改",
-            PermissionCode = "system:tenantPackage:edit",
+            PermissionCode = "system:tenant-package:edit",
             MenuType = MenuTypeEnum.Component,
             OrderNum = 98,
             ParentId = tenantPackage.Id,
@@ -146,7 +146,7 @@ public class TenantMenuDataSeed : ITransientDependency
         MenuAggregateRoot tenantPackageRemove = new MenuAggregateRoot(_guidGenerator.Create())
         {
             MenuName = "套餐删除",
-            PermissionCode = "system:tenantPackage:remove",
+            PermissionCode = "system:tenant-package:remove",
             MenuType = MenuTypeEnum.Component,
             OrderNum = 97,
             ParentId = tenantPackage.Id,

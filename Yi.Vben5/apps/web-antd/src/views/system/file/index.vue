@@ -139,7 +139,7 @@ const [OssDrawer, ossDrawerApi] = useVbenDrawer({
       <template #toolbar-tools>
         <Space>
           <a-button
-            v-access:code="['system:tenantOSSSettings:query']"
+            v-access:code="['system:tenant-oss-settings:query']"
             @click="ossDrawerApi.open()"
           >
             存储设置

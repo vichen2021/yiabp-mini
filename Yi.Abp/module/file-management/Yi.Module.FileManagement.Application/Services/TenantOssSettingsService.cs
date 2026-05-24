@@ -15,7 +15,7 @@ namespace Yi.Module.FileManagement.Application.Services;
 /// 租户 OSS 存储设置服务。
 /// </summary>
 [RemoteService]
-[PermissionResource("system", "tenantOSSSettings")]
+[PermissionResource("system", "tenant-oss-settings")]
 [OperLogEntity("租户OSS设置")]
 public class TenantOssSettingsService : ApplicationService, ITenantOssSettingsService
 {
