@@ -109,7 +109,7 @@ pnpm build:antd
 
 
 ## 📬联系方式 & 交流群
-![微信交流群](resource/c6e0981ad018ba72966c4b9e5b1a664e.jpg)
+![微信交流群](resource/2e188977fa7a76bbb1f1db1ce176f5a6.jpg)
 如有问题或建议，欢迎联系：
 
 - **QQ**：1363332824
