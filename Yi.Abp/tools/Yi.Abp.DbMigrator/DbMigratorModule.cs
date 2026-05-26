@@ -72,6 +72,19 @@ public class DbMigratorModule : AbpModule
                     ConnectionString = tenant.TenantConnectionString,
                     DbType = tenant.DbType,
                     IsAutoCloseConnection = true,
+                    ConfigureExternalServices = new ConfigureExternalServices
+                    {
+                        EntityNameService = (type, entity) =>
+                        {
+                            if (options.EnableUnderLine && !entity.DbTableName.Contains('_'))
+                                entity.DbTableName = UtilMethods.ToUnderLine(entity.DbTableName);
+                        },
+                        EntityService = (prop, col) =>
+                        {
+                            if (options.EnableUnderLine && !col.IsIgnore && !col.DbColumnName.Contains('_'))
+                                col.DbColumnName = UtilMethods.ToUnderLine(col.DbColumnName);
+                        }
+                    }
                 });
 
                 tenantDb.DbMaintenance.CreateDatabase(tenant.Name);
