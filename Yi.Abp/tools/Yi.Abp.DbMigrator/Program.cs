@@ -26,6 +26,6 @@ using var application = await AbpApplicationFactory.CreateAsync<DbMigratorModule
 
 await application.InitializeAsync();
 
-Console.WriteLine("Yi DbMigrator 完成：宿主 CodeFirst + 种子数据 + 租户数据库结构同步已执行。");
+Console.WriteLine("Yi DbMigrator 完成：CodeFirst + 种子数据 + 租户数据库结构同步已执行。");
 
 await application.ShutdownAsync();

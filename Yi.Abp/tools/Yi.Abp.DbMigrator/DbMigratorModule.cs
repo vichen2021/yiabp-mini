@@ -9,7 +9,7 @@ using Volo.Abp.Modularity;
 using Yi.Abp.SqlsugarCore;
 using Yi.Framework.SqlSugarCore;
 using Yi.Framework.SqlSugarCore.Abstractions;
-using Yi.Module.TenantManagement.Domain;
+using Yi.Module.TenantManagement.Domain.Entities;
 
 namespace Yi.Abp.DbMigrator;
 
@@ -41,10 +41,11 @@ public class DbMigratorModule : AbpModule
                 && t.GetCustomAttribute<SplitTableAttribute>() == null)
             .ToArray();
 
-        // 在独立 scope 内查询宿主库全量租户列表
-        using var scope = serviceProvider.CreateScope();
-        var tenantRepository = scope.ServiceProvider.GetRequiredService<ISqlSugarTenantRepository>();
-        var tenants = await tenantRepository._DbQueryable.ToListAsync();
+        // 直接用根容器的 ISqlSugarDbContext 查询宿主库全量租户列表（与框架 InitializeDatabase 写法一致）
+        var dbContext = serviceProvider.GetRequiredService<ISqlSugarDbContext>();
+        var tenants = await dbContext.SqlSugarClient.CopyNew()
+            .Queryable<TenantAggregateRoot>()
+            .ToListAsync();
 
         if (tenants.Count == 0)
         {
