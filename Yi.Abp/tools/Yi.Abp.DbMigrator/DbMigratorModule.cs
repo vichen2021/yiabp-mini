@@ -5,8 +5,8 @@ using Microsoft.Extensions.Options;
 using SqlSugar;
 using Volo.Abp;
 using Volo.Abp.Autofac;
-using Volo.Abp.Data;
 using Volo.Abp.Modularity;
+using Volo.Abp.MultiTenancy;
 using Yi.Abp.SqlsugarCore;
 using Yi.Framework.SqlSugarCore;
 using Yi.Framework.SqlSugarCore.Abstractions;
@@ -43,7 +43,6 @@ public class DbMigratorModule : AbpModule
             .ToArray();
 
         // 直接用根容器的 ISqlSugarDbContext 查询宿主库全量租户列表（与框架 InitializeDatabase 写法一致）
-        var serializeService = serviceProvider.GetRequiredService<ISerializeService>();
         var dbContext = serviceProvider.GetRequiredService<ISqlSugarDbContext>();
         var tenants = await dbContext.SqlSugarClient.CopyNew()
             .Queryable<TenantAggregateRoot>()
@@ -69,36 +68,15 @@ public class DbMigratorModule : AbpModule
             {
                 logger.LogInformation("正在同步租户 [{Name}] 数据库结构...", tenant.Name);
 
-                var tenantDb = new SqlSugarClient(new ConnectionConfig
+                var currentTenant = serviceProvider.GetRequiredService<ICurrentTenant>();
+                using (currentTenant.Change(tenant.Id, tenant.Name))
                 {
-                    ConnectionString = tenant.TenantConnectionString,
-                    DbType = tenant.DbType,
-                    IsAutoCloseConnection = true,
-                    ConfigureExternalServices = new ConfigureExternalServices
-                    {
-                        SerializeService = serializeService,
-                        EntityNameService = (type, entity) =>
-                        {
-                            if (options.EnableUnderLine && !entity.DbTableName.Contains('_'))
-                                entity.DbTableName = UtilMethods.ToUnderLine(entity.DbTableName);
-                        },
-                        EntityService = (prop, col) =>
-                        {
-                            if (typeof(ExtraPropertyDictionary).IsAssignableFrom(prop.PropertyType))
-                            {
-                                col.IsIgnore = true;
-                                return;
-                            }
-                            if (new NullabilityInfoContext().Create(prop).WriteState is NullabilityState.Nullable)
-                                col.IsNullable = true;
-                            if (options.EnableUnderLine && !col.IsIgnore && !col.DbColumnName.Contains('_'))
-                                col.DbColumnName = UtilMethods.ToUnderLine(col.DbColumnName);
-                        }
-                    }
-                });
+                    var tenantDbContext = serviceProvider.GetRequiredService<ISqlSugarDbContext>();
+                    var tenantDb = tenantDbContext.SqlSugarClient.CopyNew();
 
-                tenantDb.DbMaintenance.CreateDatabase(tenant.Name);
-                tenantDb.CodeFirst.InitTables(entityTypes);
+                    tenantDb.DbMaintenance.CreateDatabase(tenant.Name);
+                    tenantDb.CodeFirst.InitTables(entityTypes);
+                }
 
                 logger.LogInformation("租户 [{Name}] 数据库结构同步完成。", tenant.Name);
             }
