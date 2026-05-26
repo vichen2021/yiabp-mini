@@ -1,6 +1,15 @@
+using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using SqlSugar;
+using Volo.Abp;
 using Volo.Abp.Autofac;
 using Volo.Abp.Modularity;
 using Yi.Abp.SqlsugarCore;
+using Yi.Framework.SqlSugarCore;
+using Yi.Framework.SqlSugarCore.Abstractions;
+using Yi.Module.TenantManagement.Domain;
 
 namespace Yi.Abp.DbMigrator;
 
@@ -10,4 +19,71 @@ namespace Yi.Abp.DbMigrator;
 )]
 public class DbMigratorModule : AbpModule
 {
+    public override async Task OnApplicationInitializationAsync(ApplicationInitializationContext context)
+    {
+        var serviceProvider = context.ServiceProvider;
+        var options = serviceProvider.GetRequiredService<IOptions<DbConnOptions>>().Value;
+        var logger = serviceProvider.GetRequiredService<ILogger<DbMigratorModule>>();
+
+        if (!options.EnabledSaasMultiTenancy)
+        {
+            logger.LogInformation("多租户未启用，跳过租户数据库同步。");
+            return;
+        }
+
+        // 收集需要 CodeFirst 的实体类型（过滤规则与宿主 CodeFirst 一致）
+        var moduleContainer = serviceProvider.GetRequiredService<IModuleContainer>();
+        var entityTypes = moduleContainer.Modules
+            .SelectMany(m => m.Assembly.GetTypes())
+            .Where(t => t.GetCustomAttribute<IgnoreCodeFirstAttribute>() == null
+                && t.GetCustomAttribute<SugarTable>() != null
+                && t.GetCustomAttribute<DefaultTenantTableAttribute>() == null
+                && t.GetCustomAttribute<SplitTableAttribute>() == null)
+            .ToArray();
+
+        // 在独立 scope 内查询宿主库全量租户列表
+        using var scope = serviceProvider.CreateScope();
+        var tenantRepository = scope.ServiceProvider.GetRequiredService<ISqlSugarTenantRepository>();
+        var tenants = await tenantRepository._DbQueryable.ToListAsync();
+
+        if (tenants.Count == 0)
+        {
+            logger.LogInformation("未找到任何租户，跳过租户数据库同步。");
+            return;
+        }
+
+        logger.LogInformation("开始同步 {Count} 个租户的数据库结构...", tenants.Count);
+
+        foreach (var tenant in tenants)
+        {
+            if (string.IsNullOrWhiteSpace(tenant.TenantConnectionString))
+            {
+                logger.LogWarning("租户 [{Name}] 未配置独立连接字符串，跳过。", tenant.Name);
+                continue;
+            }
+
+            try
+            {
+                logger.LogInformation("正在同步租户 [{Name}] 数据库结构...", tenant.Name);
+
+                var tenantDb = new SqlSugarClient(new ConnectionConfig
+                {
+                    ConnectionString = tenant.TenantConnectionString,
+                    DbType = tenant.DbType,
+                    IsAutoCloseConnection = true,
+                });
+
+                tenantDb.DbMaintenance.CreateDatabase(tenant.Name);
+                tenantDb.CodeFirst.InitTables(entityTypes);
+
+                logger.LogInformation("租户 [{Name}] 数据库结构同步完成。", tenant.Name);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "租户 [{Name}] 数据库结构同步失败。", tenant.Name);
+            }
+        }
+
+        logger.LogInformation("所有租户数据库结构同步完成。");
+    }
 }

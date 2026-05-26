@@ -238,7 +238,7 @@ namespace Yi.Module.TenantManagement.Application
         }
 
         /// <summary>
-        /// 同步套餐菜单到租户
+        /// 同步套餐菜单与数据结构到租户
         /// </summary>
         /// <param name="tenantId">租户ID</param>
         /// <param name="packageId">套餐ID</param>
@@ -246,6 +246,18 @@ namespace Yi.Module.TenantManagement.Application
         [OperLog("同步租户套餐", Yi.Framework.OperationRecord.Abstractions.Enums.OperEnum.Update)]
         public async Task SyncPackageAsync(Guid tenantId, Guid packageId)
         {
+            // 同步租户数据库表结构
+            var tenant = await _repository.GetByIdAsync(tenantId);
+            if (tenant is null)
+            {
+                throw new UserFriendlyException("租户不存在");
+            }
+
+            using (CurrentTenant.Change(tenantId))
+            {
+                await CodeFirst(this.LazyServiceProvider, tenant.Name);
+            }
+
             // 查询套餐关联的宿主菜单 ID
             var packageMenuIds = await _tenantPackageMenuRepository._DbQueryable
                 .Where(x => x.PackageId == packageId)
