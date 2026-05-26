@@ -42,6 +42,7 @@ public class DbMigratorModule : AbpModule
             .ToArray();
 
         // 直接用根容器的 ISqlSugarDbContext 查询宿主库全量租户列表（与框架 InitializeDatabase 写法一致）
+        var serializeService = serviceProvider.GetRequiredService<ISerializeService>();
         var dbContext = serviceProvider.GetRequiredService<ISqlSugarDbContext>();
         var tenants = await dbContext.SqlSugarClient.CopyNew()
             .Queryable<TenantAggregateRoot>()
@@ -74,6 +75,7 @@ public class DbMigratorModule : AbpModule
                     IsAutoCloseConnection = true,
                     ConfigureExternalServices = new ConfigureExternalServices
                     {
+                        SerializeService = serializeService,
                         EntityNameService = (type, entity) =>
                         {
                             if (options.EnableUnderLine && !entity.DbTableName.Contains('_'))
