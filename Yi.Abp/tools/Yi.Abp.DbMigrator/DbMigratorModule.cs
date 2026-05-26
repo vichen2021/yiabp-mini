@@ -81,6 +81,8 @@ public class DbMigratorModule : AbpModule
                         },
                         EntityService = (prop, col) =>
                         {
+                            if (new NullabilityInfoContext().Create(prop).WriteState is NullabilityState.Nullable)
+                                col.IsNullable = true;
                             if (options.EnableUnderLine && !col.IsIgnore && !col.DbColumnName.Contains('_'))
                                 col.DbColumnName = UtilMethods.ToUnderLine(col.DbColumnName);
                         }
