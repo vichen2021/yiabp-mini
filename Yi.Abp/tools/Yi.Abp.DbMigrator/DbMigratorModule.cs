@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using SqlSugar;
 using Volo.Abp;
 using Volo.Abp.Autofac;
+using Volo.Abp.Data;
 using Volo.Abp.Modularity;
 using Yi.Abp.SqlsugarCore;
 using Yi.Framework.SqlSugarCore;
@@ -83,6 +84,11 @@ public class DbMigratorModule : AbpModule
                         },
                         EntityService = (prop, col) =>
                         {
+                            if (typeof(ExtraPropertyDictionary).IsAssignableFrom(prop.PropertyType))
+                            {
+                                col.IsIgnore = true;
+                                return;
+                            }
                             if (new NullabilityInfoContext().Create(prop).WriteState is NullabilityState.Nullable)
                                 col.IsNullable = true;
                             if (options.EnableUnderLine && !col.IsIgnore && !col.DbColumnName.Contains('_'))
