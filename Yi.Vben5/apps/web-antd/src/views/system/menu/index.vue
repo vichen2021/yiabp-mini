@@ -172,9 +172,7 @@ function setExpandOrCollapse(expand: boolean) {
 /**
  * 与后台逻辑相同
  * 只有租户管理和超级管理能访问菜单管理
- * 注意: 只有超管才能对菜单进行`增删改`操作
- * 注意: 只有超管才能对菜单进行`增删改`操作
- * 注意: 只有超管才能对菜单进行`增删改`操作
+ * 注意: admin 和 superadmin 均可对菜单进行`增删改`操作
  */
 const { hasAccessByRoles } = useAccess();
 const isAdmin = computed(() => {
@@ -189,7 +187,7 @@ const isAdmin = computed(() => {
         <Space>
           <Tooltip title="删除菜单以及子菜单">
             <div
-              v-access:role="['superadmin']"
+              v-access:role="['admin', 'superadmin']"
               v-access:code="['system:menu:remove']"
               class="flex items-center"
             >
@@ -206,7 +204,7 @@ const isAdmin = computed(() => {
           <a-button
             type="primary"
             v-access:code="['system:menu:add']"
-            v-access:role="['superadmin']"
+            v-access:role="['admin', 'superadmin']"
             @click="handleAdd"
           >
             {{ $t('pages.common.add') }}
@@ -217,7 +215,7 @@ const isAdmin = computed(() => {
         <Space>
           <ghost-button
             v-access:code="['system:menu:edit']"
-            v-access:role="['superadmin']"
+            v-access:role="['admin', 'superadmin']"
             @click="handleEdit(row)"
           >
             {{ $t('pages.common.edit') }}
@@ -227,7 +225,7 @@ const isAdmin = computed(() => {
             v-if="row.menuType !== 'F'"
             class="btn-success"
             v-access:code="['system:menu:add']"
-            v-access:role="['superadmin']"
+            v-access:role="['admin', 'superadmin']"
             @click="handleSubAdd(row)"
           >
             {{ $t('pages.common.add') }}
@@ -241,7 +239,7 @@ const isAdmin = computed(() => {
             <ghost-button
               danger
               v-access:code="['system:menu:remove']"
-              v-access:role="['superadmin']"
+              v-access:role="['admin', 'superadmin']"
               @click.stop=""
             >
               {{ $t('pages.common.delete') }}
