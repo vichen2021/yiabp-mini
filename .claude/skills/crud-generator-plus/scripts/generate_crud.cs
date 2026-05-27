@@ -548,7 +548,7 @@ string GenerateService(EntityInfo entity)
     sb.AppendLine($"    /// <summary>");
     sb.AppendLine($"    /// {entity.EntityComment}服务实现");
     sb.AppendLine($"    /// </summary>");
-    sb.AppendLine($"    [OperLogEntity(\"{operLogEntityName}\")]");
+    sb.AppendLine($"    [OperLogEntity(\"{entity.EntityComment}\")]");
     sb.AppendLine($"    [PermissionResource(\"{entity.Module}\", \"{entity.EntityNameLower}\")]");
     sb.AppendLine($"    public class {entity.EntityName}Service : YiCrudAppService<{entity.EntityName}AggregateRoot, {entity.EntityName}GetOutputDto, {entity.EntityName}GetListOutputDto, Guid,");
     sb.AppendLine($"        {entity.EntityName}GetListInputVo, {entity.EntityName}CreateInputVo, {entity.EntityName}UpdateInputVo>, I{entity.EntityName}Service");
