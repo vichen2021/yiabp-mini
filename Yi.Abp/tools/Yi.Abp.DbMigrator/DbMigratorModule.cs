@@ -7,9 +7,11 @@ using Volo.Abp;
 using Volo.Abp.Autofac;
 using Volo.Abp.Modularity;
 using Volo.Abp.MultiTenancy;
+using Volo.Abp.Uow;
 using Yi.Abp.SqlsugarCore;
 using Yi.Framework.SqlSugarCore;
 using Yi.Framework.SqlSugarCore.Abstractions;
+using Yi.Module.TenantManagement.Domain;
 using Yi.Module.TenantManagement.Domain.Entities;
 
 namespace Yi.Abp.DbMigrator;
@@ -42,7 +44,11 @@ public class DbMigratorModule : AbpModule
                 && t.GetCustomAttribute<SplitTableAttribute>() == null)
             .ToArray();
 
-        // 直接用根容器的 ISqlSugarDbContext 查询宿主库全量租户列表（与框架 InitializeDatabase 写法一致）
+        var currentTenant = serviceProvider.GetRequiredService<ICurrentTenant>();
+        var uowManager = serviceProvider.GetRequiredService<IUnitOfWorkManager>();
+        var tenantRepository = serviceProvider.GetRequiredService<ISqlSugarTenantRepository>();
+
+        // 直接用根容器的 ISqlSugarDbContext 查询宿主库全量租户列表
         var dbContext = serviceProvider.GetRequiredService<ISqlSugarDbContext>();
         var tenants = await dbContext.SqlSugarClient.CopyNew()
             .Queryable<TenantAggregateRoot>()
@@ -68,14 +74,12 @@ public class DbMigratorModule : AbpModule
             {
                 logger.LogInformation("正在同步租户 [{Name}] 数据库结构...", tenant.Name);
 
-                var currentTenant = serviceProvider.GetRequiredService<ICurrentTenant>();
-                using (currentTenant.Change(tenant.Id, tenant.Name))
+                using (currentTenant.Change(tenant.Id))
                 {
-                    var tenantDbContext = serviceProvider.GetRequiredService<ISqlSugarDbContext>();
-                    var tenantDb = tenantDbContext.SqlSugarClient.CopyNew();
-
-                    tenantDb.DbMaintenance.CreateDatabase(tenant.Name);
-                    tenantDb.CodeFirst.InitTables(entityTypes);
+                    using var uow = uowManager.Begin(requiresNew: true, isTransactional: false);
+                    await tenantRepository.CreateDatabaseAsync(tenant.Name);
+                    await tenantRepository.InitTablesAsync(entityTypes);
+                    await uow.CompleteAsync();
                 }
 
                 logger.LogInformation("租户 [{Name}] 数据库结构同步完成。", tenant.Name);
@@ -83,6 +87,7 @@ public class DbMigratorModule : AbpModule
             catch (Exception ex)
             {
                 logger.LogError(ex, "租户 [{Name}] 数据库结构同步失败。", tenant.Name);
+                throw;
             }
         }
 

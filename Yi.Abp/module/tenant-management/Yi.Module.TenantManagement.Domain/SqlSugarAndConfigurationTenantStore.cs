@@ -73,7 +73,7 @@ namespace Yi.Module.TenantManagement.Domain
         {
             var cacheKey = CalculateCacheKey(id, name);
 
-            var cacheItem = await Cache.GetAsync(cacheKey, considerUow: true);
+            var cacheItem = await Cache.GetAsync(cacheKey, hideErrors: true, considerUow: true);
             if (cacheItem != null)
             {
                 return cacheItem;
@@ -109,7 +109,7 @@ namespace Yi.Module.TenantManagement.Domain
         {
             var tenantConfiguration = tenant != null ? MapToConfiguration(tenant) : null;
             var cacheItem = new TenantCacheItem(tenantConfiguration);
-            await Cache.SetAsync(cacheKey, cacheItem, considerUow: true);
+            await Cache.SetAsync(cacheKey, cacheItem, hideErrors: true, considerUow: true);
             return cacheItem;
         }
 
