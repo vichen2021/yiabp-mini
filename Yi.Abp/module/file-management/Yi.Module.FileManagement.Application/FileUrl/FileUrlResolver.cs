@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Volo.Abp.DependencyInjection;
+using Volo.Abp.MultiTenancy;
 using Yi.Module.FileManagement.Application.Contracts.FileUrl;
 
 namespace Yi.Module.FileManagement.Application.FileUrl;
@@ -9,10 +10,12 @@ public class FileUrlResolver : IFileUrlResolver, ITransientDependency
     private const string FileGetPath = "/api/file/get";
 
     private readonly IConfiguration _configuration;
+    private readonly ICurrentTenant _currentTenant;
 
-    public FileUrlResolver(IConfiguration configuration)
+    public FileUrlResolver(IConfiguration configuration, ICurrentTenant currentTenant)
     {
         _configuration = configuration;
+        _currentTenant = currentTenant;
     }
 
     public string? Resolve(Guid? fileId)
@@ -23,7 +26,9 @@ public class FileUrlResolver : IFileUrlResolver, ITransientDependency
         }
 
         var baseUrl = GetPublicBaseUrl();
-        var path = $"{FileGetPath}/{fileId.Value}";
+        var tenantId = _currentTenant.Id;
+        var qs = tenantId.HasValue ? $"?tenant={tenantId.Value}" : string.Empty;
+        var path = $"{FileGetPath}/{fileId.Value}{qs}";
 
         if (string.IsNullOrWhiteSpace(baseUrl))
         {
