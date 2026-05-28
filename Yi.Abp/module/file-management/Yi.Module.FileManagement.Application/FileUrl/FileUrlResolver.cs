@@ -1,8 +1,10 @@
 using Microsoft.Extensions.Configuration;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.MultiTenancy;
+using Yi.Framework.SqlSugarCore.Abstractions;
 using Yi.Module.FileManagement.Application.BlobStoring;
 using Yi.Module.FileManagement.Application.Contracts.FileUrl;
+using Yi.Module.FileManagement.Domain.Entities;
 
 namespace Yi.Module.FileManagement.Application.FileUrl;
 
@@ -12,19 +14,22 @@ public class FileUrlResolver : IFileUrlResolver, ITransientDependency
 
     private readonly IConfiguration _configuration;
     private readonly ICurrentTenant _currentTenant;
+    private readonly ISqlSugarRepository<FileAggregateRoot, Guid> _repository;
     private readonly FileStorageOptionsResolver _optionsResolver;
 
     public FileUrlResolver(
         IConfiguration configuration,
         ICurrentTenant currentTenant,
+        ISqlSugarRepository<FileAggregateRoot, Guid> repository,
         FileStorageOptionsResolver optionsResolver)
     {
         _configuration = configuration;
         _currentTenant = currentTenant;
+        _repository = repository;
         _optionsResolver = optionsResolver;
     }
 
-    public string? Resolve(Guid? fileId)
+    public string? Resolve(Guid? fileId, string? storageKey = null)
     {
         if (!fileId.HasValue || fileId.Value == Guid.Empty)
         {
@@ -33,16 +38,32 @@ public class FileUrlResolver : IFileUrlResolver, ITransientDependency
 
         var provider = _optionsResolver.ResolveProvider();
         return string.Equals(provider, "Aliyun", StringComparison.OrdinalIgnoreCase)
-            ? BuildOssUrl(fileId.Value)
+            ? BuildOssUrl(fileId.Value, storageKey)
             : BuildProxyUrl(fileId.Value);
     }
 
-    private string BuildOssUrl(Guid fileId)
+    private string BuildOssUrl(Guid fileId, string? storageKey)
     {
         var aliyunOptions = _optionsResolver.ResolveAliyun();
-        var pathPrefix = _optionsResolver.ResolvePathPrefix();
+        var objectKey = string.IsNullOrWhiteSpace(storageKey)
+            ? ResolveStorageKey(fileId)
+            : storageKey.Trim('/');
 
-        return $"https://{aliyunOptions.ContainerName}.{aliyunOptions.Endpoint}/{pathPrefix}/{fileId}";
+        var tenantId = _currentTenant.Id;
+        if (tenantId.HasValue && !objectKey.StartsWith("tenants/", StringComparison.OrdinalIgnoreCase))
+        {
+            objectKey = $"tenants/{tenantId.Value}/{objectKey}";
+        }
+
+        return $"https://{aliyunOptions.ContainerName}.{aliyunOptions.Endpoint}/{objectKey}";
+    }
+
+    private string ResolveStorageKey(Guid fileId)
+    {
+        var file = _repository.GetByIdAsync(fileId).GetAwaiter().GetResult();
+        return string.IsNullOrWhiteSpace(file?.StorageKey)
+            ? _optionsResolver.CreateStorageKey(fileId)
+            : file.StorageKey.Trim('/');
     }
 
     private string BuildProxyUrl(Guid fileId)
