@@ -12,8 +12,8 @@ public class FileManagementSettingDefinitionProvider : SettingDefinitionProvider
     public override void Define(ISettingDefinitionContext context)
     {
         context.Add(
-            new SettingDefinition(FileManagementSettingNames.Provider, "FileSystem", isInherited: true),
-            new SettingDefinition(FileManagementSettingNames.PathPrefix, "default", isInherited: true),
+            new SettingDefinition(FileManagementSettingNames.Provider, isInherited: true),
+            new SettingDefinition(FileManagementSettingNames.PathPrefix, isInherited: true),
             new SettingDefinition(FileManagementSettingNames.Aliyun.AccessKeyId, isInherited: true),
             new SettingDefinition(FileManagementSettingNames.Aliyun.AccessKeySecret, isInherited: true, isEncrypted: true),
             new SettingDefinition(FileManagementSettingNames.Aliyun.Endpoint, isInherited: true),

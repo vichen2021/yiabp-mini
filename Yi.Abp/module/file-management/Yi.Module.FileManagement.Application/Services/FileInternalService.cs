@@ -1,10 +1,8 @@
-using Microsoft.Extensions.Configuration;
 using Volo.Abp.Application.Services;
 using Volo.Abp.BlobStoring;
-using Volo.Abp.Settings;
+using Yi.Module.FileManagement.Application.BlobStoring;
 using Yi.Module.FileManagement.Application.Contracts.IServices;
 using Yi.Module.FileManagement.Domain.File;
-using Yi.Module.FileManagement.Domain.Shared.Settings;
 
 namespace Yi.Module.FileManagement.Application.Services;
 
@@ -16,19 +14,16 @@ public class FileInternalService : ApplicationService, IFileInternalService
 {
     private readonly FileManager _fileManager;
     private readonly IBlobContainer<FileManagementContainer> _blobContainer;
-    private readonly IConfiguration _configuration;
-    private readonly ISettingProvider _settingProvider;
+    private readonly FileStorageOptionsResolver _optionsResolver;
 
     public FileInternalService(
         FileManager fileManager,
         IBlobContainer<FileManagementContainer> blobContainer,
-        IConfiguration configuration,
-        ISettingProvider settingProvider)
+        FileStorageOptionsResolver optionsResolver)
     {
         _fileManager = fileManager;
         _blobContainer = blobContainer;
-        _configuration = configuration;
-        _settingProvider = settingProvider;
+        _optionsResolver = optionsResolver;
     }
 
     /// <summary>
@@ -43,8 +38,8 @@ public class FileInternalService : ApplicationService, IFileInternalService
             content.Length,
             contentType,
             content,
-            await CreateStorageKeyAsync(id),
-            await GetCurrentProviderAsync(),
+            _optionsResolver.CreateStorageKey(id),
+            _optionsResolver.ResolveProvider(),
             overwrite: false);
         return id;
     }
@@ -59,22 +54,5 @@ public class FileInternalService : ApplicationService, IFileInternalService
         using var ms = new MemoryStream();
         await stream.CopyToAsync(ms);
         return (ms.ToArray(), fileObject.ContentType, fileObject.FileName);
-    }
-
-    private async Task<string> GetCurrentProviderAsync()
-    {
-        var v = await _settingProvider.GetOrNullAsync(FileManagementSettingNames.Provider);
-        return string.IsNullOrWhiteSpace(v)
-            ? (_configuration["BlobStoring:Provider"] ?? "FileSystem")
-            : v;
-    }
-
-    private async Task<string> CreateStorageKeyAsync(Guid id)
-    {
-        var pathPrefix = await _settingProvider.GetOrNullAsync(FileManagementSettingNames.PathPrefix);
-        if (string.IsNullOrWhiteSpace(pathPrefix))
-            pathPrefix = _configuration["BlobStoring:PathPrefix"] ?? "default";
-        pathPrefix = pathPrefix.Trim('/');
-        return $"{pathPrefix}/{id}";
     }
 }

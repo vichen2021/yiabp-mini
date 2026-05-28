@@ -1,9 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.MultiTenancy;
-using Volo.Abp.Settings;
+using Yi.Module.FileManagement.Application.BlobStoring;
 using Yi.Module.FileManagement.Application.Contracts.FileUrl;
-using Yi.Module.FileManagement.Domain.Shared.Settings;
 
 namespace Yi.Module.FileManagement.Application.FileUrl;
 
@@ -13,13 +12,16 @@ public class FileUrlResolver : IFileUrlResolver, ITransientDependency
 
     private readonly IConfiguration _configuration;
     private readonly ICurrentTenant _currentTenant;
-    private readonly ISettingProvider _settingProvider;
+    private readonly FileStorageOptionsResolver _optionsResolver;
 
-    public FileUrlResolver(IConfiguration configuration, ICurrentTenant currentTenant, ISettingProvider settingProvider)
+    public FileUrlResolver(
+        IConfiguration configuration,
+        ICurrentTenant currentTenant,
+        FileStorageOptionsResolver optionsResolver)
     {
         _configuration = configuration;
         _currentTenant = currentTenant;
-        _settingProvider = settingProvider;
+        _optionsResolver = optionsResolver;
     }
 
     public string? Resolve(Guid? fileId)
@@ -29,29 +31,18 @@ public class FileUrlResolver : IFileUrlResolver, ITransientDependency
             return null;
         }
 
-        return IsAliyunProvider()
+        var provider = _optionsResolver.ResolveProvider();
+        return string.Equals(provider, "Aliyun", StringComparison.OrdinalIgnoreCase)
             ? BuildOssUrl(fileId.Value)
             : BuildProxyUrl(fileId.Value);
     }
 
-    private bool IsAliyunProvider()
-    {
-        var provider = GetSetting(FileManagementSettingNames.Provider,
-            _configuration["BlobStoring:Provider"]);
-        return string.Equals(provider, "Aliyun", StringComparison.OrdinalIgnoreCase);
-    }
-
     private string BuildOssUrl(Guid fileId)
     {
-        var endpoint = GetSetting(FileManagementSettingNames.Aliyun.Endpoint,
-            _configuration["BlobStoring:Aliyun:Endpoint"]) ?? "";
-        var containerName = GetSetting(FileManagementSettingNames.Aliyun.ContainerName,
-            _configuration["BlobStoring:Aliyun:ContainerName"]) ?? "";
-        var pathPrefix = GetSetting(FileManagementSettingNames.PathPrefix,
-            _configuration["BlobStoring:PathPrefix"]) ?? "default";
-        pathPrefix = pathPrefix.Trim('/');
+        var aliyunOptions = _optionsResolver.ResolveAliyun();
+        var pathPrefix = _optionsResolver.ResolvePathPrefix();
 
-        return $"https://{containerName}.{endpoint}/{pathPrefix}/{fileId}";
+        return $"https://{aliyunOptions.ContainerName}.{aliyunOptions.Endpoint}/{pathPrefix}/{fileId}";
     }
 
     private string BuildProxyUrl(Guid fileId)
@@ -62,12 +53,6 @@ public class FileUrlResolver : IFileUrlResolver, ITransientDependency
         var path = $"{FileGetPath}/{fileId}{qs}";
 
         return string.IsNullOrWhiteSpace(baseUrl) ? path : $"{baseUrl}{path}";
-    }
-
-    private string? GetSetting(string settingName, string? configFallback)
-    {
-        var value = _settingProvider.GetOrNullAsync(settingName).GetAwaiter().GetResult();
-        return string.IsNullOrWhiteSpace(value) ? configFallback : value;
     }
 
     private string? GetPublicBaseUrl()

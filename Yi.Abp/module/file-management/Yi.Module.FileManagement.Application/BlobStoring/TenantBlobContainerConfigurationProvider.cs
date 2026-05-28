@@ -1,10 +1,7 @@
-using Microsoft.Extensions.Configuration;
 using Volo.Abp.BlobStoring;
 using Volo.Abp.BlobStoring.Aliyun;
 using Volo.Abp.BlobStoring.FileSystem;
 using Volo.Abp.DependencyInjection;
-using Volo.Abp.Settings;
-using Yi.Module.FileManagement.Domain.Shared.Settings;
 
 namespace Yi.Module.FileManagement.Application.BlobStoring;
 
@@ -22,15 +19,11 @@ namespace Yi.Module.FileManagement.Application.BlobStoring;
 public class TenantBlobContainerConfigurationProvider
     : IBlobContainerConfigurationProvider, ITransientDependency
 {
-    private readonly ISettingProvider _settingProvider;
-    private readonly IConfiguration _configuration;
+    private readonly FileStorageOptionsResolver _optionsResolver;
 
-    public TenantBlobContainerConfigurationProvider(
-        ISettingProvider settingProvider,
-        IConfiguration configuration)
+    public TenantBlobContainerConfigurationProvider(FileStorageOptionsResolver optionsResolver)
     {
-        _settingProvider = settingProvider;
-        _configuration = configuration;
+        _optionsResolver = optionsResolver;
     }
 
     /// <summary>
@@ -40,50 +33,30 @@ public class TenantBlobContainerConfigurationProvider
     /// </summary>
     public BlobContainerConfiguration Get(string name)
     {
-        var provider = _settingProvider
-            .GetOrNullAsync(FileManagementSettingNames.Provider)
-            .GetAwaiter().GetResult()
-            ?? _configuration["BlobStoring:Provider"]
-            ?? "FileSystem";
+        var provider = _optionsResolver.ResolveProvider();
 
         var config = new BlobContainerConfiguration();
 
         if (string.Equals(provider, "Aliyun", StringComparison.OrdinalIgnoreCase))
         {
+            var aliyunOptions = _optionsResolver.ResolveAliyun();
             config.UseAliyun(aliyun =>
             {
-                aliyun.AccessKeyId = GetSetting(
-                    FileManagementSettingNames.Aliyun.AccessKeyId,
-                    _configuration["BlobStoring:Aliyun:AccessKeyId"]) ?? "";
-                aliyun.AccessKeySecret = GetSetting(
-                    FileManagementSettingNames.Aliyun.AccessKeySecret,
-                    _configuration["BlobStoring:Aliyun:AccessKeySecret"]) ?? "";
-                aliyun.Endpoint = GetSetting(
-                    FileManagementSettingNames.Aliyun.Endpoint,
-                    _configuration["BlobStoring:Aliyun:Endpoint"]) ?? "";
-                aliyun.ContainerName = GetSetting(
-                    FileManagementSettingNames.Aliyun.ContainerName,
-                    _configuration["BlobStoring:Aliyun:ContainerName"]) ?? "";
-                aliyun.CreateContainerIfNotExists = bool.Parse(
-                    GetSetting(
-                        FileManagementSettingNames.Aliyun.CreateContainerIfNotExists,
-                        _configuration["BlobStoring:Aliyun:CreateContainerIfNotExists"]) ?? "false");
+                aliyun.AccessKeyId = aliyunOptions.AccessKeyId;
+                aliyun.AccessKeySecret = aliyunOptions.AccessKeySecret;
+                aliyun.Endpoint = aliyunOptions.Endpoint;
+                aliyun.ContainerName = aliyunOptions.ContainerName;
+                aliyun.CreateContainerIfNotExists = aliyunOptions.CreateContainerIfNotExists;
             });
         }
         else
         {
             config.UseFileSystem(fs =>
             {
-                fs.BasePath = _configuration["BlobStoring:FileSystem:BasePath"] ?? "wwwroot/FileStorage";
+                fs.BasePath = _optionsResolver.ResolveFileSystemBasePath();
             });
         }
 
         return config;
-    }
-
-    private string? GetSetting(string settingName, string? configFallback)
-    {
-        var value = _settingProvider.GetOrNullAsync(settingName).GetAwaiter().GetResult();
-        return string.IsNullOrWhiteSpace(value) ? configFallback : value;
     }
 }

@@ -1,11 +1,10 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using SqlSugar;
 using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.BlobStoring;
-using Volo.Abp.Settings;
+using Yi.Module.FileManagement.Application.BlobStoring;
 using Yi.Framework.Ddd.Application;
 using Yi.Framework.Authorization.Abstractions.Attributes;
 using Yi.Framework.Authorization.Abstractions.Enums;
@@ -14,7 +13,6 @@ using Yi.Module.FileManagement.Application.Contracts.Dtos;
 using Yi.Module.FileManagement.Application.Contracts.IServices;
 using Yi.Module.FileManagement.Domain.Entities;
 using Yi.Module.FileManagement.Domain.File;
-using Yi.Module.FileManagement.Domain.Shared.Settings;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
 namespace Yi.Module.FileManagement.Application.Services;
@@ -31,19 +29,17 @@ public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutput
     private readonly FileManager _fileManager;
     private readonly IBlobContainer<FileManagementContainer> _blobContainer;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IConfiguration _configuration;
-    private readonly ISettingProvider _settingProvider;
+    private readonly FileStorageOptionsResolver _optionsResolver;
 
     public FileService(
         ISqlSugarRepository<FileAggregateRoot, Guid> repository,
         FileManager fileManager,
         IBlobContainer<FileManagementContainer> blobContainer,
         IHttpContextAccessor httpContextAccessor,
-        IConfiguration configuration,
-        ISettingProvider settingProvider)
+        FileStorageOptionsResolver optionsResolver)
         : base(repository) =>
-        (_repository, _fileManager, _blobContainer, _httpContextAccessor, _configuration, _settingProvider) =
-        (repository, fileManager, blobContainer, httpContextAccessor, configuration, settingProvider);
+        (_repository, _fileManager, _blobContainer, _httpContextAccessor, _optionsResolver) =
+        (repository, fileManager, blobContainer, httpContextAccessor, optionsResolver);
 
     /// <summary>
     /// 多查
@@ -115,8 +111,8 @@ public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutput
                 formFile.Length,
                 formFile.ContentType,
                 fileBytes,
-                await CreateStorageKeyAsync(id),
-                await GetCurrentProviderAsync(),
+                _optionsResolver.CreateStorageKey(id),
+                _optionsResolver.ResolveProvider(),
                 overwrite: false);
             ids.Add(dto.Id);
         }
@@ -139,8 +135,8 @@ public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutput
             file.Length,
             file.ContentType,
             fileBytes,
-            await CreateStorageKeyAsync(id),
-            await GetCurrentProviderAsync(),
+            _optionsResolver.CreateStorageKey(id),
+            _optionsResolver.ResolveProvider(),
             overwrite: false);
 
         var request = _httpContextAccessor.HttpContext?.Request;
@@ -162,21 +158,5 @@ public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutput
         };
     }
 
-    private async Task<string> GetCurrentProviderAsync()
-    {
-        var v = await _settingProvider.GetOrNullAsync(FileManagementSettingNames.Provider);
-        return string.IsNullOrWhiteSpace(v)
-            ? (_configuration["BlobStoring:Provider"] ?? "FileSystem")
-            : v;
-    }
-
-    private async Task<string> CreateStorageKeyAsync(Guid id)
-    {
-        var pathPrefix = await _settingProvider.GetOrNullAsync(FileManagementSettingNames.PathPrefix);
-        if (string.IsNullOrWhiteSpace(pathPrefix))
-            pathPrefix = _configuration["BlobStoring:PathPrefix"] ?? "default";
-        pathPrefix = pathPrefix.Trim('/');
-        return $"{pathPrefix}/{id}";
-    }
 }
 
