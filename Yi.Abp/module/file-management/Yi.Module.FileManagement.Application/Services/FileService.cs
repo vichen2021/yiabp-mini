@@ -10,6 +10,7 @@ using Yi.Framework.Authorization.Abstractions.Attributes;
 using Yi.Framework.Authorization.Abstractions.Enums;
 using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Module.FileManagement.Application.Contracts.Dtos;
+using Yi.Module.FileManagement.Application.Contracts.Dtos.File;
 using Yi.Module.FileManagement.Application.Contracts.IServices;
 using Yi.Module.FileManagement.Domain.Entities;
 using Yi.Module.FileManagement.Domain.File;
@@ -156,6 +157,60 @@ public class FileService : YiCrudAppService<FileAggregateRoot, FileGetListOutput
         {
             FileDownloadName = fileObject.FileName
         };
+    }
+
+    /// <summary>
+    /// 迁移本地文件到 OSS
+    /// </summary>
+    [IgnorePermission]
+    public async Task<FileMigrationResultDto> MigrateToOssAsync()
+    {
+        var currentProvider = _optionsResolver.ResolveProvider();
+        if (!string.Equals(currentProvider, "Aliyun", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new UserFriendlyException($"当前 Provider 为 [{currentProvider}]，请先配置 Aliyun OSS 后再执行迁移");
+        }
+
+        var basePath = _optionsResolver.ResolveFileSystemBasePath();
+        var containerName = "file-management";
+        var tenantId = CurrentTenant.Id?.ToString();
+
+        var files = await _repository._DbQueryable
+            .Where(x => x.Provider == "FileSystem")
+            .ToListAsync();
+
+        var result = new FileMigrationResultDto { Total = files.Count };
+
+        foreach (var file in files)
+        {
+            try
+            {
+                var localPath = string.IsNullOrWhiteSpace(tenantId)
+                    ? Path.Combine(basePath, containerName, file.StorageKey)
+                    : Path.Combine(basePath, "tenants", tenantId, containerName, file.StorageKey);
+
+                if (!System.IO.File.Exists(localPath))
+                {
+                    result.Failed++;
+                    result.Errors.Add($"{file.Id}: 本地文件不存在 {localPath}");
+                    continue;
+                }
+
+                var bytes = await System.IO.File.ReadAllBytesAsync(localPath);
+                await _blobContainer.SaveAsync(file.StorageKey, bytes, overrideExisting: true);
+
+                file.Update(file.FileSize, file.ContentType, file.FileName, file.Hash, "Aliyun");
+                await _repository.UpdateAsync(file);
+                result.Success++;
+            }
+            catch (Exception ex)
+            {
+                result.Failed++;
+                result.Errors.Add($"{file.Id}: {ex.Message}");
+            }
+        }
+
+        return result;
     }
 
 }
