@@ -2,7 +2,7 @@
 import { useVbenDrawer } from '@vben/common-ui';
 
 import { useVbenForm } from '#/adapter/form';
-import { ossSettingGet, ossSettingUpdate } from '#/api/system/tenant-oss-settings';
+import { ossSettingGet, ossSettingUpdate } from '#/api/system/file';
 
 const [BasicForm, formApi] = useVbenForm({
   commonConfig: {

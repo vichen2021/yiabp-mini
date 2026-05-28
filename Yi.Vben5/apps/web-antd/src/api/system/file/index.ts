@@ -1,6 +1,6 @@
 import type { AxiosRequestConfig } from '@vben/request';
 
-import type { FileItem, OssFile } from './model';
+import type { FileItem, OssFile, TenantOssSetting } from './model';
 
 import type { ID, IDS, PageQuery, PageResult } from '#/api/common';
 
@@ -10,6 +10,7 @@ import { requestClient } from '#/api/request';
 enum Api {
   fileUpload = '/file/upload',
   fileBatchUpload = '/file/batch-upload',
+  ossSettings = '/file-management/oss-settings',
   root = '/file',
 }
 
@@ -113,4 +114,20 @@ export async function ossInfo(ids: ID | IDS): Promise<OssFile[]> {
     originalName: item.fileName,
     url: getFileUrl(item.id),
   }));
+}
+
+/**
+ * 读取当前租户的 OSS 存储设置
+ * AccessKeySecret 不回显
+ */
+export function ossSettingGet() {
+  return requestClient.get<TenantOssSetting>(Api.ossSettings);
+}
+
+/**
+ * 更新当前租户的 OSS 存储设置
+ * AccessKeySecret 为空时不覆盖原值
+ */
+export function ossSettingUpdate(data: TenantOssSetting) {
+  return requestClient.putWithMsg<void>(Api.ossSettings, data);
 }
