@@ -72,6 +72,16 @@ const [BasicForm, formApi] = useVbenForm({
         show: (model) => model.provider === 'Aliyun',
         triggerFields: ['provider'],
       },
+      fieldName: 'customDomain',
+      label: '自定义域名',
+      help: '可选，如：https://cdn.example.com；为空时使用默认 Bucket 域名',
+    },
+    {
+      component: 'Input',
+      dependencies: {
+        show: (model) => model.provider === 'Aliyun',
+        triggerFields: ['provider'],
+      },
       fieldName: 'accessKeyId',
       label: 'AccessKeyId',
     },
@@ -123,6 +133,7 @@ async function handleConfirm() {
       accessKeySecret: values.accessKeySecret,
       endpoint: values.endpoint,
       containerName: values.containerName,
+      customDomain: values.customDomain,
       createContainerIfNotExists: values.createContainerIfNotExists ?? false,
     });
     drawerApi.close();

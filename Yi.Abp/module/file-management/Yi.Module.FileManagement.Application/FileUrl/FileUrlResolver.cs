@@ -55,7 +55,20 @@ public class FileUrlResolver : IFileUrlResolver, ITransientDependency
             objectKey = $"tenants/{tenantId.Value}/{objectKey}";
         }
 
-        return $"https://{aliyunOptions.ContainerName}.{aliyunOptions.Endpoint}/{objectKey}";
+        return $"{ResolveOssBaseUrl(aliyunOptions)}/{objectKey}";
+    }
+
+    private static string ResolveOssBaseUrl(AliyunStorageOptions aliyunOptions)
+    {
+        if (string.IsNullOrWhiteSpace(aliyunOptions.CustomDomain))
+        {
+            return $"https://{aliyunOptions.ContainerName}.{aliyunOptions.Endpoint}";
+        }
+
+        var customDomain = aliyunOptions.CustomDomain.Trim().TrimEnd('/');
+        return customDomain.Contains("://", StringComparison.Ordinal)
+            ? customDomain
+            : $"https://{customDomain}";
     }
 
     private string ResolveStorageKey(Guid fileId)

@@ -41,6 +41,7 @@ public class TenantOssSettingsService : ApplicationService, ITenantOssSettingsSe
             AccessKeySecret = string.Empty,
             Endpoint = await _settingManager.GetOrNullGlobalAsync(FileManagementSettingNames.Aliyun.Endpoint, fallback: false),
             ContainerName = await _settingManager.GetOrNullGlobalAsync(FileManagementSettingNames.Aliyun.ContainerName, fallback: false),
+            CustomDomain = await _settingManager.GetOrNullGlobalAsync(FileManagementSettingNames.Aliyun.CustomDomain, fallback: false),
             CreateContainerIfNotExists = bool.Parse(
                 await _settingManager.GetOrNullGlobalAsync(
                     FileManagementSettingNames.Aliyun.CreateContainerIfNotExists, fallback: false) ?? "false")
@@ -59,6 +60,7 @@ public class TenantOssSettingsService : ApplicationService, ITenantOssSettingsSe
         await _settingManager.SetGlobalAsync(FileManagementSettingNames.Aliyun.AccessKeyId, input.AccessKeyId);
         await _settingManager.SetGlobalAsync(FileManagementSettingNames.Aliyun.Endpoint, input.Endpoint);
         await _settingManager.SetGlobalAsync(FileManagementSettingNames.Aliyun.ContainerName, input.ContainerName);
+        await _settingManager.SetGlobalAsync(FileManagementSettingNames.Aliyun.CustomDomain, input.CustomDomain);
         await _settingManager.SetGlobalAsync(
             FileManagementSettingNames.Aliyun.CreateContainerIfNotExists,
             input.CreateContainerIfNotExists.ToString().ToLower());

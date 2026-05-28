@@ -18,6 +18,7 @@ public class FileManagementSettingDefinitionProvider : SettingDefinitionProvider
             new SettingDefinition(FileManagementSettingNames.Aliyun.AccessKeySecret, isInherited: true, isEncrypted: true),
             new SettingDefinition(FileManagementSettingNames.Aliyun.Endpoint, isInherited: true),
             new SettingDefinition(FileManagementSettingNames.Aliyun.ContainerName, isInherited: true),
+            new SettingDefinition(FileManagementSettingNames.Aliyun.CustomDomain, isInherited: true),
             new SettingDefinition(FileManagementSettingNames.Aliyun.CreateContainerIfNotExists, "false", isInherited: true)
         );
     }

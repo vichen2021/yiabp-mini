@@ -79,6 +79,7 @@ public class FileStorageOptionsResolver : ITransientDependency
             GetRequiredAliyunValue(FileManagementSettingNames.Aliyun.AccessKeySecret, "BlobStoring:Aliyun:AccessKeySecret", "AccessKeySecret"),
             GetRequiredAliyunValue(FileManagementSettingNames.Aliyun.Endpoint, "BlobStoring:Aliyun:Endpoint", "Endpoint"),
             GetRequiredAliyunValue(FileManagementSettingNames.Aliyun.ContainerName, "BlobStoring:Aliyun:ContainerName", "ContainerName"),
+            GetAliyunValue(FileManagementSettingNames.Aliyun.CustomDomain, "BlobStoring:Aliyun:CustomDomain"),
             bool.Parse(GetAliyunValue(FileManagementSettingNames.Aliyun.CreateContainerIfNotExists, "BlobStoring:Aliyun:CreateContainerIfNotExists") ?? "false"));
     }
 
@@ -129,4 +130,5 @@ public sealed record AliyunStorageOptions(
     string AccessKeySecret,
     string Endpoint,
     string ContainerName,
+    string? CustomDomain,
     bool CreateContainerIfNotExists);

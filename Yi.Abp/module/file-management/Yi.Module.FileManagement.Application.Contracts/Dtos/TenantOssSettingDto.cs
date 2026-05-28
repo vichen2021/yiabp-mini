@@ -24,6 +24,9 @@ public class TenantOssSettingDto
     /// <summary>阿里云 OSS Bucket 名称。</summary>
     public string? ContainerName { get; set; }
 
+    /// <summary>阿里云 OSS 自定义访问域名，为空时使用默认 Bucket 域名。</summary>
+    public string? CustomDomain { get; set; }
+
     /// <summary>Bucket 不存在时是否自动创建。</summary>
     public bool CreateContainerIfNotExists { get; set; }
 }

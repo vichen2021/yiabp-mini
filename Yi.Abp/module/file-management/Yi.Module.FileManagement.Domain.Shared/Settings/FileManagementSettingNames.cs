@@ -31,6 +31,9 @@ public static class FileManagementSettingNames
         /// <summary>阿里云 OSS Bucket 名称。</summary>
         public const string ContainerName = AliyunPrefix + ".ContainerName";
 
+        /// <summary>阿里云 OSS 自定义访问域名。</summary>
+        public const string CustomDomain = AliyunPrefix + ".CustomDomain";
+
         /// <summary>Bucket 不存在时是否自动创建。</summary>
         public const string CreateContainerIfNotExists = AliyunPrefix + ".CreateContainerIfNotExists";
     }

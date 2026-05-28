@@ -11,6 +11,8 @@ export interface TenantOssSetting {
   endpoint?: string;
   /** 阿里云 OSS Bucket 名称 */
   containerName?: string;
+  /** 阿里云 OSS 自定义访问域名，为空时使用默认 Bucket 域名 */
+  customDomain?: string;
   /** Bucket 不存在时是否自动创建 */
   createContainerIfNotExists: boolean;
 }
