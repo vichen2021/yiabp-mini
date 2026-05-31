@@ -166,15 +166,19 @@ namespace Yi.Framework.SqlSugarCore
         }
 
         /// <summary>
-        /// 脱敏连接字符串，将密码替换为 ***
+        /// 脱敏连接字符串，将密码和IP替换为 ***
         /// </summary>
         private static string MaskConnectionString(string? connectionString)
         {
             if (string.IsNullOrWhiteSpace(connectionString))
                 return connectionString ?? string.Empty;
 
+            var result = connectionString;
             // 匹配 PASSWORD=xxx（分号或结尾），大小写不敏感
-            return Regex.Replace(connectionString, @"(PASSWORD\s*=\s*)([^;]*)", "$1***", RegexOptions.IgnoreCase);
+            result = Regex.Replace(result, @"(PASSWORD\s*=\s*)([^;]*)", "$1***", RegexOptions.IgnoreCase);
+            // 匹配 HOST=xxx（分号或结尾），大小写不敏感
+            result = Regex.Replace(result, @"(HOST\s*=\s*)([^;]*)", "$1***", RegexOptions.IgnoreCase);
+            return result;
         }
 
         private async Task InitializeDatabase(IServiceProvider serviceProvider)
