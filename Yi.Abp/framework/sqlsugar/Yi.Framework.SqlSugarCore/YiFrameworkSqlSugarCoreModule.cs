@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -153,7 +154,7 @@ namespace Yi.Framework.SqlSugarCore
             var logMessage = new StringBuilder()
                 .AppendLine()
                 .AppendLine("==========Yi-SQL配置:==========")
-                .AppendLine($"数据库连接字符串：{options.Url}")
+                .AppendLine($"数据库连接字符串：{MaskConnectionString(options.Url)}")
                 .AppendLine($"数据库类型：{options.DbType}")
                 .AppendLine($"是否开启种子数据：{options.EnabledDbSeed}")
                 .AppendLine($"是否开启CodeFirst：{options.EnabledCodeFirst}")
@@ -162,6 +163,18 @@ namespace Yi.Framework.SqlSugarCore
                 .ToString();
 
             logger.LogInformation(logMessage);
+        }
+
+        /// <summary>
+        /// 脱敏连接字符串，将密码替换为 ***
+        /// </summary>
+        private static string MaskConnectionString(string? connectionString)
+        {
+            if (string.IsNullOrWhiteSpace(connectionString))
+                return connectionString ?? string.Empty;
+
+            // 匹配 PASSWORD=xxx（分号或结尾），大小写不敏感
+            return Regex.Replace(connectionString, @"(PASSWORD\s*=\s*)([^;]*)", "$1***", RegexOptions.IgnoreCase);
         }
 
         private async Task InitializeDatabase(IServiceProvider serviceProvider)
