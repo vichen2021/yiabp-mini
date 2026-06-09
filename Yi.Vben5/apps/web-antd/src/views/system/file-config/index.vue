@@ -6,17 +6,21 @@ import type { FileConfig } from '#/api/system/file-config/model';
 
 import { useAccess } from '@vben/access';
 import { Page, useVbenDrawer } from '@vben/common-ui';
-import { getVxePopupContainer } from '@vben/utils';
 
-import { Modal, Popconfirm, Space } from 'ant-design-vue';
+import { Button, Space } from 'antdv-next';
 
-import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
+import {
+  useVbenVxeGrid,
+  VbenTableAction,
+  vxeCheckboxChecked,
+} from '#/adapter/vxe-table';
 import {
   fileConfigChangeStatus,
   fileConfigList,
   fileConfigRemove,
 } from '#/api/system/file-config';
 import { TableSwitch } from '#/components/table';
+import { confirmDangerAction } from '#/utils/modal';
 
 import { columns, querySchema } from './data';
 import fileConfigDrawer from './file-config-drawer.vue';
@@ -89,11 +93,9 @@ async function handleDelete(row: FileConfig) {
 function handleMultiDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
   const ids = rows.map((row: FileConfig) => row.ossConfigId);
-  Modal.confirm({
-    title: '提示',
-    okType: 'danger',
+  confirmDangerAction({
     content: `确认删除选中的${ids.length}条记录吗？`,
-    onOk: async () => {
+    onConfirmed: async () => {
       await fileConfigRemove(ids);
       await tableApi.query();
     },
@@ -108,7 +110,7 @@ const { hasAccessByCodes } = useAccess();
     <BasicTable table-title="文件存储配置列表">
       <template #toolbar-tools>
         <Space>
-          <a-button
+          <Button
             :disabled="!vxeCheckboxChecked(tableApi)"
             danger
             type="primary"
@@ -116,14 +118,14 @@ const { hasAccessByCodes } = useAccess();
             @click="handleMultiDelete"
           >
             {{ $t('pages.common.delete') }}
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             type="primary"
             v-access:code="['system:fileConfig:add']"
             @click="handleAdd"
           >
             {{ $t('pages.common.add') }}
-          </a-button>
+          </Button>
         </Space>
       </template>
       <template #status="{ row }">
@@ -137,28 +139,25 @@ const { hasAccessByCodes } = useAccess();
         />
       </template>
       <template #action="{ row }">
-        <Space>
-          <ghost-button
-            v-access:code="['system:fileConfig:edit']"
-            @click="handleEdit(row)"
-          >
-            {{ $t('pages.common.edit') }}
-          </ghost-button>
-          <Popconfirm
-            :get-popup-container="getVxePopupContainer"
-            placement="left"
-            title="确认删除？"
-            @confirm="handleDelete(row)"
-          >
-            <ghost-button
-              danger
-              v-access:code="['system:fileConfig:remove']"
-              @click.stop=""
-            >
-              {{ $t('pages.common.delete') }}
-            </ghost-button>
-          </Popconfirm>
-        </Space>
+        <VbenTableAction
+          :actions="[
+            {
+              auth: 'system:fileConfig:edit',
+              onClick: () => handleEdit(row),
+              text: $t('pages.common.edit'),
+            },
+            {
+              auth: 'system:fileConfig:remove',
+              danger: true,
+              popConfirm: {
+                title: '确认删除？',
+                confirm: () => handleDelete(row),
+              },
+              text: $t('pages.common.delete'),
+            },
+          ]"
+          align="center"
+        />
       </template>
     </BasicTable>
     <FileConfigDrawer @reload="tableApi.query()" />

@@ -9,7 +9,9 @@ import { ref } from 'vue';
 
 import { useVbenModal, VbenAvatar } from '@vben/common-ui';
 
-import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { Button } from 'antdv-next';
+
+import { useVbenVxeGrid, VbenTableAction } from '#/adapter/vxe-table';
 import { userList } from '#/api/system/user';
 import DeptTree from '#/views/system/user/dept-tree.vue';
 
@@ -166,7 +168,6 @@ const gridOptions: VxeGridProps = {
   showOverflow: false,
 };
 
-// @ts-expect-error 类型实例化过深
 const [BasicTable, tableApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,
@@ -321,9 +322,9 @@ function handleSubmit() {
           <div class="flex w-full items-center justify-between">
             <div>已选中人员</div>
             <div>
-              <a-button size="small" @click="handleRemoveAll">
+              <Button size="small" @click="handleRemoveAll">
                 清空选中
-              </a-button>
+              </Button>
             </div>
           </div>
         </div>
@@ -347,9 +348,14 @@ function handleSubmit() {
             </div>
           </template>
           <template #action="{ row }">
-            <a-button size="small" @click="handleRemoveItem(row)">
-              移除
-            </a-button>
+            <VbenTableAction
+              :actions="[
+                {
+                  onClick: () => handleRemoveItem(row),
+                  text: '移除',
+                },
+              ]"
+            />
           </template>
         </RightBasicTable>
       </div>

@@ -12,13 +12,13 @@ V1.2.0版本对接warmflow工作流
 
 ## 简介
 
-基于 [vben5 & ant-design-vue](https://github.com/vbenjs/vue-vben-admin) 的 RuoYi-Vue-Plus 前端项目
+基于 [Vben 5.7 & antdv-next](https://github.com/vbenjs/vue-vben-admin) 的 Yi.Mini 前端项目
 
 | 组件/框架      | 版本   |
 | :------------- | :----- |
-| vben           | 5.5.6  |
-| ant-design-vue | 4.2.6  |
-| vue            | 3.5.13 |
+| vben           | 5.7.0  |
+| antdv-next     | 1.3.3  |
+| vue            | 3.5.35 |
 
 对应后端项目:
 

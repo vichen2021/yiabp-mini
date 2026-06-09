@@ -8,11 +8,12 @@ import type { OperationLog } from '#/api/monitor/operlog/model';
 import { Page, useVbenDrawer } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
-import { Modal, Space } from 'ant-design-vue';
+import { Space, Button } from 'antdv-next';
 
 import {
   addSortParams,
   useVbenVxeGrid,
+  VbenTableAction,
   vxeCheckboxChecked,
 } from '#/adapter/vxe-table';
 import {
@@ -22,7 +23,7 @@ import {
   operLogList,
 } from '#/api/monitor/operlog';
 import { commonDownloadExcel } from '#/utils/file/download';
-import { confirmDeleteModal } from '#/utils/modal';
+import { confirmDangerAction, confirmDeleteModal } from '#/utils/modal';
 
 import { columns, querySchema } from './data';
 import operationPreviewDrawer from './operation-preview-drawer.vue';
@@ -124,11 +125,9 @@ function handleClear() {
 function handleDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
   const ids = rows.map((row: OperationLog) => row.id);
-  Modal.confirm({
-    title: '提示',
-    okType: 'danger',
+  confirmDangerAction({
     content: `确认删除选中的${ids.length}条操作日志吗？`,
-    onOk: async () => {
+    onConfirmed: async () => {
       await operLogRemove(ids);
       await tableApi.query();
     },
@@ -147,19 +146,19 @@ function handleDownloadExcel() {
     <BasicTable table-title="操作日志列表">
       <template #toolbar-tools>
         <Space>
-          <a-button
+          <Button
             v-access:code="['monitor:operlog:remove']"
             @click="handleClear"
           >
             {{ $t('pages.common.clear') }}
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             v-access:code="['monitor:operlog:export']"
             @click="handleDownloadExcel"
           >
             {{ $t('pages.common.export') }}
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             :disabled="!vxeCheckboxChecked(tableApi)"
             danger
             type="primary"
@@ -167,16 +166,20 @@ function handleDownloadExcel() {
             @click="handleDelete"
           >
             {{ $t('pages.common.delete') }}
-          </a-button>
+          </Button>
         </Space>
       </template>
       <template #action="{ row }">
-        <ghost-button
-          v-access:code="['monitor:operlog:query']"
-          @click.stop="handlePreview(row)"
-        >
-          {{ $t('pages.common.preview') }}
-        </ghost-button>
+        <VbenTableAction
+          :actions="[
+            {
+              auth: 'monitor:operlog:query',
+              onClick: () => handlePreview(row),
+              text: $t('pages.common.preview'),
+            },
+          ]"
+          align="center"
+        />
       </template>
     </BasicTable>
     <OperationPreviewDrawer />

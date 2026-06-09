@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { Button, message } from 'ant-design-vue';
+import { message } from 'antdv-next';
 
-import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { useVbenVxeGrid, VbenTableAction } from '#/adapter/vxe-table';
 
 import { getExampleTableApi } from '../mock-api';
 
@@ -79,13 +79,16 @@ const cancelRowEvent = (_row: RowType) => {
   <div class="vp-raw w-full">
     <Grid>
       <template #action="{ row }">
-        <template v-if="hasEditStatus(row)">
-          <Button type="link" @click="saveRowEvent(row)">保存</Button>
-          <Button type="link" @click="cancelRowEvent(row)">取消</Button>
-        </template>
-        <template v-else>
-          <Button type="link" @click="editRowEvent(row)">编辑</Button>
-        </template>
+        <VbenTableAction
+          :actions="
+            hasEditStatus(row)
+              ? [
+                  { text: '保存', onClick: () => saveRowEvent(row) },
+                  { text: '取消', onClick: () => cancelRowEvent(row) },
+                ]
+              : [{ text: '编辑', onClick: () => editRowEvent(row) }]
+          "
+        />
       </template>
     </Grid>
   </div>

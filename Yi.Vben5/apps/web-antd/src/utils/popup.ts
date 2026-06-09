@@ -3,9 +3,9 @@ import type { MaybePromise } from '@vben/types';
 
 import { ref } from 'vue';
 
+import { confirm } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
-import { Modal } from 'ant-design-vue';
 import { isFunction } from 'lodash-es';
 
 interface BeforeCloseDiffProps {
@@ -85,21 +85,20 @@ export function useBeforeCloseDiff(props: BeforeCloseDiffProps) {
       }
 
       // 数据有变化，显示确认对话框
-      return new Promise<boolean>((resolve) => {
-        Modal.confirm({
-          title: $t('pages.common.tip'),
-          content: $t('pages.common.beforeCloseTip'),
-          centered: true,
-          okButtonProps: { danger: true },
+      try {
+        await confirm({
           cancelText: $t('common.cancel'),
-          okText: $t('common.confirm'),
-          onOk: () => {
-            resolve(true);
-            isInitialized.value = false;
-          },
-          onCancel: () => resolve(false),
+          centered: true,
+          confirmText: $t('common.confirm'),
+          content: $t('pages.common.beforeCloseTip'),
+          icon: 'warning',
+          title: $t('pages.common.tip'),
         });
-      });
+        isInitialized.value = false;
+        return true;
+      } catch {
+        return false;
+      }
     } catch (error) {
       console.error('Failed to compare data:', error);
       return true;

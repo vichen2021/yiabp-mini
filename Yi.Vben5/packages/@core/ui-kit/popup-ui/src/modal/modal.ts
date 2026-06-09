@@ -1,10 +1,15 @@
 import type { Component, Ref } from 'vue';
 
-import type { MaybePromise } from '@vben-core/typings';
+import type { ClassType, MaybePromise } from '@vben-core/typings';
 
 import type { ModalApi } from './modal-api';
 
 export interface ModalProps {
+  /**
+   * 动画类型
+   * @default 'slide'
+   */
+  animationType?: 'scale' | 'slide';
   /**
    * 是否要挂载到内容区域
    * @default false
@@ -25,7 +30,7 @@ export interface ModalProps {
    */
   centered?: boolean;
 
-  class?: string;
+  class?: ClassType;
 
   /**
    * 是否显示右上角的关闭按钮
@@ -55,7 +60,7 @@ export interface ModalProps {
    * 确定按钮文字
    */
   confirmText?: string;
-  contentClass?: string;
+  contentClass?: ClassType;
   /**
    * 弹窗描述
    */
@@ -74,7 +79,7 @@ export interface ModalProps {
    * @default true
    */
   footer?: boolean;
-  footerClass?: string;
+  footerClass?: ClassType;
   /**
    * 是否全屏
    * @default false
@@ -90,9 +95,9 @@ export interface ModalProps {
    * @default true
    */
   header?: boolean;
-  headerClass?: string;
+  headerClass?: ClassType;
   /**
-   * 弹窗是否显示
+   * 弹窗加载状态
    * @default false
    */
   loading?: boolean;
@@ -105,6 +110,11 @@ export interface ModalProps {
    * 是否自动聚焦
    */
   openAutoFocus?: boolean;
+  /**
+   * 拖动范围是否可以超出可视区
+   * @default false
+   */
+  overflow?: boolean;
   /**
    * 弹窗遮罩模糊效果
    */

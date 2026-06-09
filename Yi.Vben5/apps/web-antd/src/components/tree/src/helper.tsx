@@ -5,7 +5,7 @@ import type { MenuOption } from '#/api/system/menu/model';
 
 import { eachTree, treeToList } from '@vben/utils';
 
-import { notification } from 'ant-design-vue';
+import { notification } from 'antdv-next';
 import { difference, isEmpty, isUndefined } from 'lodash-es';
 
 /**
@@ -175,9 +175,9 @@ function validateMenuTree(menu: MenuOption) {
         const description = `错误用法: [${menu.menuName} - 菜单]下不能放 目录/菜单 -> [${item.menuName}]`;
         console.warn(description);
         notification.warning({
-          message: '提示',
           description,
           duration: 0,
+          title: '提示',
         });
       }
     });
@@ -196,9 +196,9 @@ function validateMenuTree(menu: MenuOption) {
         const description = `错误用法: [${menu.menuName} - 按钮]下不能放置'目录/菜单/按钮' -> [${item.menuName}]`;
         console.warn(description);
         notification.warning({
-          message: '提示',
           description,
           duration: 0,
+          title: '提示',
         });
       }
     });

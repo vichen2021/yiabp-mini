@@ -8,11 +8,15 @@ import type { PageQuery } from '#/api/common';
 import { ref } from 'vue';
 
 import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
-import { getVxePopupContainer } from '@vben/utils';
 
-import { message, Modal, Popconfirm, Space } from 'ant-design-vue';
+import { Button, message, Space } from 'antdv-next';
 
-import { addSortParams, useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
+import {
+  addSortParams,
+  useVbenVxeGrid,
+  VbenTableAction,
+  vxeCheckboxChecked,
+} from '#/adapter/vxe-table';
 import {
   fileDownload,
   fileList,
@@ -20,6 +24,7 @@ import {
 } from '#/api/system/file';
 import { calculateFileSize } from '#/utils/file';
 import { downloadByData } from '#/utils/file/download';
+import { confirmDangerAction } from '#/utils/modal';
 
 import { columns, querySchema } from './data';
 import fileUploadModal from './file-upload-modal.vue';
@@ -109,11 +114,9 @@ async function handleDelete(row: FileItem) {
 function handleMultiDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
   const ids = rows.map((row: FileItem) => row.id);
-  Modal.confirm({
-    title: '提示',
-    okType: 'danger',
+  confirmDangerAction({
     content: `确认删除选中的${ids.length}条记录吗？`,
-    onOk: async () => {
+    onConfirmed: async () => {
       await fileRemove(ids);
       await tableApi.query();
     },
@@ -138,13 +141,13 @@ const [OssDrawer, ossDrawerApi] = useVbenDrawer({
     <BasicTable table-title="文件列表">
       <template #toolbar-tools>
         <Space>
-          <a-button
+          <Button
             v-access:code="['system:tenant-oss-settings:query']"
             @click="ossDrawerApi.open()"
           >
             存储设置
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             :disabled="!vxeCheckboxChecked(tableApi)"
             danger
             type="primary"
@@ -152,44 +155,41 @@ const [OssDrawer, ossDrawerApi] = useVbenDrawer({
             @click="handleMultiDelete"
           >
             {{ $t('pages.common.delete') }}
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             v-access:code="['system:file:add']"
             @click="fileUploadApi.open"
           >
             文件上传
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             v-access:code="['system:file:add']"
             @click="imageUploadApi.open"
           >
             图片上传
-          </a-button>
+          </Button>
         </Space>
       </template>
       <template #action="{ row }">
-        <Space>
-          <ghost-button
-            v-access:code="['system:file:query']"
-            @click="handleDownload(row)"
-          >
-            {{ $t('pages.common.download') }}
-          </ghost-button>
-          <Popconfirm
-            :get-popup-container="getVxePopupContainer"
-            placement="left"
-            title="确认删除？"
-            @confirm="handleDelete(row)"
-          >
-            <ghost-button
-              danger
-              v-access:code="['system:file:remove']"
-              @click.stop=""
-            >
-              {{ $t('pages.common.delete') }}
-            </ghost-button>
-          </Popconfirm>
-        </Space>
+        <VbenTableAction
+          :actions="[
+            {
+              auth: 'system:file:query',
+              onClick: () => handleDownload(row),
+              text: $t('pages.common.download'),
+            },
+            {
+              auth: 'system:file:remove',
+              danger: true,
+              popConfirm: {
+                title: '确认删除？',
+                confirm: () => handleDelete(row),
+              },
+              text: $t('pages.common.delete'),
+            },
+          ]"
+          align="center"
+        />
       </template>
     </BasicTable>
     <ImageUploadModal @reload="tableApi.query" />

@@ -1,10 +1,29 @@
-import type { VxeGridPropTypes } from '@vben/plugins/vxe-table';
+import type { ActionItem, TableActionProps } from '@vben/common-ui';
+import type {
+  VxeGridPropTypes,
+  VxeTableGridOptions,
+} from '@vben/plugins/vxe-table';
+import type { Recordable } from '@vben/types';
+import type { PropType } from 'vue';
 
-import { h } from 'vue';
+import type { ComponentPropsMap, ComponentType } from './component';
 
-import { setupVbenVxeTable, useVbenVxeGrid } from '@vben/plugins/vxe-table';
+import { defineComponent, h } from 'vue';
 
-import { Button, Image } from 'ant-design-vue';
+import { useAccess } from '@vben/access';
+import { VbenTableAction as VbenTableActionCore } from '@vben/common-ui';
+import { CircleX, Eye, UserRoundPen } from '@vben/icons';
+import { $te } from '@vben/locales';
+import {
+  setupVbenVxeTable,
+  useVbenVxeGrid as useGrid,
+} from '@vben/plugins/vxe-table';
+import { get, isFunction, isString } from '@vben/utils';
+
+import { objectOmit } from '@vueuse/core';
+import { Button, Image, Switch, Tag } from 'antdv-next';
+
+import { $t } from '#/locales';
 
 import { useVbenForm } from './form';
 
@@ -72,14 +91,24 @@ setupVbenVxeTable({
           // 必须存在id参数才能使用
           storage: false,
         },
-      },
+      } as VxeTableGridOptions,
+    });
+
+    /**
+     * 解决vxeTable在热更新时可能会出错的问题
+     */
+    vxeUI.renderer.forEach((_item, key) => {
+      if (key.startsWith('Cell')) {
+        vxeUI.renderer.delete(key);
+      }
     });
 
     // 表格配置项可以用 cellRender: { name: 'CellImage' },
     vxeUI.renderer.add('CellImage', {
-      renderTableDefault(_renderOpts, params) {
+      renderTableDefault(renderOpts, params) {
+        const { props } = renderOpts;
         const { column, row } = params;
-        return h(Image, { src: row[column.field] });
+        return h(Image, { src: row[column.field], ...props });
       },
     });
 
@@ -95,13 +124,262 @@ setupVbenVxeTable({
       },
     });
 
-    // 这里可以自行扩展 vxe-table 的全局配置，比如自定义格式化
+    // 单元格渲染：Tag
+    vxeUI.renderer.add('CellTag', {
+      renderTableDefault({ options, props }, { column, row }) {
+        const value = get(row, column.field);
+        const tagOptions = options ?? [
+          { color: 'success', label: $t('common.enabled'), value: 1 },
+          { color: 'error', label: $t('common.disabled'), value: 0 },
+        ];
+        const tagItem = tagOptions.find((item) => item.value === value);
+        return h(
+          Tag,
+          {
+            ...props,
+            ...objectOmit(tagItem ?? {}, ['label']),
+          },
+          { default: () => tagItem?.label ?? value },
+        );
+      },
+    });
+
+    vxeUI.renderer.add('CellSwitch', {
+      renderTableDefault({ attrs, props }, { column, row }) {
+        const loadingKey = `__loading_${column.field}`;
+        const finallyProps = {
+          checkedChildren: $t('common.enabled'),
+          checkedValue: 1,
+          unCheckedChildren: $t('common.disabled'),
+          unCheckedValue: 0,
+          ...props,
+          checked: row[column.field],
+          loading: row[loadingKey] ?? false,
+          'onUpdate:checked': onChange,
+        };
+        async function onChange(newVal: any) {
+          row[loadingKey] = true;
+          try {
+            const result = await attrs?.beforeChange?.(newVal, row);
+            if (result !== false) {
+              row[column.field] = newVal;
+            }
+          } finally {
+            row[loadingKey] = false;
+          }
+        }
+        return h(Switch, finallyProps);
+      },
+    });
+
+    /**
+     * 注册表格的操作按钮渲染器
+     */
+    vxeUI.renderer.add('CellOperation', {
+      renderTableDefault({ attrs, options, props }, { column, row }) {
+        const defaultProps = { ...props };
+        let align: TableActionProps['align'];
+        switch (column.align) {
+          case 'center': {
+            align = 'center';
+            break;
+          }
+          case 'left': {
+            align = 'start';
+            break;
+          }
+          default: {
+            align = 'end';
+            break;
+          }
+        }
+        const presets: Recordable<Recordable<any>> = {
+          delete: {
+            danger: true,
+            icon: CircleX,
+            tooltip: $t('common.delete'),
+          },
+          edit: {
+            icon: UserRoundPen,
+            tooltip: $t('common.edit'),
+          },
+          detail: {
+            icon: Eye,
+            tooltip: $t('pages.common.info'),
+          },
+        };
+        const operations = (
+          options || ['edit', 'detail', 'delete']
+        )
+          .map((opt) => {
+            if (isString(opt)) {
+              return presets[opt]
+                ? { code: opt, ...presets[opt], ...defaultProps }
+                : {
+                    code: opt,
+                    text: $te(`common.${opt}`) ? $t(`common.${opt}`) : opt,
+                    ...defaultProps,
+                  };
+            } else {
+              return { ...defaultProps, ...presets[opt.code], ...opt };
+            }
+          })
+          .map((opt) => {
+            const optBtn: Recordable<any> = {};
+            Object.keys(opt).forEach((key) => {
+              optBtn[key] = isFunction(opt[key]) ? opt[key](row) : opt[key];
+            });
+            return optBtn;
+          })
+          .filter((opt) => opt.show !== false);
+
+        return h(
+          VbenTableActionCore,
+          {
+            actions: operations.map((opt) => {
+              const { code, show, type, ...rest } = opt;
+              const action = {
+                ...rest,
+                ifShow: show,
+                key: code,
+                onClick: () =>
+                  attrs?.onClick?.({
+                    code,
+                    row,
+                  }),
+              };
+              if (code === 'delete') {
+                return {
+                  ...action,
+                  popConfirm: {
+                    cancelText: $t('common.cancel'),
+                    title: $t('ui.actionTitle.delete', [
+                      attrs?.nameTitle || '',
+                    ]),
+                    okText: $t('common.confirm'),
+                    confirm: action.onClick,
+                  },
+                  tooltip: $t('ui.actionMessage.deleteConfirm', [
+                    row[attrs?.nameField || 'name'],
+                  ]),
+                };
+              }
+              return action;
+            }),
+            align,
+            class: 'table-operations',
+          },
+        );
+      },
+    });
+
+    // 这里可以自行扩展 vxe-table的全局配置，比如自定义格式化
     // vxeUI.formats.add
   },
   useVbenForm,
 });
 
-export { useVbenVxeGrid };
+export const useVbenVxeGrid = <T extends Record<string, any>>(
+  ...rest: Parameters<typeof useGrid<T, ComponentType, ComponentPropsMap>>
+) => useGrid<T, ComponentType, ComponentPropsMap>(...rest);
+
+/**
+ * 表格操作按钮组件
+ *
+ * 在适配器内部统一注入权限判断（hasPermission），使用方无需再传入 `:has-permission`。
+ * 通过 action 的 `auth` 字段声明权限码，结合 `useAccess().hasAccessByCodes` 判断是否展示。
+ * 如需自定义权限逻辑，仍可显式传入 `:has-permission` 覆盖默认行为。
+ */
+function normalizeTableAction(action: ActionItem): ActionItem {
+  if (action.icon || !action.text) {
+    return action;
+  }
+
+  const actionText = action.text;
+  const normalized: ActionItem = { ...action };
+  const editTexts = [$t('common.edit'), $t('pages.common.edit')];
+  const deleteTexts = [$t('common.delete'), $t('pages.common.delete')];
+  const detailTexts = [
+    $t('pages.common.info'),
+    $t('pages.common.preview'),
+    '详情',
+    '查看',
+  ];
+
+  if (editTexts.includes(actionText)) {
+    normalized.icon = UserRoundPen;
+  } else if (deleteTexts.includes(actionText)) {
+    normalized.icon = CircleX;
+  } else if (detailTexts.includes(actionText)) {
+    normalized.icon = Eye;
+  }
+
+  if (normalized.icon) {
+    normalized.tooltip ??= actionText;
+    normalized.text = undefined;
+  }
+
+  return normalized;
+}
+
+export const VbenTableAction = defineComponent({
+  inheritAttrs: false,
+  name: 'VbenTableAction',
+  props: {
+    actions: {
+      default: () => [],
+      type: Array as PropType<TableActionProps['actions']>,
+    },
+    align: {
+      default: 'end',
+      type: String as PropType<TableActionProps['align']>,
+    },
+    class: {
+      default: undefined,
+      type: [Array, Object, String] as PropType<TableActionProps['class']>,
+    },
+    divider: {
+      default: false,
+      type: Boolean,
+    },
+    dropdownActions: {
+      default: () => [],
+      type: Array as PropType<TableActionProps['dropdownActions']>,
+    },
+    moreText: {
+      default: undefined,
+      type: String,
+    },
+  },
+  setup(props: TableActionProps, { attrs, slots }) {
+    const { hasAccessByCodes } = useAccess();
+    function hasPermission(auth?: string | string[]) {
+      if (!auth) return true;
+      return hasAccessByCodes(Array.isArray(auth) ? auth : [auth]);
+    }
+    return () =>
+      h(
+        VbenTableActionCore,
+        {
+          hasPermission,
+          ...props,
+          ...attrs,
+          actions: props.actions?.map((item) => normalizeTableAction(item)),
+          dropdownActions: props.dropdownActions,
+        },
+        slots,
+      );
+  },
+});
+
+export type OnActionClickParams<T = Recordable<any>> = {
+  code: string;
+  row: T;
+};
+
+export type OnActionClickFn<T = Recordable<any>> = (
+  params: OnActionClickParams<T>,
+) => void;
 
 export type * from '@vben/plugins/vxe-table';
 

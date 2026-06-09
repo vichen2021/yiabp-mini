@@ -1,6 +1,6 @@
 import { defineComponent, h, ref } from 'vue';
 
-import { Modal } from 'ant-design-vue';
+import { confirm } from '@vben/common-ui';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -20,24 +20,26 @@ export interface ApproveWithReasonModalProps {
 export function approveWithReasonModal(props: ApproveWithReasonModalProps) {
   const { onOk, title, description } = props;
   const content = ref('');
-  Modal.confirm({
+  confirm({
     title,
-    content: h(
-      defineComponent({
-        setup() {
-          return () =>
-            h(ApprovalContent, {
-              description,
-              value: content.value,
-              'onUpdate:value': (v) => (content.value = v),
-            });
-        },
-      }),
-    ),
+    content: defineComponent({
+      setup() {
+        return () =>
+          h(ApprovalContent, {
+            description,
+            value: content.value,
+            'onUpdate:value': (v) => (content.value = v),
+          });
+      },
+    }),
     centered: true,
-    okButtonProps: { danger: true },
-    onOk: () => onOk(content.value),
-  });
+    icon: 'warning',
+    beforeClose: async ({ isConfirm }) => {
+      if (isConfirm) {
+        await onOk(content.value);
+      }
+    },
+  }).catch(() => {});
 }
 
 dayjs.extend(duration);

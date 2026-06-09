@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import type { TourProps } from 'ant-design-vue';
+import type { TourProps } from 'antdv-next';
 
 import { defineComponent, ref } from 'vue';
 
 import { useLocalStorage } from '@vueuse/core';
-import { Tour } from 'ant-design-vue';
+import { Tour } from 'antdv-next';
 
 /**
  * 全屏引导

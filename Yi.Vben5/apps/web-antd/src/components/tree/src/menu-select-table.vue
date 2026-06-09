@@ -4,7 +4,7 @@
 比如: 按钮下放目录 按钮下放菜单 按钮下放按钮
 -->
 <script setup lang="tsx">
-import type { RadioChangeEvent } from 'ant-design-vue';
+import type { RadioChangeEvent } from 'antdv-next';
 
 import type { MenuPermissionOption } from './data';
 
@@ -15,7 +15,7 @@ import { nextTick, onMounted, ref, shallowRef, watch } from 'vue';
 
 import { cloneDeep } from '@vben/utils';
 
-import { Alert, Checkbox, RadioGroup, Space } from 'ant-design-vue';
+import { Alert, Checkbox, RadioGroup, Space, Button } from 'antdv-next';
 import { uniq } from 'lodash-es';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
@@ -118,7 +118,7 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
   gridOptions,
   gridEvents: {
     // 勾选事件
-    checkboxChange: (params) => {
+    checkboxChange: (params: any) => {
       // 选中还是取消选中
       const checked = params.checked;
       // 行
@@ -135,9 +135,9 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
       updateCheckedNumber();
     },
     // 全选事件
-    checkboxAll: (params) => {
+    checkboxAll: (params: any) => {
       const records = params.$grid.getData();
-      records.forEach((item) => {
+      records.forEach((item: MenuPermissionOption) => {
         rowAndChildrenChecked(item, params.checked);
       });
       updateCheckedNumber();
@@ -370,12 +370,12 @@ defineExpose({
       </template>
       <template #toolbar-tools>
         <Space>
-          <a-button @click="setExpandOrCollapse(false)">
+          <Button @click="setExpandOrCollapse(false)">
             {{ $t('pages.common.collapse') }}
-          </a-button>
-          <a-button @click="setExpandOrCollapse(true)">
+          </Button>
+          <Button @click="setExpandOrCollapse(true)">
             {{ $t('pages.common.expand') }}
-          </a-button>
+          </Button>
         </Space>
       </template>
       <template #permissions="{ row }">

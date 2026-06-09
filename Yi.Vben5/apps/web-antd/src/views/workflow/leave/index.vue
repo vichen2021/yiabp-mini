@@ -8,13 +8,17 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 import { useRouter } from 'vue-router';
 
 import { Page, useVbenModal } from '@vben/common-ui';
-import { getVxePopupContainer } from '@vben/utils';
 
-import { Modal, Popconfirm, Space } from 'ant-design-vue';
+import { Button, Space } from 'antdv-next';
 
-import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
+import {
+  useVbenVxeGrid,
+  VbenTableAction,
+  vxeCheckboxChecked,
+} from '#/adapter/vxe-table';
 import { cancelProcessApply } from '#/api/workflow/instance';
 import { commonDownloadExcel } from '#/utils/file/download';
+import { confirmDangerAction } from '#/utils/modal';
 
 import { flowInfoModal } from '../components';
 import { leaveExport, leaveList, leaveRemove } from './api';
@@ -92,11 +96,9 @@ async function handleRevoke(row: Required<LeaveForm>) {
 function handleMultiDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
   const ids = rows.map((row: Required<LeaveForm>) => row.id);
-  Modal.confirm({
-    title: '提示',
-    okType: 'danger',
+  confirmDangerAction({
     content: `确认删除选中的${ids.length}条记录吗？`,
-    onOk: async () => {
+    onConfirmed: async () => {
       await leaveRemove(ids);
       await tableApi.query();
     },
@@ -127,13 +129,13 @@ function handleInfo(row: Required<LeaveForm>) {
     <BasicTable table-title="请假申请列表">
       <template #toolbar-tools>
         <Space>
-          <a-button
+          <Button
             v-access:code="['workflow:leave:export']"
             @click="handleDownloadExcel"
           >
             {{ $t('pages.common.export') }}
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             :disabled="!vxeCheckboxChecked(tableApi)"
             danger
             type="primary"
@@ -141,58 +143,52 @@ function handleInfo(row: Required<LeaveForm>) {
             @click="handleMultiDelete"
           >
             {{ $t('pages.common.delete') }}
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             type="primary"
             v-access:code="['workflow:leave:add']"
             @click="handleAdd"
           >
             {{ $t('pages.common.add') }}
-          </a-button>
+          </Button>
         </Space>
       </template>
       <template #action="{ row }">
-        <Space>
-          <ghost-button
-            v-if="['draft', 'cancel', 'back'].includes(row.status)"
-            v-access:code="['workflow:leave:edit']"
-            @click.stop="handleEdit(row)"
-          >
-            {{ $t('pages.common.edit') }}
-          </ghost-button>
-          <Popconfirm
-            :get-popup-container="getVxePopupContainer"
-            placement="left"
-            title="确认撤销？"
-            @confirm="handleRevoke(row)"
-          >
-            <ghost-button
-              v-if="['waiting'].includes(row.status)"
-              v-access:code="['workflow:leave:edit']"
-              @click.stop=""
-            >
-              撤销
-            </ghost-button>
-          </Popconfirm>
-          <ghost-button v-if="row.status !== 'draft'" @click="handleInfo(row)">
-            详情
-          </ghost-button>
-          <Popconfirm
-            :get-popup-container="getVxePopupContainer"
-            placement="left"
-            title="确认删除？"
-            @confirm="handleDelete(row)"
-          >
-            <ghost-button
-              v-if="['draft', 'cancel', 'back'].includes(row.status)"
-              danger
-              v-access:code="['workflow:leave:remove']"
-              @click.stop=""
-            >
-              {{ $t('pages.common.delete') }}
-            </ghost-button>
-          </Popconfirm>
-        </Space>
+        <VbenTableAction
+          :actions="[
+            {
+              auth: 'workflow:leave:edit',
+              ifShow: ['draft', 'cancel', 'back'].includes(row.status),
+              onClick: () => handleEdit(row),
+              text: $t('pages.common.edit'),
+            },
+            {
+              auth: 'workflow:leave:edit',
+              ifShow: ['waiting'].includes(row.status),
+              popConfirm: {
+                title: '确认撤销？',
+                confirm: () => handleRevoke(row),
+              },
+              text: '撤销',
+            },
+            {
+              ifShow: row.status !== 'draft',
+              onClick: () => handleInfo(row),
+              text: '详情',
+            },
+            {
+              auth: 'workflow:leave:remove',
+              danger: true,
+              ifShow: ['draft', 'cancel', 'back'].includes(row.status),
+              popConfirm: {
+                title: '确认删除？',
+                confirm: () => handleDelete(row),
+              },
+              text: $t('pages.common.delete'),
+            },
+          ]"
+          align="center"
+        />
       </template>
     </BasicTable>
     <FlowInfoModal />

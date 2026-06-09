@@ -5,10 +5,11 @@ import type { SocialInfo } from '#/api/system/social/model';
 
 import { onMounted, ref } from 'vue';
 
-import { Alert, Avatar, Card, Empty, Modal, Tooltip } from 'ant-design-vue';
+import { Alert, Avatar, Card, Empty, Tooltip, Button } from 'antdv-next';
 
 import { authUnbinding } from '#/api';
-import { message } from 'ant-design-vue';
+import { confirmDangerAction } from '#/utils/modal';
+import { message } from 'antdv-next';
 import { accountBindList, handleAuthBinding } from '../../oauth-common';
 
 interface BindItemWithInfo extends BindItem {
@@ -56,14 +57,12 @@ function handleUnbind(record: BindItemWithInfo) {
   if (!record.info) {
     return;
   }
-  Modal.confirm({
+  confirmDangerAction({
     content: `确定解绑[${record.source}]平台的[${record.info.userName}]账号吗？`,
-    async onOk() {
+    async onConfirmed() {
       await authUnbinding(record.info!.id);
       await loadData();
     },
-    title: '提示',
-    type: 'warning',
   });
 }
 
@@ -113,7 +112,7 @@ const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
               </span>
             </div>
             <!-- TODO: 这里有优化空间? -->
-            <a-button
+            <Button
               size="small"
               :type="item.bound ? 'default' : 'link'"
               @click="
@@ -121,7 +120,7 @@ const simpleImage = Empty.PRESENTED_IMAGE_SIMPLE;
               "
             >
               {{ item.bound ? '取消绑定' : '绑定' }}
-            </a-button>
+            </Button>
           </div>
         </div>
       </Card>

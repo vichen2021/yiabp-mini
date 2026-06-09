@@ -6,7 +6,7 @@ import { onMounted, ref } from 'vue';
 import { VbenAvatar } from '@vben/common-ui';
 import { DictEnum } from '@vben/constants';
 
-import { TimelineItem } from 'ant-design-vue';
+import { TimelineItem } from 'antdv-next';
 
 import { ossInfo } from '#/api/system/file';
 import { renderDict } from '#/utils/render';
@@ -42,7 +42,7 @@ onMounted(async () => {
 
 <template>
   <TimelineItem>
-    <template #dot>
+    <template #icon>
       <div class="relative rounded-full border">
         <VbenAvatar
           :alt="item.approveName"

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Flow } from '#/api/workflow/instance/model';
 
-import { Timeline } from 'ant-design-vue';
+import { Timeline } from 'antdv-next';
 
 import ApprovalTimelineItem from './approval-timeline-item.vue';
 

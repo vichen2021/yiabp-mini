@@ -1,23 +1,29 @@
 <script setup lang="ts">
-import type { AccordionItemProps } from 'radix-vue';
+import type { AccordionItemProps } from 'reka-ui';
+
+import type { HTMLAttributes } from 'vue';
 
 import { cn } from '@vben-core/shared/utils';
-import { AccordionItem, useForwardProps } from 'radix-vue';
-import { computed } from 'vue';
 
-const props = defineProps<{ class?: any } & AccordionItemProps>();
+import { reactiveOmit } from '@vueuse/core';
+import { AccordionItem, useForwardProps } from 'reka-ui';
 
-const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props;
+const props = defineProps<
+  AccordionItemProps & { class?: HTMLAttributes['class'] }
+>();
 
-  return delegated;
-});
+const delegatedProps = reactiveOmit(props, 'class');
 
 const forwardedProps = useForwardProps(delegatedProps);
 </script>
 
 <template>
-  <AccordionItem v-bind="forwardedProps" :class="cn('border-b', props.class)">
-    <slot></slot>
+  <AccordionItem
+    v-slot="slotProps"
+    data-slot="accordion-item"
+    v-bind="forwardedProps"
+    :class="cn('border-b last:border-b-0', props.class)"
+  >
+    <slot v-bind="slotProps"></slot>
   </AccordionItem>
 </template>

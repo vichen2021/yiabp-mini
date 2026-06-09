@@ -80,7 +80,7 @@ import { AccessControl } from '@vben/access';
 
 <template>
   <AccessControl :codes="['system:user:add']" type="code">
-    <a-button>新增用户</a-button>
+    <Button>新增用户</Button>
   </AccessControl>
 </template>
 ```
@@ -95,9 +95,9 @@ const { hasAccessByCodes } = useAccess();
 </script>
 
 <template>
-  <a-button v-if="hasAccessByCodes(['system:user:edit'])">
+  <Button v-if="hasAccessByCodes(['system:user:edit'])">
     编辑用户
-  </a-button>
+  </Button>
 </template>
 ```
 
@@ -105,8 +105,8 @@ const { hasAccessByCodes } = useAccess();
 
 ```vue
 <template>
-  <a-button v-access:code="'system:user:add'">新增用户</a-button>
-  <a-button v-access:code="['system:user:delete']">删除用户</a-button>
+  <Button v-access:code="'system:user:add'">新增用户</Button>
+  <Button v-access:code="['system:user:delete']">删除用户</Button>
 </template>
 ```
 
@@ -122,8 +122,8 @@ const { hasAccessByRoles } = useAccess();
 </script>
 
 <template>
-  <a-button v-if="hasAccessByRoles(['admin'])">管理员可见</a-button>
-  <a-button v-access:role="['admin', 'super']">管理角色可见</a-button>
+  <Button v-if="hasAccessByRoles(['admin'])">管理员可见</Button>
+  <Button v-access:role="['admin', 'super']">管理角色可见</Button>
 </template>
 ```
 

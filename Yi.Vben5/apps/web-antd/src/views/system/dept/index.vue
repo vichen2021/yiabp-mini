@@ -7,11 +7,11 @@
   import { nextTick } from 'vue';
   
   import { Page, useVbenDrawer } from '@vben/common-ui';
-  import { eachTree, getVxePopupContainer } from '@vben/utils';
+  import { eachTree } from '@vben/utils';
   
-  import { Popconfirm, Space } from 'ant-design-vue';
+  import { Button, Space } from 'antdv-next';
   
-  import { useVbenVxeGrid } from '#/adapter/vxe-table';
+  import { useVbenVxeGrid, VbenTableAction } from '#/adapter/vxe-table';
   import { deptList, deptRemove } from '#/api/system/dept';
   import { emptyGuidToNull } from '#/utils/guid';
   
@@ -75,7 +75,7 @@
     formOptions,
     gridOptions,
     gridEvents: {
-      cellDblclick: (e) => {
+      cellDblclick: (e: any) => {
         const { row = {} } = e;
         if (!row?.children) {
           return;
@@ -85,7 +85,7 @@
         row.expand = !isExpanded;
       },
       // 需要监听使用箭头展开的情况 否则展开/折叠的数据不一致
-      toggleTreeExpand: (e) => {
+      toggleTreeExpand: (e: any) => {
         const { row = {}, expanded } = e;
         row.expand = expanded;
       },
@@ -131,51 +131,47 @@ async function handleDelete(row: Dept) {
       <BasicTable table-title="部门列表" table-title-help="双击展开/收起子菜单">
         <template #toolbar-tools>
           <Space>
-            <a-button @click="setExpandOrCollapse(false)">
+            <Button @click="setExpandOrCollapse(false)">
               {{ $t('pages.common.collapse') }}
-            </a-button>
-            <a-button @click="setExpandOrCollapse(true)">
+            </Button>
+            <Button @click="setExpandOrCollapse(true)">
               {{ $t('pages.common.expand') }}
-            </a-button>
-            <a-button
+            </Button>
+            <Button
               type="primary"
               v-access:code="['system:dept:add']"
               @click="handleAdd"
             >
               {{ $t('pages.common.add') }}
-            </a-button>
+            </Button>
           </Space>
         </template>
         <template #action="{ row }">
-          <Space>
-            <ghost-button
-              v-access:code="['system:dept:edit']"
-              @click="handleEdit(row)"
-            >
-              {{ $t('pages.common.edit') }}
-            </ghost-button>
-            <ghost-button
-              class="btn-success"
-              v-access:code="['system:dept:add']"
-              @click="handleSubAdd(row)"
-            >
-              {{ $t('pages.common.add') }}
-            </ghost-button>
-            <Popconfirm
-              :get-popup-container="getVxePopupContainer"
-              placement="left"
-              title="确认删除？"
-              @confirm="handleDelete(row)"
-            >
-              <ghost-button
-                danger
-                v-access:code="['system:dept:remove']"
-                @click.stop=""
-              >
-                {{ $t('pages.common.delete') }}
-              </ghost-button>
-            </Popconfirm>
-          </Space>
+          <VbenTableAction
+            :actions="[
+              {
+                auth: 'system:dept:edit',
+                onClick: () => handleEdit(row),
+                text: $t('pages.common.edit'),
+              },
+              {
+                auth: 'system:dept:add',
+                class: 'text-green-600 hover:text-green-700',
+                onClick: () => handleSubAdd(row),
+                text: $t('pages.common.add'),
+              },
+              {
+                auth: 'system:dept:remove',
+                danger: true,
+                popConfirm: {
+                  title: '确认删除？',
+                  confirm: () => handleDelete(row),
+                },
+                text: $t('pages.common.delete'),
+              },
+            ]"
+            align="center"
+          />
         </template>
       </BasicTable>
       <DeptDrawer @reload="tableApi.query()" />

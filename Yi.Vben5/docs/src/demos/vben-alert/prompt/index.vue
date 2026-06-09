@@ -3,8 +3,8 @@ import { h } from 'vue';
 
 import { alert, prompt, useAlertContext, VbenButton } from '@vben/common-ui';
 
-import { Input, RadioGroup, Select } from 'ant-design-vue';
-import { BadgeJapaneseYen } from 'lucide-vue-next';
+import { Input, RadioGroup, Select } from 'antdv-next';
+import { BadgeJapaneseYen } from '@lucide/vue';
 
 function showPrompt() {
   prompt({
@@ -62,7 +62,11 @@ function showSelectPrompt() {
       ],
       placeholder: '请选择',
       // 弹窗会设置body的pointer-events为none，这回影响下拉框的点击事件
-      popupClassName: 'pointer-events-auto',
+      classNames: {
+        popup: {
+          root: 'pointer-events-auto',
+        },
+      },
     },
     content: '此弹窗演示了如何使用component传递自定义组件',
     icon: 'question',

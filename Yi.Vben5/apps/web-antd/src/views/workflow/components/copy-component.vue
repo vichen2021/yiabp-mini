@@ -8,7 +8,7 @@ import { computed } from 'vue';
 
 import { useVbenModal, VbenAvatar } from '@vben/common-ui';
 
-import { Avatar, AvatarGroup, Tooltip } from 'ant-design-vue';
+import { Avatar, AvatarGroup, Tooltip, Button } from 'antdv-next';
 
 import { userSelectModal } from '.';
 
@@ -88,7 +88,7 @@ const displayedList = computed(() => {
         </Avatar>
       </Tooltip>
     </AvatarGroup>
-    <a-button size="small" @click="handleOpen">选择人员</a-button>
+    <Button size="small" @click="handleOpen">选择人员</Button>
     <UserSelectModal
       :allow-user-ids="allowUserIds"
       @cancel="$emit('cancel')"

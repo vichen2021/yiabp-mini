@@ -3,7 +3,7 @@ import type { LeaveVO } from './api/model';
 
 import { computed } from 'vue';
 
-import { Descriptions, DescriptionsItem } from 'ant-design-vue';
+import { VbenDescriptions, VbenDescriptionsItem } from '@vben/common-ui';
 import dayjs from 'dayjs';
 
 import { leaveTypeOptions } from './data';
@@ -28,18 +28,18 @@ function formatDate(date: string) {
 </script>
 
 <template>
-  <Descriptions :column="1" size="middle">
-    <DescriptionsItem label="请假类型">
+  <VbenDescriptions :column="1" size="middle">
+    <VbenDescriptionsItem label="请假类型">
       {{ leaveType }}
-    </DescriptionsItem>
-    <DescriptionsItem label="请假时间">
+    </VbenDescriptionsItem>
+    <VbenDescriptionsItem label="请假时间">
       {{ formatDate(data.startDate) }} - {{ formatDate(data.endDate) }}
-    </DescriptionsItem>
-    <DescriptionsItem label="请假时长">
+    </VbenDescriptionsItem>
+    <VbenDescriptionsItem label="请假时长">
       {{ data.leaveDays }}天
-    </DescriptionsItem>
-    <DescriptionsItem label="请假原因">
+    </VbenDescriptionsItem>
+    <VbenDescriptionsItem label="请假原因">
       {{ data.remark || '无' }}
-    </DescriptionsItem>
-  </Descriptions>
+    </VbenDescriptionsItem>
+  </VbenDescriptions>
 </template>

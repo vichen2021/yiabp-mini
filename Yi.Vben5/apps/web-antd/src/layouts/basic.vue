@@ -22,7 +22,7 @@ import { preferences } from '@vben/preferences';
 import { useAccessStore, useUserStore } from '@vben/stores';
 import { openWindow } from '@vben/utils';
 
-import { message } from 'ant-design-vue';
+import { message } from 'antdv-next';
 
 import { TenantToggle } from '#/components/tenant-toggle';
 import { $t } from '#/locales';

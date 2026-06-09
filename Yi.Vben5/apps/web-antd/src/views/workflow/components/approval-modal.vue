@@ -11,7 +11,7 @@ import { ref } from 'vue';
 import { useVbenModal } from '@vben/common-ui';
 import { cloneDeep } from '@vben/utils';
 
-import { message } from 'ant-design-vue';
+import { message } from 'antdv-next';
 import { omit } from 'lodash-es';
 
 import { useVbenForm } from '#/adapter/form';
@@ -173,7 +173,7 @@ async function handleSubmit() {
       // 判断是否选中
       for (const item of nextNodeInfo.value) {
         if (item.selectUserList.length === 0) {
-          message.warn(`未选择节点[${item.nodeName}]审批人`);
+          message.warning(`未选择节点[${item.nodeName}]审批人`);
           return;
         }
       }

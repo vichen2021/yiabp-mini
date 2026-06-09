@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { Input, Select } from 'ant-design-vue';
+import { Input, Select } from 'antdv-next';
 </script>
 ```
 
@@ -23,49 +23,19 @@ import { Input, Select } from 'ant-design-vue';
 
 | 组件 | 说明 |
 |------|------|
-| `a-button` | Ant Design 按钮 |
-| `GhostButton` | 表格操作列专用按钮 |
+| `VbenButton` | Vben 通用按钮 |
+| `VbenTableAction` | 表格操作列专用组件 |
 
 ```vue
 <template>
-  <a-button type="primary">按钮</a-button>
-  <GhostButton>操作按钮</GhostButton>
+  <VbenButton variant="default">按钮</VbenButton>
+  <VbenTableAction :actions="actions" />
 </template>
 ```
 
-## 按需导入（可选）
+## 按需导入
 
-如需启用按需导入，在 `vite.config.mts` 中取消注释：
-
-```typescript
-import { AntDesignVueResolver } from 'unplugin-vue-components/resolvers';
-import Components from 'unplugin-vue-components/vite';
-
-export default defineConfig({
-  vite: {
-    plugins: [
-      Components({
-        dirs: [],
-        dts: './types/components.d.ts',
-        resolvers: [
-          AntDesignVueResolver({
-            importStyle: false,
-          }),
-        ],
-      }),
-    ],
-  },
-});
-```
-
-启用后可直接使用 `a-xxx` 组件：
-
-```vue
-<template>
-  <a-input v-model:value="name" />
-  <a-select v-model:value="type" />
-</template>
-```
+当前项目不再建议通过 `AntDesignVueResolver` 自动注册 antd 组件。业务代码需要 antdv-next 组件时，直接从 `antdv-next` 手动导入；表单、表格、弹窗、抽屉等优先使用项目封装的 adapter 和 Vben 组件。
 
 ## 相关文档
 

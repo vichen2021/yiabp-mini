@@ -3,9 +3,7 @@ import type { Recordable } from '@vben/types';
 
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { Popconfirm } from 'ant-design-vue';
-
-import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { useVbenVxeGrid, VbenTableAction } from '#/adapter/vxe-table';
 import { forceLogout2, onlineDeviceList } from '#/api/monitor/online';
 import { columns } from '#/views/monitor/online/data';
 
@@ -39,13 +37,18 @@ async function handleForceOffline(row: Recordable<any>) {
   <div>
     <BasicTable table-title="我的在线设备">
       <template #action="{ row }">
-        <Popconfirm
-          :title="`确认强制下线[${row.userName}]?`"
-          placement="left"
-          @confirm="handleForceOffline(row)"
-        >
-          <a-button danger size="small" type="link">强制下线</a-button>
-        </Popconfirm>
+        <VbenTableAction
+          :actions="[
+            {
+              danger: true,
+              popConfirm: {
+                title: `确认强制下线[${row.userName}]?`,
+                confirm: () => handleForceOffline(row),
+              },
+              text: '强制下线',
+            },
+          ]"
+        />
       </template>
     </BasicTable>
   </div>

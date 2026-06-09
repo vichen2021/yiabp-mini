@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { RadioChangeEvent } from 'ant-design-vue';
+import type { RadioChangeEvent } from 'antdv-next';
 
 import type { VbenFormProps } from '@vben/common-ui';
 import type { Recordable } from '@vben/types';
@@ -10,16 +10,20 @@ import { ref } from 'vue';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
-import { getVxePopupContainer } from '@vben/utils';
 
-import { Modal, Popconfirm, RadioGroup, Space } from 'ant-design-vue';
+import { Button, RadioGroup, Space } from 'antdv-next';
 
-import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
+import {
+  useVbenVxeGrid,
+  VbenTableAction,
+  vxeCheckboxChecked,
+} from '#/adapter/vxe-table';
 import {
   deleteByInstanceIds,
   pageByFinish,
   pageByRunning,
 } from '#/api/workflow/instance';
+import { confirmDangerAction } from '#/utils/modal';
 import CategoryTree from '#/views/workflow/processDefinition/category-tree.vue';
 
 import { flowInfoModal } from '../components';
@@ -136,11 +140,9 @@ async function handleDelete(row: Recordable<any>) {
 function handleMultiDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
   const ids = rows.map((row: any) => row.id);
-  Modal.confirm({
-    title: '提示',
-    okType: 'danger',
+  confirmDangerAction({
     content: `确认删除选中的${ids.length}条记录吗？`,
-    onOk: async () => {
+    onConfirmed: async () => {
       await deleteByInstanceIds(ids);
       await tableApi.query();
     },
@@ -184,7 +186,7 @@ function handleInfo(row: any) {
         </template>
         <template #toolbar-tools>
           <Space>
-            <a-button
+            <Button
               :disabled="!vxeCheckboxChecked(tableApi)"
               danger
               type="primary"
@@ -192,44 +194,38 @@ function handleInfo(row: any) {
               @click="handleMultiDelete"
             >
               {{ $t('pages.common.delete') }}
-            </a-button>
+            </Button>
           </Space>
         </template>
         <template #action="{ row }">
-          <div class="flex flex-col">
-            <div v-if="currentType === 'process_running'">
-              <a-button
-                danger
-                size="small"
-                type="link"
-                @click.stop="handleInvalid(row)"
-              >
-                作废流程
-              </a-button>
-              <Popconfirm
-                :get-popup-container="getVxePopupContainer"
-                placement="left"
-                title="确认删除？"
-                @confirm="handleDelete(row)"
-              >
-                <a-button danger size="small" type="link" @click.stop="">
-                  删除流程
-                </a-button>
-              </Popconfirm>
-            </div>
-            <div>
-              <a-button size="small" type="link" @click.stop="handleInfo(row)">
-                流程预览
-              </a-button>
-              <a-button
-                size="small"
-                type="link"
-                @click.stop="handleVariable(row)"
-              >
-                变量查看
-              </a-button>
-            </div>
-          </div>
+          <VbenTableAction
+            :actions="[
+              {
+                danger: true,
+                ifShow: currentType === 'process_running',
+                onClick: () => handleInvalid(row),
+                text: '作废流程',
+              },
+              {
+                danger: true,
+                ifShow: currentType === 'process_running',
+                popConfirm: {
+                  title: '确认删除？',
+                  confirm: () => handleDelete(row),
+                },
+                text: '删除流程',
+              },
+              {
+                onClick: () => handleInfo(row),
+                text: '流程预览',
+              },
+              {
+                onClick: () => handleVariable(row),
+                text: '变量查看',
+              },
+            ]"
+            align="center"
+          />
         </template>
       </BasicTable>
     </div>

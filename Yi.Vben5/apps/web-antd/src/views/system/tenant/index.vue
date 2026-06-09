@@ -7,12 +7,15 @@ import type { Tenant } from '#/api/system/tenant/model';
 import { computed, ref } from 'vue';
 
 import { useAccess } from '@vben/access';
-import { Fallback, Page, useVbenDrawer } from '@vben/common-ui';
-import { getVxePopupContainer } from '@vben/utils';
+import { Fallback, Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
 
-import { Form, Input, Modal, Popconfirm, Space } from 'ant-design-vue';
+import { Button, Form, FormItem, Input, Space } from 'antdv-next';
 
-import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
+import {
+  useVbenVxeGrid,
+  VbenTableAction,
+  vxeCheckboxChecked,
+} from '#/adapter/vxe-table';
 import {
   tenantExport,
   tenantInit,
@@ -23,6 +26,10 @@ import {
 import { TableSwitch } from '#/components/table';
 import { useTenantStore } from '#/store/tenant';
 import { commonDownloadExcel } from '#/utils/file/download';
+import {
+  confirmDangerAction,
+  showErrorAlert,
+} from '#/utils/modal';
 
 import { columns, querySchema } from './data';
 import tenantDrawer from './tenant-drawer.vue';
@@ -99,11 +106,9 @@ async function handleDelete(row: Tenant) {
 function handleMultiDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
   const ids = rows.map((row: Tenant) => row.id);
-  Modal.confirm({
-    title: '提示',
-    okType: 'danger',
+  confirmDangerAction({
     content: `确认删除选中的${ids.length}条记录吗？`,
-    onOk: async () => {
+    onConfirmed: async () => {
       await tenantRemove(ids);
       await tableApi.query();
       // 重新加载租户信息
@@ -126,25 +131,29 @@ const isSuperAdmin = computed(() => {
   return hasAccessByRoles(['superadmin']);
 });
 
-const initModalVisible = ref(false);
 const initTenantId = ref('');
 const initUsername = ref('');
 const initPassword = ref('');
+
+const [InitTenantModal, initTenantModalApi] = useVbenModal({
+  onConfirm: handleInitConfirm,
+  title: '初始化租户',
+});
 
 function handleInit(row: Tenant) {
   initTenantId.value = row.id;
   initUsername.value = '';
   initPassword.value = '';
-  initModalVisible.value = true;
+  initTenantModalApi.open();
 }
 
 async function handleInitConfirm() {
   if (!initUsername.value || !initPassword.value) {
-    Modal.error({ title: '错误', content: '请输入管理员账号和密码' });
+    showErrorAlert('请输入管理员账号和密码', '错误');
     return;
   }
 
-  initModalVisible.value = false;
+  initTenantModalApi.close();
 
   const result = await tenantInit(initTenantId.value, {
     isForce: false,
@@ -153,12 +162,9 @@ async function handleInitConfirm() {
   });
 
   if (result?.needForce) {
-    Modal.confirm({
-      title: '提示',
-      iconType: 'warning',
+    confirmDangerAction({
       content: '数据库有数据，是否清除所有数据强制初始化？',
-      okType: 'danger',
-      onOk: async () => {
+      onConfirmed: async () => {
         await tenantInit(initTenantId.value, {
           isForce: true,
           username: initUsername.value,
@@ -178,13 +184,13 @@ async function handleInitConfirm() {
     <BasicTable table-title="租户列表">
       <template #toolbar-tools>
         <Space>
-          <a-button
+          <Button
             v-access:code="['system:tenant:export']"
             @click="handleDownloadExcel"
           >
             {{ $t('pages.common.export') }}
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             :disabled="!vxeCheckboxChecked(tableApi)"
             danger
             type="primary"
@@ -192,14 +198,14 @@ async function handleInitConfirm() {
             @click="handleMultiDelete"
           >
             {{ $t('pages.common.delete') }}
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             type="primary"
             v-access:code="['system:tenant:add']"
             @click="handleAdd"
           >
             {{ $t('pages.common.add') }}
-          </a-button>
+          </Button>
         </Space>
       </template>
       <template #status="{ row }">
@@ -211,53 +217,46 @@ async function handleInitConfirm() {
         />
       </template>
       <template #action="{ row }">
-        <Space v-if="row.id !== '00000000-0000-0000-0000-000000000001'">
-          <ghost-button
-            v-access:code="['system:tenant:edit']"
-            @click="handleEdit(row)"
-          >
-            {{ $t('pages.common.edit') }}
-          </ghost-button>
-          <ghost-button
-            class="btn-success"
-            v-access:code="['system:tenant:edit']"
-            @click="handleInit(row)"
-          >
-            初始化
-          </ghost-button>
-          <Popconfirm
-            :get-popup-container="getVxePopupContainer"
-            placement="left"
-            title="确认删除？"
-            @confirm="handleDelete(row)"
-          >
-            <ghost-button
-              danger
-              v-access:code="['system:tenant:remove']"
-              @click.stop=""
-            >
-              {{ $t('pages.common.delete') }}
-            </ghost-button>
-          </Popconfirm>
-        </Space>
+        <VbenTableAction
+          v-if="row.id !== '00000000-0000-0000-0000-000000000001'"
+          :actions="[
+            {
+              auth: 'system:tenant:edit',
+              onClick: () => handleEdit(row),
+              text: $t('pages.common.edit'),
+            },
+            {
+              auth: 'system:tenant:edit',
+              class: 'text-green-600 hover:text-green-700',
+              onClick: () => handleInit(row),
+              text: '初始化',
+            },
+            {
+              auth: 'system:tenant:remove',
+              danger: true,
+              popConfirm: {
+                title: '确认删除？',
+                confirm: () => handleDelete(row),
+              },
+              text: $t('pages.common.delete'),
+            },
+          ]"
+          align="center"
+        />
       </template>
     </BasicTable>
     <TenantDrawer @reload="tableApi.query()" />
-    <Modal
-      v-model:open="initModalVisible"
-      title="初始化租户"
-      @ok="handleInitConfirm"
-    >
+    <InitTenantModal>
       <p style="margin-bottom: 16px; color: #666;">请输入租户管理员账号信息：</p>
       <Form layout="vertical">
-        <Form.Item label="管理员账号" required>
+        <FormItem label="管理员账号" required>
           <Input v-model:value="initUsername" placeholder="请输入管理员账号" />
-        </Form.Item>
-        <Form.Item label="管理员密码" required>
+        </FormItem>
+        <FormItem label="管理员密码" required>
           <Input.Password v-model:value="initPassword" placeholder="请输入管理员密码" />
-        </Form.Item>
+        </FormItem>
       </Form>
-    </Modal>
+    </InitTenantModal>
   </Page>
   <Fallback v-else description="您没有租户的访问权限" status="403" />
 </template>

@@ -3,7 +3,8 @@
 该文件作为例子 使用原生表单而非useVbenForm
 -->
 <script setup lang="ts">
-import type { RuleObject } from 'ant-design-vue/es/form';
+import type { FormInstance } from 'antdv-next';
+import type { RuleObject } from 'antdv-next/dist/form/types';
 
 import { computed, ref } from 'vue';
 
@@ -12,7 +13,7 @@ import { DictEnum } from '@vben/constants';
 import { $t } from '@vben/locales';
 import { cloneDeep } from '@vben/utils';
 
-import { Form, FormItem, Input, RadioGroup } from 'ant-design-vue';
+import { Form, FormItem, Input, RadioGroup } from 'antdv-next';
 import { pick } from 'lodash-es';
 
 import type { Notice } from '#/api/system/notice/model';
@@ -55,6 +56,7 @@ const defaultValues: FormData = {
  * 表单数据ref
  */
 const formData = ref(defaultValues);
+const formRef = ref<FormInstance>();
 
 type AntdFormRules<T> = Partial<Record<keyof T, RuleObject[]>> & {
   [key: string]: RuleObject[];
@@ -68,14 +70,6 @@ const formRules = ref<AntdFormRules<FormData>>({
   type: [{ required: true, message: $t('ui.formRules.selectRequired') }],
   title: [{ required: true, message: $t('ui.formRules.required') }],
 });
-
-/**
- * useForm解构出表单方法
- */
-const { validate, validateInfos, resetFields } = Form.useForm(
-  formData,
-  formRules,
-);
 
 function customFormValueGetter() {
   return JSON.stringify(formData.value);
@@ -120,7 +114,7 @@ const [BasicModal, modalApi] = useVbenModal({
 async function handleConfirm() {
   try {
     modalApi.lock(true);
-    await validate();
+    await formRef.value?.validate();
     // 可能会做数据处理 使用cloneDeep深拷贝
     const data = cloneDeep(formData.value);
     // 转换state从string到boolean（RadioGroup返回string，但API需要boolean）
@@ -140,22 +134,22 @@ async function handleConfirm() {
 
 async function handleClosed() {
   formData.value = defaultValues;
-  resetFields();
+  formRef.value?.resetFields();
   resetInitialized();
 }
 </script>
 
 <template>
   <BasicModal :title="title">
-    <Form layout="vertical">
-      <FormItem label="公告标题" v-bind="validateInfos.title">
+    <Form ref="formRef" layout="vertical" :model="formData" :rules="formRules">
+      <FormItem label="公告标题" name="title">
         <Input
           :placeholder="$t('ui.formRules.required')"
           v-model:value="formData.title"
         />
       </FormItem>
       <div class="grid sm:grid-cols-1 lg:grid-cols-2">
-        <FormItem label="公告状态" v-bind="validateInfos.state">
+        <FormItem label="公告状态" name="state">
           <RadioGroup
             button-style="solid"
             option-type="button"
@@ -163,7 +157,7 @@ async function handleClosed() {
             :options="getDictOptions(DictEnum.SYS_NOTICE_STATUS)"
           />
         </FormItem>
-        <FormItem label="公告类型" v-bind="validateInfos.type">
+        <FormItem label="公告类型" name="type">
           <RadioGroup
             button-style="solid"
             option-type="button"
@@ -172,7 +166,7 @@ async function handleClosed() {
           />
         </FormItem>
       </div>
-      <FormItem label="公告内容" v-bind="validateInfos.content">
+      <FormItem label="公告内容" name="content">
         <Tinymce v-model="formData.content" />
       </FormItem>
     </Form>

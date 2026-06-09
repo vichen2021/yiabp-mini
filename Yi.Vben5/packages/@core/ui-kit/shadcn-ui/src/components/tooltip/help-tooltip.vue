@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { cn } from '@vben-core/shared/utils';
 
-import { CircleHelp } from 'lucide-vue-next';
+import { CircleHelp } from '@lucide/vue';
 
 import Tooltip from './tooltip.vue';
 
@@ -13,7 +13,7 @@ defineProps<{ triggerClass?: string }>();
 </script>
 
 <template>
-  <Tooltip :delay-duration="300" side="top">
+  <Tooltip :delay-duration="300" side="right">
     <template #trigger>
       <slot name="trigger">
         <CircleHelp

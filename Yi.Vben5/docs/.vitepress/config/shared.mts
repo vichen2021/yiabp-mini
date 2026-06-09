@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 
 import {
   viteArchiverPlugin,
+  viteDayjsPlugin,
   viteVxeTableImportsPlugin,
 } from '@vben/vite-config';
 
@@ -12,7 +13,7 @@ import {
   GitChangelog,
   GitChangelogMarkdownSection,
 } from '@nolebase/vitepress-plugin-git-changelog/vite';
-import tailwind from 'tailwindcss';
+import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, postcssIsolateStyles } from 'vitepress';
 import {
   groupIconMdPlugin,
@@ -63,10 +64,7 @@ export const shared = defineConfig({
     },
     css: {
       postcss: {
-        plugins: [
-          tailwind(),
-          postcssIsolateStyles({ includeFiles: [/vp-doc\.css/] }),
-        ],
+        plugins: [postcssIsolateStyles({ includeFiles: [/vp-doc\.css/] })],
       },
       preprocessorOptions: {
         scss: {
@@ -78,6 +76,8 @@ export const shared = defineConfig({
       stringify: true,
     },
     plugins: [
+      viteDayjsPlugin(),
+      tailwindcss(),
       GitChangelog({
         mapAuthors: [],
         repoURL: () => 'https://gitee.com/vichen2021/yiabp-mini',

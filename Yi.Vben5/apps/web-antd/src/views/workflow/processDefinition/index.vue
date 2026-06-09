@@ -1,6 +1,6 @@
 <!-- eslint-disable no-use-before-define -->
 <script setup lang="ts">
-import type { RadioChangeEvent } from 'ant-design-vue';
+import type { RadioChangeEvent } from 'antdv-next';
 
 import type { VbenFormProps } from '@vben/common-ui';
 import type { Recordable } from '@vben/types';
@@ -12,18 +12,14 @@ import { useRouter } from 'vue-router';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
-import { getVxePopupContainer } from '@vben/utils';
+
+import { Button, message, RadioGroup, Space, Switch } from 'antdv-next';
 
 import {
-  message,
-  Modal,
-  Popconfirm,
-  RadioGroup,
-  Space,
-  Switch,
-} from 'ant-design-vue';
-
-import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
+  useVbenVxeGrid,
+  VbenTableAction,
+  vxeCheckboxChecked,
+} from '#/adapter/vxe-table';
 import {
   unPublishList,
   workflowDefinitionActive,
@@ -34,6 +30,7 @@ import {
   workflowDefinitionPublish,
 } from '#/api/workflow/definition';
 import { downloadByData } from '#/utils/file/download';
+import { confirmDangerAction } from '#/utils/modal';
 
 import CategoryTree from './category-tree.vue';
 import { columns, querySchema } from './data';
@@ -135,11 +132,9 @@ async function handleDelete(row: Recordable<any>) {
 function handleMultiDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
   const ids = rows.map((row: any) => row.id);
-  Modal.confirm({
-    title: '提示',
-    okType: 'danger',
+  confirmDangerAction({
     content: `确认删除选中的${ids.length}条记录吗？`,
-    onOk: async () => {
+    onConfirmed: async () => {
       await workflowDefinitionDelete(ids);
       await tableApi.query();
     },
@@ -288,7 +283,7 @@ async function handleReload(type: 'add' | 'update') {
         </template>
         <template #toolbar-tools>
           <Space>
-            <a-button
+            <Button
               :disabled="!vxeCheckboxChecked(tableApi)"
               danger
               type="primary"
@@ -296,17 +291,17 @@ async function handleReload(type: 'add' | 'update') {
               @click="handleMultiDelete"
             >
               {{ $t('pages.common.delete') }}
-            </a-button>
-            <a-button v-access:code="['system:user:add']" @click="handleDeploy">
+            </Button>
+            <Button v-access:code="['system:user:add']" @click="handleDeploy">
               部署
-            </a-button>
-            <a-button
+            </Button>
+            <Button
               type="primary"
               v-access:code="['system:user:add']"
               @click="handleAdd"
             >
               {{ $t('pages.common.add') }}
-            </a-button>
+            </Button>
           </Space>
         </template>
         <template #activityStatus="{ row }">
@@ -320,55 +315,46 @@ async function handleReload(type: 'add' | 'update') {
           />
         </template>
         <template #action="{ row }">
-          <div class="flex flex-col gap-1">
-            <div>
-              <a-button size="small" type="link" @click="handleEdit(row)">
-                编辑信息
-              </a-button>
-              <Popconfirm
-                :get-popup-container="getVxePopupContainer"
-                placement="left"
-                title="确认删除？"
-                @confirm="handleDelete(row)"
-              >
-                <a-button danger size="small" type="link" @click.stop="">
-                  删除流程
-                </a-button>
-              </Popconfirm>
-            </div>
-            <div>
-              <a-button
-                size="small"
-                type="link"
-                @click="handleDesign(row, !!row.isPublish)"
-              >
-                {{ row.isPublish ? '查看流程' : '设计流程' }}
-              </a-button>
-              <Popconfirm
-                :get-popup-container="getVxePopupContainer"
-                :title="`确认发布流程[${row.flowName}]?`"
-                placement="left"
-                @confirm="handlePublish(row)"
-              >
-                <a-button v-if="!row.isPublish" size="small" type="link">
-                  发布流程
-                </a-button>
-              </Popconfirm>
-            </div>
-            <div>
-              <Popconfirm
-                :get-popup-container="getVxePopupContainer"
-                :title="`确认复制流程[${row.flowName}]?`"
-                placement="left"
-                @confirm="handleCopy(row)"
-              >
-                <a-button size="small" type="link"> 复制流程 </a-button>
-              </Popconfirm>
-              <a-button size="small" type="link" @click="handleExportXml(row)">
-                导出流程
-              </a-button>
-            </div>
-          </div>
+          <VbenTableAction
+            :actions="[
+              {
+                onClick: () => handleEdit(row),
+                text: '编辑信息',
+              },
+              {
+                danger: true,
+                popConfirm: {
+                  title: '确认删除？',
+                  confirm: () => handleDelete(row),
+                },
+                text: '删除流程',
+              },
+              {
+                onClick: () => handleDesign(row, !!row.isPublish),
+                text: row.isPublish ? '查看流程' : '设计流程',
+              },
+              {
+                ifShow: !row.isPublish,
+                popConfirm: {
+                  title: `确认发布流程[${row.flowName}]?`,
+                  confirm: () => handlePublish(row),
+                },
+                text: '发布流程',
+              },
+              {
+                popConfirm: {
+                  title: `确认复制流程[${row.flowName}]?`,
+                  confirm: () => handleCopy(row),
+                },
+                text: '复制流程',
+              },
+              {
+                onClick: () => handleExportXml(row),
+                text: '导出流程',
+              },
+            ]"
+            align="center"
+          />
         </template>
       </BasicTable>
     </div>

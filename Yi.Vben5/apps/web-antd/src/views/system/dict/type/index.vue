@@ -7,11 +7,14 @@ import type { DictType } from '#/api/system/dict/dict-type-model';
 import { ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
-import { getVxePopupContainer } from '@vben/utils';
 
-import { Modal, Popconfirm, Space } from 'ant-design-vue';
+import { Button, Space } from 'antdv-next';
 
-import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
+import {
+  useVbenVxeGrid,
+  VbenTableAction,
+  vxeCheckboxChecked,
+} from '#/adapter/vxe-table';
 import {
   dictTypeExport,
   dictTypeList,
@@ -19,6 +22,7 @@ import {
   refreshDictTypeCache,
 } from '#/api/system/dict/dict-type';
 import { commonDownloadExcel } from '#/utils/file/download';
+import { confirmDangerAction } from '#/utils/modal';
 
 import { emitter } from '../mitt';
 import { columns, querySchema } from './data';
@@ -74,7 +78,7 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,
   gridEvents: {
-    cellClick: (e) => {
+    cellClick: (e: any) => {
       const { row } = e;
       if (lastDictType.value === row.dictType) {
         return;
@@ -106,11 +110,9 @@ async function handleDelete(row: DictType) {
 function handleMultiDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
   const ids = rows.map((row: DictType) => row.id);
-  Modal.confirm({
-    title: '提示',
-    okType: 'danger',
+  confirmDangerAction({
     content: `确认删除选中的${ids.length}条记录吗？`,
-    onOk: async () => {
+    onConfirmed: async () => {
       await dictTypeRemove(ids);
       await tableApi.query();
     },
@@ -136,19 +138,19 @@ function handleDownloadExcel() {
     <BasicTable id="dict-type" table-title="字典类型列表">
       <template #toolbar-tools>
         <Space>
-          <a-button
+          <Button
             v-access:code="['system:dict:edit']"
             @click="handleRefreshCache"
           >
             刷新缓存
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             v-access:code="['system:dict:export']"
             @click="handleDownloadExcel"
           >
             {{ $t('pages.common.export') }}
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             :disabled="!vxeCheckboxChecked(tableApi)"
             danger
             type="primary"
@@ -156,41 +158,36 @@ function handleDownloadExcel() {
             @click="handleMultiDelete"
           >
             {{ $t('pages.common.delete') }}
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             type="primary"
             v-access:code="['system:dict:add']"
             @click="handleAdd"
           >
             {{ $t('pages.common.add') }}
-          </a-button>
+          </Button>
         </Space>
       </template>
       <template #action="{ row }">
-        <Space>
-          <ghost-button
-            v-access:code="['system:dict:edit']"
-            @click.stop="handleEdit(row)"
-          >
-            {{ $t('pages.common.edit') }}
-          </ghost-button>
-          <Popconfirm
-            :get-popup-container="
-              (node) => getVxePopupContainer(node, 'dict-type')
-            "
-            placement="left"
-            title="确认删除？"
-            @confirm="handleDelete(row)"
-          >
-            <ghost-button
-              danger
-              v-access:code="['system:dict:remove']"
-              @click.stop=""
-            >
-              {{ $t('pages.common.delete') }}
-            </ghost-button>
-          </Popconfirm>
-        </Space>
+        <VbenTableAction
+          :actions="[
+            {
+              auth: 'system:dict:edit',
+              onClick: () => handleEdit(row),
+              text: $t('pages.common.edit'),
+            },
+            {
+              auth: 'system:dict:remove',
+              danger: true,
+              popConfirm: {
+                title: '确认删除？',
+                confirm: () => handleDelete(row),
+              },
+              text: $t('pages.common.delete'),
+            },
+          ]"
+          align="center"
+        />
       </template>
     </BasicTable>
     <DictTypeModal @reload="tableApi.query()" />
@@ -202,7 +199,7 @@ div#dict-type {
   .vxe-body--row {
     &.row--current {
       // 选中行bold
-      @apply font-semibold;
+      font-weight: 600;
     }
   }
 }

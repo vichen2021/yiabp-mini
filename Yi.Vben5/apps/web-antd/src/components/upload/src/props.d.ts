@@ -1,10 +1,10 @@
-import type { UploadFile } from 'ant-design-vue';
-import type { RcFile } from 'ant-design-vue/es/vc-upload/interface';
+import type { UploadFile } from 'antdv-next';
+import type { VcFile } from 'antdv-next/dist/upload/interface';
 
 import type { UploadApi, UploadResult } from '#/api';
 import type { OssFile } from '#/api/system/file/model';
 
-import { UploadChangeParam } from 'ant-design-vue';
+import { UploadChangeParam } from 'antdv-next';
 
 export type UploadType = 'file' | 'image';
 
@@ -116,7 +116,7 @@ export interface BaseUploadProps {
 }
 
 export interface UploadEmits {
-  (e: 'success', file: RcFile, response: UploadResult): void;
+  (e: 'success', file: VcFile, response: UploadResult): void;
   (e: 'remove', file: UploadFile): void;
   (e: 'change', info: UploadChangeParam): void;
 }

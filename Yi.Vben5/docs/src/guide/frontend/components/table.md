@@ -51,10 +51,10 @@ const gridOptions: VxeGridProps = {
 ```vue
 <BasicTable>
   <template #toolbar-actions>
-    <a-button type="primary" @click="handleAdd">新增</a-button>
+    <Button type="primary" @click="handleAdd">新增</Button>
   </template>
   <template #toolbar-tools>
-    <a-button @click="tableApi.query()">刷新</a-button>
+    <Button @click="tableApi.query()">刷新</Button>
   </template>
 </BasicTable>
 ```

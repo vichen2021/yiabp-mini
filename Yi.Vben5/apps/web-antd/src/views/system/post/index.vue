@@ -7,13 +7,17 @@ import type { Post } from '#/api/system/post/model';
 import { ref } from 'vue';
 
 import { Page, useVbenDrawer } from '@vben/common-ui';
-import { getVxePopupContainer } from '@vben/utils';
 
-import { Modal, Popconfirm, Space } from 'ant-design-vue';
+import { Button, Space } from 'antdv-next';
 
-import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
+import {
+  useVbenVxeGrid,
+  VbenTableAction,
+  vxeCheckboxChecked,
+} from '#/adapter/vxe-table';
 import { postExport, postList, postRemove } from '#/api/system/post';
 import { commonDownloadExcel } from '#/utils/file/download';
+import { confirmDangerAction } from '#/utils/modal';
 import DeptTree from '#/views/system/user/dept-tree.vue';
 
 import { columns, querySchema } from './data';
@@ -104,11 +108,9 @@ async function handleDelete(row: Post) {
 function handleMultiDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
   const ids = rows.map((row: Post) => row.id);
-  Modal.confirm({
-    title: '提示',
-    okType: 'danger',
+  confirmDangerAction({
     content: `确认删除选中的${ids.length}条记录吗？`,
-    onOk: async () => {
+    onConfirmed: async () => {
       await postRemove(ids);
       await tableApi.query();
     },
@@ -131,13 +133,13 @@ function handleDownloadExcel() {
     <BasicTable class="flex-1 overflow-hidden" table-title="岗位列表">
       <template #toolbar-tools>
         <Space>
-          <a-button
+          <Button
             v-access:code="['system:post:export']"
             @click="handleDownloadExcel"
           >
             {{ $t('pages.common.export') }}
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             :disabled="!vxeCheckboxChecked(tableApi)"
             danger
             type="primary"
@@ -145,39 +147,36 @@ function handleDownloadExcel() {
             @click="handleMultiDelete"
           >
             {{ $t('pages.common.delete') }}
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             type="primary"
             v-access:code="['system:post:add']"
             @click="handleAdd"
           >
             {{ $t('pages.common.add') }}
-          </a-button>
+          </Button>
         </Space>
       </template>
       <template #action="{ row }">
-        <Space>
-          <GhostButton
-            v-access:code="['system:post:edit']"
-            @click="handleEdit(row)"
-          >
-            {{ $t('pages.common.edit') }}
-          </GhostButton>
-          <Popconfirm
-            :get-popup-container="getVxePopupContainer"
-            placement="left"
-            title="确认删除？"
-            @confirm="handleDelete(row)"
-          >
-            <GhostButton
-              danger
-              v-access:code="['system:post:remove']"
-              @click.stop=""
-            >
-              {{ $t('pages.common.delete') }}
-            </GhostButton>
-          </Popconfirm>
-        </Space>
+        <VbenTableAction
+          :actions="[
+            {
+              auth: 'system:post:edit',
+              onClick: () => handleEdit(row),
+              text: $t('pages.common.edit'),
+            },
+            {
+              auth: 'system:post:remove',
+              danger: true,
+              popConfirm: {
+                title: '确认删除？',
+                confirm: () => handleDelete(row),
+              },
+              text: $t('pages.common.delete'),
+            },
+          ]"
+          align="center"
+        />
       </template>
     </BasicTable>
     <PostDrawer @reload="tableApi.query()" />

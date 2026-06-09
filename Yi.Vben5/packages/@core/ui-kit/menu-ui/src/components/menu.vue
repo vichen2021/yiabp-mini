@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { UseResizeObserverReturn } from '@vueuse/core';
 
-import type { SetupContext, VNodeArrayChildren } from 'vue';
+import type { SetupContext, VNode, VNodeArrayChildren } from 'vue';
 
 import type {
   MenuItemClicked,
@@ -12,6 +12,7 @@ import type {
 
 import {
   computed,
+  isVNode,
   nextTick,
   reactive,
   ref,
@@ -77,7 +78,7 @@ const getSlot = computed(() => {
   // 更新插槽内容
   const defaultSlots: VNodeArrayChildren = slots.default?.() ?? [];
 
-  const originalSlot = flattedChildren(defaultSlots) as VNodeArrayChildren;
+  const originalSlot = flattedChildren(defaultSlots).filter(isVNode) as VNode[];
   const slotDefault =
     sliceIndex.value === -1
       ? originalSlot
@@ -88,6 +89,10 @@ const getSlot = computed(() => {
 
   return { showSlotMore: slotMore.length > 0, slotDefault, slotMore };
 });
+
+function getSlotKey(item: VNode) {
+  return item.key ?? item.type.toString();
+}
 
 watch(
   () => props.collapse,
@@ -351,14 +356,14 @@ function getActivePaths() {
     role="menu"
   >
     <template v-if="mode === 'horizontal' && getSlot.showSlotMore">
-      <template v-for="item in getSlot.slotDefault" :key="item.key">
+      <template v-for="item in getSlot.slotDefault" :key="getSlotKey(item)">
         <component :is="item" />
       </template>
       <SubMenu is-sub-menu-more path="sub-menu-more">
         <template #title>
           <Ellipsis class="size-4" />
         </template>
-        <template v-for="item in getSlot.slotMore" :key="item.key">
+        <template v-for="item in getSlot.slotMore" :key="getSlotKey(item)">
           <component :is="item" />
         </template>
       </SubMenu>

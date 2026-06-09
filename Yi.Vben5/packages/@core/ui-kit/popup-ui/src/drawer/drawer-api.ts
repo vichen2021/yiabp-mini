@@ -56,23 +56,18 @@ export class DrawerApi {
       title: '',
     };
 
-    this.store = new Store<DrawerState>(
-      {
-        ...defaultState,
-        ...storeState,
-      },
-      {
-        onUpdate: () => {
-          const state = this.store.state;
-          if (state?.isOpen === this.state?.isOpen) {
-            this.state = state;
-          } else {
-            this.state = state;
-            this.api.onOpenChange?.(!!state?.isOpen);
-          }
-        },
-      },
-    );
+    this.store = new Store<DrawerState>({
+      ...defaultState,
+      ...storeState,
+    });
+
+    this.store.subscribe((state) => {
+      const prevIsOpen = this.state?.isOpen;
+      this.state = state;
+      if (state?.isOpen !== prevIsOpen) {
+        this.api.onOpenChange?.(!!state?.isOpen);
+      }
+    });
     this.state = this.store.state;
     this.api = {
       onBeforeClose,
@@ -102,16 +97,6 @@ export class DrawerApi {
     }
   }
 
-  /**
-   * loading和lock的区别
-   * loading允许关闭窗口
-   * lock不允许关闭窗口
-   * @param loading 是否loading
-   */
-  drawerLoading(loading: boolean) {
-    this.setState({ confirmLoading: loading, loading });
-  }
-
   getData<T extends object = Record<string, any>>() {
     return (this.sharedData?.payload ?? {}) as T;
   }
@@ -123,6 +108,10 @@ export class DrawerApi {
    */
   lock(isLocked: boolean = true) {
     return this.setState({ submitting: isLocked });
+  }
+
+  drawerLoading(loading = true) {
+    return this.setState({ loading });
   }
 
   /**

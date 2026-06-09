@@ -12,14 +12,13 @@ import {
   Form,
   FormItem,
   Input,
-  Modal,
-  Popconfirm,
   Row,
   Table,
-  Textarea,
-} from 'ant-design-vue';
-import { DeleteOutlined, ReloadOutlined } from '@ant-design/icons-vue';
+  TextArea,
+} from 'antdv-next';
+import { DeleteOutlined, ReloadOutlined } from '@antdv-next/icons';
 
+import { VbenTableAction } from '#/adapter/vxe-table';
 import {
   clearCacheAll,
   clearCacheKey,
@@ -28,7 +27,8 @@ import {
   listCacheKey,
   listCacheName,
 } from '#/api/monitor/cache';
-import { message } from 'ant-design-vue';
+import { confirmDangerAction } from '#/utils/modal';
+import { message } from 'antdv-next';
 
 const cacheNames = ref<CacheName[]>([]);
 const cacheKeys = ref<string[]>([]);
@@ -158,11 +158,9 @@ async function handleCacheValue(cacheKey: string) {
 
 /** 清理全部缓存 */
 function handleClearCacheAll() {
-  Modal.confirm({
-    title: '提示',
+  confirmDangerAction({
     content: '确认清理全部缓存吗？',
-    okType: 'danger',
-    onOk: async () => {
+    onConfirmed: async () => {
       try {
         await clearCacheAll();
         message.success('清理全部缓存成功');
@@ -219,16 +217,20 @@ onMounted(() => {
                 {{ record.cacheName.replace(':', '') }}
               </template>
               <template v-else-if="column.key === 'action'">
-                <Popconfirm
-                  title="确认清理此缓存名称吗？"
-                  @confirm="handleClearCacheName(record as CacheName)"
-                >
-                  <Button type="text" danger size="small">
-                    <template #icon>
-                      <DeleteOutlined />
-                    </template>
-                  </Button>
-                </Popconfirm>
+                <VbenTableAction
+                  :actions="[
+                    {
+                      danger: true,
+                      icon: DeleteOutlined,
+                      popConfirm: {
+                        title: '确认清理此缓存名称吗？',
+                        confirm: () => handleClearCacheName(record as CacheName),
+                      },
+                      text: '',
+                      tooltip: '清理',
+                    },
+                  ]"
+                />
               </template>
             </template>
           </Table>
@@ -269,16 +271,21 @@ onMounted(() => {
                 {{ record.replace(nowCacheName, '') }}
               </template>
               <template v-else-if="column.key === 'action'">
-                <Popconfirm
-                  title="确认清理此缓存键名吗？"
-                  @confirm="handleClearCacheKey(record as unknown as string)"
-                >
-                  <Button type="text" danger size="small">
-                    <template #icon>
-                      <DeleteOutlined />
-                    </template>
-                  </Button>
-                </Popconfirm>
+                <VbenTableAction
+                  :actions="[
+                    {
+                      danger: true,
+                      icon: DeleteOutlined,
+                      popConfirm: {
+                        title: '确认清理此缓存键名吗？',
+                        confirm: () =>
+                          handleClearCacheKey(record as unknown as string),
+                      },
+                      text: '',
+                      tooltip: '清理',
+                    },
+                  ]"
+                />
               </template>
             </template>
           </Table>
@@ -291,7 +298,7 @@ onMounted(() => {
             <span>缓存内容</span>
           </template>
           <template #extra>
-            <Button type="link" danger size="small" @click="handleClearCacheAll">
+            <Button danger size="small" @click="handleClearCacheAll">
               清理全部
             </Button>
           </template>
@@ -303,7 +310,7 @@ onMounted(() => {
               <Input v-model:value="cacheForm.cacheKey" readonly />
             </FormItem>
             <FormItem label="缓存内容:" name="cacheValue">
-              <Textarea
+              <TextArea
                 v-model:value="cacheForm.cacheValue"
                 :rows="8"
                 readonly
@@ -315,4 +322,3 @@ onMounted(() => {
     </Row>
   </Page>
 </template>
-

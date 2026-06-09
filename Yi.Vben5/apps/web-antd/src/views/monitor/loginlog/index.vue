@@ -7,11 +7,14 @@ import type { LoginLog } from '#/api/monitor/logininfo/model';
 import { ref } from 'vue';
 
 import { Page, useVbenModal } from '@vben/common-ui';
-import { getVxePopupContainer } from '@vben/utils';
 
-import { Modal, Popconfirm, Space } from 'ant-design-vue';
+import { Button, Space } from 'antdv-next';
 
-import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
+import {
+  useVbenVxeGrid,
+  VbenTableAction,
+  vxeCheckboxChecked,
+} from '#/adapter/vxe-table';
 import {
   loginInfoClean,
   loginInfoExport,
@@ -20,7 +23,7 @@ import {
   userUnlock,
 } from '#/api/monitor/logininfo';
 import { commonDownloadExcel } from '#/utils/file/download';
-import { confirmDeleteModal } from '#/utils/modal';
+import { confirmDangerAction, confirmDeleteModal } from '#/utils/modal';
 
 import { columns, querySchema } from './data';
 import loginInfoModal from './login-info-modal.vue';
@@ -116,11 +119,9 @@ function handleDelete(row: LoginLog) {
 function handleMultiDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
   const ids = rows.map((row: LoginLog) => row.id);
-  Modal.confirm({
-    title: '提示',
-    okType: 'danger',
+  confirmDangerAction({
     content: `确认删除选中的${ids.length}条记录吗？`,
-    onOk: async () => {
+    onConfirmed: async () => {
       await loginInfoRemove(ids);
       await tableApi.query();
     },
@@ -159,19 +160,19 @@ function handleDownloadExcel() {
     <BasicTable table-title="登录日志列表">
       <template #toolbar-tools>
         <Space>
-          <a-button
+          <Button
             v-access:code="['monitor:loginlog:remove']"
             @click="handleClear"
           >
             {{ $t('pages.common.clear') }}
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             v-access:code="['monitor:loginlog:export']"
             @click="handleDownloadExcel"
           >
             {{ $t('pages.common.export') }}
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             :disabled="!vxeCheckboxChecked(tableApi as any)"
             danger
             type="primary"
@@ -179,37 +180,36 @@ function handleDownloadExcel() {
             @click="handleMultiDelete"
           >
             {{ $t('pages.common.delete') }}
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             :disabled="!canUnlock"
             type="primary"
             v-access:code="['monitor:loginlog:edit']"
             @click="handleUnlock"
           >
             {{ $t('pages.common.unlock') }}
-          </a-button>
+          </Button>
         </Space>
       </template>
       <template #action="{ row }">
-        <Space>
-          <ghost-button @click.stop="handlePreview(row)">
-            {{ $t('pages.common.info') }}
-          </ghost-button>
-          <Popconfirm
-            :get-popup-container="getVxePopupContainer"
-            placement="left"
-            title="确认删除?"
-            @confirm="() => handleDelete(row)"
-          >
-            <ghost-button
-              danger
-              v-access:code="['monitor:loginlog:remove']"
-              @click.stop=""
-            >
-              {{ $t('pages.common.delete') }}
-            </ghost-button>
-          </Popconfirm>
-        </Space>
+        <VbenTableAction
+          :actions="[
+            {
+              onClick: () => handlePreview(row),
+              text: $t('pages.common.info'),
+            },
+            {
+              auth: 'monitor:loginlog:remove',
+              danger: true,
+              popConfirm: {
+                title: '确认删除?',
+                confirm: () => handleDelete(row),
+              },
+              text: $t('pages.common.delete'),
+            },
+          ]"
+          align="center"
+        />
       </template>
     </BasicTable>
     <LoginInfoModal />

@@ -8,17 +8,21 @@ import type { DictData } from '#/api/system/dict/dict-data-model';
 import { ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
-import { getVxePopupContainer } from '@vben/utils';
 
-import { Modal, Popconfirm, Space } from 'ant-design-vue';
+import { Button, Space } from 'antdv-next';
 
-import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
+import {
+  useVbenVxeGrid,
+  VbenTableAction,
+  vxeCheckboxChecked,
+} from '#/adapter/vxe-table';
 import {
   dictDataExport,
   dictDataList,
   dictDataRemove,
 } from '#/api/system/dict/dict-data';
 import { commonDownloadExcel } from '#/utils/file/download';
+import { confirmDangerAction } from '#/utils/modal';
 
 import { emitter } from '../mitt';
 import { columns, querySchema } from './data';
@@ -102,11 +106,9 @@ async function handleDelete(row: DictData) {
 function handleMultiDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
   const ids = rows.map((row: DictData) => row.id);
-  Modal.confirm({
-    title: '提示',
-    okType: 'danger',
+  confirmDangerAction({
     content: `确认删除选中的${ids.length}条记录吗？`,
-    onOk: async () => {
+    onConfirmed: async () => {
       await dictDataRemove(ids);
       await tableApi.query();
     },
@@ -128,13 +130,13 @@ emitter.on('rowClick', async (value) => {
     <BasicTable id="dict-data" table-title="字典数据列表">
       <template #toolbar-tools>
         <Space>
-          <a-button
+          <Button
             v-access:code="['system:dict:export']"
             @click="handleDownloadExcel"
           >
             {{ $t('pages.common.export') }}
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             :disabled="!vxeCheckboxChecked(tableApi)"
             danger
             type="primary"
@@ -142,42 +144,37 @@ emitter.on('rowClick', async (value) => {
             @click="handleMultiDelete"
           >
             {{ $t('pages.common.delete') }}
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             :disabled="dictType === ''"
             type="primary"
             v-access:code="['system:dict:add']"
             @click="handleAdd"
           >
             {{ $t('pages.common.add') }}
-          </a-button>
+          </Button>
         </Space>
       </template>
       <template #action="{ row }">
-        <Space>
-          <ghost-button
-            v-access:code="['system:dict:edit']"
-            @click="handleEdit(row)"
-          >
-            {{ $t('pages.common.edit') }}
-          </ghost-button>
-          <Popconfirm
-            :get-popup-container="
-              (node) => getVxePopupContainer(node, 'dict-data')
-            "
-            placement="left"
-            title="确认删除？"
-            @confirm="handleDelete(row)"
-          >
-            <ghost-button
-              danger
-              v-access:code="['system:dict:remove']"
-              @click.stop=""
-            >
-              {{ $t('pages.common.delete') }}
-            </ghost-button>
-          </Popconfirm>
-        </Space>
+        <VbenTableAction
+          :actions="[
+            {
+              auth: 'system:dict:edit',
+              onClick: () => handleEdit(row),
+              text: $t('pages.common.edit'),
+            },
+            {
+              auth: 'system:dict:remove',
+              danger: true,
+              popConfirm: {
+                title: '确认删除？',
+                confirm: () => handleDelete(row),
+              },
+              text: $t('pages.common.delete'),
+            },
+          ]"
+          align="center"
+        />
       </template>
     </BasicTable>
     <DictDataDrawer @reload="tableApi.query()" />

@@ -3,9 +3,12 @@ import type { ResetPwdParam, User } from '#/api/system/user/model';
 
 import { ref } from 'vue';
 
-import { useVbenModal, z } from '@vben/common-ui';
-
-import { Descriptions, DescriptionsItem } from 'ant-design-vue';
+import {
+  useVbenModal,
+  VbenDescriptions,
+  VbenDescriptionsItem,
+  z,
+} from '@vben/common-ui';
 
 import { useVbenForm } from '#/adapter/form';
 import { userResetPassword } from '#/api/system/user';
@@ -95,17 +98,17 @@ async function handleClosed() {
     title="重置密码"
   >
     <div class="flex flex-col gap-[12px]">
-      <Descriptions v-if="currentUser" size="small" :column="1" bordered>
-        <DescriptionsItem label="用户ID">
+      <VbenDescriptions v-if="currentUser" size="small" :column="1" bordered>
+        <VbenDescriptionsItem label="用户ID">
           {{ currentUser.id }}
-        </DescriptionsItem>
-        <DescriptionsItem label="用户名">
+        </VbenDescriptionsItem>
+        <VbenDescriptionsItem label="用户名">
           {{ currentUser.userName }}
-        </DescriptionsItem>
-        <DescriptionsItem label="昵称">
+        </VbenDescriptionsItem>
+        <VbenDescriptionsItem label="昵称">
           {{ currentUser.nick }}
-        </DescriptionsItem>
-      </Descriptions>
+        </VbenDescriptionsItem>
+      </VbenDescriptions>
       <BasicForm />
     </div>
   </BasicModal>

@@ -4,11 +4,14 @@ import type { Recordable } from '@vben/types';
 import { nextTick } from 'vue';
 
 import { Page, useVbenModal, type VbenFormProps } from '@vben/common-ui';
-import { getVxePopupContainer } from '@vben/utils';
 
-import { Popconfirm, Space } from 'ant-design-vue';
+import { Button, Space } from 'antdv-next';
 
-import { useVbenVxeGrid, type VxeGridProps } from '#/adapter/vxe-table';
+import {
+  useVbenVxeGrid,
+  VbenTableAction,
+  type VxeGridProps,
+} from '#/adapter/vxe-table';
 import { categoryList, categoryRemove } from '#/api/workflow/category';
 
 import categoryModal from './category-modal.vue';
@@ -101,51 +104,47 @@ function collapseAll() {
     <BasicTable table-title="流程分类列表">
       <template #toolbar-tools>
         <Space>
-          <a-button @click="collapseAll">
+          <Button @click="collapseAll">
             {{ $t('pages.common.collapse') }}
-          </a-button>
-          <a-button @click="expandAll">
+          </Button>
+          <Button @click="expandAll">
             {{ $t('pages.common.expand') }}
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             type="primary"
             v-access:code="['workflow:category:add']"
             @click="handleAdd"
           >
             {{ $t('pages.common.add') }}
-          </a-button>
+          </Button>
         </Space>
       </template>
       <template #action="{ row }">
-        <Space>
-          <ghost-button
-            v-access:code="['workflow:category:edit']"
-            @click.stop="handleEdit(row)"
-          >
-            {{ $t('pages.common.edit') }}
-          </ghost-button>
-          <ghost-button
-            class="btn-success"
-            v-access:code="['workflow:category:edit']"
-            @click.stop="handleAdd(row)"
-          >
-            {{ $t('pages.common.add') }}
-          </ghost-button>
-          <Popconfirm
-            :get-popup-container="getVxePopupContainer"
-            placement="left"
-            title="确认删除？"
-            @confirm="handleDelete(row)"
-          >
-            <ghost-button
-              danger
-              v-access:code="['workflow:category:remove']"
-              @click.stop=""
-            >
-              {{ $t('pages.common.delete') }}
-            </ghost-button>
-          </Popconfirm>
-        </Space>
+        <VbenTableAction
+          :actions="[
+            {
+              auth: 'workflow:category:edit',
+              onClick: () => handleEdit(row),
+              text: $t('pages.common.edit'),
+            },
+            {
+              auth: 'workflow:category:edit',
+              class: 'text-green-600 hover:text-green-700',
+              onClick: () => handleAdd(row),
+              text: $t('pages.common.add'),
+            },
+            {
+              auth: 'workflow:category:remove',
+              danger: true,
+              popConfirm: {
+                title: '确认删除？',
+                confirm: () => handleDelete(row),
+              },
+              text: $t('pages.common.delete'),
+            },
+          ]"
+          align="center"
+        />
       </template>
     </BasicTable>
     <CategoryModal @reload="tableApi.query()" />

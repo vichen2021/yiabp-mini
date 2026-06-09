@@ -6,7 +6,7 @@ import { SvgMessageUrl } from '@vben/icons';
 import { $t } from '@vben/locales';
 import { useUserStore } from '@vben/stores';
 
-import { notification } from 'ant-design-vue';
+import { notification } from 'antdv-next';
 import dayjs from 'dayjs';
 import { defineStore } from 'pinia';
 
@@ -35,7 +35,7 @@ export const useNotifyStore = defineStore(
         notification.success({
           description: content,
           duration: 3,
-          message: title || $t('component.notice.received'),
+          title: title || $t('component.notice.received'),
         });
 
         notificationList.value.unshift({

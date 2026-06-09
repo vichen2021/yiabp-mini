@@ -1,64 +1,95 @@
-import type { ModalFuncProps } from 'ant-design-vue';
-import type { Rule } from 'ant-design-vue/es/form';
+import type { Component } from 'vue';
 
-import { reactive } from 'vue';
+import { alert, confirm, prompt } from '@vben/common-ui';
+import { $t } from '@vben/locales';
 
-import { Alert, Form, Input, Modal } from 'ant-design-vue';
-import { isFunction } from 'lodash-es';
+import { message } from 'antdv-next';
+import { isFunction, isString } from 'lodash-es';
 
-export interface ConfirmModalProps extends Omit<ModalFuncProps, 'visible'> {
+export interface ConfirmModalProps {
   confirmText?: string;
-  placeholder?: string;
+  content?: string;
   onValidated?: () => Promise<void>;
+  placeholder?: string;
+  title?: string;
+}
+
+export interface ConfirmDangerActionProps {
+  content: string;
+  onConfirmed?: () => Promise<void> | void;
+  title?: string;
+}
+
+export async function confirmDangerAction(props: ConfirmDangerActionProps) {
+  try {
+    await confirm({
+      cancelText: $t('common.cancel'),
+      centered: true,
+      confirmText: $t('common.confirm'),
+      content: props.content,
+      icon: 'warning',
+      title: props.title || $t('pages.common.tip'),
+    });
+    if (isFunction(props.onConfirmed)) {
+      await props.onConfirmed();
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+type AlertContent = Component | string;
+
+export function showErrorAlert(
+  content: AlertContent,
+  title = $t('pages.common.tip'),
+) {
+  alert({
+    content,
+    icon: 'error',
+    title,
+  }).catch(() => {});
+}
+
+export function showSuccessAlert(
+  content: AlertContent,
+  title = $t('pages.common.tip'),
+) {
+  alert({
+    content,
+    icon: 'success',
+    title,
+  }).catch(() => {});
 }
 
 export function confirmDeleteModal(props: ConfirmModalProps) {
   const placeholder = props.placeholder || `输入'确认删除'`;
   const confirmText = props.confirmText || '确认删除';
+  const content = isString(props.content)
+    ? props.content
+    : '确认删除后将无法恢复，请谨慎操作！';
 
-  const formValue = reactive({
-    content: '',
-  });
-  const rulesRef = reactive<{ [key: string]: Rule[] }>({
-    content: [
-      {
-        message: '校验不通过',
-        required: true,
-        trigger: 'change',
-        validator(_, value) {
-          if (value !== confirmText) {
-            return Promise.reject(new Error('校验不通过'));
-          }
-          return Promise.resolve();
-        },
-      },
-    ],
-  });
-  const useForm = Form.useForm;
-  const { validate, validateInfos } = useForm(formValue, rulesRef);
-
-  Modal.confirm({
-    ...props,
-    centered: true,
-    content: (
-      <div class="flex flex-col gap-[8px]">
-        <Alert message={'确认删除后将无法恢复，请谨慎操作！'} type="error" />
-        <Form layout="vertical" model={formValue}>
-          <Form.Item {...validateInfos.content}>
-            <Input
-              placeholder={placeholder}
-              v-model:value={formValue.content}
-            />
-          </Form.Item>
-        </Form>
-      </div>
-    ),
-    okButtonProps: { danger: true, type: 'primary' },
-    onOk: async () => {
-      await validate();
-      isFunction(props.onValidated) && props.onValidated();
+  prompt<string>({
+    beforeClose: async ({ isConfirm, value }) => {
+      if (!isConfirm) {
+        return;
+      }
+      if (value !== confirmText) {
+        message.error('校验不通过');
+        return false;
+      }
+      if (isFunction(props.onValidated)) {
+        await props.onValidated();
+      }
     },
-    title: '提示',
-    type: 'warning',
-  });
+    centered: true,
+    componentProps: {
+      placeholder,
+    },
+    content,
+    defaultValue: '',
+    icon: 'warning',
+    title: props.title || '提示',
+  }).catch(() => {});
 }

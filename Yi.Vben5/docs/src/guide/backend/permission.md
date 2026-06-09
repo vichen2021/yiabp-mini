@@ -234,7 +234,7 @@ public async Task SyncPackageAsync(Guid tenantId, Guid packageId)
 前端按钮权限使用后端返回的 `permissionCodes`：
 
 ```vue
-<a-button v-access:code="['system:user:add']">新增</a-button>
+<Button v-access:code="['system:user:add']">新增</Button>
 ```
 
 登录后 `getUserInfoApi()` 返回用户、角色码和权限码，前端会写入 `accessStore.accessCodes`。

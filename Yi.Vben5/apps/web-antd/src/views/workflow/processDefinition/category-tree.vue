@@ -5,8 +5,8 @@ import type { CategoryTree } from '#/api/workflow/category/model';
 
 import { onMounted, ref } from 'vue';
 
-import { SyncOutlined } from '@ant-design/icons-vue';
-import { InputSearch, Skeleton, Tree } from 'ant-design-vue';
+import { SyncOutlined } from '@antdv-next/icons';
+import { InputSearch, Skeleton, Tree, Button } from 'antdv-next';
 
 import { categoryTree } from '#/api/workflow/category';
 
@@ -75,10 +75,10 @@ onMounted(loadTree);
             size="small"
             allow-clear
           >
-            <template #enterButton>
-              <a-button @click="handleReload">
+            <template #addonAfter>
+              <Button @click="handleReload">
                 <SyncOutlined class="text-primary" />
-              </a-button>
+              </Button>
             </template>
           </InputSearch>
         </div>
@@ -95,7 +95,7 @@ onMounted(loadTree);
             default-expand-all
             @select="$emit('select')"
           >
-            <template #title="{ label }">
+            <template #titleRender="{ label }">
               <span v-if="label.includes(searchValue)">
                 {{ label.substring(0, label.indexOf(searchValue)) }}
                 <span class="text-primary">{{ searchValue }}</span>

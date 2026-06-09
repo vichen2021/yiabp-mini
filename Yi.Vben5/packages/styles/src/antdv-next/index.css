@@ -1,0 +1,44 @@
+/* antdv-next 组件库的一些样式重置 */
+
+.ant-app {
+  width: 100%;
+  height: 100%;
+  overscroll-behavior: none;
+  color: inherit;
+}
+
+.ant-btn {
+  .anticon {
+    display: inline-flex;
+  }
+
+  /* * 修复按钮添加图标时的位置问题 */
+  > .ant-btn-icon {
+    svg {
+      display: inline-block;
+    }
+
+    svg + span {
+      margin-inline-start: 6px;
+    }
+  }
+}
+
+.ant-tag {
+  > svg {
+    display: inline-block;
+  }
+
+  > svg + span {
+    margin-inline-start: 4px;
+  }
+}
+
+.ant-message-notice-content,
+.ant-notification-notice {
+  &:is(.dark *) {
+    border-color: hsl(var(--border) / 60%);
+    color: hsl(var(--foreground));
+    background-color: hsl(var(--popover));
+  }
+}

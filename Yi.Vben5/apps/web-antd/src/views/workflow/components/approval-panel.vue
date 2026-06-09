@@ -11,7 +11,7 @@ import { Fallback, useVbenModal, VbenAvatar } from '@vben/common-ui';
 import { DictEnum } from '@vben/constants';
 import { getPopupContainer } from '@vben/utils';
 
-import { CopyOutlined } from '@ant-design/icons-vue';
+import { CopyOutlined } from '@antdv-next/icons';
 import { useClipboard, useEventListener } from '@vueuse/core';
 import {
   Card,
@@ -20,11 +20,9 @@ import {
   Menu,
   MenuItem,
   message,
-  Modal,
   Space,
   TabPane,
-  Tabs,
-} from 'ant-design-vue';
+  Tabs, Button } from 'antdv-next';
 import { isObject } from 'lodash-es';
 
 import {
@@ -38,6 +36,7 @@ import {
   terminationTask,
   updateAssignee,
 } from '#/api/workflow/task';
+import { confirmDangerAction } from '#/utils/modal';
 import { renderDict } from '#/utils/render';
 
 import { approvalModal, approvalRejectionModal, flowInterfereModal } from '.';
@@ -165,12 +164,9 @@ onUnmounted(() => (currentFlowInfo.value = undefined));
 // 进行中 可以撤销
 const revocable = computed(() => props.task?.flowStatus === 'waiting');
 async function handleCancel() {
-  Modal.confirm({
-    title: '提示',
+  confirmDangerAction({
     content: '确定要撤销该申请吗？',
-    centered: true,
-    okButtonProps: { danger: true },
-    onOk: async () => {
+    onConfirmed: async () => {
       await cancelProcessApply({
         businessId: props.task!.businessId,
         message: '申请人撤销流程！',
@@ -199,12 +195,9 @@ function handleEdit() {
 }
 
 function handleRemove() {
-  Modal.confirm({
-    title: '提示',
+  confirmDangerAction({
     content: '确定删除该申请吗？',
-    centered: true,
-    okButtonProps: { danger: true },
-    onOk: async () => {
+    onConfirmed: async () => {
       await deleteByInstanceIds([props.task!.id]);
       emit('reload');
     },
@@ -312,11 +305,9 @@ const [AddSignatureModal, addSignatureModalApi] = useVbenModal({
 function handleAddSignature(userList: User[]) {
   if (userList.length === 0) return;
   const userIds = userList.map((user) => user.userId);
-  Modal.confirm({
-    title: '提示',
+  confirmDangerAction({
     content: '确认加签吗?',
-    centered: true,
-    onOk: async () => {
+    onConfirmed: async () => {
       await taskOperation({ taskId: props.task!.id, userIds }, 'addSignature');
       emit('reload');
     },
@@ -329,11 +320,9 @@ const [ReductionSignatureModal, reductionSignatureModalApi] = useVbenModal({
 function handleReductionSignature(userList: User[]) {
   if (userList.length === 0) return;
   const userIds = userList.map((user) => user.userId);
-  Modal.confirm({
-    title: '提示',
+  confirmDangerAction({
     content: '确认减签吗?',
-    centered: true,
-    onOk: async () => {
+    onConfirmed: async () => {
       await taskOperation(
         { taskId: props.task!.id, userIds },
         'reductionSignature',
@@ -360,11 +349,10 @@ function handleUpdateAssignee(userList: User[]) {
   if (userList.length === 0) return;
   const current = userList[0];
   if (!current) return;
-  Modal.confirm({
+  confirmDangerAction({
     title: '修改办理人',
     content: `确定修改办理人为${current?.nick}吗?`,
-    centered: true,
-    onOk: async () => {
+    onConfirmed: async () => {
       await updateAssignee([props.task!.id], current.userId);
       emit('reload');
     },
@@ -385,8 +373,8 @@ async function handleCopy(text: string) {
 <template>
   <Card
     v-if="task"
-    :body-style="{ overflowY: 'auto', height: '100%' }"
     :loading="loading"
+    :styles="{ body: { overflowY: 'auto', height: '100%' } }"
     class="thin-scrollbar flex-1 overflow-y-hidden"
     size="small"
   >
@@ -397,11 +385,11 @@ async function handleCopy(text: string) {
       </div>
     </template>
     <template #extra>
-      <a-button size="small" @click="() => handleLoadInfo(task)">
+      <Button size="small" @click="() => handleLoadInfo(task)">
         <div class="flex items-center justify-center">
           <span class="icon-[material-symbols--refresh] size-24px"></span>
         </div>
-      </a-button>
+      </Button>
     </template>
     <div class="flex flex-col gap-5 p-4">
       <div class="flex flex-col gap-3">
@@ -455,49 +443,49 @@ async function handleCopy(text: string) {
     >
       <div class="flex justify-end">
         <Space v-if="type === 'myself'">
-          <a-button
+          <Button
             v-if="revocable"
             danger
             type="primary"
             @click="handleCancel"
           >
             撤销申请
-          </a-button>
-          <a-button v-if="editableAndRemoveable" @click="handleEdit">
+          </Button>
+          <Button v-if="editableAndRemoveable" @click="handleEdit">
             重新编辑
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             v-if="editableAndRemoveable"
             danger
             type="primary"
             @click="handleRemove"
           >
             删除
-          </a-button>
+          </Button>
         </Space>
         <Space v-if="type === 'approve'">
-          <a-button type="primary" @click="handleApproval">通过</a-button>
-          <a-button
+          <Button type="primary" @click="handleApproval">通过</Button>
+          <Button
             v-if="buttonPermissions?.termination"
             danger
             type="primary"
             @click="handleTermination"
           >
             终止
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             v-if="buttonPermissions?.back"
             danger
             type="primary"
             @click="handleRejection"
           >
             驳回
-          </a-button>
+          </Button>
           <Dropdown
             :get-popup-container="getPopupContainer"
             placement="bottomRight"
           >
-            <template #overlay>
+            <template #popupRender>
               <Menu>
                 <MenuItem
                   v-if="buttonPermissions?.trust"
@@ -529,7 +517,7 @@ async function handleCopy(text: string) {
                 </MenuItem>
               </Menu>
             </template>
-            <a-button v-if="showButtonOther"> 其他 </a-button>
+            <Button v-if="showButtonOther"> 其他 </Button>
           </Dropdown>
           <ApprovalModal @complete="$emit('reload')" />
           <RejectionModal @complete="$emit('reload')" />
@@ -542,10 +530,10 @@ async function handleCopy(text: string) {
           />
         </Space>
         <Space v-if="type === 'admin'">
-          <a-button @click="handleFlowInterfere"> 流程干预 </a-button>
-          <a-button @click="() => updateAssigneeModalApi.open()">
+          <Button @click="handleFlowInterfere"> 流程干预 </Button>
+          <Button @click="() => updateAssigneeModalApi.open()">
             修改办理人
-          </a-button>
+          </Button>
           <FlowInterfereModal @complete="$emit('reload')" />
           <UpdateAssigneeModal mode="single" @finish="handleUpdateAssignee" />
         </Space>

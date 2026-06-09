@@ -8,7 +8,7 @@ import { DEFAULT_TENANT_ID, LOGIN_PATH } from '@vben/constants';
 import { preferences } from '@vben/preferences';
 import { resetAllStores, useAccessStore, useUserStore } from '@vben/stores';
 
-import { notification } from 'ant-design-vue';
+import { notification } from 'antdv-next';
 import { defineStore } from 'pinia';
 
 import { doLogout, getUserInfoApi, loginApi } from '#/api';
@@ -70,7 +70,7 @@ export const useAuthStore = defineStore('auth', () => {
         notification.success({
           description: `${$t('authentication.loginSuccessDesc')}:${userInfo?.realName}`,
           duration: 3,
-          message: $t('authentication.loginSuccess'),
+          title: $t('authentication.loginSuccess'),
         });
       }
 
@@ -125,7 +125,7 @@ export const useAuthStore = defineStore('auth', () => {
       permissions: permissionCodes,
       realName: user.nick,
       roles: roleCodes,
-      userId: user.userId,
+      userId: String(user.userId),
       username: user.userName,
       email: user.email ?? '',
     };

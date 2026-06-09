@@ -1,20 +1,23 @@
 <script setup lang="ts">
-import type { PrimitiveProps } from 'radix-vue';
+import type { PrimitiveProps } from 'reka-ui';
+
+import type { HTMLAttributes } from 'vue';
 
 import { cn } from '@vben-core/shared/utils';
-import { Primitive, useForwardProps } from 'radix-vue';
-import { computed } from 'vue';
 
-const props = defineProps<{ class?: any } & PrimitiveProps>();
-const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props;
-  return delegated;
-});
+import { reactiveOmit } from '@vueuse/core';
+import { Primitive, useForwardProps } from 'reka-ui';
+
+const props = defineProps<
+  PrimitiveProps & { class?: HTMLAttributes['class'] }
+>();
+const delegatedProps = reactiveOmit(props, 'class');
 const forwardedProps = useForwardProps(delegatedProps);
 </script>
 
 <template>
   <Primitive
+    data-slot="pin-input-group"
     v-bind="forwardedProps"
     :class="cn('flex items-center', props.class)"
   >

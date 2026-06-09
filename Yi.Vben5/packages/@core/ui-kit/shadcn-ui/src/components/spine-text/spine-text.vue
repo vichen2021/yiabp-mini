@@ -16,7 +16,7 @@ const style = computed(() => {
 });
 </script>
 <template>
-  <div :style="style" class="vben-spine-text !bg-clip-text text-transparent">
+  <div :style="style" class="vben-spine-text bg-clip-text! text-transparent">
     <slot></slot>
   </div>
 </template>
@@ -32,8 +32,8 @@ const style = computed(() => {
 
 .dark .vben-spine-text {
   background:
-    radial-gradient(circle at center, rgb(24 24 26 / 80%), transparent) -200% 50% /
-      200% 100% no-repeat,
+    radial-gradient(circle at center, rgb(24 24 26 / 80%), transparent) -200%
+      50% / 200% 100% no-repeat,
     #f4f4f4;
 }
 

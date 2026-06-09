@@ -1,6 +1,6 @@
 import type { PluginVisualizerOptions } from 'rollup-plugin-visualizer';
 import type { ConfigEnv, PluginOption, UserConfig } from 'vite';
-import type { PluginOptions } from 'vite-plugin-dts';
+import type { PluginOptions } from 'unplugin-dts';
 import type { Options as PwaPluginOptions } from 'vite-plugin-pwa';
 
 /**

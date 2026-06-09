@@ -1,10 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import type { UploadChangeParam, UploadFile } from 'ant-design-vue';
-import type { FileType } from 'ant-design-vue/es/upload/interface';
-import type {
-  RcFile,
-  UploadRequestOption,
-} from 'ant-design-vue/es/vc-upload/interface';
+import type { UploadChangeParam, UploadFile } from 'antdv-next';
+import type { VcFile } from 'antdv-next/dist/upload/interface';
+
+type UploadRequestOption<T = any> = {
+  file: File | Blob | string;
+  onError?: (error: Error) => void;
+  onProgress?: (event: { percent: number }) => void;
+  onSuccess?: (response: T) => void;
+};
 
 import type { ModelRef } from 'vue';
 
@@ -20,9 +23,10 @@ import type { OssFile } from '#/api/system/file/model';
 
 import { computed, onUnmounted, ref, watch } from 'vue';
 
+import { confirm } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
-import { message, Modal } from 'ant-design-vue';
+import { message } from 'antdv-next';
 import { isFunction, isString } from 'lodash-es';
 
 import { ossInfo } from '#/api/system/file';
@@ -245,19 +249,21 @@ export function useUpload(
     }
 
     return new Promise<boolean>((resolve) => {
-      Modal.confirm({
+      confirm({
+        cancelText: $t('common.cancel'),
+        centered: true,
+        confirmText: $t('common.confirm'),
         title: $t('pages.common.tip'),
         content: $t('component.upload.confirmDelete', [currentFile.name]),
-        okButtonProps: { danger: true },
-        centered: true,
-        onOk() {
+        icon: 'warning',
+      })
+        .then(() => {
           resolve(true);
           remove();
-        },
-        onCancel() {
+        })
+        .catch(() => {
           resolve(false);
-        },
-      });
+        });
     });
   }
 
@@ -267,7 +273,7 @@ export function useUpload(
    * @param file file
    * @returns file | false
    */
-  function beforeUpload(file: FileType) {
+  function beforeUpload(file: VcFile) {
     const isLtMax = file.size / 1024 / 1024 < props.maxSize!;
     if (!isLtMax) {
       message.error($t('component.upload.maxSize', [props.maxSize]));
@@ -303,7 +309,7 @@ export function useUpload(
       if (props.showSuccessMsg) {
         message.success($t('component.upload.uploadSuccess'));
       }
-      emit('success', info.file as RcFile, res);
+      emit('success', info.file as VcFile, res);
     } catch (error: any) {
       console.error(error);
       info.onError!(error);

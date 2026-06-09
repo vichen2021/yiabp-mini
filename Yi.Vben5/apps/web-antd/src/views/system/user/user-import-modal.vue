@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import type { UploadFile } from 'ant-design-vue/es/upload/interface';
+import type { UploadFile } from 'antdv-next/dist/upload/index';
 
 import { h, ref, unref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 import { ExcelIcon, InBoxIcon } from '@vben/icons';
 
-import { Modal, Switch, Upload } from 'ant-design-vue';
+import { Switch, Upload, Button } from 'antdv-next';
 
 import { downloadImportTemplate, userImportData } from '#/api/system/user';
 import { commonDownloadExcel } from '#/utils/file/download';
+import { showErrorAlert, showSuccessAlert } from '#/utils/modal';
 
 const emit = defineEmits<{ reload: [] }>();
 
@@ -35,20 +36,20 @@ async function handleSubmit() {
       updateSupport: unref(checked),
     };
     const { code, msg } = await userImportData(data);
-    let modal = Modal.success;
+    let showAlert = showSuccessAlert;
     if (code === 200) {
       emit('reload');
     } else {
-      modal = Modal.error;
+      showAlert = showErrorAlert;
     }
     handleCancel();
-    modal({
-      content: h('div', {
+    showAlert(
+      () => h('div', {
         class: 'max-h-[260px] overflow-y-auto',
         innerHTML: msg, // 后台已经处理xss问题
       }),
-      title: '提示',
-    });
+      '提示',
+    );
   } catch (error) {
     console.warn(error);
     modalApi.close();
@@ -87,15 +88,15 @@ function handleCancel() {
     <div class="mt-2 flex flex-col gap-2">
       <div class="flex items-center gap-2">
         <span>允许导入xlsx, xls文件</span>
-        <a-button
-          type="link"
+        <Button
+          size="small"
           @click="commonDownloadExcel(downloadImportTemplate, '用户导入模板')"
         >
           <div class="flex items-center gap-[4px]">
             <ExcelIcon />
             <span>下载模板</span>
           </div>
-        </a-button>
+        </Button>
       </div>
       <div class="flex items-center gap-2">
         <span :class="{ 'text-red-500': checked }">

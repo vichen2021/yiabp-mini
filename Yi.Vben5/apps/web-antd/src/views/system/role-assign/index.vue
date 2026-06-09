@@ -7,15 +7,19 @@ import type { User } from '#/api/system/user/model';
 import { useRoute, useRouter } from 'vue-router';
 
 import { Page, useVbenDrawer } from '@vben/common-ui';
-import { getVxePopupContainer } from '@vben/utils';
 
-import { message, Modal, Popconfirm, Space } from 'ant-design-vue';
+import { Button, message, Space } from 'antdv-next';
 
-import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
+import {
+  useVbenVxeGrid,
+  VbenTableAction,
+  vxeCheckboxChecked,
+} from '#/adapter/vxe-table';
 import {
   roleAllocatedList,
   roleAuthCancelAll,
 } from '#/api/system/role';
+import { confirmDangerAction } from '#/utils/modal';
 
 import { columns, querySchema } from './data';
 import roleAssignDrawer from './role-assign-drawer.vue';
@@ -102,11 +106,9 @@ async function handleAuthCancel(record: User) {
 function handleMultipleAuthCancel() {
   const rows = tableApi.grid.getCheckboxRecords();
   const ids = rows.map((row: User) => row.id);
-  Modal.confirm({
-    title: '提示',
-    okType: 'danger',
+  confirmDangerAction({
     content: `确认取消选中的${ids.length}条授权记录吗？`,
-    onOk: async () => {
+    onConfirmed: async () => {
       await roleAuthCancelAll(roleId, ids);
       await tableApi.query();
       tableApi.grid.clearCheckboxRow();
@@ -120,7 +122,7 @@ function handleMultipleAuthCancel() {
     <BasicTable table-title="已分配的用户列表">
       <template #toolbar-tools>
         <Space>
-          <a-button
+          <Button
             :disabled="!vxeCheckboxChecked(tableApi)"
             danger
             type="primary"
@@ -128,31 +130,31 @@ function handleMultipleAuthCancel() {
             @click="handleMultipleAuthCancel"
           >
             取消授权
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             type="primary"
             v-access:code="['system:role:add']"
             @click="handleAdd"
           >
             {{ $t('pages.common.add') }}
-          </a-button>
+          </Button>
         </Space>
       </template>
       <template #action="{ row }">
-        <Popconfirm
-          :get-popup-container="getVxePopupContainer"
-          :title="`是否取消授权用户[${row.userName} - ${row.nick}]?`"
-          placement="left"
-          @confirm="handleAuthCancel(row)"
-        >
-          <ghost-button
-            danger
-            v-access:code="['system:role:remove']"
-            @click.stop=""
-          >
-            取消授权
-          </ghost-button>
-        </Popconfirm>
+        <VbenTableAction
+          :actions="[
+            {
+              auth: 'system:role:remove',
+              danger: true,
+              popConfirm: {
+                title: `是否取消授权用户[${row.userName} - ${row.nick}]?`,
+                confirm: () => handleAuthCancel(row),
+              },
+              text: '取消授权',
+            },
+          ]"
+          align="center"
+        />
       </template>
     </BasicTable>
     <RoleAssignDrawer @reload="tableApi.query()" />

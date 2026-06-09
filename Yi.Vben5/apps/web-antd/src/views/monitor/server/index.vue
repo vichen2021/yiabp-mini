@@ -3,18 +3,13 @@ import type { ServerInfo } from '#/api/service/model';
 
 import { onMounted, ref } from 'vue';
 
-import { Page } from '@vben/common-ui';
-
 import {
-  Button,
-  Card,
-  Col,
-  Descriptions,
-  DescriptionsItem,
-  Row,
-  Spin,
-  Table,
-} from 'ant-design-vue';
+  Page,
+  VbenDescriptions,
+  VbenDescriptionsItem,
+} from '@vben/common-ui';
+
+import { Button, Card, Col, Row, Spin, Table } from 'antdv-next';
 
 import { getServerInfo } from '#/api/service';
 
@@ -86,20 +81,25 @@ onMounted(() => {
               </div>
             </Button>
           </template>
-          <Descriptions v-if="server?.cpu" bordered :column="1" size="small">
-            <DescriptionsItem label="核心数">
+          <VbenDescriptions
+            v-if="server?.cpu"
+            bordered
+            :column="1"
+            size="small"
+          >
+            <VbenDescriptionsItem label="核心数">
               {{ server.cpu.coreTotal }}
-            </DescriptionsItem>
-            <DescriptionsItem label="逻辑处理器">
+            </VbenDescriptionsItem>
+            <VbenDescriptionsItem label="逻辑处理器">
               {{ server.cpu.logicalProcessors }}
-            </DescriptionsItem>
-            <DescriptionsItem label="系统使用率">
+            </VbenDescriptionsItem>
+            <VbenDescriptionsItem label="系统使用率">
               {{ server.cpu.cpuRate }}%
-            </DescriptionsItem>
-            <DescriptionsItem label="当前空闲率">
+            </VbenDescriptionsItem>
+            <VbenDescriptionsItem label="当前空闲率">
               {{ 100 - server.cpu.cpuRate }}%
-            </DescriptionsItem>
-          </Descriptions>
+            </VbenDescriptionsItem>
+          </VbenDescriptions>
         </Card>
       </Col>
 
@@ -108,22 +108,27 @@ onMounted(() => {
           <template #title>
             <span>内存</span>
           </template>
-          <Descriptions v-if="server?.memory" bordered :column="1" size="small">
-            <DescriptionsItem label="总内存">
+          <VbenDescriptions
+            v-if="server?.memory"
+            bordered
+            :column="1"
+            size="small"
+          >
+            <VbenDescriptionsItem label="总内存">
               {{ server.memory.totalRAM }}
-            </DescriptionsItem>
-            <DescriptionsItem label="已用内存">
+            </VbenDescriptionsItem>
+            <VbenDescriptionsItem label="已用内存">
               {{ server.memory.usedRam }}
-            </DescriptionsItem>
-            <DescriptionsItem label="剩余内存">
+            </VbenDescriptionsItem>
+            <VbenDescriptionsItem label="剩余内存">
               {{ server.memory.freeRam }}
-            </DescriptionsItem>
-            <DescriptionsItem label="使用率">
+            </VbenDescriptionsItem>
+            <VbenDescriptionsItem label="使用率">
               <span :class="{ 'text-danger': server.memory.ramRate > 80 }">
                 {{ server.memory.ramRate }}%
               </span>
-            </DescriptionsItem>
-          </Descriptions>
+            </VbenDescriptionsItem>
+          </VbenDescriptions>
         </Card>
       </Col>
 
@@ -132,20 +137,25 @@ onMounted(() => {
           <template #title>
             <span>服务器信息</span>
           </template>
-          <Descriptions v-if="server?.sys" bordered :column="2" size="small">
-            <DescriptionsItem label="服务器名称">
+          <VbenDescriptions
+            v-if="server?.sys"
+            bordered
+            :column="2"
+            size="small"
+          >
+            <VbenDescriptionsItem label="服务器名称">
               {{ server.sys.computerName }}
-            </DescriptionsItem>
-            <DescriptionsItem label="操作系统">
+            </VbenDescriptionsItem>
+            <VbenDescriptionsItem label="操作系统">
               {{ server.sys.osName }}
-            </DescriptionsItem>
-            <DescriptionsItem label="服务器IP">
+            </VbenDescriptionsItem>
+            <VbenDescriptionsItem label="服务器IP">
               {{ server.sys.serverIP }}
-            </DescriptionsItem>
-            <DescriptionsItem label="系统架构">
+            </VbenDescriptionsItem>
+            <VbenDescriptionsItem label="系统架构">
               {{ server.sys.osArch }}
-            </DescriptionsItem>
-          </Descriptions>
+            </VbenDescriptionsItem>
+          </VbenDescriptions>
         </Card>
       </Col>
 
@@ -154,29 +164,34 @@ onMounted(() => {
           <template #title>
             <span>应用信息</span>
           </template>
-          <Descriptions v-if="server?.app" bordered :column="2" size="small">
-            <DescriptionsItem label="应用环境">
+          <VbenDescriptions
+            v-if="server?.app"
+            bordered
+            :column="2"
+            size="small"
+          >
+            <VbenDescriptionsItem label="应用环境">
               {{ server.app.name }}
-            </DescriptionsItem>
-            <DescriptionsItem label="应用版本">
+            </VbenDescriptionsItem>
+            <VbenDescriptionsItem label="应用版本">
               {{ server.app.version }}
-            </DescriptionsItem>
-            <DescriptionsItem label="启动时间">
+            </VbenDescriptionsItem>
+            <VbenDescriptionsItem label="启动时间">
               {{ server.app.startTime }}
-            </DescriptionsItem>
-            <DescriptionsItem label="运行时长">
+            </VbenDescriptionsItem>
+            <VbenDescriptionsItem label="运行时长">
               {{ server.app.runTime }}
-            </DescriptionsItem>
-            <DescriptionsItem label="安装路径" :span="2">
+            </VbenDescriptionsItem>
+            <VbenDescriptionsItem label="安装路径" :span="2">
               {{ server.app.rootPath }}
-            </DescriptionsItem>
-            <DescriptionsItem label="项目路径" :span="2">
+            </VbenDescriptionsItem>
+            <VbenDescriptionsItem label="项目路径" :span="2">
               {{ server.app.webRootPath }}
-            </DescriptionsItem>
-            <DescriptionsItem label="运行参数" :span="2">
+            </VbenDescriptionsItem>
+            <VbenDescriptionsItem label="运行参数" :span="2">
               {{ server.app.name }}
-            </DescriptionsItem>
-          </Descriptions>
+            </VbenDescriptionsItem>
+          </VbenDescriptions>
         </Card>
       </Col>
 
@@ -213,4 +228,3 @@ onMounted(() => {
   color: #ff4d4f;
 }
 </style>
-

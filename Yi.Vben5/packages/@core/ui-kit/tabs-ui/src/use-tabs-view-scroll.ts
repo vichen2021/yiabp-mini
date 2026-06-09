@@ -59,8 +59,12 @@ export function useTabsViewScroll(props: TabsProps) {
     }
 
     const viewportEl = scrollbarEl?.querySelector(
-      'div[data-radix-scroll-area-viewport]',
+      'div[data-reka-scroll-area-viewport]',
     );
+
+    if (!viewportEl) {
+      return;
+    }
 
     scrollViewportEl.value = viewportEl;
     calcShowScrollbarButton();
