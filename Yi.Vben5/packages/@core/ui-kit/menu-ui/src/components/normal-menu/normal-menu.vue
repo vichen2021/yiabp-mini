@@ -57,10 +57,8 @@ function menuIcon(menu: MenuRecordRaw) {
     </template>
   </ul>
 </template>
-<style lang="scss" scoped>
-$namespace: vben;
-
-.#{$namespace}-normal-menu {
+<style scoped>
+.vben-normal-menu {
   --menu-item-margin-y: 4px;
   --menu-item-margin-x: 0px;
   --menu-item-padding-y: 9px;
@@ -68,94 +66,101 @@ $namespace: vben;
   --menu-item-radius: 0px;
 
   height: calc(100% - 4px);
+}
 
-  &.is-rounded {
-    --menu-item-radius: 6px;
-    --menu-item-margin-x: 8px;
-  }
+.vben-normal-menu.is-rounded {
+  --menu-item-radius: 6px;
+  --menu-item-margin-x: 8px;
+}
 
-  &.is-dark {
-    .#{$namespace}-normal-menu__item {
-      @apply text-foreground/80;
-      // color: hsl(var(--foreground) / 80%);
+.vben-normal-menu.is-dark .vben-normal-menu__item {
+  color: hsl(var(--foreground) / 80%);
+}
 
-      &:not(.is-active):hover {
-        @apply text-foreground;
-      }
+.vben-normal-menu.is-dark .vben-normal-menu__item:not(.is-active):hover {
+  color: hsl(var(--foreground));
+}
 
-      &.is-active {
-        .#{$namespace}-normal-menu__name,
-        .#{$namespace}-normal-menu__icon {
-          @apply text-foreground;
-        }
-      }
-    }
-  }
+.vben-normal-menu.is-dark
+  .vben-normal-menu__item.is-active
+  .vben-normal-menu__name,
+.vben-normal-menu.is-dark
+  .vben-normal-menu__item.is-active
+  .vben-normal-menu__icon {
+  color: hsl(var(--foreground));
+}
 
-  &.is-collapse {
-    .#{$namespace}-normal-menu__name {
-      width: 0;
-      height: 0;
-      margin-top: 0;
-      overflow: hidden;
-      opacity: 0;
-    }
+.vben-normal-menu.is-collapse .vben-normal-menu__name {
+  width: 0;
+  height: 0;
+  margin-top: 0;
+  overflow: hidden;
+  opacity: 0;
+}
 
-    .#{$namespace}-normal-menu__icon {
-      font-size: 20px;
-    }
-  }
+.vben-normal-menu.is-collapse .vben-normal-menu__icon {
+  font-size: calc(var(--font-size-base, 16px) * 1.25);
+}
 
-  &__item {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    // max-width: 64px;
-    // max-height: 64px;
-    padding: var(--menu-item-padding-y) var(--menu-item-padding-x);
-    margin: var(--menu-item-margin-y) var(--menu-item-margin-x);
-    color: hsl(var(--foreground) / 90%);
-    cursor: pointer;
-    border-radius: var(--menu-item-radius);
-    transition:
-      background 0.15s ease,
-      padding 0.15s ease,
-      border-color 0.15s ease;
+.vben-normal-menu__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--menu-item-padding-y) var(--menu-item-padding-x);
+  margin: var(--menu-item-margin-y) var(--menu-item-margin-x);
+  color: hsl(var(--foreground) / 90%);
+  cursor: pointer;
+  border-radius: var(--menu-item-radius);
+  transition:
+    background 0.15s ease,
+    padding 0.15s ease,
+    border-color 0.15s ease;
+}
 
-    &.is-active {
-      @apply text-primary bg-primary dark:bg-accent;
+.vben-normal-menu__item.is-active {
+  color: hsl(var(--primary));
+  background-color: hsl(var(--primary));
+}
 
-      .#{$namespace}-normal-menu__name,
-      .#{$namespace}-normal-menu__icon {
-        @apply text-primary-foreground font-semibold;
-      }
-    }
+.vben-normal-menu__item.is-active .vben-normal-menu__name,
+.vben-normal-menu__item.is-active .vben-normal-menu__icon {
+  color: hsl(var(--primary-foreground));
+  font-weight: 600;
+}
 
-    &:not(.is-active):hover {
-      @apply dark:bg-accent text-primary bg-heavy dark:text-foreground;
-    }
+.vben-normal-menu__item:not(.is-active):hover {
+  color: hsl(var(--primary));
+  background-color: hsl(var(--heavy));
+}
 
-    &:hover {
-      .#{$namespace}-normal-menu__icon {
-        transform: scale(1.2);
-      }
-    }
-  }
+:global(.dark) .vben-normal-menu__item.is-active,
+:global(.dark) .vben-normal-menu__item:not(.is-active):hover {
+  background-color: hsl(var(--accent));
+}
 
-  &__icon {
-    max-height: 20px;
-    font-size: 20px;
-    transition: all 0.25s ease;
-  }
+:global(.dark) .vben-normal-menu__item:not(.is-active):hover {
+  color: hsl(var(--foreground));
+}
 
-  &__name {
-    margin-top: 8px;
-    margin-bottom: 0;
-    font-size: 12px;
-    font-weight: 400;
-    transition: all 0.25s ease;
-  }
+.vben-normal-menu__item:hover .vben-normal-menu__icon {
+  transform: scale(1.2);
+}
+
+.vben-normal-menu__icon {
+  max-height: 1.25rem;
+  font-size: calc(var(--font-size-base, 16px) * 1.25);
+  transition: all 0.25s ease;
+}
+
+.vben-normal-menu__name {
+  width: 100%;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+  font-size: calc(var(--font-size-base, 16px) * 0.75);
+  font-weight: 400;
+  text-align: center;
+  transition: all 0.25s ease;
 }
 </style>

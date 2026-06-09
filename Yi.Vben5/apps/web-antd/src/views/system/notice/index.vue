@@ -5,12 +5,16 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { Notice } from '#/api/system/notice/model';
 
 import { Page, useVbenModal } from '@vben/common-ui';
-import { getVxePopupContainer } from '@vben/utils';
 
-import { Modal, Popconfirm, Space } from 'ant-design-vue';
+import { Button, Space } from 'antdv-next';
 
-import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
+import {
+  useVbenVxeGrid,
+  VbenTableAction,
+  vxeCheckboxChecked,
+} from '#/adapter/vxe-table';
 import { noticeList, noticeRemove, noticeSendOnline } from '#/api/system/notice';
+import { confirmDangerAction, showSuccessAlert } from '#/utils/modal';
 
 import { columns, querySchema } from './data';
 import noticeModal from './notice-modal.vue';
@@ -82,19 +86,15 @@ async function handleDelete(row: Notice) {
 
 async function handleSendNotice(row: Notice) {
   await noticeSendOnline(row.id);
-  Modal.success({
-    content: '通知已推送至所有在线用户',
-  });
+  showSuccessAlert('通知已推送至所有在线用户');
 }
 
 function handleMultiDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
   const ids = rows.map((row: Notice) => row.id);
-  Modal.confirm({
-    title: '提示',
-    okType: 'danger',
+  confirmDangerAction({
     content: `确认删除选中的${ids.length}条记录吗？`,
-    onOk: async () => {
+    onConfirmed: async () => {
       await noticeRemove(ids);
       await tableApi.query();
     },
@@ -107,7 +107,7 @@ function handleMultiDelete() {
     <BasicTable table-title="通知公告列表">
       <template #toolbar-tools>
         <Space>
-          <a-button
+          <Button
             :disabled="!vxeCheckboxChecked(tableApi)"
             danger
             type="primary"
@@ -115,45 +115,41 @@ function handleMultiDelete() {
             @click="handleMultiDelete"
           >
             {{ $t('pages.common.delete') }}
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             type="primary"
             v-access:code="['system:notice:add']"
             @click="handleAdd"
           >
             {{ $t('pages.common.add') }}
-          </a-button>
+          </Button>
         </Space>
       </template>
       <template #action="{ row }">
-        <Space>
-          <ghost-button
-            v-access:code="['system:notice:send']"
-            @click="handleSendNotice(row)"
-          >
-            推送
-          </ghost-button>
-          <ghost-button
-            v-access:code="['system:notice:edit']"
-            @click="handleEdit(row)"
-          >
-            {{ $t('pages.common.edit') }}
-          </ghost-button>
-          <Popconfirm
-            :get-popup-container="getVxePopupContainer"
-            placement="left"
-            title="确认删除？"
-            @confirm="handleDelete(row)"
-          >
-            <ghost-button
-              danger
-              v-access:code="['system:notice:remove']"
-              @click.stop=""
-            >
-              {{ $t('pages.common.delete') }}
-            </ghost-button>
-          </Popconfirm>
-        </Space>
+        <VbenTableAction
+          :actions="[
+            {
+              auth: 'system:notice:send',
+              onClick: () => handleSendNotice(row),
+              text: '推送',
+            },
+            {
+              auth: 'system:notice:edit',
+              onClick: () => handleEdit(row),
+              text: $t('pages.common.edit'),
+            },
+            {
+              auth: 'system:notice:remove',
+              danger: true,
+              popConfirm: {
+                title: '确认删除？',
+                confirm: () => handleDelete(row),
+              },
+              text: $t('pages.common.delete'),
+            },
+          ]"
+          align="center"
+        />
       </template>
     </BasicTable>
     <NoticeModal @reload="tableApi.query()" />

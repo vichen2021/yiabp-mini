@@ -3,10 +3,14 @@ import type { OperationLog } from '#/api/monitor/operlog/model';
 
 import { computed, shallowRef } from 'vue';
 
-import { useVbenDrawer } from '@vben/common-ui';
+import {
+  useVbenDrawer,
+  VbenDescriptions,
+  VbenDescriptionsItem,
+} from '@vben/common-ui';
 import { DictEnum } from '@vben/constants';
 
-import { Descriptions, DescriptionsItem, Tag } from 'ant-design-vue';
+import { Tag } from 'antdv-next';
 
 import {
   renderDict,
@@ -41,40 +45,43 @@ const actionInfo = computed(() => {
 
 <template>
   <BasicDrawer :footer="false" class="w-[600px]" title="查看日志">
-    <Descriptions v-if="currentLog" size="small" bordered :column="1">
-      <DescriptionsItem label="日志编号" :label-style="{ minWidth: '120px' }">
+    <VbenDescriptions v-if="currentLog" size="small" bordered :column="1">
+      <VbenDescriptionsItem
+        label="日志编号"
+        :label-style="{ minWidth: '120px' }"
+      >
         {{ currentLog.id }}
-      </DescriptionsItem>
-      <DescriptionsItem label="操作模块">
+      </VbenDescriptionsItem>
+      <VbenDescriptionsItem label="操作模块">
         <div class="flex items-center">
           <Tag>{{ currentLog.title }}</Tag>
           <component
             :is="renderDict(currentLog.operType, DictEnum.SYS_OPER_TYPE)"
           />
         </div>
-      </DescriptionsItem>
-      <DescriptionsItem label="操作信息">
+      </VbenDescriptionsItem>
+      <VbenDescriptionsItem label="操作信息">
         {{ actionInfo }}
-      </DescriptionsItem>
-      <DescriptionsItem label="请求信息">
+      </VbenDescriptionsItem>
+      <VbenDescriptionsItem label="请求信息">
         <component :is="renderHttpMethodTag(currentLog.requestMethod)" />
-      </DescriptionsItem>
-      <DescriptionsItem label="方法">
+      </VbenDescriptionsItem>
+      <VbenDescriptionsItem label="方法">
         {{ currentLog.method }}
-      </DescriptionsItem>
-      <DescriptionsItem label="请求参数">
+      </VbenDescriptionsItem>
+      <VbenDescriptionsItem label="请求参数">
         <div class="max-h-[300px] overflow-y-auto">
           <component :is="renderJsonPreview(currentLog.requestParam)" />
         </div>
-      </DescriptionsItem>
-      <DescriptionsItem v-if="currentLog.requestResult" label="响应参数">
+      </VbenDescriptionsItem>
+      <VbenDescriptionsItem v-if="currentLog.requestResult" label="响应参数">
         <div class="max-h-[300px] overflow-y-auto">
           <component :is="renderJsonPreview(currentLog.requestResult)" />
         </div>
-      </DescriptionsItem>
-      <DescriptionsItem label="操作时间">
+      </VbenDescriptionsItem>
+      <VbenDescriptionsItem label="操作时间">
         {{ `${currentLog.creationTime}` }}
-      </DescriptionsItem>
-    </Descriptions>
+      </VbenDescriptionsItem>
+    </VbenDescriptions>
   </BasicDrawer>
 </template>

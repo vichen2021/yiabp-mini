@@ -1,21 +1,23 @@
 <script setup lang="ts">
-import type { DialogDescriptionProps } from 'radix-vue';
+import type { DialogDescriptionProps } from 'reka-ui';
+
+import type { HTMLAttributes } from 'vue';
 
 import { cn } from '@vben-core/shared/utils';
-import { DialogDescription } from 'radix-vue';
-import { computed } from 'vue';
 
-const props = defineProps<{ class?: any } & DialogDescriptionProps>();
+import { reactiveOmit } from '@vueuse/core';
+import { DialogDescription } from 'reka-ui';
 
-const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props;
+const props = defineProps<
+  DialogDescriptionProps & { class?: HTMLAttributes['class'] }
+>();
 
-  return delegated;
-});
+const delegatedProps = reactiveOmit(props, 'class');
 </script>
 
 <template>
   <DialogDescription
+    data-slot="sheet-description"
     :class="cn('text-muted-foreground text-sm', props.class)"
     v-bind="delegatedProps"
   >

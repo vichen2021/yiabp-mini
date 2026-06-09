@@ -76,7 +76,7 @@ system:user:delete
 
 ```vue
 <template>
-  <a-button v-access:code="['system:user:add']">新增</a-button>
+  <Button v-access:code="['system:user:add']">新增</Button>
 </template>
 ```
 

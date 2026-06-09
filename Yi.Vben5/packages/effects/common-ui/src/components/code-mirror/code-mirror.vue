@@ -28,6 +28,7 @@ const props = withDefaults(
 
 const codeMirrorRef =
   useTemplateRef<InstanceType<typeof CodeMirror>>('codeMirrorRef');
+void codeMirrorRef;
 
 const { isDark } = usePreferences();
 

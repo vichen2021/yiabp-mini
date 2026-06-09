@@ -3,7 +3,7 @@ import type { VbenFormProps } from '#/adapter/form';
 import { $t } from '@vben/locales';
 import { cloneDeep, formatDate } from '@vben/utils';
 
-import { message } from 'ant-design-vue';
+import { message } from 'antdv-next';
 import { isFunction } from 'lodash-es';
 
 import { dataURLtoBlob, urlToBase64 } from './base64Conver';

@@ -1,4 +1,5 @@
 /* ant-design-vue 组件库的一些样式重置 */
+@reference "@vben/tailwind-config/theme";
 
 .ant-app {
   width: 100%;
@@ -75,16 +76,31 @@
 }
 
 /** 前后置小圆点样式 */
-.dot-before-common {
-  @apply before:relative before:top-[-2px] before:mr-[5px] before:inline-block before:size-[6px] before:rounded-full before:content-[''];
-}
-
+.dot-before-common,
+.dot-before-green,
 .dot-before-red {
-  @apply dot-before-common before:bg-red-500;
+  position: relative;
 }
 
-.dot-before-green {
-  @apply dot-before-common before:bg-green-500;
+.dot-before-common::before,
+.dot-before-green::before,
+.dot-before-red::before {
+  position: relative;
+  top: -2px;
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 5px;
+  content: '';
+  border-radius: 9999px;
+}
+
+.dot-before-red::before {
+  @apply bg-red-500;
+}
+
+.dot-before-green::before {
+  @apply bg-green-500;
 }
 
 /**

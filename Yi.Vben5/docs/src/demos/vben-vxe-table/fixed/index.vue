@@ -1,9 +1,7 @@
 <script lang="ts" setup>
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { Button } from 'ant-design-vue';
-
-import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { useVbenVxeGrid, VbenTableAction } from '#/adapter/vxe-table';
 
 import { getExampleTableApi } from '../mock-api';
 
@@ -60,7 +58,7 @@ const [Grid] = useVbenVxeGrid({ gridOptions });
   <div class="vp-raw w-full">
     <Grid>
       <template #action>
-        <Button type="link">编辑</Button>
+        <VbenTableAction :actions="[{ text: '编辑' }]" />
       </template>
     </Grid>
   </div>

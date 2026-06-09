@@ -78,7 +78,7 @@ onMounted(async () => {
 const { loginTenantId } = useLoginTenantId();
 
 const formSchema = computed((): VbenFormSchema[] => {
-  return [
+  const schemas: VbenFormSchema[] = [
     {
       component: 'VbenSelect',
       componentProps: {
@@ -126,7 +126,10 @@ const formSchema = computed((): VbenFormSchema[] => {
       label: $t('authentication.password'),
       rules: z.string().min(5, { message: $t('authentication.passwordTip') }),
     },
-    {
+  ];
+
+  if (captchaInfo.value.isEnableCaptcha) {
+    schemas.push({
       component: 'VbenInputCaptcha',
       componentProps: {
         captcha: captchaInfo.value.img,
@@ -144,8 +147,10 @@ const formSchema = computed((): VbenFormSchema[] => {
       rules: z
         .string()
         .min(1, { message: $t('authentication.verifyRequiredTip') }),
-    },
-  ];
+    });
+  }
+
+  return schemas;
 });
 
 async function handleAccountLogin(values: LoginAndRegisterParams) {

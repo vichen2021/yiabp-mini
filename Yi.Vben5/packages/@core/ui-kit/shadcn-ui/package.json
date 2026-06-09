@@ -1,6 +1,6 @@
 {
   "name": "@vben-core/shadcn-ui",
-  "version": "5.5.7",
+  "version": "5.7.0",
   "#main": "./dist/index.mjs",
   "#module": "./dist/index.mjs",
   "homepage": "https://github.com/vbenjs/vue-vben-admin",
@@ -40,14 +40,15 @@
     }
   },
   "dependencies": {
+    "@lucide/vue": "catalog:",
     "@vben-core/composables": "workspace:*",
+    "@vben-core/design": "workspace:*",
     "@vben-core/icons": "workspace:*",
     "@vben-core/shared": "workspace:*",
     "@vben-core/typings": "workspace:*",
     "@vueuse/core": "catalog:",
     "class-variance-authority": "catalog:",
-    "lucide-vue-next": "catalog:",
-    "radix-vue": "catalog:",
+    "reka-ui": "catalog:",
     "vee-validate": "catalog:",
     "vue": "catalog:"
   }

@@ -3,10 +3,14 @@ import type { TaskInfo } from '#/api/workflow/task/model';
 
 import { computed } from 'vue';
 
-import { VbenAvatar } from '@vben/common-ui';
+import {
+  VbenAvatar,
+  VbenDescriptions,
+  VbenDescriptionsItem,
+} from '@vben/common-ui';
 import { DictEnum } from '@vben/constants';
 
-import { Descriptions, DescriptionsItem, Tooltip } from 'ant-design-vue';
+import { Tooltip } from 'antdv-next';
 
 import { renderDict } from '#/utils/render';
 
@@ -43,22 +47,22 @@ const diffUpdateTimeString = computed(() => {
     class="cursor-pointer rounded-lg border-[1px] border-solid p-3 transition-shadow duration-300 ease-in-out hover:shadow-lg"
     @click.stop="handleClick"
   >
-    <Descriptions :column="1" :title="info.flowName" size="middle">
+    <VbenDescriptions :column="1" :title="info.flowName" size="middle">
       <template #extra>
         <component
           :is="renderDict(info.flowStatus, DictEnum.WF_BUSINESS_STATUS)"
         />
       </template>
-      <DescriptionsItem label="当前任务">
+      <VbenDescriptionsItem label="当前任务">
         <div class="font-bold">{{ info.nodeName }}</div>
-      </DescriptionsItem>
-      <DescriptionsItem label="提交时间">
+      </VbenDescriptionsItem>
+      <VbenDescriptionsItem label="提交时间">
         {{ info.createTime }}
-      </DescriptionsItem>
-      <!-- <DescriptionsItem label="更新时间">
+      </VbenDescriptionsItem>
+      <!-- <VbenDescriptionsItem label="更新时间">
         {{ info.updateTime }}
-      </DescriptionsItem> -->
-    </Descriptions>
+      </VbenDescriptionsItem> -->
+    </VbenDescriptions>
     <div class="flex w-full items-center justify-between text-[14px]">
       <div class="flex items-center gap-1 overflow-hidden whitespace-nowrap">
         <VbenAvatar
@@ -81,13 +85,3 @@ const diffUpdateTimeString = computed(() => {
     </div>
   </div>
 </template>
-
-<style lang="scss" scoped>
-:deep(.ant-descriptions .ant-descriptions-header) {
-  margin-bottom: 12px !important;
-}
-
-:deep(.ant-descriptions-item) {
-  padding-bottom: 8px !important;
-}
-</style>

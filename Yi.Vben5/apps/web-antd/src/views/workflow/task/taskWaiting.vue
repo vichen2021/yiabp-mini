@@ -9,7 +9,7 @@ import { Page } from '@vben/common-ui';
 import { useTabs } from '@vben/hooks';
 import { addFullName, getPopupContainer } from '@vben/utils';
 
-import { FilterOutlined, RedoOutlined } from '@ant-design/icons-vue';
+import { FilterOutlined, RedoOutlined } from '@antdv-next/icons';
 import {
   Empty,
   Form,
@@ -19,8 +19,7 @@ import {
   Popover,
   Spin,
   Tooltip,
-  TreeSelect,
-} from 'ant-design-vue';
+  TreeSelect, Button } from 'antdv-next';
 import { cloneDeep, debounce } from 'lodash-es';
 
 import { categoryTree } from '#/api/workflow/category';
@@ -172,9 +171,9 @@ onMounted(async () => {
               @search="reload(false)"
             />
             <Tooltip placement="top" title="重置">
-              <a-button @click="reload(true)">
+              <Button @click="reload(true)">
                 <RedoOutlined />
-              </a-button>
+              </Button>
             </Tooltip>
             <Popover
               v-model:open="popoverOpen"
@@ -230,19 +229,19 @@ onMounted(async () => {
                   </FormItem>
                   <FormItem>
                     <div class="flex">
-                      <a-button block html-type="submit" type="primary">
+                      <Button block html-type="submit" type="primary">
                         搜索
-                      </a-button>
-                      <a-button block class="ml-2" @click="reload(true)">
+                      </Button>
+                      <Button block class="ml-2" @click="reload(true)">
                         重置
-                      </a-button>
+                      </Button>
                     </div>
                   </FormItem>
                 </Form>
               </template>
-              <a-button>
+              <Button>
                 <FilterOutlined />
-              </a-button>
+              </Button>
             </Popover>
           </div>
         </div>
@@ -297,6 +296,10 @@ onMounted(async () => {
 }
 
 :deep(.ant-card-body) {
-  @apply thin-scrollbar;
+  scrollbar-width: thin;
+}
+
+:deep(.ant-card-body::-webkit-scrollbar) {
+  width: 5px;
 }
 </style>

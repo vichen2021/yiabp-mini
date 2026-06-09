@@ -1,19 +1,45 @@
 <script setup lang="ts">
 import type { UserInfoResp } from '#/api/core/user';
+import type { BasicUserInfo } from '@vben/types';
 
-import { onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
-import { Page } from '@vben/common-ui';
+import { Profile } from '@vben/common-ui';
 import { useUserStore } from '@vben/stores';
 
-import { userProfile } from '#/api/system/profile';
+import { userProfile, userUpdateAvatar } from '#/api/system/profile';
+import { CropperAvatar } from '#/components/cropper';
 import { useAuthStore } from '#/store';
 
+import AccountBind from './components/account-bind.vue';
+import BaseSetting from './components/base-setting.vue';
+import OnlineDevice from './components/online-device.vue';
+import SecureSetting from './components/secure-setting.vue';
 import { emitter } from './mitt';
-import ProfilePanel from './profile-panel.vue';
-import SettingPanel from './setting-panel.vue';
 
 const profile = ref<UserInfoResp>();
+const tabsValue = ref('basic');
+const authStore = useAuthStore();
+const userStore = useUserStore();
+const tabs = [
+  {
+    label: '基本设置',
+    value: 'basic',
+  },
+  {
+    label: '安全设置',
+    value: 'security',
+  },
+  {
+    label: '账号绑定',
+    value: 'accountBind',
+  },
+  {
+    label: '在线设备',
+    value: 'onlineDevice',
+  },
+];
+
 async function loadProfile() {
   try {
     const resp = await userProfile();
@@ -25,15 +51,23 @@ async function loadProfile() {
 
 onMounted(loadProfile);
 
-const authStore = useAuthStore();
-const userStore = useUserStore();
-/**
- * ToDo 接口重复
- */
+const profileUserInfo = computed<BasicUserInfo | null>(() => {
+  const user = profile.value?.user;
+  if (!user) {
+    return null;
+  }
+
+  return {
+    avatar: user.icon,
+    realName: user.nick || user.userName,
+    roles: profile.value?.roles ?? [],
+    userId: String(user.userId),
+    username: user.userName,
+  };
+});
+
 async function handleUploadFinish() {
-  // 重新加载用户信息
   await loadProfile();
-  // 更新store
   const userInfo = await authStore.fetchUserInfo();
   userStore.setUserInfo(userInfo);
 }
@@ -43,16 +77,29 @@ onUnmounted(() => emitter.off('updateProfile'));
 </script>
 
 <template>
-  <Page>
-    <div class="flex flex-col gap-[16px] lg:flex-row">
-      <!-- 左侧 -->
-      <ProfilePanel :profile="profile" @upload-finish="handleUploadFinish" />
-      <!-- 右侧 -->
-      <SettingPanel
-        v-if="profile"
-        :profile="profile"
-        class="flex-1 overflow-hidden"
+  <Profile
+    v-model:model-value="tabsValue"
+    title="个人中心"
+    :tabs="tabs"
+    :user-info="profileUserInfo"
+  >
+    <template #avatar>
+      <CropperAvatar
+        :show-btn="false"
+        :upload-api="userUpdateAvatar"
+        :value="profileUserInfo?.avatar"
+        width="80"
+        @change="handleUploadFinish"
       />
-    </div>
-  </Page>
+    </template>
+    <template #content>
+      <BaseSetting v-if="profile && tabsValue === 'basic'" :profile="profile" />
+      <SecureSetting
+        v-if="profile && tabsValue === 'security'"
+        :profile="profile"
+      />
+      <AccountBind v-if="profile && tabsValue === 'accountBind'" />
+      <OnlineDevice v-if="profile && tabsValue === 'onlineDevice'" />
+    </template>
+  </Profile>
 </template>

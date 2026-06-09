@@ -22,7 +22,7 @@ outline: deep
 <script lang="ts" setup>
 import { ApiComponent } from '@vben/common-ui';
 
-import { Cascader } from 'ant-design-vue';
+import { Cascader } from 'antdv-next';
 
 const treeData: Record<string, any> = [
   {
@@ -116,7 +116,7 @@ function fetchApi(): Promise<Record<string, any>> {
     :immediate="false"
     children-field="children"
     loading-slot="suffixIcon"
-    visible-event="onDropdownVisibleChange"
+    visible-event="onOpenChange"
   />
 </template>
 ```

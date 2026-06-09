@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import type { MessageType } from 'ant-design-vue/es/message';
-import type { SelectHandler } from 'ant-design-vue/es/vc-select/Select';
+import type { SelectEmits } from 'antdv-next';
 
 import { computed, onMounted, ref, shallowRef, unref } from 'vue';
 import { useRoute } from 'vue-router';
@@ -10,7 +9,7 @@ import { DEFAULT_TENANT_ID } from '@vben/constants';
 import { useTabs } from '@vben/hooks';
 import { $t } from '@vben/locales';
 
-import { message, Select, Spin } from 'ant-design-vue';
+import { message, Select, Spin } from 'antdv-next';
 import { storeToRefs } from 'pinia';
 
 import { tenantDynamicClear, tenantDynamicToggle } from '#/api/system/tenant';
@@ -72,7 +71,7 @@ async function close(checked: boolean) {
 
 const dictStore = useDictStore();
 // 用于清理上一条message
-const messageInstance = shallowRef<MessageType | null>();
+const messageInstance = shallowRef<(() => void) | null>();
 // loading加载中效果
 const loading = ref(false);
 
@@ -81,16 +80,17 @@ const loading = ref(false);
  * @param tenantId tenantId
  * @param option 当前option
  */
-const onSelected: SelectHandler = async (tenantId: string, option: any) => {
-  if (unref(lastSelected) === tenantId) {
+const onSelected: SelectEmits['select'] = async (tenantId, option: any) => {
+  const selectedTenantId = String(tenantId);
+  if (unref(lastSelected) === selectedTenantId) {
     // createMessage.info('选择一致');
     return;
   }
   try {
     loading.value = true;
 
-    await tenantDynamicToggle(tenantId);
-    lastSelected.value = tenantId;
+    await tenantDynamicToggle(selectedTenantId);
+    lastSelected.value = selectedTenantId;
 
     // 关闭之前的message 只保留一条
     messageInstance.value?.();
@@ -147,7 +147,7 @@ function filterOption(input: string, option: any) {
       :filter-option="filterOption"
       :options="tenantList"
       :placeholder="$t('component.tenantToggle.placeholder')"
-      :dropdown-style="{ position: 'fixed', zIndex: 1024 }"
+      :styles="{ popup: { root: { position: 'fixed', zIndex: 1024 } } }"
       allow-clear
       class="w-60"
       show-search

@@ -9,11 +9,14 @@ import { useRouter } from 'vue-router';
 
 import { useAccess } from '@vben/access';
 import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
-import { getVxePopupContainer } from '@vben/utils';
 
-import { Modal, Popconfirm, Space } from 'ant-design-vue';
+import { Button, Space } from 'antdv-next';
 
-import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
+import {
+  useVbenVxeGrid,
+  VbenTableAction,
+  vxeCheckboxChecked,
+} from '#/adapter/vxe-table';
 import {
   roleExport,
   roleList,
@@ -22,6 +25,7 @@ import {
 } from '#/api/system/role';
 import { TableSwitch } from '#/components/table';
 import { commonDownloadExcel } from '#/utils/file/download';
+import { confirmDangerAction } from '#/utils/modal';
 
 import { columns, querySchema } from './data';
 import roleAuthModal from './role-datascope-drawer.vue';
@@ -102,11 +106,9 @@ async function handleDelete(row: Role) {
 function handleMultiDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
   const ids = rows.map((row: Role) => row.id);
-  Modal.confirm({
-    title: '提示',
-    okType: 'danger',
+  confirmDangerAction({
     content: `确认删除选中的${ids.length}条记录吗？`,
-    onOk: async () => {
+    onConfirmed: async () => {
       await roleRemove(ids);
       await tableApi.query();
     },
@@ -143,13 +145,13 @@ function handleAssignRole(record: Role) {
     <BasicTable table-title="角色列表">
       <template #toolbar-tools>
         <Space>
-          <a-button
+          <Button
             v-access:code="['system:role:export']"
             @click="handleDownloadExcel"
           >
             {{ $t('pages.common.export') }}
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             :disabled="!vxeCheckboxChecked(tableApi)"
             danger
             type="primary"
@@ -157,14 +159,14 @@ function handleAssignRole(record: Role) {
             @click="handleMultiDelete"
           >
             {{ $t('pages.common.delete') }}
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             type="primary"
             v-access:code="['system:role:add']"
             @click="handleAdd"
           >
             {{ $t('pages.common.add') }}
-          </a-button>
+          </Button>
         </Space>
       </template>      
       <template #status="{ row }">
@@ -185,40 +187,35 @@ function handleAssignRole(record: Role) {
         <template
           v-if="row.roleCode !== 'admin' || isSuperAdmin"
         >
-          <Space>
-            <ghost-button
-              v-access:code="['system:role:edit']"
-              @click.stop="handleEdit(row)"
-            >
-              {{ $t('pages.common.edit') }}
-            </ghost-button>
-            <ghost-button
-              v-access:code="['system:role:edit']"
-              @click.stop="handleAuthEdit(row)"
-            >
-              权限
-            </ghost-button>
-            <ghost-button
-              v-access:code="['system:role:edit']"
-              @click.stop="handleAssignRole(row)"
-            >
-              分配
-            </ghost-button>
-            <Popconfirm
-              :get-popup-container="getVxePopupContainer"
-              placement="left"
-              title="确认删除？"
-              @confirm="handleDelete(row)"
-            >
-              <ghost-button
-                danger
-                v-access:code="['system:role:remove']"
-                @click.stop=""
-              >
-                {{ $t('pages.common.delete') }}
-              </ghost-button>
-            </Popconfirm>
-          </Space>
+          <VbenTableAction
+            :actions="[
+              {
+                auth: 'system:role:edit',
+                onClick: () => handleEdit(row),
+                text: $t('pages.common.edit'),
+              },
+              {
+                auth: 'system:role:edit',
+                onClick: () => handleAuthEdit(row),
+                text: '权限',
+              },
+              {
+                auth: 'system:role:edit',
+                onClick: () => handleAssignRole(row),
+                text: '分配',
+              },
+              {
+                auth: 'system:role:remove',
+                danger: true,
+                popConfirm: {
+                  title: '确认删除？',
+                  confirm: () => handleDelete(row),
+                },
+                text: $t('pages.common.delete'),
+              },
+            ]"
+            align="center"
+          />
         </template>
       </template>
     </BasicTable>

@@ -8,7 +8,7 @@ import { ref } from 'vue';
 import { useVbenModal } from '@vben/common-ui';
 import { $t as t } from '@vben/locales';
 
-import { Avatar, message, Space, Tooltip, Upload } from 'ant-design-vue';
+import { Avatar, message, Space, Tooltip, Upload, Button } from 'antdv-next';
 import { isFunction } from 'lodash-es';
 
 import { dataURLtoBlob } from '#/utils/file/base64Conver';
@@ -113,7 +113,7 @@ async function handleOk() {
   const uploadApi = props.uploadApi;
   if (uploadApi && isFunction(uploadApi)) {
     if (!previewSource.value) {
-      message.warn('未选择图片');
+      message.warning('未选择图片');
       return;
     }
     const blob = dataURLtoBlob(previewSource.value);
@@ -161,13 +161,13 @@ async function handleOk() {
               :title="t('component.cropper.selectImage')"
               placement="bottom"
             >
-              <a-button size="small" type="primary">
+              <Button size="small" type="primary">
                 <template #icon>
                   <div class="flex items-center justify-center">
                     <span class="icon-[ant-design--upload-outlined]"></span>
                   </div>
                 </template>
-              </a-button>
+              </Button>
             </Tooltip>
           </Upload>
           <Space>
@@ -175,7 +175,7 @@ async function handleOk() {
               :title="t('component.cropper.btn_reset')"
               placement="bottom"
             >
-              <a-button
+              <Button
                 :disabled="!src"
                 size="small"
                 type="primary"
@@ -186,13 +186,13 @@ async function handleOk() {
                     <span class="icon-[ant-design--reload-outlined]"></span>
                   </div>
                 </template>
-              </a-button>
+              </Button>
             </Tooltip>
             <Tooltip
               :title="t('component.cropper.btn_rotate_left')"
               placement="bottom"
             >
-              <a-button
+              <Button
                 :disabled="!src"
                 size="small"
                 type="primary"
@@ -205,13 +205,13 @@ async function handleOk() {
                     ></span>
                   </div>
                 </template>
-              </a-button>
+              </Button>
             </Tooltip>
             <Tooltip
               :title="t('component.cropper.btn_rotate_right')"
               placement="bottom"
             >
-              <a-button
+              <Button
                 :disabled="!src"
                 pre-icon="ant-design:rotate-right-outlined"
                 size="small"
@@ -225,13 +225,13 @@ async function handleOk() {
                     ></span>
                   </div>
                 </template>
-              </a-button>
+              </Button>
             </Tooltip>
             <Tooltip
               :title="t('component.cropper.btn_scale_x')"
               placement="bottom"
             >
-              <a-button
+              <Button
                 :disabled="!src"
                 size="small"
                 type="primary"
@@ -242,13 +242,13 @@ async function handleOk() {
                     <span class="icon-[vaadin--arrows-long-h]"></span>
                   </div>
                 </template>
-              </a-button>
+              </Button>
             </Tooltip>
             <Tooltip
               :title="t('component.cropper.btn_scale_y')"
               placement="bottom"
             >
-              <a-button
+              <Button
                 :disabled="!src"
                 size="small"
                 type="primary"
@@ -259,13 +259,13 @@ async function handleOk() {
                     <span class="icon-[vaadin--arrows-long-v]"></span>
                   </div>
                 </template>
-              </a-button>
+              </Button>
             </Tooltip>
             <Tooltip
               :title="t('component.cropper.btn_zoom_in')"
               placement="bottom"
             >
-              <a-button
+              <Button
                 :disabled="!src"
                 size="small"
                 type="primary"
@@ -276,13 +276,13 @@ async function handleOk() {
                     <span class="icon-[ant-design--zoom-in-outlined]"></span>
                   </div>
                 </template>
-              </a-button>
+              </Button>
             </Tooltip>
             <Tooltip
               :title="t('component.cropper.btn_zoom_out')"
               placement="bottom"
             >
-              <a-button
+              <Button
                 :disabled="!src"
                 size="small"
                 type="primary"
@@ -293,7 +293,7 @@ async function handleOk() {
                     <span class="icon-[ant-design--zoom-out-outlined]"></span>
                   </div>
                 </template>
-              </a-button>
+              </Button>
             </Tooltip>
           </Space>
         </div>

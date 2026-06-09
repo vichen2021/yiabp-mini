@@ -1,8 +1,9 @@
 import { h } from 'vue';
 
+import { VbenTableAction } from '@vben/common-ui';
 import { setupVbenVxeTable, useVbenVxeGrid } from '@vben/plugins/vxe-table';
 
-import { Button, Image } from 'ant-design-vue';
+import { Button, Image } from 'antdv-next';
 
 import { useVbenForm } from './form';
 
@@ -65,6 +66,6 @@ if (!import.meta.env.SSR) {
   });
 }
 
-export { useVbenVxeGrid };
+export { useVbenVxeGrid, VbenTableAction };
 
 export type * from '@vben/plugins/vxe-table';

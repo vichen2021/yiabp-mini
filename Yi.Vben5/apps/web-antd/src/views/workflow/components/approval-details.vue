@@ -8,7 +8,7 @@ apps/web-antd/src/router/routes/workflow-iframe.ts
 import type { FlowInfoResponse } from '#/api/workflow/instance/model';
 import type { TaskInfo } from '#/api/workflow/task/model';
 
-import { Divider, Skeleton } from 'ant-design-vue';
+import { Divider, Skeleton } from 'antdv-next';
 
 import { ApprovalTimeline } from '.';
 

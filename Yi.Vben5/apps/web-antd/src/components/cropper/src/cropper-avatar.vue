@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { ButtonProps } from 'ant-design-vue';
+import type { ButtonProps } from 'antdv-next';
 
 import type { CSSProperties, PropType } from 'vue';
 
@@ -8,7 +8,7 @@ import { computed, ref, unref, watch, watchEffect } from 'vue';
 import { useVbenModal } from '@vben/common-ui';
 import { $t as t } from '@vben/locales';
 
-import { message } from 'ant-design-vue';
+import { message, Button } from 'antdv-next';
 
 import cropperModal from './cropper-modal.vue';
 
@@ -105,14 +105,14 @@ defineExpose({
       </div>
       <img v-if="sourceValue" :src="sourceValue" alt="avatar" />
     </div>
-    <a-button
+    <Button
       v-if="showBtn"
       :class="`${prefixCls}-upload-btn`"
       @click="openModal"
       v-bind="btnProps"
     >
       {{ btnText ? btnText : t('component.cropper.selectImage') }}
-    </a-button>
+    </Button>
 
     <CropperModal
       :size="size"

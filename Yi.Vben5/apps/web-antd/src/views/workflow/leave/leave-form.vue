@@ -8,7 +8,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 import { useVbenModal } from '@vben/common-ui';
 
-import { Card } from 'ant-design-vue';
+import { Card, Button } from 'antdv-next';
 import dayjs from 'dayjs';
 import { cloneDeep, omit } from 'lodash-es';
 
@@ -172,8 +172,8 @@ const cardSize = computed(() => {
       <BasicForm v-show="!showDescription" />
       <LeaveDescription v-if="showDescription" :data="leaveDescription!" />
       <div v-if="showActionBtn" class="flex justify-end gap-2">
-        <a-button @click="handleTempSave">暂存</a-button>
-        <a-button type="primary" @click="handleStartWorkFlow">提交</a-button>
+        <Button @click="handleTempSave">暂存</Button>
+        <Button type="primary" @click="handleStartWorkFlow">提交</Button>
       </div>
       <ApplyModal @complete="handleComplete" />
     </div>

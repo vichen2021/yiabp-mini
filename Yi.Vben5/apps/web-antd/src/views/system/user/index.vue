@@ -10,19 +10,14 @@ import { useAccess } from '@vben/access';
 import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 import { preferences } from '@vben/preferences';
-import { getVxePopupContainer } from '@vben/utils';
+
+import { Avatar, Button, Space } from 'antdv-next';
 
 import {
-  Avatar,
-  Dropdown,
-  Menu,
-  MenuItem,
-  Modal,
-  Popconfirm,
-  Space,
-} from 'ant-design-vue';
-
-import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
+  useVbenVxeGrid,
+  VbenTableAction,
+  vxeCheckboxChecked,
+} from '#/adapter/vxe-table';
 import {
   userExport,
   userList,
@@ -31,6 +26,7 @@ import {
 } from '#/api/system/user';
 import { TableSwitch } from '#/components/table';
 import { commonDownloadExcel } from '#/utils/file/download';
+import { confirmDangerAction } from '#/utils/modal';
 
 import { columns, querySchema } from './data';
 import DeptTree from './dept-tree.vue';
@@ -151,11 +147,9 @@ async function handleDelete(row: User) {
 function handleMultiDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
   const ids = rows.map((row: User) => row.id);
-  Modal.confirm({
-    title: '提示',
-    okType: 'danger',
+  confirmDangerAction({
     content: `确认删除选中的${ids.length}条记录吗？`,
-    onOk: async () => {
+    onConfirmed: async () => {
       await userRemove(ids);
       await tableApi.query();
     },
@@ -200,19 +194,19 @@ const { hasAccessByCodes } = useAccess();
       <BasicTable class="flex-1 overflow-hidden" table-title="用户列表">
         <template #toolbar-tools>
           <Space>
-            <a-button
+            <Button
               v-access:code="['system:user:export']"
               @click="handleDownloadExcel"
             >
               {{ $t('pages.common.export') }}
-            </a-button>
-            <a-button
+            </Button>
+            <Button
               v-access:code="['system:user:import']"
               @click="handleImport"
             >
               {{ $t('pages.common.import') }}
-            </a-button>
-            <a-button
+            </Button>
+            <Button
               :disabled="!vxeCheckboxChecked(tableApi)"
               danger
               type="primary"
@@ -220,14 +214,14 @@ const { hasAccessByCodes } = useAccess();
               @click="handleMultiDelete"
             >
               {{ $t('pages.common.delete') }}
-            </a-button>
-            <a-button
+            </Button>
+            <Button
               type="primary"
               v-access:code="['system:user:add']"
               @click="handleAdd"
             >
               {{ $t('pages.common.add') }}
-            </a-button>
+            </Button>
           </Space>
         </template>
         <template #avatar="{ row }">
@@ -246,45 +240,36 @@ const { hasAccessByCodes } = useAccess();
         </template>
         <template #action="{ row }">
           <template v-if="row.id !== '1'">
-            <Space>
-              <ghost-button
-                v-access:code="['system:user:edit']"
-                @click.stop="handleEdit(row)"
-              >
-                {{ $t('pages.common.edit') }}
-              </ghost-button>
-              <Popconfirm
-                :get-popup-container="getVxePopupContainer"
-                placement="left"
-                title="确认删除？"
-                @confirm="handleDelete(row)"
-              >
-                <ghost-button
-                  danger
-                  v-access:code="['system:user:remove']"
-                  @click.stop=""
-                >
-                  {{ $t('pages.common.delete') }}
-                </ghost-button>
-              </Popconfirm>
-            </Space>
-            <Dropdown placement="bottomRight">
-              <template #overlay>
-                <Menu>
-                  <MenuItem key="1" @click="handleUserInfo(row)">
-                    用户信息
-                  </MenuItem>
-                  <span v-access:code="['system:user:resetPwd']">
-                    <MenuItem key="2" @click="handleResetPwd(row)">
-                      重置密码
-                    </MenuItem>
-                  </span>
-                </Menu>
-              </template>
-              <a-button size="small" type="link">
-                {{ $t('pages.common.more') }}
-              </a-button>
-            </Dropdown>
+            <VbenTableAction
+              :actions="[
+                {
+                  auth: 'system:user:edit',
+                  onClick: () => handleEdit(row),
+                  text: $t('pages.common.edit'),
+                },
+                {
+                  auth: 'system:user:remove',
+                  danger: true,
+                  popConfirm: {
+                    title: '确认删除？',
+                    confirm: () => handleDelete(row),
+                  },
+                  text: $t('pages.common.delete'),
+                },
+              ]"
+              :dropdown-actions="[
+                {
+                  onClick: () => handleUserInfo(row),
+                  text: '用户信息',
+                },
+                {
+                  auth: 'system:user:resetPwd',
+                  onClick: () => handleResetPwd(row),
+                  text: '重置密码',
+                },
+              ]"
+              align="center"
+            />
           </template>
         </template>
       </BasicTable>

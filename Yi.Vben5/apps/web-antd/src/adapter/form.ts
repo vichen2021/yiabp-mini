@@ -1,9 +1,9 @@
 import type {
-  VbenFormSchema as FormSchema,
   VbenFormProps,
+  VbenFormSchema as FormSchema,
 } from '@vben/common-ui';
 
-import type { ComponentType } from './component';
+import type { ComponentPropsMap, ComponentType } from './component';
 
 import { setupVbenForm, useVbenForm as useForm, z } from '@vben/common-ui';
 import { $t } from '@vben/locales';
@@ -23,6 +23,7 @@ async function initSetupVbenForm() {
         RichTextarea: 'modelValue',
         Switch: 'checked',
         Upload: 'fileList',
+        VbenInputCaptcha: 'modelValue',
       },
     },
     defineRules: {
@@ -47,10 +48,10 @@ async function initSetupVbenForm() {
   });
 }
 
-const useVbenForm = useForm<ComponentType>;
+const useVbenForm = useForm<ComponentType, ComponentPropsMap>;
 
 export { initSetupVbenForm, useVbenForm, z };
 
-export type VbenFormSchema = FormSchema<ComponentType>;
+export type VbenFormSchema = FormSchema<ComponentType, ComponentPropsMap>;
 export type { VbenFormProps };
 export type FormSchemaGetter = () => VbenFormSchema[];

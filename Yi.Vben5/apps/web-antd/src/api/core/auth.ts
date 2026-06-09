@@ -3,9 +3,8 @@ import type { HttpResponse } from '@vben/request';
 
 import { h } from 'vue';
 
+import { alert, clearAllAlerts } from '@vben/common-ui';
 import { useAppConfig } from '@vben/hooks';
-
-import { Modal } from 'ant-design-vue';
 
 import { requestClient } from '#/api/request';
 
@@ -106,21 +105,23 @@ export async function doLogout() {
   );
   // 无奈之举 对错误用法的提示
   if (resp.statusCode === 401 && import.meta.env.DEV) {
-    Modal.destroyAll();
-    Modal.warn({
+    clearAllAlerts();
+    alert({
       title: '后端配置出现错误',
       centered: true,
-      content: h('div', { class: 'flex flex-col gap-2' }, [
-        `检测到你的logout接口返回了401, 导致前端一直进入循环逻辑???`,
-        ...Array.from({ length: 3 }, () =>
-          h(
-            'span',
-            { class: 'font-bold text-red-500 text-[18px]' },
-            '去检查你的后端配置!别盯着前端找问题了!这不是前端问题!',
+      icon: 'warning',
+      content: () =>
+        h('div', { class: 'flex flex-col gap-2' }, [
+          `检测到你的logout接口返回了401, 导致前端一直进入循环逻辑???`,
+          ...Array.from({ length: 3 }, () =>
+            h(
+              'span',
+              { class: 'font-bold text-red-500 text-[18px]' },
+              '去检查你的后端配置!别盯着前端找问题了!这不是前端问题!',
+            ),
           ),
-        ),
-      ]),
-    });
+        ]),
+    }).catch(() => {});
   }
 }
 

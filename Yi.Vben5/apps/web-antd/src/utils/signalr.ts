@@ -1,8 +1,7 @@
 import * as signalR from '@microsoft/signalr';
 
+import { alert } from '@vben/common-ui';
 import { useAccessStore } from '@vben/stores';
-
-import { Modal } from 'ant-design-vue';
 
 import { useAuthStore } from '#/store';
 
@@ -75,14 +74,15 @@ export async function startSignalRConnection(): Promise<void> {
     mainHubConnection = await createHubConnection('/main', token);
 
     mainHubConnection.on('forceOut', (message: string) => {
-      Modal.warning({
+      alert({
         title: '强制退出',
         content: message,
-        onOk: async () => {
-          const authStore = useAuthStore();
-          await authStore.logout();
-        },
-      });
+        icon: 'warning',
+      })
+        .then(async () => {
+          await useAuthStore().logout();
+        })
+        .catch(() => {});
     });
 
     mainHubConnection.on('onlineNum', (count: number) => {

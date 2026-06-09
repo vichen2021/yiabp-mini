@@ -4,6 +4,7 @@
 
 import type { HttpResponse } from '@vben/request';
 
+import { alert } from '@vben/common-ui';
 import { useAppConfig } from '@vben/hooks';
 import { $t } from '@vben/locales';
 import { preferences } from '@vben/preferences';
@@ -15,7 +16,7 @@ import {
 } from '@vben/request';
 import { useAccessStore } from '@vben/stores';
 
-import { message, Modal } from 'ant-design-vue';
+import { message } from 'antdv-next';
 
 import { DEFAULT_TENANT_ID } from '@vben/constants';
 
@@ -248,7 +249,6 @@ function createRequestClient(baseURL: string) {
         throw new Error($t('http.apiRequestFailed'));
       }
 
-      console.log('axiosResponseData', axiosResponseData);
       // 适配后端数据结构: { statusCode, data, succeeded, errors, extras, timestamp }
       const { statusCode, data, succeeded, errors } = axiosResponseData;
 
@@ -258,10 +258,11 @@ function createRequestClient(baseURL: string) {
         const successMsg = $t(`http.operationSuccess`);
 
         if (response.config.successMessageMode === 'modal') {
-          Modal.success({
+          alert({
             content: successMsg,
+            icon: 'success',
             title: $t('http.successTip'),
-          });
+          }).catch(() => {});
         } else if (response.config.successMessageMode === 'message') {
           message.success(successMsg);
         }
@@ -305,10 +306,11 @@ function createRequestClient(baseURL: string) {
       // errorMessageMode='modal'的时候会显示modal错误弹窗，而不是消息提示，用于一些比较重要的错误
       // errorMessageMode='none' 一般是调用时明确表示不希望自动弹出错误提示
       if (response.config.errorMessageMode === 'modal') {
-        Modal.error({
+        alert({
           content: timeoutMsg,
+          icon: 'error',
           title: $t('http.errorTip'),
-        });
+        }).catch(() => {});
       } else if (response.config.errorMessageMode === 'message') {
         message.error(timeoutMsg);
       }

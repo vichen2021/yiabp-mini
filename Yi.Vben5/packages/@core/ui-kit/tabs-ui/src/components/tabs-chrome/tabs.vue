@@ -30,6 +30,8 @@ const active = defineModel<string>('active');
 
 const contentRef = ref();
 const tabRef = ref();
+void contentRef;
+void tabRef;
 
 const style = computed(() => {
   const { gap } = props;
@@ -170,39 +172,39 @@ function onMouseDown(e: MouseEvent, tab: TabConfig) {
 </template>
 
 <style scoped>
-.tabs-chrome {
-  &__item:not(.dragging) {
-    @apply cursor-pointer;
+@reference "@vben/tailwind-config/theme";
 
-    &:hover:not(.is-active) {
-      & + .tabs-chrome__item {
-        .tabs-chrome__divider {
-          @apply opacity-0;
-        }
-      }
+.tabs-chrome__item:not(.dragging) {
+  @apply cursor-pointer;
+}
 
-      .tabs-chrome__divider {
-        @apply opacity-0;
-      }
+.tabs-chrome__item:not(.dragging):hover:not(.is-active)
+  + .tabs-chrome__item
+  .tabs-chrome__divider {
+  @apply opacity-0;
+}
 
-      .tabs-chrome__background {
-        @apply pb-[2px];
+.tabs-chrome__item:not(.dragging):hover:not(.is-active) .tabs-chrome__divider {
+  @apply opacity-0;
+}
 
-        &-content {
-          @apply bg-accent mx-[2px] rounded-md;
-        }
-      }
-    }
+.tabs-chrome__item:not(.dragging):hover:not(.is-active)
+  .tabs-chrome__background {
+  @apply pb-0.5;
+}
 
-    &.is-active {
-      @apply z-[2];
+.tabs-chrome__item:not(.dragging):hover:not(.is-active)
+  .tabs-chrome__background-content {
+  @apply bg-accent mx-0.5 rounded-md;
+}
 
-      & + .tabs-chrome__item {
-        .tabs-chrome__divider {
-          @apply opacity-0 !important;
-        }
-      }
-    }
-  }
+.tabs-chrome__item:not(.dragging).is-active {
+  @apply z-[2];
+}
+
+.tabs-chrome__item:not(.dragging).is-active
+  + .tabs-chrome__item
+  .tabs-chrome__divider {
+  @apply opacity-0!;
 }
 </style>

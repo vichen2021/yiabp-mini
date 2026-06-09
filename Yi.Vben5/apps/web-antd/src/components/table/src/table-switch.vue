@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 
+import { confirm } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
-import { Modal, Switch } from 'ant-design-vue';
+import { Switch } from 'antdv-next';
 import { isFunction } from 'lodash-es';
 
 type CheckedType = boolean | number | string;
@@ -65,31 +66,35 @@ const currentChecked = defineModel<CheckedType>('value', {
 
 const loading = ref(false);
 
-function confirmUpdate(checked: CheckedType, lastStatus: CheckedType) {
+async function confirmUpdate(checked: CheckedType, lastStatus: CheckedType) {
   const content = isFunction(props.confirmText)
     ? props.confirmText(checked)
     : `确认要更新状态吗？`;
 
-  Modal.confirm({
-    title: '提示',
-    content,
-    centered: true,
-    onOk: async () => {
-      try {
-        loading.value = true;
-        const { api } = props;
-        isFunction(api) && (await api());
-        emit('reload');
-      } catch {
-        currentChecked.value = lastStatus;
-      } finally {
-        loading.value = false;
-      }
-    },
-    onCancel: () => {
-      currentChecked.value = lastStatus;
-    },
-  });
+  try {
+    await confirm({
+      cancelText: $t('common.cancel'),
+      centered: true,
+      confirmText: $t('common.confirm'),
+      icon: 'warning',
+      title: '提示',
+      content,
+    });
+  } catch {
+    currentChecked.value = lastStatus;
+    return;
+  }
+
+  try {
+    loading.value = true;
+    const { api } = props;
+    isFunction(api) && (await api());
+    emit('reload');
+  } catch {
+    currentChecked.value = lastStatus;
+  } finally {
+    loading.value = false;
+  }
 }
 
 async function handleChange(checked: CheckedType, e: Event) {
@@ -105,7 +110,8 @@ async function handleChange(checked: CheckedType, e: Event) {
     loading.value = true;
 
     if (props.confirm) {
-      confirmUpdate(checked, lastStatus);
+      loading.value = false;
+      await confirmUpdate(checked, lastStatus);
       return;
     }
 

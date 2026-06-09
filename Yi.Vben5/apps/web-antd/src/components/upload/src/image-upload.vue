@@ -3,17 +3,15 @@
 去除使用`file-type`库进行文件类型检测 在Safari无法使用
 -->
 <script setup lang="ts">
-import type {
-  UploadFile,
-  UploadListType,
-} from 'ant-design-vue/es/upload/interface';
+import type { UploadFile } from 'antdv-next/dist/upload/index';
+import type { UploadListType } from 'antdv-next/dist/upload/interface';
 
 import type { BaseUploadProps, UploadEmits } from './props';
 
 import { $t, I18nT } from '@vben/locales';
 
-import { PlusOutlined, UploadOutlined } from '@ant-design/icons-vue';
-import { Image, ImagePreviewGroup, Upload } from 'ant-design-vue';
+import { PlusOutlined, UploadOutlined } from '@antdv-next/icons';
+import { Image, ImagePreviewGroup, Upload, Button } from 'antdv-next';
 import { isFunction } from 'lodash-es';
 
 import { uploadApi } from '#/api';
@@ -105,13 +103,13 @@ function currentPreview(file: UploadFile) {
         <PlusOutlined />
         <div class="mt-[8px]">{{ $t('component.upload.upload') }}</div>
       </div>
-      <a-button
+      <Button
         v-if="innerFileList?.length < maxCount && listType !== 'picture-card'"
         :disabled="disabled"
       >
         <UploadOutlined />
         {{ $t('component.upload.upload') }}
-      </a-button>
+      </Button>
     </Upload>
     <slot name="helpMessage" v-bind="{ maxCount, disabled, maxSize, accept }">
       <I18nT
@@ -145,8 +143,8 @@ function currentPreview(file: UploadFile) {
 
     <ImagePreviewGroup
       :preview="{
-        visible: previewVisible,
-        onVisibleChange: handleCancel,
+        open: previewVisible,
+        onOpenChange: handleCancel,
       }"
     >
       <Image class="hidden" :src="previewImage" />
@@ -157,11 +155,13 @@ function currentPreview(file: UploadFile) {
 <style lang="scss">
 .ant-upload-select-picture-card {
   i {
-    @apply text-[32px] text-[#999];
+    color: #999;
+    font-size: 32px;
   }
 
   .ant-upload-text {
-    @apply mt-[8px] text-[#666];
+    margin-top: 8px;
+    color: #666;
   }
 }
 

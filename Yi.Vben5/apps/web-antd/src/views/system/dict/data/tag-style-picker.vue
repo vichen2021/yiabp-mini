@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { RadioChangeEvent } from 'ant-design-vue';
+import type { RadioChangeEvent } from 'antdv-next';
 
 import { computed } from 'vue';
 
 import { usePreferences } from '@vben/preferences';
 
-import { RadioGroup, Select } from 'ant-design-vue';
+import { RadioGroup, Select } from 'antdv-next';
 import { ColorPicker } from 'vue3-colorpicker';
 
 import { tagSelectOptions } from '#/components/dict';

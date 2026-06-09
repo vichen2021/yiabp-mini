@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { UploadFile } from 'ant-design-vue/es/upload/interface';
+import type { UploadFile } from 'antdv-next/dist/upload/index';
 
 import { ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 import { InBoxIcon } from '@vben/icons';
 
-import { Upload } from 'ant-design-vue';
+import { Upload } from 'antdv-next';
 
 import { workflowDefinitionImport } from '#/api/workflow/definition';
 

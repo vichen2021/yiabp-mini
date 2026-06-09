@@ -9,22 +9,13 @@ import { useVbenModal } from '@vben/common-ui';
 import { cn } from '@vben/utils';
 
 import {
-  DeleteOutlined,
-  EditOutlined,
   ExportOutlined,
   PlusOutlined,
   SyncOutlined,
-} from '@ant-design/icons-vue';
-import {
-  Alert,
-  Input,
-  Modal,
-  Popconfirm,
-  Space,
-  Tooltip,
-} from 'ant-design-vue';
+} from '@antdv-next/icons';
+import { Alert, Button, Input, Space, Tooltip } from 'antdv-next';
 
-import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { useVbenVxeGrid, VbenTableAction } from '#/adapter/vxe-table';
 import {
   dictTypeExport,
   dictTypeList,
@@ -32,6 +23,7 @@ import {
   refreshDictTypeCache,
 } from '#/api/system/dict/dict-type';
 import { commonDownloadExcel } from '#/utils/file/download';
+import { confirmDangerAction } from '#/utils/modal';
 
 import { emitter } from '../mitt';
 import dictTypeModal from './dict-type-modal.vue';
@@ -85,7 +77,7 @@ const gridOptions: VxeGridProps = {
 const [BasicTable, tableApi] = useVbenVxeGrid({
   gridOptions,
   gridEvents: {
-    cellClick: ({ row }) => {
+    cellClick: ({ row }: { row: DictType }) => {
       handleRowClick(row);
     },
   },
@@ -121,13 +113,9 @@ function handleDownloadExcel() {
 }
 
 function handleRefreshCache() {
-  Modal.confirm({
-    title: '提示',
+  confirmDangerAction({
     content: '确认刷新字典类型缓存吗？',
-    okButtonProps: {
-      danger: true,
-    },
-    onOk: async () => {
+    onConfirmed: async () => {
       await refreshDictTypeCache();
       await tableApi.query();
     },
@@ -181,21 +169,21 @@ watch(searchValue, (value) => {
       <span class="font-semibold">字典项列表</span>
       <Space>
         <Tooltip title="刷新缓存">
-          <a-button
+          <Button
             v-access:code="['system:dict:edit']"
             :icon="h(SyncOutlined)"
             @click="handleRefreshCache"
           />
         </Tooltip>
         <Tooltip :title="$t('pages.common.export')">
-          <a-button
+          <Button
             v-access:code="['system:dict:export']"
             :icon="h(ExportOutlined)"
             @click="handleDownloadExcel"
           />
         </Tooltip>
         <Tooltip :title="$t('pages.common.add')">
-          <a-button
+          <Button
             v-access:code="['system:dict:add']"
             :icon="h(PlusOutlined)"
             @click="handleAdd"
@@ -234,24 +222,25 @@ watch(searchValue, (value) => {
                 {{ item.dictType }}
               </div>
             </div>
-            <div class="flex items-center gap-3 text-[17px]">
-              <EditOutlined
-                class="text-primary"
-                v-access:code="['system:dict:edit']"
-                @click.stop="handleEdit(item)"
-              />
-              <Popconfirm
-                placement="left"
-                :title="`确认删除 [${item.dictName}]?`"
-                @confirm="handleDelete(item)"
-              >
-                <DeleteOutlined
-                  v-access:code="['system:dict:remove']"
-                  class="text-destructive"
-                  @click.stop=""
-                />
-              </Popconfirm>
-            </div>
+            <VbenTableAction
+              :actions="[
+                {
+                  auth: 'system:dict:edit',
+                  onClick: () => handleEdit(item),
+                  text: $t('pages.common.edit'),
+                },
+                {
+                  auth: 'system:dict:remove',
+                  danger: true,
+                  popConfirm: {
+                    title: `确认删除 [${item.dictName}]?`,
+                    confirm: () => handleDelete(item),
+                  },
+                  text: $t('pages.common.delete'),
+                },
+              ]"
+              align="end"
+            />
           </div>
         </template>
       </BasicTable>

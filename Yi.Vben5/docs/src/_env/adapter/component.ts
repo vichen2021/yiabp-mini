@@ -22,16 +22,15 @@ import {
   notification,
   Radio,
   RadioGroup,
-  RangePicker,
   Rate,
   Select,
   Space,
   Switch,
-  Textarea,
+  TextArea,
   TimePicker,
   TreeSelect,
   Upload,
-} from 'ant-design-vue';
+} from 'antdv-next';
 import { h } from 'vue';
 
 const withDefaultPlaceholder = <T extends Component>(
@@ -95,12 +94,12 @@ async function initComponentAdapter() {
     },
     Radio,
     RadioGroup,
-    RangePicker,
+    RangePicker: withDefaultPlaceholder(DatePicker.RangePicker, 'select'),
     Rate,
     Select: withDefaultPlaceholder(Select, 'select'),
     Space,
     Switch,
-    Textarea: withDefaultPlaceholder(Textarea, 'input'),
+    Textarea: withDefaultPlaceholder(TextArea, 'input'),
     TimePicker,
     TreeSelect: withDefaultPlaceholder(TreeSelect, 'select'),
     Upload,
@@ -115,7 +114,7 @@ async function initComponentAdapter() {
     copyPreferencesSuccess: (title, content) => {
       notification.success({
         description: content,
-        message: title,
+        title,
         placement: 'bottomRight',
       });
     },

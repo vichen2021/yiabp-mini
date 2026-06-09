@@ -9,11 +9,11 @@ import { computed, ref } from 'vue';
 import { useAccess } from '@vben/access';
 import { Fallback, Page, useVbenDrawer } from '@vben/common-ui';
 import { $t } from '@vben/locales';
-import { eachTree, getVxePopupContainer, treeToList } from '@vben/utils';
+import { eachTree, treeToList } from '@vben/utils';
 
-import { Popconfirm, Space, Switch, Tooltip } from 'ant-design-vue';
+import { Button, Space, Switch, Tooltip } from 'antdv-next';
 
-import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { useVbenVxeGrid, VbenTableAction } from '#/adapter/vxe-table';
 import { menuCascadeRemove, menuList, menuRemove } from '#/api/system/menu';
 import { emptyGuidToNull } from '#/utils/guid';
 
@@ -24,6 +24,10 @@ type MenuRow = Omit<Menu, 'parentId'> & {
   menuId: string;
   parentId: string | null;
 };
+
+function asMenuRow(row: Record<string, any>) {
+  return row as MenuRow;
+}
 
 const formOptions: VbenFormProps = {
   commonConfig: {
@@ -88,7 +92,7 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,
   gridEvents: {
-    cellDblclick: (e) => {
+    cellDblclick: (e: any) => {
       const { row = {} } = e;
       if (!row?.children) {
         return;
@@ -98,7 +102,7 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
       row.expand = !isExpanded;
     },
     // 需要监听使用箭头展开的情况 否则展开/折叠的数据不一致
-    toggleTreeExpand: (e) => {
+    toggleTreeExpand: (e: any) => {
       const { row = {}, expanded } = e;
       row.expand = expanded;
     },
@@ -195,57 +199,49 @@ const isAdmin = computed(() => {
               <Switch v-model:checked="cascadingDeletion" />
             </div>
           </Tooltip>
-          <a-button @click="setExpandOrCollapse(false)">
+          <Button @click="setExpandOrCollapse(false)">
             {{ $t('pages.common.collapse') }}
-          </a-button>
-          <a-button @click="setExpandOrCollapse(true)">
+          </Button>
+          <Button @click="setExpandOrCollapse(true)">
             {{ $t('pages.common.expand') }}
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             type="primary"
             v-access:code="['system:menu:add']"
             v-access:role="['admin', 'superadmin']"
             @click="handleAdd"
           >
             {{ $t('pages.common.add') }}
-          </a-button>
+          </Button>
         </Space>
       </template>
       <template #action="{ row }">
-        <Space>
-          <ghost-button
-            v-access:code="['system:menu:edit']"
-            v-access:role="['admin', 'superadmin']"
-            @click="handleEdit(row)"
-          >
-            {{ $t('pages.common.edit') }}
-          </ghost-button>
-          <!-- '按钮类型'无法再添加子菜单 -->
-          <ghost-button
-            v-if="row.menuType !== 'F'"
-            class="btn-success"
-            v-access:code="['system:menu:add']"
-            v-access:role="['admin', 'superadmin']"
-            @click="handleSubAdd(row)"
-          >
-            {{ $t('pages.common.add') }}
-          </ghost-button>
-          <Popconfirm
-            :get-popup-container="getVxePopupContainer"
-            placement="left"
-            :title="removeConfirmTitle(row)"
-            @confirm="handleDelete(row)"
-          >
-            <ghost-button
-              danger
-              v-access:code="['system:menu:remove']"
-              v-access:role="['admin', 'superadmin']"
-              @click.stop=""
-            >
-              {{ $t('pages.common.delete') }}
-            </ghost-button>
-          </Popconfirm>
-        </Space>
+        <VbenTableAction
+          :actions="[
+            {
+              auth: 'system:menu:edit',
+              onClick: () => handleEdit(asMenuRow(row)),
+              text: $t('pages.common.edit'),
+            },
+            {
+              auth: 'system:menu:add',
+              class: 'text-green-600 hover:text-green-700',
+              ifShow: row.menuType !== 'F',
+              onClick: () => handleSubAdd(asMenuRow(row)),
+              text: $t('pages.common.add'),
+            },
+            {
+              auth: 'system:menu:remove',
+              danger: true,
+              popConfirm: {
+                title: removeConfirmTitle(asMenuRow(row)),
+                confirm: () => handleDelete(asMenuRow(row)),
+              },
+              text: $t('pages.common.delete'),
+            },
+          ]"
+          align="center"
+        />
       </template>
     </BasicTable>
     <MenuDrawer @reload="afterEditOrAdd" />

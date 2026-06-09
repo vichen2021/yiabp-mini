@@ -16,15 +16,20 @@ import { isRef, toRaw } from 'vue';
 import { Store } from '@vben-core/shared/store';
 import {
   bindMethods,
+  cloneDeep,
   createMerge,
   formatDate,
+  get,
   isDate,
   isDayjsObject,
   isFunction,
   isObject,
   mergeWithArrayOverride,
+  set,
   StateHandler,
 } from '@vben-core/shared/utils';
+
+import { resolveFieldNamePath } from './field-name';
 
 function getDefaultState(): VbenFormProps {
   return {
@@ -36,9 +41,11 @@ function getDefaultState(): VbenFormProps {
     handleReset: undefined,
     handleSubmit: undefined,
     handleValuesChange: undefined,
+    handleCollapsedChange: undefined,
     layout: 'horizontal',
     resetButtonOptions: {},
     schema: [],
+    scrollToFirstError: false,
     showCollapseButton: false,
     showDefaultActions: true,
     submitButtonOptions: {},
@@ -73,19 +80,16 @@ export class FormApi {
 
     const defaultState = getDefaultState();
 
-    this.store = new Store<VbenFormProps>(
-      {
-        ...defaultState,
-        ...storeState,
-      },
-      {
-        onUpdate: () => {
-          this.prevState = this.state;
-          this.state = this.store.state;
-          this.updateState();
-        },
-      },
-    );
+    this.store = new Store<VbenFormProps>({
+      ...defaultState,
+      ...storeState,
+    });
+
+    this.store.subscribe((state) => {
+      this.prevState = this.state;
+      this.state = state;
+      this.updateState();
+    });
 
     this.state = this.store.state;
     this.stateHandler = new StateHandler();
@@ -159,7 +163,10 @@ export class FormApi {
 
   async getValues<T = Recordable<any>>() {
     const form = await this.getForm();
-    return (form.values ? this.handleRangeTimeValue(form.values) : {}) as T;
+    const values = form.values
+      ? this.handleRangeTimeValue(cloneDeep(toRaw(form.values)))
+      : {};
+    return this.handleValueFormat(values) as T;
   }
 
   async isFieldValid(fieldName: string) {
@@ -207,14 +214,18 @@ export class FormApi {
     return proxy;
   }
 
-  mount(formActions: FormActions, componentRefMap: Map<string, unknown>) {
+  mount(formActions: FormActions, componentRefMap?: Map<string, unknown>) {
     if (!this.isMounted) {
       Object.assign(this.form, formActions);
       this.stateHandler.setConditionTrue();
+      const initialValues = this.form.values
+        ? this.handleRangeTimeValue(cloneDeep(toRaw(this.form.values)))
+        : {};
       this.setLatestSubmissionValues({
-        ...toRaw(this.handleRangeTimeValue(this.form.values)),
+        ...this.handleValueFormat(initialValues),
       });
-      this.componentRefMap = componentRefMap;
+      this.componentRefMap =
+        componentRefMap ?? this.componentRefMap ?? new Map();
       this.isMounted = true;
     }
   }
@@ -251,6 +262,41 @@ export class FormApi {
     fields.forEach((field) => {
       form.setFieldError(field, undefined);
     });
+  }
+
+  /**
+   * 滚动到第一个错误字段
+   * @param errors 验证错误对象
+   */
+  scrollToFirstError(errors: Record<string, any> | string) {
+    // https://github.com/logaretm/vee-validate/discussions/3835
+    const firstErrorFieldName =
+      typeof errors === 'string' ? errors : Object.keys(errors)[0];
+
+    if (!firstErrorFieldName) {
+      return;
+    }
+
+    let el = document.querySelector(
+      `[name="${firstErrorFieldName}"]`,
+    ) as HTMLElement;
+
+    // 如果通过 name 属性找不到，尝试通过组件引用查找, 正常情况下不会走到这，怕哪天 vee-validate 改了 name 属性有个兜底的
+    if (!el) {
+      const componentRef = this.getFieldComponentRef(firstErrorFieldName);
+      if (componentRef && componentRef.$el instanceof HTMLElement) {
+        el = componentRef.$el;
+      }
+    }
+
+    if (el) {
+      // 滚动到错误字段，添加一些偏移量以确保字段完全可见
+      el.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'nearest',
+      });
+    }
   }
 
   async setFieldValue(field: string, value: any, shouldValidate?: boolean) {
@@ -306,13 +352,12 @@ export class FormApi {
           isObject(obj[key]) &&
           !isDayjsObject(obj[key]) &&
           !isDate(obj[key])
-            ? fieldMergeFn(obj[key], value)
+            ? fieldMergeFn(value, obj[key])
             : value;
       }
       return true;
     });
     const filteredFields = fieldMergeFn(fields, form.values);
-    this.handleStringToArrayFields(filteredFields);
     form.setValues(filteredFields, shouldValidate);
   }
 
@@ -322,7 +367,6 @@ export class FormApi {
     const form = await this.getForm();
     await form.submitForm();
     const rawValues = toRaw(await this.getValues());
-    this.handleArrayToStringFields(rawValues);
     await this.state?.handleSubmit?.(rawValues);
 
     return rawValues;
@@ -331,6 +375,7 @@ export class FormApi {
   unmount() {
     this.form?.resetForm?.();
     // this.state = null;
+    this.componentRefMap = new Map();
     this.latestSubmissionValues = null;
     this.isMounted = false;
     this.stateHandler.reset();
@@ -377,14 +422,21 @@ export class FormApi {
 
     if (Object.keys(validateResult?.errors ?? {}).length > 0) {
       console.error('validate error', validateResult?.errors);
+
+      if (this.state?.scrollToFirstError) {
+        this.scrollToFirstError(validateResult.errors);
+      }
     }
     return validateResult;
   }
 
   async validateAndSubmitForm() {
     const form = await this.getForm();
-    const { valid } = await form.validate();
+    const { valid, errors } = await form.validate();
     if (!valid) {
+      if (this.state?.scrollToFirstError) {
+        this.scrollToFirstError(errors);
+      }
       return;
     }
     return await this.submitForm();
@@ -396,8 +448,48 @@ export class FormApi {
 
     if (Object.keys(validateResult?.errors ?? {}).length > 0) {
       console.error('validate error', validateResult?.errors);
+
+      if (this.state?.scrollToFirstError) {
+        this.scrollToFirstError(fieldName);
+      }
     }
     return validateResult;
+  }
+
+  private deleteValueByFieldName(
+    values: Record<string, any>,
+    fieldName: string,
+  ) {
+    const { pathSegments, rawKey } = resolveFieldNamePath(fieldName);
+    if (rawKey) {
+      Reflect.deleteProperty(values, rawKey);
+      return;
+    }
+
+    if (!pathSegments || pathSegments.length === 0) {
+      Reflect.deleteProperty(values, fieldName);
+      return;
+    }
+
+    let target: Record<string, any> | undefined = values;
+
+    for (const segment of pathSegments.slice(0, -1)) {
+      if (!target || !isObject(target)) {
+        return;
+      }
+      target = target[segment];
+    }
+
+    if (!target || !isObject(target)) {
+      return;
+    }
+
+    const lastPathSegment = pathSegments.at(-1);
+    if (!lastPathSegment) {
+      return;
+    }
+
+    Reflect.deleteProperty(target, lastPathSegment);
   }
 
   private async getForm() {
@@ -411,16 +503,31 @@ export class FormApi {
     return this.form;
   }
 
-  private handleArrayToStringFields = (originValues: Record<string, any>) => {
+  private handleMultiFields = (originValues: Record<string, any>) => {
     const arrayToStringFields = this.state?.arrayToStringFields;
     if (!arrayToStringFields || !Array.isArray(arrayToStringFields)) {
       return;
     }
 
     const processFields = (fields: string[], separator: string = ',') => {
-      this.processFields(fields, separator, originValues, (value, sep) =>
-        Array.isArray(value) ? value.join(sep) : value,
-      );
+      this.processFields(fields, separator, originValues, (value, sep) => {
+        if (Array.isArray(value)) {
+          return value.join(sep);
+        } else if (typeof value === 'string') {
+          // 处理空字符串的情况
+          if (value === '') {
+            return [];
+          }
+          // 处理复杂分隔符的情况
+          const escapedSeparator = sep.replaceAll(
+            /[.*+?^${}()|[\]\\]/g,
+            String.raw`\$&`,
+          );
+          return value.split(new RegExp(escapedSeparator));
+        } else {
+          return value;
+        }
+      });
     };
 
     // 处理简单数组格式 ['field1', 'field2', ';'] 或 ['field1', 'field2']
@@ -456,8 +563,7 @@ export class FormApi {
     const values = { ...originValues };
     const fieldMappingTime = this.state?.fieldMappingTime;
 
-    this.handleStringToArrayFields(values);
-
+    this.handleMultiFields(values);
     if (!fieldMappingTime || !Array.isArray(fieldMappingTime)) {
       return values;
     }
@@ -503,63 +609,34 @@ export class FormApi {
     return values;
   };
 
-  private handleStringToArrayFields = (originValues: Record<string, any>) => {
-    const arrayToStringFields = this.state?.arrayToStringFields;
-    if (!arrayToStringFields || !Array.isArray(arrayToStringFields)) {
-      return;
-    }
+  private handleValueFormat = (originValues: Record<string, any>) => {
+    const values = { ...originValues };
+    const currentSchema = this.state?.schema ?? [];
 
-    const processFields = (fields: string[], separator: string = ',') => {
-      this.processFields(fields, separator, originValues, (value, sep) => {
-        if (typeof value !== 'string') {
-          return value;
-        }
-        // 处理空字符串的情况
-        if (value === '') {
-          return [];
-        }
-        // 处理复杂分隔符的情况
-        const escapedSeparator = sep.replaceAll(
-          /[.*+?^${}()|[\]\\]/g,
-          String.raw`\$&`,
-        );
-        return value.split(new RegExp(escapedSeparator));
-      });
-    };
+    currentSchema.forEach((schema) => {
+      if (!schema.valueFormat) {
+        return;
+      }
 
-    // 处理简单数组格式 ['field1', 'field2', ';'] 或 ['field1', 'field2']
-    if (arrayToStringFields.every((item) => typeof item === 'string')) {
-      const lastItem =
-        arrayToStringFields[arrayToStringFields.length - 1] || '';
-      const fields =
-        lastItem.length === 1
-          ? arrayToStringFields.slice(0, -1)
-          : arrayToStringFields;
-      const separator = lastItem.length === 1 ? lastItem : ',';
-      processFields(fields, separator);
-      return;
-    }
+      const fieldName = schema.fieldName;
+      const value = this.resolveValueByFieldName(values, fieldName);
 
-    // 处理嵌套数组格式 [['field1'], ';']
-    arrayToStringFields.forEach((fieldConfig) => {
-      if (Array.isArray(fieldConfig)) {
-        const [fields, separator = ','] = fieldConfig;
-        if (Array.isArray(fields)) {
-          processFields(fields, separator);
-        } else if (typeof originValues[fields] === 'string') {
-          const value = originValues[fields];
-          if (value === '') {
-            originValues[fields] = [];
-          } else {
-            const escapedSeparator = separator.replaceAll(
-              /[.*+?^${}()|[\]\\]/g,
-              String.raw`\$&`,
-            );
-            originValues[fields] = value.split(new RegExp(escapedSeparator));
-          }
-        }
+      this.deleteValueByFieldName(values, fieldName);
+
+      const formattedValue = schema.valueFormat(
+        value,
+        (key, nextValue) => {
+          this.setValueByFieldName(values, key, nextValue);
+        },
+        values,
+      );
+
+      if (formattedValue !== undefined) {
+        this.setValueByFieldName(values, fieldName, formattedValue);
       }
     });
+
+    return values;
   };
 
   private processFields = (
@@ -576,6 +653,32 @@ export class FormApi {
       originValues[field] = transformFn(value, separator);
     });
   };
+
+  private resolveValueByFieldName(
+    values: Record<string, any>,
+    fieldName: string,
+  ) {
+    const { rawKey } = resolveFieldNamePath(fieldName);
+    if (rawKey) {
+      return values[rawKey];
+    }
+
+    return get(values, fieldName);
+  }
+
+  private setValueByFieldName(
+    values: Record<string, any>,
+    fieldName: string,
+    value: any,
+  ) {
+    const { rawKey } = resolveFieldNamePath(fieldName);
+    if (rawKey) {
+      values[rawKey] = value;
+      return;
+    }
+
+    set(values, fieldName, value);
+  }
 
   private updateState() {
     const currentSchema = this.state?.schema ?? [];

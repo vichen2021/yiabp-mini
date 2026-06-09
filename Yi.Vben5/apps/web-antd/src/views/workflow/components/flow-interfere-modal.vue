@@ -4,15 +4,20 @@ import type { TaskInfo } from '#/api/workflow/task/model';
 
 import { computed, ref } from 'vue';
 
-import { useVbenModal } from '@vben/common-ui';
+import {
+  useVbenModal,
+  VbenDescriptions,
+  VbenDescriptionsItem,
+} from '@vben/common-ui';
 
-import { Descriptions, DescriptionsItem, Modal } from 'ant-design-vue';
+import { Button } from 'antdv-next';
 
 import {
   getTaskByTaskId,
   taskOperation,
   terminationTask,
 } from '#/api/workflow/task';
+import { confirmDangerAction } from '#/utils/modal';
 
 import { userSelectModal } from '.';
 
@@ -55,11 +60,10 @@ const [TransferModal, transferModalApi] = useVbenModal({
 function handleTransfer(userList: User[]) {
   if (userList.length === 0 || !taskInfo.value) return;
   const current = userList[0];
-  Modal.confirm({
+  confirmDangerAction({
     title: '转办',
     content: `确定转办给${current?.nick}吗?`,
-    centered: true,
-    onOk: async () => {
+    onConfirmed: async () => {
       await taskOperation(
         { taskId: taskInfo.value!.id, userId: current!.id },
         'transferTask',
@@ -76,12 +80,10 @@ function handleTermination() {
   if (!taskInfo.value) {
     return;
   }
-  Modal.confirm({
+  confirmDangerAction({
     title: '审批终止',
     content: '确定终止当前审批流程吗？',
-    centered: true,
-    okButtonProps: { danger: true },
-    onOk: async () => {
+    onConfirmed: async () => {
       await terminationTask({ taskId: taskInfo.value!.id });
       emit('complete');
     },
@@ -94,11 +96,9 @@ const [AddSignatureModal, addSignatureModalApi] = useVbenModal({
 function handleAddSignature(userList: User[]) {
   if (userList.length === 0 || !taskInfo.value) return;
   const userIds = userList.map((user) => user.id);
-  Modal.confirm({
-    title: '提示',
+  confirmDangerAction({
     content: '确认加签吗?',
-    centered: true,
-    onOk: async () => {
+    onConfirmed: async () => {
       await taskOperation(
         { taskId: taskInfo.value!.id, userIds },
         'addSignature',
@@ -114,11 +114,9 @@ const [ReductionSignatureModal, reductionSignatureModalApi] = useVbenModal({
 function handleReductionSignature(userList: User[]) {
   if (userList.length === 0 || !taskInfo.value) return;
   const userIds = userList.map((user) => user.id);
-  Modal.confirm({
-    title: '提示',
+  confirmDangerAction({
     content: '确认减签吗?',
-    centered: true,
-    onOk: async () => {
+    onConfirmed: async () => {
       await taskOperation(
         { taskId: taskInfo.value!.id, userIds },
         'reductionSignature',
@@ -131,26 +129,26 @@ function handleReductionSignature(userList: User[]) {
 
 <template>
   <BasicModal>
-    <Descriptions v-if="taskInfo" :column="2" bordered size="small">
-      <DescriptionsItem label="任务名称">
+    <VbenDescriptions v-if="taskInfo" :column="2" bordered size="small">
+      <VbenDescriptionsItem label="任务名称">
         {{ taskInfo.nodeName }}
-      </DescriptionsItem>
-      <DescriptionsItem label="节点编码">
+      </VbenDescriptionsItem>
+      <VbenDescriptionsItem label="节点编码">
         {{ taskInfo.nodeCode }}
-      </DescriptionsItem>
-      <DescriptionsItem label="开始时间">
+      </VbenDescriptionsItem>
+      <VbenDescriptionsItem label="开始时间">
         {{ taskInfo.createTime }}
-      </DescriptionsItem>
-      <DescriptionsItem label="流程实例ID">
+      </VbenDescriptionsItem>
+      <VbenDescriptionsItem label="流程实例ID">
         {{ taskInfo.instanceId }}
-      </DescriptionsItem>
-      <DescriptionsItem label="版本号">
+      </VbenDescriptionsItem>
+      <VbenDescriptionsItem label="版本号">
         {{ taskInfo.version }}
-      </DescriptionsItem>
-      <DescriptionsItem label="业务ID">
+      </VbenDescriptionsItem>
+      <VbenDescriptionsItem label="业务ID">
         {{ taskInfo.businessId }}
-      </DescriptionsItem>
-    </Descriptions>
+      </VbenDescriptionsItem>
+    </VbenDescriptions>
     <TransferModal mode="single" @finish="handleTransfer" />
     <AddSignatureModal mode="multiple" @finish="handleAddSignature" />
     <ReductionSignatureModal
@@ -159,13 +157,13 @@ function handleReductionSignature(userList: User[]) {
     />
     <template #footer>
       <template v-if="showMultiActions">
-        <a-button @click="() => addSignatureModalApi.open()">加签</a-button>
-        <a-button @click="() => reductionSignatureModalApi.open()">
+        <Button @click="() => addSignatureModalApi.open()">加签</Button>
+        <Button @click="() => reductionSignatureModalApi.open()">
           减签
-        </a-button>
+        </Button>
       </template>
-      <a-button @click="() => transferModalApi.open()">转办</a-button>
-      <a-button danger type="primary" @click="handleTermination">终止</a-button>
+      <Button @click="() => transferModalApi.open()">转办</Button>
+      <Button danger type="primary" @click="handleTermination">终止</Button>
     </template>
   </BasicModal>
 </template>

@@ -2,7 +2,7 @@
 import { IconifyIcon } from '@vben/icons';
 import { buildUUID } from '@vben/utils';
 
-import { Input } from 'ant-design-vue';
+import { Input, Button } from 'antdv-next';
 
 defineOptions({ name: 'SecretInput' });
 
@@ -29,12 +29,12 @@ defineExpose({ refreshSecret });
 <template>
   <Input v-model:value="value" :disabled="disabled" :placeholder="placeholder">
     <template v-if="!disabled" #addonAfter>
-      <a-button type="primary" @click="refreshSecret">
+      <Button type="primary" @click="refreshSecret">
         <div class="flex items-center gap-[4px]">
           <IconifyIcon icon="charm:refresh" />
           <span>随机生成</span>
         </div>
-      </a-button>
+      </Button>
     </template>
   </Input>
 </template>

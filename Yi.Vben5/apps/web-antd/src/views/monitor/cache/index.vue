@@ -6,7 +6,7 @@ import { onMounted, reactive, ref } from 'vue';
 import { Page } from '@vben/common-ui';
 import { CommandLineIcon, MemoryIcon, RedisIcon } from '@vben/icons';
 
-import { Button, Card, Col, Row } from 'ant-design-vue';
+import { Button, Card, Col, Row } from 'antdv-next';
 
 import { redisCacheInfo } from '#/api/monitor/cache';
 

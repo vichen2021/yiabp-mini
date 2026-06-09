@@ -27,7 +27,7 @@ import {
   WindowsIcon,
 } from '@vben/icons';
 
-import { Tag } from 'ant-design-vue';
+import { Tag } from 'antdv-next';
 
 import { DictTag } from '#/components/dict';
 

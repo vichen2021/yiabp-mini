@@ -1,27 +1,24 @@
 <script setup lang="ts">
-import type { TabsContentProps } from 'radix-vue';
+import type { TabsContentProps } from 'reka-ui';
+
+import type { HTMLAttributes } from 'vue';
 
 import { cn } from '@vben-core/shared/utils';
-import { TabsContent } from 'radix-vue';
-import { computed } from 'vue';
 
-const props = defineProps<{ class?: any } & TabsContentProps>();
+import { reactiveOmit } from '@vueuse/core';
+import { TabsContent } from 'reka-ui';
 
-const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props;
+const props = defineProps<
+  TabsContentProps & { class?: HTMLAttributes['class'] }
+>();
 
-  return delegated;
-});
+const delegatedProps = reactiveOmit(props, 'class');
 </script>
 
 <template>
   <TabsContent
-    :class="
-      cn(
-        'ring-offset-background focus-visible:ring-ring mt-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-        props.class,
-      )
-    "
+    data-slot="tabs-content"
+    :class="cn('flex-1 outline-none', props.class)"
     v-bind="delegatedProps"
   >
     <slot></slot>

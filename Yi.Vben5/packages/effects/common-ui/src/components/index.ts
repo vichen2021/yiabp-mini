@@ -21,15 +21,26 @@ export {
   VbenButton,
   VbenButtonGroup,
   VbenCheckButtonGroup,
+  VbenCollapsibleParams,
   VbenCountToAnimator,
+  VbenDescriptions,
+  VbenDescriptionsItem,
   VbenFullScreen,
+  VbenInputCaptcha,
   VbenInputPassword,
   VbenLoading,
   VbenLogo,
   VbenPinInput,
   VbenSpinner,
+  VbenTableAction,
   VbenTree,
 } from '@vben-core/shadcn-ui';
 
-export type { FlattenedItem } from '@vben-core/shadcn-ui';
+export type {
+  ActionItem,
+  CollapsibleParamsProps,
+  DescriptionsProps,
+  FlattenedItem,
+  TableActionProps,
+} from '@vben-core/shadcn-ui';
 export { globalShareState } from '@vben-core/shared/global-state';

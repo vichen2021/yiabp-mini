@@ -4,7 +4,7 @@ import type { DictData } from '#/api/system/dict/dict-data-model';
 
 import { computed } from 'vue';
 
-import { Spin, Tag } from 'ant-design-vue';
+import { Spin, Tag } from 'antdv-next';
 
 import { tagTypes } from './data';
 

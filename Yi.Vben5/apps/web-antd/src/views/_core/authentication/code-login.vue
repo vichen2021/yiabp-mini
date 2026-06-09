@@ -9,7 +9,7 @@ import { AuthenticationCodeLogin, z } from '@vben/common-ui';
 import { DEFAULT_TENANT_ID } from '@vben/constants';
 import { $t } from '@vben/locales';
 
-import { Alert, message } from 'ant-design-vue';
+import { Alert, message } from 'antdv-next';
 
 import { tenantList } from '#/api/core/auth';
 import { sendSmsCode } from '#/api/core/captcha';

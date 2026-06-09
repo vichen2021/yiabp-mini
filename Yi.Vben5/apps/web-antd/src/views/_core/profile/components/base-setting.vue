@@ -3,14 +3,15 @@ import type { Recordable } from '@vben/types';
 
 import type { UserInfoResp } from '#/api/core/user';
 
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 
 import { DictEnum } from '@vben/constants';
+import { ProfileBaseSetting } from '@vben/common-ui';
 import { useUserStore } from '@vben/stores';
 
 import { cloneDeep } from 'lodash-es';
 
-import { useVbenForm, z } from '#/adapter/form';
+import { z } from '#/adapter/form';
 import { userProfileUpdate } from '#/api/system/profile';
 import { useAuthStore } from '#/store';
 import { getDictOptions } from '#/utils/dict';
@@ -21,78 +22,58 @@ const props = defineProps<{ profile: UserInfoResp }>();
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
+const profileBaseSettingRef = ref();
 
-const [BasicForm, formApi] = useVbenForm({
-  actionWrapperClass: 'text-left ml-[68px] mb-[16px]',
-  commonConfig: {
-    labelWidth: 60,
+const formSchema = [
+  {
+    component: 'Input',
+    dependencies: {
+      show: () => false,
+      triggerFields: [''],
+    },
+    fieldName: 'userId',
+    label: '用户ID',
+    rules: 'required',
   },
-  handleSubmit,
-  resetButtonOptions: {
-    show: false,
+  {
+    component: 'Input',
+    fieldName: 'nick',
+    label: '昵称',
+    rules: 'required',
   },
-  schema: [
-    {
-      component: 'Input',
-      dependencies: {
-        show: () => false,
-        triggerFields: [''],
-      },
-      fieldName: 'userId',
-      label: '用户ID',
-      rules: 'required',
-    },
-    {
-      component: 'Input',
-      fieldName: 'nick',
-      label: '昵称',
-      rules: 'required',
-    },
-    {
-      component: 'Input',
-      fieldName: 'email',
-      label: '邮箱',
-      rules: z.string().email('请输入正确的邮箱').optional().or(z.literal('')),
-    },
-    {
-      component: 'RadioGroup',
-      componentProps: {
-        buttonStyle: 'solid',
-        options: getDictOptions(DictEnum.SYS_USER_SEX),
-        optionType: 'button',
-      },
-      defaultValue: '0',
-      fieldName: 'sex',
-      label: '性别',
-      rules: 'required',
-    },
-    {
-      component: 'Input',
-      fieldName: 'phone',
-      label: '电话',
-      rules: z
-        .union([
-          z.literal(''),
-          z.string().regex(/^1[3-9]\d{9}$/, '请输入正确的电话'),
-        ])
-        .optional(),
-    },
-  ],
-  submitButtonOptions: {
-    content: '更新信息',
+  {
+    component: 'Input',
+    fieldName: 'email',
+    label: '邮箱',
+    rules: z.string().email('请输入正确的邮箱').optional().or(z.literal('')),
   },
-});
-
-function buttonLoading(loading: boolean) {
-  formApi.setState((prev) => ({
-    ...prev,
-    submitButtonOptions: { ...prev.submitButtonOptions, loading },
-  }));
-}
+  {
+    component: 'RadioGroup',
+    componentProps: {
+      buttonStyle: 'solid',
+      options: getDictOptions(DictEnum.SYS_USER_SEX),
+      optionType: 'button',
+    },
+    defaultValue: '0',
+    fieldName: 'sex',
+    label: '性别',
+    rules: 'required',
+  },
+  {
+    component: 'Input',
+    fieldName: 'phone',
+    label: '电话',
+    rules: z
+      .union([
+        z.literal(''),
+        z.string().regex(/^1[3-9]\d{9}$/, '请输入正确的电话'),
+      ])
+      .optional(),
+  },
+];
 
 async function handleSubmit(values: Recordable<any>) {
   try {
-    buttonLoading(true);
     const data = cloneDeep(values);
     if (data.phone) {
       data.phone = Number(data.phone);
@@ -103,8 +84,6 @@ async function handleSubmit(values: Recordable<any>) {
     emitter.emit('updateProfile');
   } catch (error) {
     console.error(error);
-  } finally {
-    buttonLoading(false);
   }
 }
 
@@ -117,12 +96,15 @@ onMounted(() => {
     phone: user.phone != null ? String(user.phone) : '',
     sex: user.sex,
   };
-  formApi.setValues(data);
+  profileBaseSettingRef.value?.getFormApi().setValues(data);
 });
 </script>
 
 <template>
-  <div class="mt-[16px] md:w-full lg:w-1/2 2xl:w-2/5">
-    <BasicForm />
-  </div>
+  <ProfileBaseSetting
+    ref="profileBaseSettingRef"
+    class="mt-[16px] md:w-full lg:w-1/2 2xl:w-2/5"
+    :form-schema="formSchema"
+    @submit="handleSubmit"
+  />
 </template>

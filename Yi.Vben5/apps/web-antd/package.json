@@ -1,6 +1,6 @@
 {
   "name": "@vben/web-antd",
-  "version": "2.0.0",
+  "version": "5.7.0",
   "homepage": "https://vben.pro",
   "bugs": "https://github.com/vbenjs/vue-vben-admin/issues",
   "repository": {
@@ -16,7 +16,7 @@
   },
   "type": "module",
   "scripts": {
-    "build": "pnpm vite build",
+    "build": "pnpm vite build --mode production",
     "build:analyze": "pnpm vite build --mode analyze",
     "dev": "pnpm vite --mode development",
     "preview": "vite preview",
@@ -26,7 +26,7 @@
     "#/*": "./src/*"
   },
   "dependencies": {
-    "@ant-design/icons-vue": "^7.0.1",
+    "@antdv-next/icons": "catalog:",
     "@microsoft/signalr": "^10.0.0",
     "@tinymce/tinymce-vue": "^6.0.1",
     "@vben/access": "workspace:*",
@@ -44,7 +44,7 @@
     "@vben/types": "workspace:*",
     "@vben/utils": "workspace:*",
     "@vueuse/core": "catalog:",
-    "ant-design-vue": "catalog:",
+    "antdv-next": "catalog:",
     "cropperjs": "^1.6.2",
     "crypto-js": "^4.2.0",
     "dayjs": "catalog:",

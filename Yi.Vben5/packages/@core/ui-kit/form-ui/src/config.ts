@@ -6,18 +6,21 @@ import type {
   VbenFormAdapterOptions,
 } from './types';
 
+import { h } from 'vue';
+
 import {
   VbenButton,
   VbenCheckbox,
   Input as VbenInput,
-  VbenInputCaptcha,
   VbenInputPassword,
   VbenPinInput,
   VbenSelect,
 } from '@vben-core/shadcn-ui';
 import { globalShareState } from '@vben-core/shared/global-state';
+
 import { defineRule } from 'vee-validate';
-import { h } from 'vue';
+
+import VbenFormFieldArray from './components/form-field-array.vue';
 
 const DEFAULT_MODEL_PROP_NAME = 'modelValue';
 
@@ -27,8 +30,8 @@ export const COMPONENT_MAP: Record<BaseFormComponentType, Component> = {
   DefaultButton: h(VbenButton, { size: 'sm', variant: 'outline' }),
   PrimaryButton: h(VbenButton, { size: 'sm', variant: 'default' }),
   VbenCheckbox,
+  VbenFormFieldArray,
   VbenInput,
-  VbenInputCaptcha,
   VbenInputPassword,
   VbenPinInput,
   VbenSelect,

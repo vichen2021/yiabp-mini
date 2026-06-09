@@ -1,7 +1,13 @@
 <script setup lang="ts">
-import type { CheckboxChangeEvent } from 'ant-design-vue/es/checkbox/interface';
-import type { DataNode } from 'ant-design-vue/es/tree';
-import type { CheckInfo } from 'ant-design-vue/es/vc-tree/props';
+import type { CheckboxEmits, TreeDataNode } from 'antdv-next';
+
+type CheckboxChangeEvent = Parameters<CheckboxEmits['change']>[0];
+type CheckInfo = {
+  checked: boolean;
+  checkedNodes?: TreeDataNode[];
+  halfCheckedKeys?: (number | string)[];
+};
+type DataNode = TreeDataNode;
 
 import type { PropType, SetupContext } from 'vue';
 
@@ -9,7 +15,7 @@ import { computed, nextTick, onMounted, ref, useSlots, watch } from 'vue';
 
 import { findGroupParentIds, treeToList } from '@vben/utils';
 
-import { Checkbox, Tree } from 'ant-design-vue';
+import { Checkbox, Tree } from 'antdv-next';
 import { uniq } from 'lodash-es';
 
 /** 需要禁止透传 */

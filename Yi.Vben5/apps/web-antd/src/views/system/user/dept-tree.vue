@@ -5,8 +5,8 @@ import type { Dept } from '#/api/system/dept/model';
 
 import { onMounted, ref } from 'vue';
 
-import { SyncOutlined } from '@ant-design/icons-vue';
-import { Empty, InputSearch, Skeleton, Tree } from 'ant-design-vue';
+import { SyncOutlined } from '@antdv-next/icons';
+import { Empty, InputSearch, Skeleton, Tree, Button } from 'antdv-next';
 
 import { listToTree } from '@vben/utils';
 
@@ -82,10 +82,10 @@ onMounted(loadTree);
             size="small"
             allow-clear
           >
-            <template #enterButton>
-              <a-button @click="handleReload">
+            <template #addonAfter>
+              <Button @click="handleReload">
                 <SyncOutlined class="text-primary" />
-              </a-button>
+              </Button>
             </template>
           </InputSearch>
         </div>
@@ -106,7 +106,7 @@ onMounted(loadTree);
             default-expand-all
             @select="$emit('select')"
           >
-            <template #title="{ deptName }">
+            <template #titleRender="{ deptName }">
               <span v-if="deptName.includes(searchValue)">
                 {{ deptName.substring(0, deptName.indexOf(searchValue)) }}
                 <span class="text-primary">{{ searchValue }}</span>

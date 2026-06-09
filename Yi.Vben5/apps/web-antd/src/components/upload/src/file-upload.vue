@@ -3,7 +3,7 @@
 去除使用`file-type`库进行文件类型检测 在Safari无法使用
 -->
 <script setup lang="ts">
-import type { UploadListType } from 'ant-design-vue/es/upload/interface';
+import type { UploadListType } from 'antdv-next/dist/upload/interface';
 
 import type { BaseUploadProps, UploadEmits } from './props';
 
@@ -11,8 +11,8 @@ import { computed } from 'vue';
 
 import { $t, I18nT } from '@vben/locales';
 
-import { InboxOutlined, UploadOutlined } from '@ant-design/icons-vue';
-import { Upload } from 'ant-design-vue';
+import { InboxOutlined, UploadOutlined } from '@antdv-next/icons';
+import { Upload, Button } from 'antdv-next';
 
 import { uploadApi } from '#/api';
 
@@ -93,10 +93,10 @@ Upload.Dragger只会影响样式
       @remove="handleRemove"
     >
       <div v-if="!enableDragUpload && innerFileList?.length < maxCount">
-        <a-button :disabled="disabled">
+        <Button :disabled="disabled">
           <UploadOutlined />
           {{ $t('component.upload.upload') }}
-        </a-button>
+        </Button>
       </div>
       <div v-if="enableDragUpload">
         <p class="ant-upload-drag-icon">

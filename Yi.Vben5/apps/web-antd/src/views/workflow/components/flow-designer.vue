@@ -6,7 +6,7 @@ import { stringify } from '@vben/request';
 import { useAccessStore } from '@vben/stores';
 
 import { useEventListener } from '@vueuse/core';
-import { Alert } from 'ant-design-vue';
+import { Alert } from 'antdv-next';
 
 defineOptions({ name: 'FlowDesigner' });
 

@@ -7,11 +7,11 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 import { nextTick } from 'vue';
 
 import { Page, useVbenModal } from '@vben/common-ui';
-import { getPopupContainer, listToTree } from '@vben/utils';
+import { listToTree } from '@vben/utils';
 
-import { Popconfirm, Space } from 'ant-design-vue';
+import { Button, Space } from 'antdv-next';
 
-import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { useVbenVxeGrid, VbenTableAction } from '#/adapter/vxe-table';
 
 import { treeList, treeRemove } from './api';
 import { columns, querySchema } from './data';
@@ -101,44 +101,41 @@ function collapseAll() {
       </template>
       <template #toolbar-tools>
         <Space>
-          <a-button @click="collapseAll">
+          <Button @click="collapseAll">
             {{ $t('pages.common.collapse') }}
-          </a-button>
-          <a-button @click="expandAll">
+          </Button>
+          <Button @click="expandAll">
             {{ $t('pages.common.expand') }}
-          </a-button>
-          <a-button
+          </Button>
+          <Button
             type="primary"
             v-access:code="['system:tree:add']"
             @click="handleAdd"
           >
             {{ $t('pages.common.add') }}
-          </a-button>
+          </Button>
         </Space>
       </template>
       <template #action="{ row }">
-        <Space>
-          <ghost-button
-            v-access:code="['system:tree:edit']"
-            @click.stop="handleEdit(row)"
-          >
-            {{ $t('pages.common.edit') }}
-          </ghost-button>
-          <Popconfirm
-            :get-popup-container="getPopupContainer"
-            placement="left"
-            title="确认删除？"
-            @confirm="handleDelete(row)"
-          >
-            <ghost-button
-              danger
-              v-access:code="['system:tree:remove']"
-              @click.stop=""
-            >
-              {{ $t('pages.common.delete') }}
-            </ghost-button>
-          </Popconfirm>
-        </Space>
+        <VbenTableAction
+          :actions="[
+            {
+              auth: 'system:tree:edit',
+              onClick: () => handleEdit(row),
+              text: $t('pages.common.edit'),
+            },
+            {
+              auth: 'system:tree:remove',
+              danger: true,
+              popConfirm: {
+                title: '确认删除？',
+                confirm: () => handleDelete(row),
+              },
+              text: $t('pages.common.delete'),
+            },
+          ]"
+          align="center"
+        />
       </template>
     </BasicTable>
     <TreeModal @reload="tableApi.query()" />

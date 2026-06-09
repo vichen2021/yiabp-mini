@@ -1,6 +1,6 @@
 # 外部模块
 
-除了项目默认引入的外部模块，有时我们还需要引入其他外部模块。我们以 [ant-design-vue](https://antdv.com/components/overview) 为例：
+除了项目默认引入的外部模块，有时我们还需要引入其他外部模块。当前 antdv 组件底座使用 `antdv-next`，新增 UI 组件时应优先沿用现有适配器和手动导入方式。
 
 ## 安装依赖
 
@@ -13,7 +13,7 @@
 
 ```bash
 # cd /path/to/your/package
-pnpm add ant-design-vue
+pnpm add your-package-name
 ```
 
 ## 使用
@@ -22,20 +22,19 @@ pnpm add ant-design-vue
 
 ```ts
 import { createApp } from 'vue';
-import Antd from 'ant-design-vue';
 import App from './App';
-import 'ant-design-vue/dist/reset.css';
+import SomePlugin from 'your-package-name';
 
 const app = createApp(App);
 
-app.use(Antd).mount('#app');
+app.use(SomePlugin).mount('#app');
 ```
 
 #### 使用
 
 ```vue
 <template>
-  <a-button>text</a-button>
+  <SomeComponent>text</SomeComponent>
 </template>
 ```
 
@@ -43,7 +42,7 @@ app.use(Antd).mount('#app');
 
 ```vue
 <script setup lang="ts">
-import { Button } from 'ant-design-vue';
+import { Button } from 'antdv-next';
 </script>
 
 <template>
@@ -53,6 +52,7 @@ import { Button } from 'ant-design-vue';
 
 ::: warning 注意
 
-- 如果组件有依赖样式，则需要再引入样式文件
+- 如果组件有依赖样式，则需要按组件库文档再引入样式文件
+- 不要在业务代码中新增旧 antd 底座依赖或旧标签组件写法
 
 :::

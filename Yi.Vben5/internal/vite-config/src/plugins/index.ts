@@ -18,6 +18,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 import viteVueDevTools from 'vite-plugin-vue-devtools';
 
 import { viteArchiverPlugin } from './archiver';
+import { viteDayjsPlugin } from './dayjs';
 import { viteExtraAppConfigPlugin } from './extra-app-config';
 import { viteImportMapPlugin } from './importmap';
 import { viteInjectAppLoadingPlugin } from './inject-app-loading';
@@ -25,6 +26,7 @@ import { viteMetadataPlugin } from './inject-metadata';
 import { viteLicensePlugin } from './license';
 import { viteNitroMockPlugin } from './nitro-mock';
 import { vitePrintPlugin } from './print';
+import { viteTailwindReferencePlugin } from './tailwind-reference';
 import { viteVxeTableImportsPlugin } from './vxe-table';
 
 /**
@@ -52,15 +54,21 @@ async function loadCommonPlugins(
   return [
     {
       condition: true,
-      plugins: () => [
-        viteVue({
-          script: {
-            defineModel: true,
-            // propsDestructure: true,
-          },
-        }),
-        viteVueJsx(),
-      ],
+      plugins: async () => {
+        const { default: tailwindcss } = await import('@tailwindcss/vite');
+
+        return [
+          viteVue({
+            script: {
+              defineModel: true,
+              // propsDestructure: true,
+            },
+          }),
+          viteVueJsx(),
+          viteTailwindReferencePlugin(),
+          tailwindcss(),
+        ];
+      },
     },
 
     {
@@ -240,6 +248,7 @@ export {
   loadLibraryPlugins,
   viteArchiverPlugin,
   viteCompressPlugin,
+  viteDayjsPlugin,
   viteDtsPlugin,
   viteHtmlPlugin,
   viteVisualizerPlugin,
