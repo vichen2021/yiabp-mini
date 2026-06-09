@@ -12,7 +12,20 @@ import { defineComponent, h } from 'vue';
 
 import { useAccess } from '@vben/access';
 import { VbenTableAction as VbenTableActionCore } from '@vben/common-ui';
-import { CircleX, Eye, UserRoundPen } from '@vben/icons';
+import {
+  CircleAlert,
+  CircleX,
+  Copy,
+  Download,
+  Eye,
+  Info,
+  LockKeyhole,
+  LogOut,
+  MailCheck,
+  RotateCw,
+  Settings,
+  UserRoundPen,
+} from '@vben/icons';
 import { $te } from '@vben/locales';
 import {
   setupVbenVxeTable,
@@ -297,25 +310,49 @@ function normalizeTableAction(action: ActionItem): ActionItem {
 
   const actionText = action.text;
   const normalized: ActionItem = { ...action };
-  const editTexts = [$t('common.edit'), $t('pages.common.edit')];
-  const deleteTexts = [$t('common.delete'), $t('pages.common.delete')];
-  const detailTexts = [
-    $t('pages.common.info'),
-    $t('pages.common.preview'),
-    '详情',
-    '查看',
-  ];
+  const iconTextMap = new Map<string, ActionItem['icon']>([
+    [$t('common.edit'), UserRoundPen],
+    [$t('pages.common.edit'), UserRoundPen],
+    [$t('common.delete'), CircleX],
+    [$t('pages.common.delete'), CircleX],
+    [$t('pages.common.download'), Download],
+    [$t('pages.common.info'), Info],
+    [$t('pages.common.preview'), Eye],
+    ['查看', Eye],
+    ['详情', Eye],
+    ['用户信息', Info],
+    ['重置密码', LockKeyhole],
+    ['权限', Settings],
+    ['分配', UserRoundPen],
+    ['初始化', RotateCw],
+    ['推送', MailCheck],
+    ['撤销', CircleAlert],
+    ['强制下线', LogOut],
+    ['取消授权', CircleX],
+    ['编辑信息', UserRoundPen],
+    ['删除流程', CircleX],
+    ['发布流程', MailCheck],
+    ['复制流程', Copy],
+    ['导出流程', Download],
+    ['作废流程', CircleAlert],
+    ['流程预览', Eye],
+    ['变量查看', Settings],
+    ['移除', CircleX],
+  ]);
 
-  if (editTexts.includes(actionText)) {
-    normalized.icon = UserRoundPen;
-  } else if (deleteTexts.includes(actionText)) {
-    normalized.icon = CircleX;
-  } else if (detailTexts.includes(actionText)) {
-    normalized.icon = Eye;
-  }
+  normalized.icon = iconTextMap.get(actionText);
 
   if (normalized.icon) {
     normalized.tooltip ??= actionText;
+    normalized.danger ??= [
+      $t('common.delete'),
+      $t('pages.common.delete'),
+      '作废流程',
+      '强制下线',
+      '取消授权',
+      '撤销',
+      '移除',
+    ].includes(actionText);
     normalized.text = undefined;
   }
 
