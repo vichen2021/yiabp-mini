@@ -1,4 +1,4 @@
-import type { ActionItem, TableActionProps } from '@vben/common-ui';
+import type { TableActionProps } from '@vben/common-ui';
 import type {
   VxeGridPropTypes,
   VxeTableGridOptions,
@@ -290,38 +290,6 @@ export const useVbenVxeGrid = <T extends Record<string, any>>(
  * 通过 action 的 `auth` 字段声明权限码，结合 `useAccess().hasAccessByCodes` 判断是否展示。
  * 如需自定义权限逻辑，仍可显式传入 `:has-permission` 覆盖默认行为。
  */
-function normalizeTableAction(action: ActionItem): ActionItem {
-  if (action.icon || !action.text) {
-    return action;
-  }
-
-  const actionText = action.text;
-  const normalized: ActionItem = { ...action };
-  const editTexts = [$t('common.edit'), $t('pages.common.edit')];
-  const deleteTexts = [$t('common.delete'), $t('pages.common.delete')];
-  const detailTexts = [
-    $t('pages.common.info'),
-    $t('pages.common.preview'),
-    '详情',
-    '查看',
-  ];
-
-  if (editTexts.includes(actionText)) {
-    normalized.icon = UserRoundPen;
-  } else if (deleteTexts.includes(actionText)) {
-    normalized.icon = CircleX;
-  } else if (detailTexts.includes(actionText)) {
-    normalized.icon = Eye;
-  }
-
-  if (normalized.icon) {
-    normalized.tooltip ??= actionText;
-    normalized.text = undefined;
-  }
-
-  return normalized;
-}
-
 export const VbenTableAction = defineComponent({
   inheritAttrs: false,
   name: 'VbenTableAction',
@@ -364,7 +332,7 @@ export const VbenTableAction = defineComponent({
           hasPermission,
           ...props,
           ...attrs,
-          actions: props.actions?.map((item) => normalizeTableAction(item)),
+          actions: props.actions,
           dropdownActions: props.dropdownActions,
         },
         slots,
