@@ -2,5 +2,5 @@
 
 public interface IMiniProgramToken
 {
-    public Task<string> GetTokenAsync();
+    public Task<string?> GetTokenAsync();
 }

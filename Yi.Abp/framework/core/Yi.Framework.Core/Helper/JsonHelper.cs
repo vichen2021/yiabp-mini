@@ -49,7 +49,7 @@ namespace Yi.Framework.Core.Helper
             return result;
         }
         /// <summary>
-        /// 转换List<T>的数据为JSON格式
+        /// 换List&lt;T&gt;的数据为JSON格式
         /// </summary>
         /// <typeparam name="T">类</typeparam>
         /// <param name="vals">列表值</param>

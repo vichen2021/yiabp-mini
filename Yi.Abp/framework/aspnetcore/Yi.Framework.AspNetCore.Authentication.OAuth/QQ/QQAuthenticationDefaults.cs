@@ -12,42 +12,42 @@ namespace Yi.Framework.AspNetCore.Authentication.OAuth.QQ;
 public static class QQAuthenticationDefaults
 {
     /// <summary>
-    /// Default value for <see cref="AuthenticationScheme.Name"/>.
+    /// Default value for the authentication scheme name.
     /// </summary>
     public const string AuthenticationScheme = "QQ";
 
     /// <summary>
-    /// Default value for <see cref="AuthenticationScheme.DisplayName"/>.
+    /// Default value for the authentication scheme display name.
     /// </summary>
     public static readonly string DisplayName = "QQ";
 
     /// <summary>
-    /// Default value for <see cref="AuthenticationSchemeOptions.ClaimsIssuer"/>.
+    /// Default value for the claims issuer.
     /// </summary>
     public static readonly string Issuer = "QQ";
 
     /// <summary>
-    /// Default value for <see cref="RemoteAuthenticationOptions.CallbackPath"/>.
+    /// Default value for the callback path.
     /// </summary>
     public static readonly string CallbackPath = "/signin-qq";
 
     /// <summary>
-    /// Default value for <see cref="OAuthOptions.AuthorizationEndpoint"/>.
+    /// Default value for the authorization endpoint.
     /// </summary>
     public static readonly string AuthorizationEndpoint = "https://graph.qq.com/oauth2.0/authorize";
 
     /// <summary>
-    /// Default value for <see cref="OAuthOptions.TokenEndpoint"/>.
+    /// Default value for the token endpoint.
     /// </summary>
     public static readonly string TokenEndpoint = "https://graph.qq.com/oauth2.0/token";
 
     /// <summary>
-    /// Default value for <see cref="QQAuthenticationOptions.UserIdentificationEndpoint"/>.
+    /// Default value for the user identification endpoint.
     /// </summary>
     public static readonly string UserIdentificationEndpoint = "https://graph.qq.com/oauth2.0/me";
 
     /// <summary>
-    /// Default value for <see cref="OAuthOptions.UserInformationEndpoint"/>.
+    /// Default value for the user information endpoint.
     /// </summary>
     public static readonly string UserInformationEndpoint = "https://graph.qq.com/user/get_user_info";
 }

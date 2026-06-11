@@ -13,7 +13,7 @@ public interface ISettingManagementStore
     /// <summary>
     /// 读取单个 Setting 值，无记录时返回 null。
     /// </summary>
-    Task<string> GetOrNullAsync(string name, string providerName, string providerKey);
+    Task<string?> GetOrNullAsync(string name, string providerName, string providerKey);
 
     /// <summary>
     /// 读取指定 Provider 维度下的所有 Setting 值列表。

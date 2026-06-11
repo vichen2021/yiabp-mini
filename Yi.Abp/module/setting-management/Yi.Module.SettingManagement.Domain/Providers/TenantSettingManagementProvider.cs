@@ -28,7 +28,7 @@ public class TenantSettingManagementProvider : SettingManagementProvider, ITrans
     /// <summary>
     /// 若传入了显式 Key 则优先使用；否则取当前租户 ID。
     /// </summary>
-    protected override string NormalizeProviderKey(string providerKey)
+    protected override string? NormalizeProviderKey(string? providerKey)
     {
         if (providerKey != null)
         {

@@ -69,7 +69,7 @@ namespace Yi.Module.TenantManagement.Domain
 
 
 
-        protected virtual async Task<TenantCacheItem> GetCacheItemAsync(Guid? id, string name)
+        protected virtual async Task<TenantCacheItem> GetCacheItemAsync(Guid? id, string? name)
         {
             var cacheKey = CalculateCacheKey(id, name);
 
@@ -83,7 +83,7 @@ namespace Yi.Module.TenantManagement.Domain
             {
                 using (CurrentTenant.Change(null)) //TODO: No need this if we can implement to define host side (or tenant-independent) entities!
                 {
-                    TenantAggregateRoot tenant = null;
+                    TenantAggregateRoot? tenant = null;
                     using (var uow=_unitOfWorkManager.Begin(isTransactional:false))
                     {
                          tenant = await TenantRepository.FindAsync(id.Value); 
@@ -123,22 +123,22 @@ namespace Yi.Module.TenantManagement.Domain
             return tenantConfiguration;
         }
 
-        private ConnectionStrings? MaptoString(string tenantConnectionString)
+        private ConnectionStrings? MaptoString(string? tenantConnectionString)
         {
             var connectionStrings = new ConnectionStrings();
             connectionStrings[ConnectionStrings.DefaultConnectionStringName] = tenantConnectionString;
             return connectionStrings;
         }
 
-        protected virtual string CalculateCacheKey(Guid? id, string name)
+        protected virtual string CalculateCacheKey(Guid? id, string? name)
         {
             return TenantCacheItem.CalculateCacheKey(id, name);
         }
 
         public async Task RemoveCacheAsync(Guid id, string name)
         {
-            await Cache.RemoveAsync(TenantCacheItem.CalculateCacheKey(id, null));
-            await Cache.RemoveAsync(TenantCacheItem.CalculateCacheKey(null, name));
+            await Cache.RemoveAsync(TenantCacheItem.CalculateCacheKey(id, null!));
+            await Cache.RemoveAsync(TenantCacheItem.CalculateCacheKey(null!, name));
         }
     }
 }

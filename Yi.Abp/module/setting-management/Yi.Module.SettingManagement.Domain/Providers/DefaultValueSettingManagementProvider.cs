@@ -15,19 +15,19 @@ public class DefaultValueSettingManagementProvider : ISettingManagementProvider,
     public string Name => DefaultValueSettingValueProvider.ProviderName;
 
     /// <summary>返回 <see cref="SettingDefinition.DefaultValue"/>。</summary>
-    public virtual Task<string> GetOrNullAsync(SettingDefinition setting, string providerKey)
+    public virtual Task<string?> GetOrNullAsync(SettingDefinition setting, string? providerKey)
     {
         return Task.FromResult(setting.DefaultValue);
     }
 
     /// <summary>不支持设置默认值，调用则抛出异常。</summary>
-    public virtual Task SetAsync(SettingDefinition setting, string value, string providerKey)
+    public virtual Task SetAsync(SettingDefinition setting, string value, string? providerKey)
     {
         throw new AbpException($"Can not set default value of a setting. It is only possible while defining the setting in a {typeof(ISettingDefinitionProvider)} implementation.");
     }
 
     /// <summary>不支持清除默认值，调用则抛出异常。</summary>
-    public virtual Task ClearAsync(SettingDefinition setting, string providerKey)
+    public virtual Task ClearAsync(SettingDefinition setting, string? providerKey)
     {
         throw new AbpException($"Can not clear default value of a setting. It is only possible while defining the setting in a {typeof(ISettingDefinitionProvider)} implementation.");
     }

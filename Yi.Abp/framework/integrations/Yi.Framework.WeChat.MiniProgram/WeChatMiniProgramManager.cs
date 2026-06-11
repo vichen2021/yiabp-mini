@@ -40,9 +40,9 @@ public class WeChatMiniProgramManager : IWeChatMiniProgramManager, ISingletonDep
             HttpResponseMessage response = await httpClient.GetAsync(builder.ToString());
             var responseBody = await response.Content.ReadFromJsonAsync<Code2SessionResponse>();
 
-            responseBody.ValidateSuccess();
+            responseBody!.ValidateSuccess();
 
-            return responseBody;
+            return responseBody!;
         }
     }
 
@@ -64,14 +64,14 @@ public class WeChatMiniProgramManager : IWeChatMiniProgramManager, ISingletonDep
             data = input.data,
             miniprogram_state = _options.Notice?.State??"formal"
         };
-        req.template_id=req.template_id?? _options.Notice?.TemplateId;
+        req.template_id=req.template_id?? _options.Notice?.TemplateId!;
  
         using (HttpClient httpClient = new HttpClient())
         {
             var body =new StringContent(JsonConvert.SerializeObject(req));
             HttpResponseMessage response = await httpClient.PostAsync(url, body);
             var responseBody = await response.Content.ReadFromJsonAsync<SubscribeNoticeResponse>();
-            responseBody.ValidateSuccess();
+            responseBody!.ValidateSuccess();
         }
     }
 }

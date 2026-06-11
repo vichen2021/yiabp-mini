@@ -52,7 +52,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <summary>
         /// 根据字典类型获取字典列表
         /// </summary>
-        /// <param name="dicType"></param>
+        /// <param name="dictType"></param>
         /// <returns></returns>
         [Route("dictionary/dict-type/{dictType}")]
         [PermissionAction(PermissionActionEnum.Query)]

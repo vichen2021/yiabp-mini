@@ -13,7 +13,7 @@ internal class DefaultMinProgramToken:IMiniProgramToken
     {
         _options = options.Value;
     }
-    public async Task<string> GetTokenAsync()
+    public async Task<string?> GetTokenAsync()
     {
         var token = await this.GetAccessToken();
         return token.access_token;
@@ -34,7 +34,7 @@ internal class DefaultMinProgramToken:IMiniProgramToken
             response.EnsureSuccessStatusCode();
 
             var responseBody = await response.Content.ReadFromJsonAsync<AccessTokenResponse>();
-            return responseBody;
+            return responseBody!;
         }
     }
 }

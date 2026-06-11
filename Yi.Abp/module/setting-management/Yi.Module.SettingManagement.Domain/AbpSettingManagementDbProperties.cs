@@ -15,7 +15,7 @@ public static class AbpSettingManagementDbProperties
     /// <summary>
     /// 数据库 Schema，默认继承 ABP 公共 Schema。
     /// </summary>
-    public static string DbSchema { get; set; } = AbpCommonDbProperties.DbSchema;
+    public static string DbSchema { get; set; } = AbpCommonDbProperties.DbSchema!;
 
     /// <summary>
     /// 设置管理模块对应的连接字符串名称。

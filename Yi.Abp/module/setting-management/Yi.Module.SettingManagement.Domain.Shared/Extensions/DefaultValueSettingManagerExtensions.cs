@@ -11,7 +11,7 @@ namespace Yi.Module.SettingManagement.Domain.Shared;
 public static class DefaultValueSettingManagerExtensions
 {
     /// <summary>读取默认值维度下指定 Setting 的值。</summary>
-    public static Task<string> GetOrNullDefaultAsync(this ISettingManager settingManager, [NotNull] string name, bool fallback = true)
+    public static Task<string?> GetOrNullDefaultAsync(this ISettingManager settingManager, [NotNull] string name, bool fallback = true)
     {
         return settingManager.GetOrNullAsync(name, DefaultValueSettingValueProvider.ProviderName, null, fallback);
     }

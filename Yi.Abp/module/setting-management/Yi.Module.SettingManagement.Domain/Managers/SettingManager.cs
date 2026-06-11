@@ -45,7 +45,8 @@ public class SettingManager : ISettingManager, ISingletonDependency
             () => Options
                 .Providers
                 .Select(c => serviceProvider.GetRequiredService(c) as ISettingManagementProvider)
-                .ToList(),
+                .Where(x => x != null)
+                .ToList()!,
             true
         );
     }
@@ -53,7 +54,7 @@ public class SettingManager : ISettingManager, ISingletonDependency
     /// <summary>
     /// 读取指定 Provider 维度下的 Setting 值；<paramref name="fallback"/> 为 true 时自动回退到低优先级 Provider。
     /// </summary>
-    public virtual Task<string> GetOrNullAsync(string name, string providerName, string providerKey, bool fallback = true)
+    public virtual Task<string?> GetOrNullAsync(string name, string providerName, string? providerKey, bool fallback = true)
     {
         Check.NotNull(name, nameof(name));
         Check.NotNull(providerName, nameof(providerName));
@@ -64,7 +65,7 @@ public class SettingManager : ISettingManager, ISingletonDependency
     /// <summary>
     /// 读取指定 Provider 维度下所有 Setting 的值；<paramref name="fallback"/> 为 true 时对每个 Setting 自动回退到低优先级 Provider。
     /// </summary>
-    public virtual async Task<List<SettingValue>> GetAllAsync(string providerName, string providerKey, bool fallback = true)
+    public virtual async Task<List<SettingValue>> GetAllAsync(string providerName, string? providerKey, bool fallback = true)
     {
         Check.NotNull(providerName, nameof(providerName));
 
@@ -88,7 +89,7 @@ public class SettingManager : ISettingManager, ISingletonDependency
 
         foreach (var setting in settingDefinitions)
         {
-            string value = null;
+            string? value = null;
 
             if (setting.IsInherited)
             {
@@ -130,7 +131,7 @@ public class SettingManager : ISettingManager, ISingletonDependency
     /// 写入 Setting 值到指定 Provider 维度。
     /// 若值与下一级 Provider 的回退值相同，且 <paramref name="forceToSet"/> 为 false，则自动清除当前维度的存储。
     /// </summary>
-    public virtual async Task SetAsync(string name, string value, string providerName, string providerKey, bool forceToSet = false)
+    public virtual async Task SetAsync(string name, string? value, string providerName, string? providerKey, bool forceToSet = false)
     {
         Check.NotNull(name, nameof(name));
         Check.NotNull(providerName, nameof(providerName));
@@ -185,7 +186,7 @@ public class SettingManager : ISettingManager, ISingletonDependency
     /// <summary>
     /// 内部实现：遍历 Provider 链并返回最高优先级的非空值，同时封装加密解密逻辑。
     /// </summary>
-    protected virtual async Task<string> GetOrNullInternalAsync(string name, string providerName, string providerKey, bool fallback = true)
+    protected virtual async Task<string?> GetOrNullInternalAsync(string name, string providerName, string? providerKey, bool fallback = true)
     {
         var setting =await SettingDefinitionManager.GetAsync(name);
         var providers = Enumerable

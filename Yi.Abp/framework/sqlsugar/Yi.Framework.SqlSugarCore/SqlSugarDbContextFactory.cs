@@ -134,7 +134,7 @@ namespace Yi.Framework.SqlSugarCore
         /// </summary>
         /// <param name="configAction">配置操作委托</param>
         /// <returns>连接配置对象</returns>
-        protected virtual ConnectionConfig BuildConnectionConfig(Action<ConnectionConfig> configAction = null)
+        protected virtual ConnectionConfig BuildConnectionConfig(Action<ConnectionConfig>? configAction = null)
         {
             var dbConnOptions = DbConnectionOptions;
 

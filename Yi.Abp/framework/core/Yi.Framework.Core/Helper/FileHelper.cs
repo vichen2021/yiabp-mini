@@ -66,14 +66,14 @@ namespace Yi.Framework.Core.Helper
         #endregion
 
         #region 根据文件大小获取指定前缀的可用文件名
-        /// <summary>
-        /// 根据文件大小获取指定前缀的可用文件名
-        /// </summary>
-        /// <param name="folderPath">文件夹</param>
-        /// <param name="prefix">文件前缀</param>
-        /// <param name="size">文件大小(1m)</param>
-        /// <param name="ext">文件后缀(.log)</param>
-        /// <returns>可用文件名</returns>
+        // /// <summary>
+        // /// 根据文件大小获取指定前缀的可用文件名
+        // /// </summary>
+        // /// <param name="folderPath">文件夹</param>
+        // /// <param name="prefix">文件前缀</param>
+        // /// <param name="size">文件大小(1m)</param>
+        // /// <param name="ext">文件后缀(.log)</param>
+        // /// <returns>可用文件名</returns>
         //public static string GetAvailableFileWithPrefixOrderSize(string folderPath, string prefix, int size = 1 * 1024 * 1024, string ext = ".log")
         //{
         //    var allFiles = new DirectoryInfo(folderPath);
@@ -244,7 +244,7 @@ namespace Yi.Framework.Core.Helper
         /// <summary>
         /// 拷贝文件
         /// </summary>
-        /// <param name="OrignFile">原始文件</param>
+        /// <param name="orignFile">原始文件</param>
         /// <param name="NewFile">新文件路径</param>
         public static void FileCoppy(string orignFile, string NewFile)
         {
@@ -285,7 +285,7 @@ namespace Yi.Framework.Core.Helper
         /// <summary>
         /// 移动文件
         /// </summary>
-        /// <param name="OrignFile">原始路径</param>
+        /// <param name="orignFile">原始路径</param>
         /// <param name="NewFile">新路径</param>
         public static void FileMove(string orignFile, string NewFile)
         {
@@ -306,7 +306,7 @@ namespace Yi.Framework.Core.Helper
         /// <summary>
         /// 在当前目录下创建目录
         /// </summary>
-        /// <param name="OrignFolder">当前目录</param>
+        /// <param name="orignFolder">当前目录</param>
         /// <param name="NewFloder">新目录</param>
         public static void FolderCreate(string orignFolder, string NewFloder)
         {

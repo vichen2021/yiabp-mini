@@ -32,18 +32,18 @@ public class SqlSugarCoreAuditLogRepository : SqlSugarRepository<AuditLogAggrega
     }
 
     public virtual async Task<List<AuditLogAggregateRoot>> GetListAsync(
-        string sorting = null,
+        string? sorting = null,
         int maxResultCount = 50,
         int skipCount = 0,
         DateTime? startTime = null,
         DateTime? endTime = null,
-        string httpMethod = null,
-        string url = null,
+        string? httpMethod = null,
+        string? url = null,
         Guid? userId = null,
-        string userName = null,
-        string applicationName = null,
-        string clientIpAddress = null,
-        string correlationId = null,
+        string? userName = null,
+        string? applicationName = null,
+        string? clientIpAddress = null,
+        string? correlationId = null,
         int? maxExecutionDuration = null,
         int? minExecutionDuration = null,
         bool? hasException = null,
@@ -77,13 +77,13 @@ public class SqlSugarCoreAuditLogRepository : SqlSugarRepository<AuditLogAggrega
     public virtual async Task<long> GetCountAsync(
         DateTime? startTime = null,
         DateTime? endTime = null,
-        string httpMethod = null,
-        string url = null,
+        string? httpMethod = null,
+        string? url = null,
         Guid? userId = null,
-        string userName = null,
-        string applicationName = null,
-        string clientIpAddress = null,
-        string correlationId = null,
+        string? userName = null,
+        string? applicationName = null,
+        string? clientIpAddress = null,
+        string? correlationId = null,
         int? maxExecutionDuration = null,
         int? minExecutionDuration = null,
         bool? hasException = null,
@@ -114,13 +114,13 @@ public class SqlSugarCoreAuditLogRepository : SqlSugarRepository<AuditLogAggrega
     protected virtual async Task<ISugarQueryable<AuditLogAggregateRoot>> GetListQueryAsync(
         DateTime? startTime = null,
         DateTime? endTime = null,
-        string httpMethod = null,
-        string url = null,
+        string? httpMethod = null,
+        string? url = null,
         Guid? userId = null,
-        string userName = null,
-        string applicationName = null,
-        string clientIpAddress = null,
-        string correlationId = null,
+        string? userName = null,
+        string? applicationName = null,
+        string? clientIpAddress = null,
+        string? correlationId = null,
         int? maxExecutionDuration = null,
         int? minExecutionDuration = null,
         bool? hasException = null,
@@ -153,11 +153,11 @@ public class SqlSugarCoreAuditLogRepository : SqlSugarRepository<AuditLogAggrega
         var result = await _DbQueryable
             .Where(a => a.ExecutionTime < endDate.AddDays(1) && a.ExecutionTime > startDate)
             .OrderBy(t => t.ExecutionTime)
-            .GroupBy(t => new { t.ExecutionTime.Value.Date })
+            .GroupBy(t => new { t.ExecutionTime!.Value.Date })
             .Select(g => new { Day = SqlFunc.AggregateMin(g.ExecutionTime), avgExecutionTime = SqlFunc.AggregateAvg(g.ExecutionDuration) })
             .ToListAsync();
 
-        return result.ToDictionary(element => element.Day.Value.ClearTime(), element => (double)element.avgExecutionTime);
+        return result.ToDictionary(element => element.Day!.Value.ClearTime(), element => (double)element.avgExecutionTime!);
     }
 
 
@@ -179,15 +179,15 @@ public class SqlSugarCoreAuditLogRepository : SqlSugarRepository<AuditLogAggrega
     }
 
     public virtual async Task<List<EntityChangeEntity>> GetEntityChangeListAsync(
-        string sorting = null,
+        string? sorting = null,
         int maxResultCount = 50,
         int skipCount = 0,
         Guid? auditLogId = null,
         DateTime? startTime = null,
         DateTime? endTime = null,
         EntityChangeType? changeType = null,
-        string entityId = null,
-        string entityTypeFullName = null,
+        string? entityId = null,
+        string? entityTypeFullName = null,
         bool includeDetails = false,
         CancellationToken cancellationToken = default)
     {
@@ -202,8 +202,8 @@ public class SqlSugarCoreAuditLogRepository : SqlSugarRepository<AuditLogAggrega
         DateTime? startTime = null,
         DateTime? endTime = null,
         EntityChangeType? changeType = null,
-        string entityId = null,
-        string entityTypeFullName = null,
+        string? entityId = null,
+        string? entityTypeFullName = null,
         CancellationToken cancellationToken = default)
     {
         var query = await GetEntityChangeListQueryAsync(auditLogId, startTime, endTime, changeType, entityId, entityTypeFullName);
@@ -222,7 +222,7 @@ public class SqlSugarCoreAuditLogRepository : SqlSugarRepository<AuditLogAggrega
         return new EntityChangeWithUsername()
         {
             EntityChange = auditLog.EntityChanges.First(x => x.Id == entityChangeId),
-            UserName = auditLog.UserName
+            UserName = auditLog.UserName!
         };
     }
 
@@ -236,7 +236,7 @@ public class SqlSugarCoreAuditLogRepository : SqlSugarRepository<AuditLogAggrega
         var query = dbContext.Queryable<EntityChangeEntity>()
                             .Where(x => x.EntityId == entityId && x.EntityTypeFullName == entityTypeFullName);
         return await query.LeftJoin<AuditLogAggregateRoot>((x, audit) => x.AuditLogId == audit.Id)
-             .Select((x, audit) => new EntityChangeWithUsername { EntityChange = x, UserName = audit.UserName })
+             .Select((x, audit) => new EntityChangeWithUsername { EntityChange = x, UserName = audit.UserName! })
                 .OrderByDescending(x => x.EntityChange.ChangeTime).ToListAsync();
     }
 
@@ -245,8 +245,8 @@ public class SqlSugarCoreAuditLogRepository : SqlSugarRepository<AuditLogAggrega
         DateTime? startTime = null,
         DateTime? endTime = null,
         EntityChangeType? changeType = null,
-        string entityId = null,
-        string entityTypeFullName = null,
+        string? entityId = null,
+        string? entityTypeFullName = null,
         bool includeDetails = false)
     {
         return (await GetDbContextAsync())

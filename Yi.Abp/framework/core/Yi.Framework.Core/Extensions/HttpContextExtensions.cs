@@ -17,7 +17,7 @@ namespace Yi.Framework.Core.Extensions
         public static void FileInlineHandle(this HttpContext httpContext, string fileName)
         {
             var encodeFilename = System.Web.HttpUtility.UrlEncode(fileName, Encoding.UTF8);
-            httpContext.Response.Headers.Add("Content-Disposition", $"inline;filename={encodeFilename}");
+            httpContext.Response.Headers["Content-Disposition"] = $"inline;filename={encodeFilename}";
         }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace Yi.Framework.Core.Extensions
         public static void FileAttachmentHandle(this HttpContext httpContext, string fileName)
         {
             var encodeFilename = System.Web.HttpUtility.UrlEncode(fileName, Encoding.UTF8);
-            httpContext.Response.Headers.Add("Content-Disposition", $"attachment;filename={encodeFilename}");
+            httpContext.Response.Headers["Content-Disposition"] = $"attachment;filename={encodeFilename}";
         }
 
         /// <summary>

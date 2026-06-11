@@ -15,7 +15,7 @@ namespace Yi.Framework.Core.Helper
                 IList<T> result = new List<T>();
                 
                 // 安全地获取最小ParentId，如果列表为空则返回Guid.Empty
-                var parentIds = list.Select(m => (m as ITreeModel<T>)?.ParentId).Where(id => id.HasValue).Select(id => id.Value);
+                var parentIds = list.Select(m => (m as ITreeModel<T>)?.ParentId).Where(id => id.HasValue).Select(id => id!.Value);
                 if (!parentIds.Any())
                 {
                     return new List<T>();

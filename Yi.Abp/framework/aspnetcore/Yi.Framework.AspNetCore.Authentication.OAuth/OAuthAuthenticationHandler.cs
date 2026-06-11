@@ -10,8 +10,6 @@ namespace Yi.Framework.AspNetCore.Authentication.OAuth
     public abstract class OauthAuthenticationHandler<TOptions> : AuthenticationHandler<TOptions> where TOptions : AuthenticationSchemeOptions, new()
     {
         public abstract string AuthenticationSchemeNmae { get; }
-        private AuthenticationScheme _scheme;
-
         public OauthAuthenticationHandler(IOptionsMonitor<TOptions> options, ILoggerFactory logger, UrlEncoder encoder, IHttpClientFactory httpClientFactory) : base(options, logger, encoder)
         {
             HttpClientFactory = httpClientFactory;

@@ -4,36 +4,35 @@ namespace Yi.Module.Rbac.Application.Contracts.Dtos.Config
 {
     public class ConfigGetListOutputDto : EntityDto<Guid>
     {
-        public Guid Id { get; set; }
         /// <summary>
-        /// ÅäÖÃÃû³Æ
+        /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         public string ConfigName { get; set; } = string.Empty;
 
         /// <summary>
-        /// ÅäÖÃÖ÷¼ü
+        /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         public string ConfigKey { get; set; } = string.Empty;
         /// <summary>
-        /// ÅäÖÃÖµ
+        /// ï¿½ï¿½ï¿½ï¿½Öµ
         /// </summary>
         public string ConfigValue { get; set; } = string.Empty;
         /// <summary>
-        /// ÅäÖÃÀàÐÍ
+        /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         /// </summary>
         public string? ConfigType { get; set; }
         /// <summary>
-        /// ÅÅÐò×Ö¶Î
+        /// ï¿½ï¿½ï¿½ï¿½ï¿½Ö¶ï¿½
         /// </summary>
         public int OrderNum { get; set; }
 
         /// <summary>
-        /// ±¸×¢
+        /// ï¿½ï¿½×¢
         /// </summary>
         public string? Remark { get; set; }
 
         /// <summary>
-        /// ´´½¨Ê±¼ä
+        /// ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
         /// </summary>
         public DateTime CreationTime { get; set; }
     }
