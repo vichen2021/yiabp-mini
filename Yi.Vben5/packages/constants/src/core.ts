@@ -21,8 +21,3 @@ export const SUPPORT_LANGUAGES: LanguageOption[] = [
     value: 'en-US',
   },
 ];
-
-/**
- * 默认租户ID
- */
-export const DEFAULT_TENANT_ID = '000000';

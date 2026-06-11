@@ -2,7 +2,6 @@
 import { useRoute, useRouter } from 'vue-router';
 
 import { useAppConfig, useTabs } from '@vben/hooks';
-import { stringify } from '@vben/request';
 import { useAccessStore } from '@vben/stores';
 
 import { useEventListener } from '@vueuse/core';
@@ -14,20 +13,21 @@ const route = useRoute();
 const definitionId = route.query.definitionId as string;
 const disabled = route.query.disabled === 'true';
 
-const { clientId } = useAppConfig(import.meta.env, import.meta.env.PROD);
+const appConfig = useAppConfig(import.meta.env, import.meta.env.PROD) as any;
+const clientId = appConfig.clientId ?? import.meta.env.VITE_GLOB_APP_CLIENT_ID;
 
 const accessStore = useAccessStore();
 const params = {
   Authorization: `Bearer ${accessStore.accessToken}`,
   id: definitionId,
-  clientid: clientId,
-  disabled,
+  clientid: String(clientId),
+  disabled: String(disabled),
 };
 
 /**
  * iframe设计器的地址
  */
-const url = `${import.meta.env.VITE_GLOB_API_URL}/warm-flow-ui/index.html?${stringify(params)}`;
+const url = `${import.meta.env.VITE_GLOB_API_URL}/warm-flow-ui/index.html?${new URLSearchParams(params).toString()}`;
 
 const { closeCurrentTab } = useTabs();
 const router = useRouter();

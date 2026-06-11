@@ -29,8 +29,6 @@ const STORAGE_KEYS = {
   THEME: 'preferences-theme',
 } as const;
 
-const DEFAULT_STORAGE_NAMESPACE = 'vben-preferences';
-
 class PreferenceManager {
   private cache: StorageManager;
   private customPreferencesExtension: null | PreferencesExtension<any> = null;
@@ -42,7 +40,7 @@ class PreferenceManager {
   private state: Preferences;
 
   constructor() {
-    this.cache = new StorageManager({ prefix: DEFAULT_STORAGE_NAMESPACE });
+    this.cache = new StorageManager({ prefix: 'vben-preferences-init' });
     // 构造函数不再同步读取缓存，使用默认值初始化
     // 真正的缓存加载在 initPreferences 中完成（已经是 async）
     this.state = reactive<Preferences>({ ...defaultPreferences });
@@ -124,9 +122,7 @@ class PreferenceManager {
     }
 
     // 使用命名空间初始化存储管理器
-    this.cache = new StorageManager({
-      prefix: namespace || DEFAULT_STORAGE_NAMESPACE,
-    });
+    this.cache = new StorageManager({ prefix: namespace });
 
     // 合并初始偏好设置：前面的对象优先，后面的对象仅补齐缺失字段
     this.initialPreferences = merge({}, overrides, defaultPreferences);

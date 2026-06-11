@@ -8,10 +8,8 @@ import { useAppConfig } from '@vben/hooks';
 
 import { requestClient } from '#/api/request';
 
-const { clientId } = useAppConfig(
-  import.meta.env,
-  import.meta.env.PROD,
-);
+const appConfig = useAppConfig(import.meta.env, import.meta.env.PROD) as any;
+const clientId = appConfig.clientId ?? import.meta.env.VITE_GLOB_APP_CLIENT_ID;
 
 export namespace AuthApi {
   /**

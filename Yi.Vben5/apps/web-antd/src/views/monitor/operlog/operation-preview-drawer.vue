@@ -8,7 +8,7 @@ import {
   VbenDescriptions,
   VbenDescriptionsItem,
 } from '@vben/common-ui';
-import { DictEnum } from '@vben/constants';
+import { DictEnum } from '#/constants';
 
 import { Tag } from 'antdv-next';
 

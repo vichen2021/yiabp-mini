@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import type { LoginAndRegisterParams, VbenFormSchema } from '@vben/common-ui';
+import type { VbenFormSchema } from '@vben/common-ui';
+import type { Recordable } from '@vben/types';
 
 import type { TenantResp } from '#/api/core/auth';
 import type { CaptchaResponse } from '#/api/core/captcha';
@@ -7,7 +8,7 @@ import type { CaptchaResponse } from '#/api/core/captcha';
 import { computed, onMounted, ref, useTemplateRef } from 'vue';
 
 import { AuthenticationLogin, z } from '@vben/common-ui';
-import { DEFAULT_TENANT_ID } from '@vben/constants';
+import { DEFAULT_TENANT_ID } from '#/constants';
 import { $t } from '@vben/locales';
 
 import { omit } from 'lodash-es';
@@ -153,7 +154,7 @@ const formSchema = computed((): VbenFormSchema[] => {
   return schemas;
 });
 
-async function handleAccountLogin(values: LoginAndRegisterParams) {
+async function handleAccountLogin(values: Recordable<any>) {
   try {
     const requestParam: any = omit(values, ['code']);
     // 验证码

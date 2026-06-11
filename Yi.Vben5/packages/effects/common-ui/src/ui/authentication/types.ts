@@ -3,7 +3,6 @@ interface AuthenticationProps {
    * @zh_CN 验证码登录路径
    */
   codeLoginPath?: string;
-
   /**
    * @zh_CN 忘记密码路径
    */
@@ -28,7 +27,6 @@ interface AuthenticationProps {
    * @zh_CN 是否显示验证码登录
    */
   showCodeLogin?: boolean;
-
   /**
    * @zh_CN 是否显示忘记密码
    */
@@ -69,49 +67,30 @@ interface AuthenticationProps {
   submitButtonText?: string;
 }
 
-/**
- * 登录类型
- * password 密码
- * sms 短信
- * social 第三方oauth
- * email 邮箱
- * xcx 小程序
- */
-type GrantType = 'email' | 'password' | 'sms' | 'social' | 'xcx';
+type GrantType =
+  | 'authorization_code'
+  | 'client_credentials'
+  | 'password'
+  | 'refresh_token'
+  | string;
 
 interface LoginAndRegisterParams {
+  captcha?: string;
   code?: string;
   grantType: GrantType;
   password: string;
   tenantId: string;
   username: string;
   uuid?: string;
+  [key: string]: any;
 }
 
-interface LoginCodeParams {
-  tenantId: string;
-  code: string;
-  phoneNumber: string;
-}
-
-interface LoginEmits {
-  submit: [LoginAndRegisterParams];
-}
-
-interface LoginCodeEmits {
-  submit: [LoginCodeParams];
-}
-
-interface RegisterEmits {
-  submit: [LoginAndRegisterParams];
-}
+type LoginCodeParams = Partial<LoginAndRegisterParams> &
+  Pick<LoginAndRegisterParams, 'tenantId'>;
 
 export type {
   AuthenticationProps,
   GrantType,
   LoginAndRegisterParams,
-  LoginCodeEmits,
   LoginCodeParams,
-  LoginEmits,
-  RegisterEmits,
 };

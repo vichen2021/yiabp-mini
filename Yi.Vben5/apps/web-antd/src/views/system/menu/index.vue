@@ -135,7 +135,7 @@ const cascadingDeletion = ref(false);
 async function handleDelete(row: MenuRow) {
   if (cascadingDeletion.value) {
     // 级联删除
-    const menuAndChildren = treeToList<MenuRow[]>([row], { id: 'menuId' });
+    const menuAndChildren = treeToList<MenuRow>([row], { id: 'menuId' });
     const menuIds = menuAndChildren.map((item) => String(item.menuId));
     await menuCascadeRemove(menuIds);
   } else {
@@ -150,7 +150,7 @@ function removeConfirmTitle(row: MenuRow) {
   if (!cascadingDeletion.value) {
     return `是否确认删除 [${menuName}] ?`;
   }
-  const menuAndChildren = treeToList<MenuRow[]>([row], { id: 'menuId' });
+  const menuAndChildren = treeToList<MenuRow>([row], { id: 'menuId' });
   if (menuAndChildren.length === 1) {
     return `是否确认删除 [${menuName}] ?`;
   }

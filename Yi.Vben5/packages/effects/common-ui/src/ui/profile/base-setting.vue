@@ -25,6 +25,7 @@ const emit = defineEmits<{
 const [Form, formApi] = useVbenForm(
   reactive({
     commonConfig: {
+      // 所有表单项
       componentProps: {
         class: 'w-full',
       },
@@ -47,7 +48,6 @@ defineExpose({
   getFormApi: () => formApi,
 });
 </script>
-
 <template>
   <div @keydown.enter.prevent="handleSubmit">
     <Form />

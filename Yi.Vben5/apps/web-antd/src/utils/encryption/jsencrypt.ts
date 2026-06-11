@@ -3,10 +3,14 @@ import { useAppConfig } from '@vben/hooks';
 
 import JSEncrypt from 'jsencrypt';
 
-const { rsaPrivateKey, rsaPublicKey } = useAppConfig(
+const appConfig = useAppConfig(
   import.meta.env,
   import.meta.env.PROD,
-);
+) as any;
+const rsaPrivateKey =
+  appConfig.rsaPrivateKey ?? import.meta.env.VITE_GLOB_RSA_PRIVATE_KEY;
+const rsaPublicKey =
+  appConfig.rsaPublicKey ?? import.meta.env.VITE_GLOB_RSA_PUBLIC_KEY;
 
 /**
  * 加密

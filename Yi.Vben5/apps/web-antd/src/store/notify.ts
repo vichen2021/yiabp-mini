@@ -2,7 +2,6 @@ import type { NotificationItem } from '@vben/layouts';
 
 import { computed, ref } from 'vue';
 
-import { SvgMessageUrl } from '@vben/icons';
 import { $t } from '@vben/locales';
 import { useUserStore } from '@vben/stores';
 
@@ -39,8 +38,9 @@ export const useNotifyStore = defineStore(
         });
 
         notificationList.value.unshift({
-          avatar: SvgMessageUrl,
+          avatar: '',
           date: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+          id: `${Date.now()}-${Math.random()}`,
           isRead: false,
           message: content,
           title: title || $t('component.notice.title'),

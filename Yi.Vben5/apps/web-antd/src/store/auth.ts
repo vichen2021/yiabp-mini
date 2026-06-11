@@ -4,7 +4,8 @@ import type { UserInfo } from '@vben/types';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { DEFAULT_TENANT_ID, LOGIN_PATH } from '@vben/constants';
+import { LOGIN_PATH } from '@vben/constants';
+import { DEFAULT_TENANT_ID } from '#/constants';
 import { preferences } from '@vben/preferences';
 import { resetAllStores, useAccessStore, useUserStore } from '@vben/stores';
 
@@ -56,7 +57,7 @@ export const useAuthStore = defineStore('auth', () => {
       /**
        * 在这里设置权限
        */
-      accessStore.setAccessCodes(userInfo.permissions);
+      accessStore.setAccessCodes(userInfo.permissions ?? []);
 
       if (accessStore.loginExpired) {
         accessStore.setLoginExpired(false);
@@ -116,21 +117,34 @@ export const useAuthStore = defineStore('auth', () => {
     if (!backUserInfo) {
       throw new Error('获取用户信息失败.');
     }
-    const { permissionCodes = [], roleCodes = [], user } = backUserInfo;
+    const {
+      codes = [],
+      permissionCodes = [],
+      permissions = [],
+      roleCodes = [],
+      roles = [],
+      user,
+    } = backUserInfo;
+    const accessCodes = permissions.length > 0
+      ? permissions
+      : permissionCodes.length > 0
+        ? permissionCodes
+        : codes;
     /**
      * 从后台user -> vben user转换
      */
     const userInfo: UserInfo = {
       avatar: user.icon,
-      permissions: permissionCodes,
+      permissions: accessCodes,
       realName: user.nick,
-      roles: roleCodes,
+      roles: roleCodes.length > 0 ? roleCodes : roles,
       userId: String(user.userId),
       username: user.userName,
       email: user.email ?? '',
     };
     console.log('userInfo', userInfo);
     userStore.setUserInfo(userInfo);
+    accessStore.setAccessCodes(accessCodes);
     /**
      * 需要重新加载字典
      * 比如退出登录切换到其他租户

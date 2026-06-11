@@ -37,8 +37,7 @@ function preventDefault(event: Event) {
   event.preventDefault();
 }
 
-function onClick(event?: MouseEvent) {
-  event?.stopPropagation();
+function onClick() {
   if (props.action.disabled) return;
   props.action.onClick?.();
 }

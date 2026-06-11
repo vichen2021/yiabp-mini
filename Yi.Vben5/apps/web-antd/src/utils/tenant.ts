@@ -1,4 +1,4 @@
-import { DEFAULT_TENANT_ID } from '@vben/constants';
+import { DEFAULT_TENANT_ID } from '#/constants';
 
 import { createGlobalState, useStorage } from '@vueuse/core';
 

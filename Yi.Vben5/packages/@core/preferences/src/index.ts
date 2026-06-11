@@ -14,8 +14,6 @@ export const {
   initPreferences,
 } = preferencesManager;
 
-export const clearPreferencesCache = clearCache;
-
 export const preferences: Preferences = getPreferences();
 
 export { preferencesManager };

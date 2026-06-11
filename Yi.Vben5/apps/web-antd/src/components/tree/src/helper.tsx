@@ -48,7 +48,7 @@ export function rowAndChildrenChecked(
  * @param menus 后台返回的menu
  */
 export function menusWithPermissions(menus: MenuOption[]) {
-  eachTree(menus, (item: MenuPermissionOption) => {
+  eachTree(menus as MenuPermissionOption[], (item: MenuPermissionOption) => {
     validateMenuTree(item);
     if (item.children && item.children.length > 0) {
       /**

@@ -1,12 +1,13 @@
 <script lang="ts" setup>
-import type { LoginCodeParams, VbenFormSchema } from '@vben/common-ui';
+import type { VbenFormSchema } from '@vben/common-ui';
+import type { Recordable } from '@vben/types';
 
 import type { TenantResp } from '#/api/core/auth';
 
 import { computed, onMounted, ref, useTemplateRef } from 'vue';
 
 import { AuthenticationCodeLogin, z } from '@vben/common-ui';
-import { DEFAULT_TENANT_ID } from '@vben/constants';
+import { DEFAULT_TENANT_ID } from '#/constants';
 import { $t } from '@vben/locales';
 
 import { Alert, message } from 'antdv-next';
@@ -112,7 +113,7 @@ const formSchema = computed((): VbenFormSchema[] => {
 });
 
 const authStore = useAuthStore();
-async function handleLogin(values: LoginCodeParams) {
+async function handleLogin(values: Recordable<any>) {
   try {
     const requestParams: any = {
       tenantId: values.tenantId,

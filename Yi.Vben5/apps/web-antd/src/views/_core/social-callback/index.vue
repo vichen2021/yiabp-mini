@@ -4,7 +4,7 @@ import type { AuthApi } from '#/api';
 import { onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { DEFAULT_TENANT_ID } from '@vben/constants';
+import { DEFAULT_TENANT_ID } from '#/constants';
 import { preferences } from '@vben/preferences';
 import { useAccessStore } from '@vben/stores';
 

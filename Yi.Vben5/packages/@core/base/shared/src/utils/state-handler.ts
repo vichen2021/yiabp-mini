@@ -1,13 +1,7 @@
 export class StateHandler {
   private condition: boolean = false;
-  private rejectCondition: (() => void) | null = null;
+  private rejectCondition: ((reason?: Error) => void) | null = null;
   private resolveCondition: (() => void) | null = null;
-
-  // 清理 resolve/reject 函数
-  private clearPromises() {
-    this.resolveCondition = null;
-    this.rejectCondition = null;
-  }
 
   isConditionTrue(): boolean {
     return this.condition;
@@ -22,7 +16,7 @@ export class StateHandler {
   setConditionFalse() {
     this.condition = false;
     if (this.rejectCondition) {
-      this.rejectCondition();
+      this.rejectCondition(new Error('Condition was set to false'));
       this.clearPromises();
     }
   }
@@ -46,5 +40,11 @@ export class StateHandler {
         this.rejectCondition = reject;
       }
     });
+  }
+
+  // 清理 resolve/reject 函数
+  private clearPromises() {
+    this.resolveCondition = null;
+    this.rejectCondition = null;
   }
 }

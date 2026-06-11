@@ -25,6 +25,7 @@ export {
 } from './typing';
 export type { CompileError } from '@intlify/core-base';
 
-export { I18nT, useI18n } from 'vue-i18n';
+export { useI18n } from 'vue-i18n';
+export { I18nT } from 'vue-i18n';
 
 export type { Locale } from 'vue-i18n';

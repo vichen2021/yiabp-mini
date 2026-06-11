@@ -1,17 +1,17 @@
 export * from './api-component';
 export * from './captcha';
-export * from './code-mirror';
 export * from './col-page';
 export * from './count-to';
+export * from './cropper';
 export * from './ellipsis-text';
 export * from './icon-picker';
-export * from './json-preview';
 export * from './json-viewer';
+export { default as JsonPreview } from './json-viewer/index.vue';
 export * from './loading';
-export * from './markdown';
 export * from './page';
 export * from './resize';
 export * from './tippy';
+export * from './tree';
 export * from '@vben-core/form-ui';
 export * from '@vben-core/popup-ui';
 
@@ -20,26 +20,32 @@ export {
   VbenAvatar,
   VbenButton,
   VbenButtonGroup,
+  VbenCheckbox,
   VbenCheckButtonGroup,
   VbenCollapsibleParams,
+  VbenContextMenu,
   VbenCountToAnimator,
   VbenDescriptions,
   VbenDescriptionsItem,
   VbenFullScreen,
-  VbenInputCaptcha,
+  VbenIconButton,
   VbenInputPassword,
   VbenLoading,
   VbenLogo,
   VbenPinInput,
+  VbenSelect,
   VbenSpinner,
   VbenTableAction,
-  VbenTree,
 } from '@vben-core/shadcn-ui';
 
 export type {
   ActionItem,
+  CollapsibleParamSchema,
   CollapsibleParamsProps,
+  DescriptionsColumn,
+  DescriptionsItemType,
   DescriptionsProps,
+  DescriptionsSize,
   FlattenedItem,
   TableActionProps,
 } from '@vben-core/shadcn-ui';

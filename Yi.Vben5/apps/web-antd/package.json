@@ -26,7 +26,7 @@
     "#/*": "./src/*"
   },
   "dependencies": {
-    "@antdv-next/icons": "catalog:",
+    "@antdv-next/icons": "^1.0.8",
     "@microsoft/signalr": "^10.0.0",
     "@tinymce/tinymce-vue": "^6.0.1",
     "@vben/access": "workspace:*",
