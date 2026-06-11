@@ -92,9 +92,9 @@ CheckResult CheckEntityFile(string file)
         result.Errors.Add("实体类名必须以 AggregateRoot 或 Entity 结尾。");
     }
 
-    if (isAggregateRoot && !Regex.IsMatch(inheritance, @"\bAggregateRoot\s*<\s*Guid\s*>", RegexOptions.Compiled))
+    if (isAggregateRoot && !Regex.IsMatch(inheritance, @"\b(?:BaseAggregateRoot|AggregateRoot)\s*<\s*Guid\s*>", RegexOptions.Compiled))
     {
-        result.Errors.Add("AggregateRoot 后缀类必须继承 AggregateRoot<Guid>。");
+        result.Errors.Add("AggregateRoot 后缀类必须继承 BaseAggregateRoot<Guid>；明确需要乐观锁时可继承 AggregateRoot<Guid>。");
     }
 
     if (isEntity && !Regex.IsMatch(inheritance, @"\bEntity\s*<\s*Guid\s*>", RegexOptions.Compiled))

@@ -10,6 +10,7 @@ using Volo.Abp.Domain;
 using Volo.Abp.Modularity;
 using Yi.Framework.Aliyun.Sms;
 using Yi.Framework.Caching.FreeRedis;
+using Yi.Framework.Ddd.Domain;
 using Yi.Module.Rbac.Domain.Shared;
 
 namespace Yi.Module.Rbac.Domain
@@ -17,6 +18,7 @@ namespace Yi.Module.Rbac.Domain
     [DependsOn(
         typeof(YiModuleRbacDomainSharedModule),
         typeof(YiFrameworkCachingFreeRedisModule),
+        typeof(YiFrameworkDddDomainModule),
         typeof(AbpAspNetCoreSignalRModule),
         typeof(AbpDddDomainModule),
         typeof(AbpCachingModule),

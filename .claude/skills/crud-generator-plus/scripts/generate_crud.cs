@@ -175,7 +175,7 @@ EnumInfo ParseEnumFile(string enumPath)
 bool IsStandardField(string name)
 {
     var standardFields = new[] { "Id", "State", "OrderNum", "Remark", "IsDeleted", "CreationTime",
-        "CreatorId", "LastModifierId", "LastModificationTime", "Children" };
+        "CreatorId", "LastModifierId", "LastModificationTime", "ConcurrencyStamp", "ExtraProperties", "Children" };
     return standardFields.Contains(name);
 }
 
@@ -187,6 +187,107 @@ bool IsSearchableField(string name, string type)
     // 搜索字段关键字（按优先级排序）
     var searchKeywords = new[] { "Name", "Title", "Code", "Key", "No", "Number", "Phone", "Email", "Address", "Description" };
     return searchKeywords.Any(k => name.EndsWith(k) || name.Contains(k));
+}
+
+List<FieldInfo> SelectListColumns(EntityInfo entity)
+{
+    const int maxBusinessColumns = 6;
+    var fields = entity.Fields
+        .Where(f => !f.IsTreeField && ShouldConsiderListColumn(f))
+        .Select((field, index) => new
+        {
+            Field = field,
+            Index = index,
+            Score = GetListColumnScore(entity, field)
+        })
+        .Where(x => x.Score > 0)
+        .OrderByDescending(x => x.Score)
+        .ThenBy(x => x.Index)
+        .Take(maxBusinessColumns)
+        .OrderBy(x => x.Index)
+        .Select(x => x.Field)
+        .ToList();
+
+    if (fields.Count == 0)
+    {
+        var fallback = entity.Fields.FirstOrDefault(f => !f.IsTreeField);
+        if (fallback != null)
+        {
+            fields.Add(fallback);
+        }
+    }
+
+    return fields;
+}
+
+bool ShouldConsiderListColumn(FieldInfo field)
+{
+    var name = field.Name;
+    if (IsStandardField(name)) return false;
+    if (name.EndsWith("Id", StringComparison.Ordinal) && field.Type == "Guid") return false;
+    if (IsLongTextField(name)) return false;
+    return true;
+}
+
+int GetListColumnScore(EntityInfo entity, FieldInfo field)
+{
+    var name = field.Name;
+    var entityName = entity.EntityName;
+
+    if (name == "Name" || name == $"{entityName}Name" || name.EndsWith("Name")) return 100;
+    if (name == "Title" || name.EndsWith("Title")) return 95;
+    if (name.EndsWith("Code") || name.EndsWith("No") || name.EndsWith("Number")) return 90;
+    if (field.IsEnum) return 80;
+    if (IsImportantBooleanField(name, field.Type)) return 70;
+    if (IsNumericField(field.Type) && IsBusinessNumericField(name)) return 65;
+    if (name.EndsWith("Phone") || name.EndsWith("Mobile") || name.EndsWith("Email")) return 60;
+    if (field.Type == "string") return 50;
+    if (field.Type == "DateTime" && IsBusinessDateField(name)) return 45;
+    if (IsNumericField(field.Type)) return 40;
+    if (field.Type == "bool") return 30;
+    return 0;
+}
+
+bool IsLongTextField(string name)
+{
+    var keywords = new[] { "Content", "Description", "Detail", "Json", "Html", "Text", "Body" };
+    return keywords.Any(k => name.Contains(k, StringComparison.OrdinalIgnoreCase));
+}
+
+bool IsImportantBooleanField(string name, string type)
+{
+    if (type != "bool") return false;
+    var keywords = new[] { "IsDefault", "IsRecommend", "IsRecommended", "IsTop", "IsHot", "IsPublic" };
+    return keywords.Any(k => name.Contains(k, StringComparison.OrdinalIgnoreCase));
+}
+
+bool IsNumericField(string type)
+{
+    return type is "int" or "long" or "decimal" or "double" or "float";
+}
+
+bool IsBusinessNumericField(string name)
+{
+    var keywords = new[] { "Price", "Amount", "Count", "Stock", "Total", "Score", "Point", "Weight", "Rate", "Level" };
+    return keywords.Any(k => name.Contains(k, StringComparison.OrdinalIgnoreCase));
+}
+
+bool IsBusinessDateField(string name)
+{
+    if (IsStandardField(name)) return false;
+    var keywords = new[] { "Start", "End", "Begin", "Expire", "Publish", "Release", "Open", "Close" };
+    return keywords.Any(k => name.Contains(k, StringComparison.OrdinalIgnoreCase));
+}
+
+string GetColumnWidth(FieldInfo field)
+{
+    if (field.IsEnum) return "120";
+    if (field.Type == "bool") return "100";
+    if (field.Type == "DateTime") return "160";
+    if (IsNumericField(field.Type)) return "100";
+    if (field.Name.EndsWith("Code") || field.Name.EndsWith("No") || field.Name.EndsWith("Number")) return "140";
+    if (field.Name.EndsWith("Name") || field.Name.EndsWith("Title")) return "160";
+    return "120";
 }
 
 string CleanType(string type)
@@ -885,23 +986,31 @@ string GenerateDataTs(EntityInfo entity, List<EnumInfo> enums)
     sb.AppendLine("];");
     sb.AppendLine();
 
-    // columns - 搜索字段（第一个作为树节点） + 枚举字段 + 标准字段
-    var firstSearchField = searchFields.FirstOrDefault();
+    // columns - 根据字段语义选择高价值业务字段 + 标准字段
+    var listColumns = SelectListColumns(entity);
     sb.AppendLine("export const columns: VxeGridProps['columns'] = [");
     sb.AppendLine("  { type: 'checkbox', width: 60 },");
-    if (firstSearchField != null)
+    for (var i = 0; i < listColumns.Count; i++)
     {
-        sb.AppendLine($"  {{ title: '{firstSearchField.Comment}', field: '{ToLower(firstSearchField.Name)}' {(entity.IsTree ? ", treeNode: true" : "")} }},");
-    }
-    foreach (var field in enumFields)
-    {
-        var dictConst = $"{moduleConst}_{ToSnakeCaseUpper(field.EnumType?.Replace("Enum", "").Replace(entity.EntityName, ""))}";
-        sb.AppendLine($"  {{");
-        sb.AppendLine($"    title: '{field.Comment}',");
-        sb.AppendLine($"    field: '{ToLower(field.Name)}',");
-        sb.AppendLine($"    width: 120,");
-        sb.AppendLine($"    slots: {{ default: ({{ row }}) => renderDict(row.{ToLower(field.Name)}, DictEnum.{dictConst}) }},");
-        sb.AppendLine($"  }},");
+        var field = listColumns[i];
+        if (field.IsEnum)
+        {
+            var dictConst = $"{moduleConst}_{ToSnakeCaseUpper(field.EnumType?.Replace("Enum", "").Replace(entity.EntityName, ""))}";
+            sb.AppendLine($"  {{");
+            sb.AppendLine($"    title: '{field.Comment}',");
+            sb.AppendLine($"    field: '{ToLower(field.Name)}',");
+            sb.AppendLine($"    width: {GetColumnWidth(field)},");
+            if (entity.IsTree && i == 0)
+            {
+                sb.AppendLine($"    treeNode: true,");
+            }
+            sb.AppendLine($"    slots: {{ default: ({{ row }}) => renderDict(row.{ToLower(field.Name)}, DictEnum.{dictConst}) }},");
+            sb.AppendLine($"  }},");
+        }
+        else
+        {
+            sb.AppendLine($"  {{ title: '{field.Comment}', field: '{ToLower(field.Name)}', width: {GetColumnWidth(field)}{(entity.IsTree && i == 0 ? ", treeNode: true" : "")} }},");
+        }
     }
     sb.AppendLine("  { title: '排序', field: 'orderNum', width: 80 },");
     sb.AppendLine("  { title: '状态', field: 'state', width: 100, slots: { default: ({ row }) => renderDict(String(row.state), DictEnum.SYS_NORMAL_DISABLE) } },");

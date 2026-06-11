@@ -1,8 +1,8 @@
 ﻿using SqlSugar;
 using Volo.Abp;
 using Volo.Abp.Auditing;
-using Volo.Abp.Domain.Entities;
 using Yi.Framework.Core.Data;
+using Yi.Framework.Ddd.Domain;
 
 namespace Yi.Module.Rbac.Domain.Entities
 {
@@ -10,7 +10,7 @@ namespace Yi.Module.Rbac.Domain.Entities
     /// 岗位表
     ///</summary>
     [SugarTable("Post")]
-    public  class PostAggregateRoot : AggregateRoot<Guid>, ISoftDelete, IAuditedObject, IOrderNum, IState
+    public  class PostAggregateRoot : BaseAggregateRoot<Guid>, ISoftDelete, IAuditedObject, IOrderNum, IState
     {
 
         /// <summary>
