@@ -196,6 +196,8 @@ dotnet run --file .claude/skills/crud-generator-plus/scripts/check_entities.cs -
 
 **关键**：只有实体规范检查通过后，才能执行 CRUD 生成脚本。脚本通常只需要几秒，脚本完成后必须立即并行启动两个子 Agent：种子数据 Agent 和生成后优化检查 Agent。主线程只负责调度、等待结果、汇总 diff 和执行最终构建验证，不要在主线程手工完成大段优化。
 
+**Vben 5.7 基线**：生成的前端代码必须使用 `antdv-next`，不得再从 `ant-design-vue` 导入组件；应用内字典常量从 `#/constants` 导入。
+
 ### 3a: 调用脚本生成代码
 
 ```bash
@@ -222,7 +224,7 @@ Application/Services/{Entity}Service.cs              ← 包含 [OperLogEntity("
 **前端（5个文件）**:
 ```
 Yi.Vben5/apps/web-antd/src/
-├── api/{module}/{entity}/
+├── api/{entity}/
 │   ├── model.d.ts
 │   └── index.ts                      ← 包含 selectList API
 └── views/{module}/{entity}/
@@ -557,7 +559,7 @@ dotnet build Yi.Abp/module/{module}/Yi.Module.{Module}.Application/Yi.Module.{Mo
 **pnpm TypeScript 检查**（仅检查生成的模块目录，避免全项目检查耗时）：
 
 ```bash
-cd Yi.Vben5 && pnpm run check:type --filter="@vben/web-antd" 2>&1 | grep -E "({module}|error TS)" || echo "前端类型检查通过"
+pnpm -F @vben/web-antd run typecheck
 ```
 
 **文件质量检查**：
@@ -585,7 +587,7 @@ grep DictEnum Yi.Vben5/apps/web-antd/src/views/{module}/{entity}/data.ts
 | DTO 输出 | `{Entity}GetOutputDto` | `{Entity}` |
 | 服务接口 | `I{Entity}Service` | - |
 | 服务实现 | `{Entity}Service` | - |
-| API 路径 | `/api/{module}/{entity}` | `/{module}/{entity}` (requestClient 自动添加 /api) |
+| API 路径 | `/api/{entity}` | `/{entity}` (requestClient 自动添加 /api) |
 | 权限码 | `{module}:{entity}:{action}` | - |
 | 字典常量 | - | `{MODULE}_{ENUM}` (不含实体名) |
 | 字典类型 | `{module}_{enum_lower}` | - |

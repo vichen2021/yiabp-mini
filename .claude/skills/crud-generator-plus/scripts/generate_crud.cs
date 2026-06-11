@@ -957,7 +957,7 @@ string GenerateDataTs(EntityInfo entity, List<EnumInfo> enums)
     var sb = new StringBuilder();
     sb.AppendLine("import type { FormSchemaGetter } from '#/adapter/form';");
     sb.AppendLine("import type { VxeGridProps } from '#/adapter/vxe-table';");
-    sb.AppendLine("import { DictEnum } from '@vben/constants';");
+    sb.AppendLine("import { DictEnum } from '#/constants';");
     sb.AppendLine("import { getPopupContainer } from '@vben/utils';");
     sb.AppendLine("import { getDictOptions } from '#/utils/dict';");
     sb.AppendLine("import { renderDict } from '#/utils/render';");
@@ -1083,11 +1083,11 @@ string GenerateIndexVue(EntityInfo entity)
     }
     if (entity.IsTree)
     {
-        sb.AppendLine("import { Popconfirm, Space } from 'ant-design-vue';");
+        sb.AppendLine("import { Popconfirm, Space } from 'antdv-next';");
     }
     else
     {
-        sb.AppendLine("import { Modal, Popconfirm, Space } from 'ant-design-vue';");
+        sb.AppendLine("import { Popconfirm, Space } from 'antdv-next';");
     }
     sb.AppendLine();
     if (entity.IsTree)
@@ -1225,13 +1225,11 @@ string GenerateIndexVue(EntityInfo entity)
 
     if (!entity.IsTree)
     {
-        sb.AppendLine("function handleMultiDelete() {");
+        sb.AppendLine("async function handleMultiDelete() {");
         sb.AppendLine("  const rows = tableApi.grid.getCheckboxRecords();");
         sb.AppendLine($"  const ids = rows.map((row: {entity.EntityName}) => row.id);");
-        sb.AppendLine("  Modal.confirm({");
-        sb.AppendLine($"    title: '提示', okType: 'danger', content: `确认删除选中的${{ids.length}}条记录吗？`,");
-        sb.AppendLine($"    onOk: async () => {{ await {entity.EntityNameLower}Remove(ids); await tableApi.query(); }},");
-        sb.AppendLine("  });");
+        sb.AppendLine($"  await {entity.EntityNameLower}Remove(ids);");
+        sb.AppendLine("  await tableApi.query();");
         sb.AppendLine("}");
     }
 
