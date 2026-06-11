@@ -21,6 +21,7 @@
   <Folder Name="/framework/ddd/">
     <Project Path="framework/ddd/Yi.Framework.Ddd.Application.Contracts/Yi.Framework.Ddd.Application.Contracts.csproj" />
     <Project Path="framework/ddd/Yi.Framework.Ddd.Application/Yi.Framework.Ddd.Application.csproj" />
+    <Project Path="framework/ddd/Yi.Framework.Ddd.Domain/Yi.Framework.Ddd.Domain.csproj" />
   </Folder>
   <Folder Name="/framework/integrations/">
     <Project Path="framework/integrations/Yi.Framework.Aliyun.Sms/Yi.Framework.Aliyun.Sms.csproj" />

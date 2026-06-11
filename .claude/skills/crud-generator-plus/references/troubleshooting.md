@@ -11,8 +11,7 @@ Common issues and solutions when creating business modules.
 **Solution**: Use `PagedAllResultRequestDto` instead:
 
 ```csharp
-using Wj.Framework.Ddd;
-using Wj.Framework.Ddd.Application.Contracts;
+using Yi.Framework.Ddd.Application.Contracts;
 
 public class {EntityName}GetListInputVo : PagedAllResultRequestDto
 {
@@ -39,9 +38,9 @@ public class {EntityName}GetListInputVo : PagedAllResultRequestDto
 using SqlSugar;
 using Volo.Abp;
 using Volo.Abp.Auditing;
-using Volo.Abp.Domain.Entities;
-using Wj.Framework.Core.Data;
-using Wj.Framework.Ddd.Application.Contracts;
+using Yi.Framework.Core.Data;
+using Yi.Framework.Ddd.Domain;
+using Yi.Framework.Ddd.Application.Contracts;
 ```
 
 ## Menu Issues

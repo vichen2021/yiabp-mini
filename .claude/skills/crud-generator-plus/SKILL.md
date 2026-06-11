@@ -13,7 +13,8 @@ description: 快速生成完整 CRUD 代码，基于实体类.cs 直接解析生
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  Step 1: LLM 生成实体类.cs + 枚举.cs                            │
-│  - 根据用户需求生成实体类（包含默认公共/审计字段）                │
+│  - 根据用户需求生成实体类（默认继承 BaseAggregateRoot<Guid>）     │
+│  - 默认不启用 ConcurrencyStamp 乐观锁                             │
 │  - 生成枚举类（如有枚举字段）                                    │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
@@ -77,8 +78,8 @@ description: 快速生成完整 CRUD 代码，基于实体类.cs 直接解析生
 ```csharp
 using SqlSugar;
 using Volo.Abp.Auditing;
-using Volo.Abp.Domain.Entities;
 using Yi.Framework.Core.Data;
+using Yi.Framework.Ddd.Domain;
 using Yi.Module.{Module}.Domain.Shared.Enums;
 
 namespace Yi.Module.{Module}.Domain.Entities;
@@ -88,7 +89,7 @@ namespace Yi.Module.{Module}.Domain.Entities;
 /// </summary>
 [SugarTable("{Entity}")]
 [SugarIndex($"index_{nameof({NameField})}", nameof({NameField}), OrderByType.Asc)]
-public class {Entity}AggregateRoot : AggregateRoot<Guid>, ISoftDelete, IAuditedObject, IOrderNum, IState
+public class {Entity}AggregateRoot : BaseAggregateRoot<Guid>, ISoftDelete, IAuditedObject, IOrderNum, IState
 {
     /// <summary>
     /// 主键
@@ -142,6 +143,13 @@ public class {Entity}AggregateRoot : AggregateRoot<Guid>, ISoftDelete, IAuditedO
 }
 ```
 
+### 乐观锁规则
+
+- 默认实体继承 `BaseAggregateRoot<Guid>`，不包含 `ConcurrencyStamp`，CodeFirst 不会默认生成 `ConcurrencyStamp` 字段。
+- 如用户明确要求乐观锁/并发版本校验，实体可改为继承 ABP 原生 `AggregateRoot<Guid>`。
+- 启用乐观锁时必须补齐全链路：详情 DTO 返回 `ConcurrencyStamp`、UpdateInput 接收 `ConcurrencyStamp`、前端编辑提交带回原值，并处理并发异常提示。
+- 未明确要求乐观锁时，不要在实体、DTO、前端类型中生成 `ConcurrencyStamp`。
+
 ### 枚举类模板
 
 **位置**: `Yi.Abp/module/{module}/Yi.Module.{Module}.Domain.Shared/Enums/{Enum}Enum.cs`
@@ -169,7 +177,7 @@ dotnet run --file .claude/skills/crud-generator-plus/scripts/check_entities.cs -
 
 **检查要求**：
 - 实体文件名与类名一致，后缀支持 `AggregateRoot.cs` 和 `Entity.cs`
-- `AggregateRoot` 类继承 `AggregateRoot<Guid>`
+- `AggregateRoot` 后缀类默认继承 `BaseAggregateRoot<Guid>`；明确需要乐观锁时允许继承 ABP 原生 `AggregateRoot<Guid>`
 - `Entity` 类继承 `Entity<Guid>`
 - 必须包含 `[SugarTable]`
 - 必须包含 `[SugarColumn(IsPrimaryKey = true)]` 的 `Id` 主键
@@ -272,6 +280,30 @@ public bool? State { get; set; }
 // Service 查询
 .WhereIF(!string.IsNullOrEmpty(input.Name), x => x.Name.Contains(input.Name!))
 .WhereIF(input.Type is not null, x => x.Type == (ProductTypeEnum)input.Type!)
+```
+
+### 新增功能：智能列表列生成
+
+前端分页列表不再只展示第一个搜索字段。脚本会根据字段语义选择最多 6 个高价值业务字段，再追加排序、状态、备注、创建时间和操作列。
+
+**列表列选择规则**：
+
+| 字段类型/命名 | 示例 | 默认行为 |
+|------|------|------|
+| 主标题字段 | Name、{Entity}Name、Title | 优先显示，树形实体第一个列作为 treeNode |
+| 编码/编号 | Code、No、Number | 优先显示 |
+| 枚举字段 | TypeEnum、LevelEnum | 显示并使用字典渲染 |
+| 业务数值 | Price、Amount、Count、Stock、Score | 显示 |
+| 重要布尔字段 | IsDefault、IsRecommended、IsTop | 显示 |
+| 联系方式 | Phone、Mobile、Email | 显示 |
+| 外键 Guid | DeptId、UserId、CategoryId | 默认不显示原始 Guid |
+| 长文本 | Content、Description、Json、Html、Body | 默认不显示 |
+| 系统字段 | IsDeleted、CreatorId、LastModifierId、ConcurrencyStamp、ExtraProperties | 不显示 |
+
+**标准列固定追加**：
+
+```text
+OrderNum、State、Remark、CreationTime、Action
 ```
 
 ### 树形实体额外输出
