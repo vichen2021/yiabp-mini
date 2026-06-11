@@ -25,17 +25,25 @@ description: 快速生成完整 CRUD 代码，基于实体类.cs 直接解析生
 │  - 检查失败时先修复实体，不得继续生成 CRUD                       │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  Step 3a: 调用脚本生成                                           │
+│  - 解析实体类字段                                                │
+│  - 生成后端 DTOs+Service                                         │
+│  - 生成前端 API+Views                                            │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
          ┌────────────────────┴────────────────────┐
          │                                         │
 ┌─────────────────────────┐     ┌───────────────────────────────┐
-│  Step 3a: 调用脚本生成   │     │  Step 3b: Agent 生成种子数据   │
-│  - 解析实体类字段        │     │  - 菜单种子数据                │
-│  - 生成后端 DTOs+Service │     │  - 字典种子数据                │
-│  - 生成前端 API+Views    │     │  - dict-enum.ts 常量           │
+│  Step 3b: Agent 种子数据 │     │  Step 3c: Agent 生成后优化检查 │
+│  - 菜单种子数据          │     │  - 抽屉表单组件优化            │
+│  - 字典种子数据          │     │  - 列表/搜索/关联字段优化      │
+│  - dict-enum.ts 常量     │     │  - DTO/Service 联动检查        │
 └─────────────────────────┘     └───────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│  Step 4: 构建验证                                                │
+│  Step 4: 主线程验收 + 构建验证                                    │
+│  - 汇总 Agent 输出并检查 diff                                    │
 │  - 构建 Application 项目和前端 pnpm 检查                         │
 │  - 检查生成文件质量                                             │
 └─────────────────────────────────────────────────────────────────┘
@@ -184,9 +192,9 @@ dotnet run --file .claude/skills/crud-generator-plus/scripts/check_entities.cs -
 - 接口字段必须完整匹配：`ISoftDelete`、`IAuditedObject`、`IOrderNum`、`IState`
 - 所有 `public` 属性必须包含 XML `summary`
 
-## Step 3: 检查通过后并行执行脚本和种子数据 Agent
+## Step 3: 检查通过后执行脚本并启动并行 Agent
 
-**关键**：只有实体规范检查通过后，才能在同一消息中**并行**执行 CRUD 生成脚本和种子数据 Agent。
+**关键**：只有实体规范检查通过后，才能执行 CRUD 生成脚本。脚本通常只需要几秒，脚本完成后必须立即并行启动两个子 Agent：种子数据 Agent 和生成后优化检查 Agent。主线程只负责调度、等待结果、汇总 diff 和执行最终构建验证，不要在主线程手工完成大段优化。
 
 ### 3a: 调用脚本生成代码
 
@@ -367,7 +375,176 @@ SqlSugarCore/Repositories/{Entity}Repository.cs
 报告：创建的文件、菜单项、权限码、字典项、常量列表。
 ```
 
-## Step 4: 增量构建验证
+### 3c: 生成后优化检查 Agent
+
+脚本生成完成后，必须自动启动一个独立子 Agent 执行生成后优化检查。该 Agent 可与种子数据 Agent 并行运行。不要等用户再次提醒，也不要只在主线程口头检查。
+
+```markdown
+任务：对刚生成的 CRUD 代码执行生成后优化检查，并直接修改生成文件。
+
+输入：
+- 模块：{module}
+- 实体名：{Entity}
+- 实体中文名：{实体中文名}
+- 实体文件：Yi.Abp/module/{module}/Yi.Module.{Module}.Domain/Entities/{Entity}AggregateRoot.cs
+- 后端生成目录：Yi.Abp/module/{module}/Yi.Module.{Module}.Application.Contracts/Dtos/{Entity}/
+- 后端服务：Yi.Abp/module/{module}/Yi.Module.{Module}.Application/Services/{Entity}Service.cs
+- 前端 API：Yi.Vben5/apps/web-antd/src/api/{entity}/
+- 前端页面：Yi.Vben5/apps/web-antd/src/views/{module}/{entity}/
+
+操作：
+1. 搜索现有能力：
+   - `rg -n "{Entity}|{FieldName}|SelectList|selectList|ApiSelect|TreeSelect" Yi.Vben5/apps/web-antd/src Yi.Abp/module`
+   - 查找已有分类、类型、部门、用户、角色、字典、文件、图片等选择接口和组件。
+2. 检查抽屉表单：
+   - 关联 Id 字段不得保留普通 Input。
+   - 枚举/字典字段必须使用 Select + DictEnum。
+   - 金额、数量、排序使用 InputNumber。
+   - 布尔业务字段使用 Switch 或 RadioGroup。
+   - 图片/文件字段使用上传或资源选择组件。
+   - 长文本使用 Textarea 或业务组件。
+3. 检查列表和搜索：
+   - 列表不直接显示 Guid 外键。
+   - 需要展示关联名称时，补 DTO、Service 查询投影和前端列。
+   - 搜索区分类/类型/枚举/状态使用下拉，时间使用范围选择。
+4. 检查跨层一致性：
+   - 后端 DTO、Service Select 投影、前端 model.d.ts、data.ts、drawer.vue 字段一致。
+   - 跨模块关联只能依赖 Application.Contracts 或 Domain.Shared，禁止直接引用其他模块 Domain。
+5. 输出报告：
+   - 修改了哪些文件。
+   - 哪些字段从默认 Input 优化成了业务组件。
+   - 哪些字段保持默认以及原因。
+   - 是否还存在需要人工确认的关联接口或业务组件。
+```
+
+## Step 4: 主线程验收 + 构建验证
+
+主线程在两个子 Agent 都完成后再继续：
+
+- 阅读种子数据 Agent 和生成后优化 Agent 的报告。
+- 使用 `git diff -- Yi.Abp/module/{module} Yi.Vben5/apps/web-antd/src` 检查实际改动。
+- 确认没有把关联字段、枚举字段、图片文件字段机械保留为普通输入框。
+- 再执行后端和前端构建验证。
+
+### 生成后优化检查规则
+
+脚本生成的是基础 CRUD 初稿。生成完成后必须由生成后优化检查 Agent 做一次自动优化检查，尤其是前端抽屉表单、搜索项和列表列。不要把所有字段都保留为默认 `Input`，要根据字段语义和现有模块能力改成更适合业务的组件。
+
+### 4.1 先查现有能力
+
+优化前先搜索当前仓库已有模块和前端组件，不要重复造轮子：
+
+```bash
+rg -n "{EntityName}|{FieldName}|SelectList|selectList|ApiSelect|TreeSelect" Yi.Vben5/apps/web-antd/src Yi.Abp/module
+```
+
+检查重点：
+
+- 是否已有产品分类、文章分类、部门、用户、角色、字典等可复用下拉接口。
+- 是否已有 `{xxx}SelectList` API，可直接用于抽屉表单。
+- 是否已有同类页面的 `data.ts`、`drawer.vue` 写法可参考。
+- 是否字段名暗示枚举、字典、外键、文件、图片、金额、时间范围或长文本。
+
+### 4.2 抽屉表单组件优化规则
+
+| 字段场景 | 示例字段 | 默认生成问题 | 应优化为 |
+|------|------|------|------|
+| 关联分类 | ProductCategoryId、ArticleCategoryId、CategoryId | 原始 Guid 输入框不可用 | `ApiSelect` / `TreeSelect`，调用分类 `selectList` 或树接口 |
+| 关联类型 | ProductTypeId、MaterialTypeId | 原始 Guid 输入框不可用 | `ApiSelect`，调用类型下拉接口 |
+| 字典/枚举 | ProductTypeEnum、LevelEnum、StatusEnum | 普通输入框不可控 | `Select` + `getDictOptions(DictEnum.xxx)` |
+| 部门/组织 | DeptId、ParentDeptId | 输入 Guid | `TreeSelect`，复用部门树或部门下拉 |
+| 用户/角色 | UserId、RoleId | 输入 Guid | `ApiSelect` / `ApiTreeSelect`，展示名称、提交 Id |
+| 图片 | CoverImageId、AvatarId、ImageUrl | 输入字符串或 Guid | 图片上传/资源选择组件，列表展示缩略图 |
+| 文件 | FileId、AttachmentId | 输入 Guid | 文件上传/文件选择组件 |
+| 开关 | IsDefault、IsRecommended、IsTop | 普通输入框 | `Switch` 或 `RadioGroup` |
+| 金额/数量 | Price、Amount、Stock、Count、Score | 普通输入框 | `InputNumber`，必要时设置 precision/min/max |
+| 时间 | StartTime、EndTime、PublishTime | 普通输入框 | `DatePicker` / `RangePicker` |
+| 长文本 | Content、Description、Body、Json、Html | 单行输入框不合适 | `Textarea`，富文本/JSON 按业务组件处理 |
+| 排序 | OrderNum | 文本输入 | `InputNumber`，默认值 0 |
+| 状态 | State | 文本输入 | 启用/禁用 `RadioGroup` 或 `Switch` |
+
+**示例：产品功能中已有产品分类时**
+
+如果实体包含：
+
+```csharp
+public Guid ProductCategoryId { get; set; }
+```
+
+且项目已有产品分类下拉接口，则抽屉表单不能保留为输入框，应改为：
+
+```typescript
+{
+  component: 'ApiSelect',
+  componentProps: {
+    api: productCategorySelectList,
+    getPopupContainer,
+    labelField: 'categoryName',
+    valueField: 'id',
+  },
+  fieldName: 'productCategoryId',
+  label: '产品分类',
+  rules: 'selectRequired',
+}
+```
+
+如果分类是树形结构，应优先改为 `TreeSelect` 或项目已有树选择组件。
+
+**示例：产品类型已有枚举或字典时**
+
+如果字段是：
+
+```csharp
+public ProductTypeEnum ProductType { get; set; }
+```
+
+抽屉表单应使用字典下拉：
+
+```typescript
+{
+  component: 'Select',
+  componentProps: {
+    getPopupContainer,
+    options: getDictOptions(DictEnum.PRODUCT_TYPE, true),
+  },
+  fieldName: 'productType',
+  label: '产品类型',
+  rules: 'selectRequired',
+}
+```
+
+### 4.3 列表和搜索优化规则
+
+- 外键字段不要直接在列表显示 Guid；若需要展示，应补充名称字段或在查询投影中映射名称。
+- 分类、类型、状态、枚举字段应在搜索区使用下拉框，不要用输入框。
+- 金额、数量、库存、评分等数值字段可显示在列表，但搜索区不要默认生成模糊查询。
+- 长文本字段默认不进入列表；需要查看时放详情页、抽屉或单独预览。
+- 图片字段在列表中优先显示缩略图，不显示原始地址或文件 Id。
+- 时间字段用于搜索时优先使用范围选择；业务时间字段可显示，系统更新时间默认不显示。
+
+### 4.4 后端联动优化规则
+
+当前端需要展示关联名称时，不要只改前端：
+
+- DTO 增加 `{RelationName}Name` 等展示字段。
+- Service 查询中通过仓储、关联查询或应用服务补齐展示值。
+- 前端列表列显示名称字段，表单提交仍提交 Id。
+- 跨模块关联只能依赖 `Application.Contracts` 或 `Domain.Shared`，不要直接引用其他模块 Domain。
+
+### 4.5 优化检查清单
+
+生成后必须逐项确认：
+
+- 抽屉表单中没有把 `CategoryId`、`TypeId`、`DeptId`、`UserId`、`RoleId` 这类关联字段保留为普通输入框。
+- 枚举/字典字段已使用 `Select` + 字典选项。
+- 布尔业务字段已使用 `Switch` 或 `RadioGroup`。
+- 金额、数量、排序字段已使用 `InputNumber`。
+- 图片/文件字段已使用上传或资源选择组件。
+- 长文本字段未进入分页列表，表单使用 `Textarea` 或业务组件。
+- 前端 `model.d.ts`、`data.ts`、抽屉表单和后端 DTO/Service 保持一致。
+- 若引入新的关联下拉 API，已检查权限、路由、接口路径和类型导入。
+
+## Step 5: 增量构建验证
 
 ### 后端验证
 
@@ -456,9 +633,10 @@ crud-generator-plus/
 1. **默认包含审计字段** — 用户未明确说明时，自动包含 State、OrderNum、Remark、IsDeleted、CreationTime、CreatorId、LastModifierId、LastModificationTime
 2. **实体先检查再生成** — 生成实体类和枚举类后，必须先运行 `check_entities.cs`，检查通过前不得执行 CRUD 生成
 3. **所有 public 属性必须有 XML summary** — 缺少 summary 属于错误，必须先修复
-4. **脚本和 Agent 并行执行** — 仅在实体规范检查通过后，Step 3a 和 Step 3b 才能在同一消息中并行启动
+4. **脚本后并行启动 Agent** — 实体检查通过后先执行 Step 3a 脚本；脚本完成后立即并行启动 Step 3b 种子数据 Agent 和 Step 3c 生成后优化检查 Agent
 5. **单个 Agent 处理种子数据** — 菜单和字典由一个 Agent 统一处理
-6. **仅构建 Application 项目** — 不构建整个解决方案
-7. **不使用 Agent 生成 DTO/Service** — 直接调用脚本生成
-8. **前端验证必须运行 pnpm typecheck** — 确保生成的 TypeScript 文件类型正确
-9. **字典常量命名一致性** — dict-enum.ts 的常量名必须与 data.ts 引用完全匹配（格式：`{MODULE}_{ENTITY}_{ENUM}`）
+6. **生成后必须做优化检查** — 关联字段、枚举字典、图片文件、金额数量、长文本等不能机械保留默认输入框
+7. **仅构建 Application 项目** — 不构建整个解决方案
+8. **不使用 Agent 生成 DTO/Service** — 直接调用脚本生成
+9. **前端验证必须运行 pnpm typecheck** — 确保生成的 TypeScript 文件类型正确
+10. **字典常量命名一致性** — dict-enum.ts 的常量名必须与 data.ts 引用完全匹配（格式：`{MODULE}_{ENTITY}_{ENUM}`）
