@@ -18,24 +18,21 @@ defineOptions({
 });
 
 withDefaults(defineProps<Props>(), {
+  title: '关于项目',
   tabs: () => [],
-  title: '个人中心',
 });
 
 const tabsValue = defineModel<string>('modelValue');
 </script>
-
 <template>
   <Page auto-content-height>
     <div class="flex size-full">
       <Card class="w-1/6 flex-none">
         <div class="mt-4 flex-col-center h-40 gap-4">
-          <slot name="avatar">
-            <VbenAvatar
-              :src="userInfo?.avatar ?? preferences.app.defaultAvatar"
-              class="size-20"
-            />
-          </slot>
+          <VbenAvatar
+            :src="userInfo?.avatar ?? preferences.app.defaultAvatar"
+            class="size-20"
+          />
           <span class="text-lg font-semibold">
             {{ userInfo?.realName ?? '' }}
           </span>

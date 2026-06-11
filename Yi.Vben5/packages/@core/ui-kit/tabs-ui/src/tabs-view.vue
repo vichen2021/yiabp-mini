@@ -2,7 +2,7 @@
 import type { TabsEmits, TabsProps } from './types';
 
 import { useForwardPropsEmits } from '@vben-core/composables';
-import { ChevronLeft, ChevronRight } from '@vben-core/icons';
+import { ChevronsLeft, ChevronsRight } from '@vben-core/icons';
 import { VbenScrollbar } from '@vben-core/shadcn-ui';
 
 import { Tabs, TabsChrome } from './components';
@@ -29,13 +29,13 @@ const forward = useForwardPropsEmits(props, emit);
 const {
   handleScrollAt,
   handleWheel,
+  // @ts-expect-error unused
   scrollbarRef,
   scrollDirection,
   scrollIsAtLeft,
   scrollIsAtRight,
   showScrollButton,
 } = useTabsViewScroll(props);
-void scrollbarRef;
 
 function onWheel(e: WheelEvent) {
   if (props.wheelable) {
@@ -54,18 +54,18 @@ useTabsDrag(props, emit);
     <span
       v-show="showScrollButton"
       :class="{
-        'hover:bg-muted text-muted-foreground cursor-pointer': !scrollIsAtLeft,
+        'cursor-pointer text-muted-foreground hover:bg-muted': !scrollIsAtLeft,
         'pointer-events-none opacity-30': scrollIsAtLeft,
       }"
       class="border-r px-2"
       @click="scrollDirection('left')"
     >
-      <ChevronLeft class="size-4 h-full" />
+      <ChevronsLeft class="size-4 h-full" />
     </span>
 
     <div
       :class="{
-        'pt-[3px]': styleType === 'chrome',
+        'pt-0.75': styleType === 'chrome',
       }"
       class="size-full flex-1 overflow-hidden"
     >
@@ -95,13 +95,13 @@ useTabsDrag(props, emit);
     <span
       v-show="showScrollButton"
       :class="{
-        'hover:bg-muted text-muted-foreground cursor-pointer': !scrollIsAtRight,
+        'cursor-pointer text-muted-foreground hover:bg-muted': !scrollIsAtRight,
         'pointer-events-none opacity-30': scrollIsAtRight,
       }"
-      class="hover:bg-muted text-muted-foreground cursor-pointer border-l px-2"
+      class="cursor-pointer border-l px-2 text-muted-foreground hover:bg-muted"
       @click="scrollDirection('right')"
     >
-      <ChevronRight class="size-4 h-full" />
+      <ChevronsRight class="size-4 h-full" />
     </span>
   </div>
 </template>

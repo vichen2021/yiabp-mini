@@ -25,10 +25,11 @@ const emit = defineEmits<{
 const [Form, formApi] = useVbenForm(
   reactive({
     commonConfig: {
+      labelWidth: 130,
+      // 所有表单项
       componentProps: {
         class: 'w-full',
       },
-      labelWidth: 130,
     },
     layout: 'horizontal',
     schema: computed(() => props.formSchema),
@@ -48,7 +49,6 @@ defineExpose({
   getFormApi: () => formApi,
 });
 </script>
-
 <template>
   <div>
     <Form />

@@ -52,7 +52,6 @@ import {
   globalShareState,
   IconPicker,
   VbenCollapsibleParams,
-  VbenInputCaptcha,
 } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
@@ -135,6 +134,53 @@ const TreeSelect = defineAsyncComponent(
 const Upload = defineAsyncComponent(
   () => import('antdv-next/dist/upload/index'),
 );
+
+const VbenInputCaptcha = defineComponent({
+  name: 'VbenInputCaptcha',
+  inheritAttrs: false,
+  props: {
+    captcha: { default: '', type: String },
+    loading: { default: false, type: Boolean },
+    modelValue: { default: '', type: String },
+    placeholder: { default: '', type: String },
+  },
+  emits: ['captchaClick', 'update:modelValue'],
+  setup(props, { attrs, emit }) {
+    return () => {
+      const { class: className, onChange, ...restAttrs } = attrs;
+
+      return h('div', { class: 'flex w-full' }, [
+        h(Input, {
+          ...restAttrs,
+          class: ['flex-1', className],
+          onChange: onChange as any,
+          placeholder: props.placeholder || $t('ui.placeholder.input'),
+          value: props.modelValue,
+          'onUpdate:value': (value: string) =>
+            emit('update:modelValue', value),
+        }),
+        h(
+          'button',
+          {
+            class:
+              'h-8 min-w-[112px] overflow-hidden rounded-r-md border border-l-0 border-border bg-muted p-0',
+            disabled: props.loading,
+            type: 'button',
+            onClick: () => emit('captchaClick'),
+          },
+          props.captcha
+            ? h('img', {
+                class: 'h-full w-full object-cover',
+                src: props.captcha,
+              })
+            : props.loading
+              ? '...'
+              : '',
+        ),
+      ]);
+    };
+  },
+});
 
 const withDefaultPlaceholder = <T extends Component>(
   component: T,

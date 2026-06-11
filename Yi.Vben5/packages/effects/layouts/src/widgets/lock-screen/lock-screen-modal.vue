@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import type { Recordable } from '@vben/types';
 
+import { computed, reactive } from 'vue';
+
 import { $t } from '@vben/locales';
+
 import { useVbenForm, z } from '@vben-core/form-ui';
 import { useVbenModal } from '@vben-core/popup-ui';
 import { VbenAvatar, VbenButton } from '@vben-core/shadcn-ui';
-import { computed, reactive } from 'vue';
 
 interface Props {
   avatar?: string;
@@ -25,29 +27,30 @@ const emit = defineEmits<{
   submit: [Recordable<any>];
 }>();
 
-const [Form, { resetForm, validate, getValues }] = useVbenForm(
-  reactive({
-    commonConfig: {
-      hideLabel: true,
-      hideRequiredMark: true,
-    },
-    schema: computed(() => [
-      {
-        component: 'VbenInputPassword' as const,
-        componentProps: {
-          placeholder: $t('ui.widgets.lockScreen.placeholder'),
-        },
-        fieldName: 'lockScreenPassword',
-        formFieldProps: { validateOnBlur: false },
-        label: $t('authentication.password'),
-        rules: z
-          .string()
-          .min(1, { message: $t('ui.widgets.lockScreen.placeholder') }),
+const [Form, { resetForm, validate, getValues, getFieldComponentRef }] =
+  useVbenForm(
+    reactive({
+      commonConfig: {
+        hideLabel: true,
+        hideRequiredMark: true,
       },
-    ]),
-    showDefaultActions: false,
-  }),
-);
+      schema: computed(() => [
+        {
+          component: 'VbenInputPassword' as const,
+          componentProps: {
+            placeholder: $t('ui.widgets.lockScreen.placeholder'),
+          },
+          fieldName: 'lockScreenPassword',
+          formFieldProps: { validateOnBlur: false },
+          label: $t('authentication.password'),
+          rules: z
+            .string()
+            .min(1, { message: $t('ui.widgets.lockScreen.placeholder') }),
+        },
+      ]),
+      showDefaultActions: false,
+    }),
+  );
 
 const [Modal] = useVbenModal({
   onConfirm() {
@@ -57,6 +60,13 @@ const [Modal] = useVbenModal({
     if (isOpen) {
       resetForm();
     }
+  },
+  onOpened() {
+    requestAnimationFrame(() => {
+      getFieldComponentRef('lockScreenPassword')
+        ?.$el?.querySelector('[name="lockScreenPassword"]')
+        ?.focus();
+    });
   },
 });
 
@@ -86,7 +96,7 @@ async function handleSubmit() {
             class="size-20"
             dot-class="bottom-0 right-1 border-2 size-4 bg-green-500"
           />
-          <div class="text-foreground my-6 flex items-center font-medium">
+          <div class="my-6 flex items-center font-medium text-foreground">
             {{ text }}
           </div>
         </div>

@@ -5,7 +5,7 @@ import { computed, onMounted, ref, shallowRef, unref } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { useAccess } from '@vben/access';
-import { DEFAULT_TENANT_ID } from '@vben/constants';
+import { DEFAULT_TENANT_ID } from '#/constants';
 import { useTabs } from '@vben/hooks';
 import { $t } from '@vben/locales';
 

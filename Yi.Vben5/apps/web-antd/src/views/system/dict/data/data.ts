@@ -2,7 +2,7 @@ import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { DictData } from '#/api/system/dict/dict-data-model';
 
-import { DictEnum } from '@vben/constants';
+import { DictEnum } from '#/constants';
 
 import { renderDict, renderDictTag } from '#/utils/render';
 

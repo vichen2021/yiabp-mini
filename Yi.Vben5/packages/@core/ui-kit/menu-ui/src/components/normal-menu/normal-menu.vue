@@ -58,6 +58,8 @@ function menuIcon(menu: MenuRecordRaw) {
   </ul>
 </template>
 <style scoped>
+@reference "@vben/tailwind-config/theme";
+
 .vben-normal-menu {
   --menu-item-margin-y: 4px;
   --menu-item-margin-x: 0px;
@@ -74,11 +76,11 @@ function menuIcon(menu: MenuRecordRaw) {
 }
 
 .vben-normal-menu.is-dark .vben-normal-menu__item {
-  color: hsl(var(--foreground) / 80%);
+  @apply text-foreground/80;
 }
 
 .vben-normal-menu.is-dark .vben-normal-menu__item:not(.is-active):hover {
-  color: hsl(var(--foreground));
+  @apply text-foreground;
 }
 
 .vben-normal-menu.is-dark
@@ -87,7 +89,7 @@ function menuIcon(menu: MenuRecordRaw) {
 .vben-normal-menu.is-dark
   .vben-normal-menu__item.is-active
   .vben-normal-menu__icon {
-  color: hsl(var(--foreground));
+  @apply text-foreground;
 }
 
 .vben-normal-menu.is-collapse .vben-normal-menu__name {
@@ -108,6 +110,10 @@ function menuIcon(menu: MenuRecordRaw) {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
+  /* max-width: 64px; */
+
+  /* max-height: 64px; */
   padding: var(--menu-item-padding-y) var(--menu-item-padding-x);
   margin: var(--menu-item-margin-y) var(--menu-item-margin-x);
   color: hsl(var(--foreground) / 90%);
@@ -120,28 +126,16 @@ function menuIcon(menu: MenuRecordRaw) {
 }
 
 .vben-normal-menu__item.is-active {
-  color: hsl(var(--primary));
-  background-color: hsl(var(--primary));
+  @apply bg-primary text-primary dark:bg-accent;
 }
 
 .vben-normal-menu__item.is-active .vben-normal-menu__name,
 .vben-normal-menu__item.is-active .vben-normal-menu__icon {
-  color: hsl(var(--primary-foreground));
-  font-weight: 600;
+  @apply text-primary-foreground font-semibold;
 }
 
 .vben-normal-menu__item:not(.is-active):hover {
-  color: hsl(var(--primary));
-  background-color: hsl(var(--heavy));
-}
-
-:global(.dark) .vben-normal-menu__item.is-active,
-:global(.dark) .vben-normal-menu__item:not(.is-active):hover {
-  background-color: hsl(var(--accent));
-}
-
-:global(.dark) .vben-normal-menu__item:not(.is-active):hover {
-  color: hsl(var(--foreground));
+  @apply bg-heavy text-primary dark:bg-accent dark:text-foreground;
 }
 
 .vben-normal-menu__item:hover .vben-normal-menu__icon {
@@ -149,14 +143,16 @@ function menuIcon(menu: MenuRecordRaw) {
 }
 
 .vben-normal-menu__icon {
-  max-height: 1.25rem;
+  @apply max-h-5;
+
   font-size: calc(var(--font-size-base, 16px) * 1.25);
   transition: all 0.25s ease;
 }
 
 .vben-normal-menu__name {
+  @apply mt-2;
+
   width: 100%;
-  margin-top: 0.5rem;
   margin-bottom: 0;
   font-size: calc(var(--font-size-base, 16px) * 0.75);
   font-weight: 400;

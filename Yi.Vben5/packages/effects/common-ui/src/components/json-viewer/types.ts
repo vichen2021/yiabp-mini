@@ -1,6 +1,8 @@
 export interface JsonViewerProps {
+  /** 旧版兼容字段 */
+  data?: any;
   /** 要展示的结构数据 */
-  value: any;
+  value?: any;
   /** 展开深度 */
   expandDepth?: number;
   /** 是否可复制 */

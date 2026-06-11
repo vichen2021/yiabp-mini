@@ -2,14 +2,21 @@ import type { BasicUserInfo } from '@vben-core/typings';
 
 /** 用户信息 */
 interface UserInfo extends BasicUserInfo {
-  email: string;
-  permissions: string[];
-  roles: string[];
-  userId: string;
   /**
-   * 拓展使用
+   * 用户描述
    */
-  [key: string]: any;
+  desc?: string;
+  /**
+   * 首页地址
+   */
+  homePath?: string;
+
+  /**
+   * accessToken
+   */
+  token?: string;
+  email?: string;
+  permissions?: string[];
 }
 
 export type { UserInfo };

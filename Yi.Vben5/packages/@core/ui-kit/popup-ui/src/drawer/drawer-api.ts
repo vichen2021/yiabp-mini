@@ -110,8 +110,8 @@ export class DrawerApi {
     return this.setState({ submitting: isLocked });
   }
 
-  drawerLoading(loading = true) {
-    return this.setState({ loading });
+  drawerLoading(isLocked: boolean = true) {
+    return this.lock(isLocked);
   }
 
   /**

@@ -20,10 +20,10 @@ dev-dist
 .stylelintcache
 yarn.lock
 package-lock.json
-pnpm-lock.yaml
 .VSCodeCounter
 **/backend-mock/data
-
+.omx
+.pnpm-store
 # local env files
 .env.local
 .env.*.local
@@ -49,6 +49,14 @@ vite.config.ts.*
 *.njsproj
 *.sln
 *.sw?
-# 排除自动生成的类型文件
-apps/web-antd/types/components.d.ts
 .history
+.cursor
+
+# AI
+.agent
+.agents
+.claude
+.codex
+skills-lock.json
+.atomcode
+datalog

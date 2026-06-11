@@ -107,14 +107,9 @@ const renderedActions = computed(() => {
 
 const dropdownOpen = ref(false);
 
-function onActionClick(action: ActionItem, event?: MouseEvent) {
-  event?.stopPropagation();
+function onActionClick(action: ActionItem) {
   if (action.disabled || action.loading) return;
   action.onClick?.();
-}
-
-function handleActionClick(action: ActionItem) {
-  return (event: MouseEvent) => onActionClick(action, event);
 }
 
 /**
@@ -149,7 +144,7 @@ function onContentInteractOutside(event: Event) {
               :loading="item.action.loading"
               :size="item.size"
               :variant="item.variant"
-              @click="handleActionClick(item.action)"
+              @click="onActionClick(item.action)"
             >
               <VbenIcon
                 v-if="item.action.icon"
@@ -175,7 +170,7 @@ function onContentInteractOutside(event: Event) {
           :loading="item.action.loading"
           :size="item.size"
           :variant="item.variant"
-          @click="handleActionClick(item.action)"
+          @click="onActionClick(item.action)"
         >
           <VbenIcon
             v-if="item.action.icon"

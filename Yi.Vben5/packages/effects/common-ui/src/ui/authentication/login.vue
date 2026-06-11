@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import type { Recordable } from '@vben/types';
+
 import type { VbenFormSchema } from '@vben-core/form-ui';
 
-import type { AuthenticationProps, LoginAndRegisterParams } from './types';
+import type { AuthenticationProps } from './types';
 
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -10,7 +12,6 @@ import { $t } from '@vben/locales';
 
 import { useVbenForm } from '@vben-core/form-ui';
 import { VbenButton, VbenCheckbox } from '@vben-core/shadcn-ui';
-import { cloneDeep } from '@vben-core/shared/utils';
 
 import Title from './auth-title.vue';
 import ThirdPartyLogin from './third-party-login.vue';
@@ -42,7 +43,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  submit: [LoginAndRegisterParams];
+  submit: [Recordable<any>];
 }>();
 
 const [Form, formApi] = useVbenForm(
@@ -65,15 +66,13 @@ const rememberMe = ref(!!localUsername);
 
 async function handleSubmit() {
   const { valid } = await formApi.validate();
+  const values = await formApi.getValues();
   if (valid) {
-    const values = cloneDeep(await formApi.getValues());
     localStorage.setItem(
       REMEMBER_ME_KEY,
       rememberMe.value ? values?.username : '',
     );
-    // 加上认证类型
-    (values as any).grantType = 'password';
-    emit('submit', values as LoginAndRegisterParams);
+    emit('submit', values);
   }
 }
 
@@ -118,7 +117,7 @@ defineExpose({
       <div class="flex-center">
         <VbenCheckbox
           v-if="showRememberMe"
-          v-model:checked="rememberMe"
+          v-model="rememberMe"
           name="rememberMe"
         >
           {{ $t('authentication.rememberMe') }}
@@ -147,7 +146,7 @@ defineExpose({
 
     <div
       v-if="showCodeLogin || showQrcodeLogin"
-      class="mb-2 mt-4 flex items-center justify-between"
+      class="mt-4 mb-2 flex items-center justify-between"
     >
       <VbenButton
         v-if="showCodeLogin"
@@ -168,8 +167,8 @@ defineExpose({
     </div>
 
     <!-- 第三方登录 -->
-    <slot v-if="showThirdPartyLogin" name="third-party-login">
-      <ThirdPartyLogin />
+    <slot name="third-party-login">
+      <ThirdPartyLogin v-if="showThirdPartyLogin" />
     </slot>
 
     <slot name="to-register">

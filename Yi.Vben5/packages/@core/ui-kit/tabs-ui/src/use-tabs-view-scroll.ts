@@ -62,10 +62,6 @@ export function useTabsViewScroll(props: TabsProps) {
       'div[data-reka-scroll-area-viewport]',
     );
 
-    if (!viewportEl) {
-      return;
-    }
-
     scrollViewportEl.value = viewportEl;
     calcShowScrollbarButton();
 

@@ -4,7 +4,7 @@ import type { Flow } from '#/api/workflow/instance/model';
 import { onMounted, ref } from 'vue';
 
 import { VbenAvatar } from '@vben/common-ui';
-import { DictEnum } from '@vben/constants';
+import { DictEnum } from '#/constants';
 
 import { TimelineItem } from 'antdv-next';
 
