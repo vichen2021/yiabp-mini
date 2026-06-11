@@ -16,7 +16,7 @@ namespace Yi.Module.Rbac.Domain.Shared.Dtos
         public string Component { get; set; } = string.Empty;
         public bool AlwaysShow { get; set; }
         public Meta Meta { get; set; } = new Meta();
-        public List<RouterDto> Children { get; set; }
+        public List<RouterDto>? Children { get; set; }
     }
 
 

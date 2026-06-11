@@ -21,15 +21,15 @@ public interface ISettingManager
     /// <summary>
     /// 读取指定 Provider 维度下的 Setting 值，<paramref name="fallback"/> 为 true 时自动向下级 Provider 回退。
     /// </summary>
-    Task<string> GetOrNullAsync([NotNull] string name, [NotNull] string providerName, [CanBeNull] string providerKey, bool fallback = true);
+    Task<string?> GetOrNullAsync([NotNull] string name, [NotNull] string providerName, [CanBeNull] string? providerKey, bool fallback = true);
 
     /// <summary>
     /// 读取指定 Provider 维度下所有 Setting 值，<paramref name="fallback"/> 为 true 时自动向下级 Provider 回退。
     /// </summary>
-    Task<List<SettingValue>> GetAllAsync([NotNull] string providerName, [CanBeNull] string providerKey, bool fallback = true);
+    Task<List<SettingValue>> GetAllAsync([NotNull] string providerName, [CanBeNull] string? providerKey, bool fallback = true);
 
     /// <summary>
     /// 写入 Setting 值到指定 Provider 维度，<paramref name="forceToSet"/> 为 true 时强制写入（即使值未变化）。
     /// </summary>
-    Task SetAsync([NotNull] string name, [CanBeNull] string value, [NotNull] string providerName, [CanBeNull] string providerKey, bool forceToSet = false);
+    Task SetAsync([NotNull] string name, [CanBeNull] string? value, [NotNull] string providerName, [CanBeNull] string? providerKey, bool forceToSet = false);
 }

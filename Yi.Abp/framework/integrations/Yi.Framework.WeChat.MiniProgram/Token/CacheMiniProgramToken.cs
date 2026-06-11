@@ -15,9 +15,9 @@ internal class CacheMiniProgramToken : DefaultMinProgramToken, IMiniProgramToken
         _cache = cache;
     }
 
-    public async Task<string> GetTokenAsync()
+    public new async Task<string?> GetTokenAsync()
     {
-        return await _cache.GetOrAddAsync("MiniProgramToken", async () => { return await base.GetTokenAsync(); }, () =>
+        return await _cache.GetOrAddAsync("MiniProgramToken", async () => { return (await base.GetTokenAsync())!; }, () =>
         {
             return new DistributedCacheEntryOptions()
             {

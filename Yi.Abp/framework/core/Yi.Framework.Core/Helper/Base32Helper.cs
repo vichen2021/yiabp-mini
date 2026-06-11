@@ -60,7 +60,7 @@ namespace Yi.Framework.Core.Helper
         /// Converts a Base32-k string into an array of bytes.
         /// </summary>
         /// <exception cref="ArgumentException">
-        /// Input string <paramref name="s">s</paramref> contains invalid Base32-k characters.
+        /// Input string <paramref name="str"/> contains invalid Base32-k characters.
         /// </exception>
         public static byte[] FromBase32String(string str)
         {

@@ -25,27 +25,27 @@ public sealed class ValidationMetadata
     /// 验证结果
     /// </summary>
     /// <remarks>返回字典或字符串类型</remarks>
-    public object ValidationResult { get; internal set; }
+    public object? ValidationResult { get; internal set; }
 
     /// <summary>
     /// 异常消息
     /// </summary>
-    public string Message { get; internal set; }
+    public string? Message { get; internal set; }
 
     /// <summary>
     /// 验证状态
     /// </summary>
-    public ModelStateDictionary ModelState { get; internal set; }
+    public ModelStateDictionary? ModelState { get; internal set; }
 
     /// <summary>
     /// 错误码
     /// </summary>
-    public object ErrorCode { get; internal set; }
+    public object? ErrorCode { get; internal set; }
 
     /// <summary>
     /// 错误码（没被复写过的 ErrorCode ）
     /// </summary>
-    public object OriginErrorCode { get; internal set; }
+    public object? OriginErrorCode { get; internal set; }
 
     /// <summary>
     /// 状态码
@@ -55,15 +55,15 @@ public sealed class ValidationMetadata
     /// <summary>
     /// 首个错误属性
     /// </summary>
-    public string FirstErrorProperty { get; internal set; }
+    public string? FirstErrorProperty { get; internal set; }
 
     /// <summary>
     /// 首个错误消息
     /// </summary>
-    public string FirstErrorMessage { get; internal set; }
+    public string? FirstErrorMessage { get; internal set; }
 
     /// <summary>
     /// 额外数据
     /// </summary>
-    public object Data { get; internal set; }
+    public object? Data { get; internal set; }
 }

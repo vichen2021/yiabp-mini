@@ -16,24 +16,23 @@ namespace Yi.Framework.Core.Helper
         /// <param name="FieldName"></param>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static string GetModelValue(string FieldName, object obj)
+        public static string? GetModelValue(string FieldName, object obj)
         {
             try
             {
                 Type Ts = obj.GetType();
-                object o = Ts.GetProperty(FieldName).GetValue(obj, null);
+                object? o = Ts.GetProperty(FieldName)?.GetValue(obj, null);
                 if (null == o)
                     return null;
-                string Value = Convert.ToString(o);
+                string? Value = Convert.ToString(o);
                 if (string.IsNullOrEmpty(Value))
                     return null;
                 return Value;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
             }
-            return null;
         }
 
 
@@ -49,14 +48,13 @@ namespace Yi.Framework.Core.Helper
             try
             {
                 Type Ts = obj.GetType();
-                Ts.GetProperty(FieldName).SetValue(obj, Value, null);
+                Ts.GetProperty(FieldName)?.SetValue(obj, Value, null);
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
             }
-            return false;
         }
         #endregion
     }

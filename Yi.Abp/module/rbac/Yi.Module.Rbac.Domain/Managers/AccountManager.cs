@@ -141,7 +141,7 @@ namespace Yi.Module.Rbac.Domain.Managers
         /// <param name="password"></param>
         /// <param name="userAction"></param>
         /// <returns></returns>
-        public async Task LoginValidationAsync(string userName, string password, Action<UserAggregateRoot> userAction = null)
+        public async Task LoginValidationAsync(string userName, string password, Action<UserAggregateRoot>? userAction = null)
         {
             var user = new UserAggregateRoot();
             if (await ExistAsync(userName, o => user = o))
@@ -165,7 +165,7 @@ namespace Yi.Module.Rbac.Domain.Managers
         /// <param name="userName"></param>
         /// <param name="userAction"></param>
         /// <returns></returns>
-        public async Task<bool> ExistAsync(string userName, Action<UserAggregateRoot> userAction = null)
+        public async Task<bool> ExistAsync(string userName, Action<UserAggregateRoot>? userAction = null)
         {
             var user = await _repository.GetFirstAsync(u => u.UserName == userName && u.State == true);
             if (userAction is not null)
@@ -270,6 +270,7 @@ namespace Yi.Module.Rbac.Domain.Managers
         /// <param name="userName"></param>
         /// <param name="password"></param>
         /// <param name="phone"></param>
+        /// <param name="nick"></param>
         /// <returns></returns>
         public async Task RegisterAsync(string userName, string password, long? phone,string? nick)
         {

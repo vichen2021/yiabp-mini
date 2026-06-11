@@ -20,7 +20,7 @@ public class GlobalSettingManagementProvider : SettingManagementProvider, ITrans
     }
 
     /// <summary>全局维度无 Key，始终返回 <c>null</c>。</summary>
-    protected override string NormalizeProviderKey(string providerKey)
+    protected override string? NormalizeProviderKey(string? providerKey)
     {
         return null;
     }

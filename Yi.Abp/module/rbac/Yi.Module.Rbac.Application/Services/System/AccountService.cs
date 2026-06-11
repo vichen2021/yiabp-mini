@@ -145,6 +145,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <summary>
         /// 提供其他服务使用，根据用户id，直接返回token
         /// </summary>
+        /// <param name="userId"></param>
         /// <returns></returns>
         [RemoteService(isEnabled: false)]
         public async Task<LoginOutputDto> PostLoginAsync(Guid userId)
@@ -176,7 +177,7 @@ namespace Yi.Module.Rbac.Application.Services
         [IgnorePermission]
         public async Task<object> PostRefreshAsync([FromQuery] string refresh_token)
         {
-            var userId = CurrentUser.Id.Value;
+            var userId = CurrentUser.Id!.Value;
             var accessToken = await _accountManager.GetTokenByUserIdAsync(userId);
             var refreshToken = _accountManager.CreateRefreshToken(userId);
             return new { Token = accessToken, RefreshToken = refreshToken };
@@ -198,7 +199,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <summary>
         /// 验证电话号码
         /// </summary>
-        /// <param name="str_handset"></param>
+        /// <param name="phone"></param>
         private async Task ValidationPhone(string phone)
         {
             var res = Regex.IsMatch(phone, @"^\d{11}$");
@@ -255,6 +256,8 @@ namespace Yi.Module.Rbac.Application.Services
         /// <summary>
         /// 手机验证码-需通过图形验证码
         /// </summary>
+        /// <param name="validationPhoneType"></param>
+        /// <param name="input"></param>
         /// <returns></returns>
         [RemoteService(isEnabled:false)]
         private async Task<object> PostCaptchaPhoneAsync(ValidationPhoneTypeEnum validationPhoneType,

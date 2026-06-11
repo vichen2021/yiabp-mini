@@ -11,7 +11,7 @@ namespace Yi.Module.SettingManagement.Domain.Shared;
 public static class ConfigurationValueSettingManagerExtensions
 {
     /// <summary>读取配置文件维度下指定 Setting 的值。</summary>
-    public static Task<string> GetOrNullConfigurationAsync(this ISettingManager settingManager, [NotNull] string name, bool fallback = true)
+    public static Task<string?> GetOrNullConfigurationAsync(this ISettingManager settingManager, [NotNull] string name, bool fallback = true)
     {
         return settingManager.GetOrNullAsync(name, ConfigurationSettingValueProvider.ProviderName, null, fallback);
     }

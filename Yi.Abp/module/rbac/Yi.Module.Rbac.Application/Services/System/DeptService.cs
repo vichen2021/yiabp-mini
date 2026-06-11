@@ -39,6 +39,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <summary>
         /// 通过角色id查询该角色全部部门
         /// </summary>
+        /// <param name="roleId"></param>
         /// <returns></returns>
         //[Route("{roleId}")]
         [PermissionAction(PermissionActionEnum.Query)]
@@ -74,7 +75,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <returns></returns>
         [Route("dept/list")]
         [PermissionAction(PermissionActionEnum.Query)]
-        public async Task<List<DeptGetListOutputDto>> GetListAsync(DeptGetListInputVo input)
+        public new async Task<List<DeptGetListOutputDto>> GetListAsync(DeptGetListInputVo input)
         {
             var result = await _repository._DbQueryable
                 .WhereIF(!string.IsNullOrEmpty(input.DeptName), u => u.DeptName.Contains(input.DeptName!))
@@ -140,10 +141,10 @@ namespace Yi.Module.Rbac.Application.Services
             }
         }
 
-        /// <summary>
-        /// 获取树形结构的部门列表
-        /// </summary>
-        /// <returns>树形结构的部门列表</returns>
+        // /// <summary>
+        // /// 获取树形结构的部门列表
+        // /// </summary>
+        // /// <returns>树形结构的部门列表</returns>
         // public async Task<List<TreeDto>> GetTreeAsync()
         // {
         //     // 获取所有启用的部门

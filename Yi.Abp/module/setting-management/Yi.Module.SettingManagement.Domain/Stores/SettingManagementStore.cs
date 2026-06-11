@@ -43,7 +43,7 @@ public class SettingManagementStore : ISettingManagementStore, ITransientDepende
     /// 读取单个 Setting 值，优先命中缓存；未命中时批量刷新同一 Provider 维度下的全部 Setting 缓存。
     /// </summary>
     [UnitOfWork]
-    public virtual async Task<string> GetOrNullAsync(string name, string providerName, string providerKey)
+    public virtual async Task<string?> GetOrNullAsync(string name, string providerName, string providerKey)
     {
         return (await GetCacheItemAsync(name, providerName, providerKey)).Value;
     }
@@ -172,7 +172,7 @@ public class SettingManagementStore : ISettingManagementStore, ITransientDepende
 
         if (cacheItems.All(x => x.Value != null))
         {
-            return cacheItems;
+            return cacheItems.Select(x => new KeyValuePair<string, SettingCacheItem>(x.Key, x.Value!)).ToList();
         }
 
         var notCacheKeys = cacheItems.Where(x => x.Value == null).Select(x => x.Key).ToList();
@@ -185,10 +185,10 @@ public class SettingManagementStore : ISettingManagementStore, ITransientDepende
             var item = newCacheItems.FirstOrDefault(x => x.Key == key);
             if (item.Value == null)
             {
-                item = cacheItems.FirstOrDefault(x => x.Key == key);
+                item = cacheItems.FirstOrDefault(x => x.Key == key)!;
             }
 
-            result.Add(new KeyValuePair<string, SettingCacheItem>(key, item.Value));
+            result.Add(new KeyValuePair<string, SettingCacheItem>(key, item.Value!));
         }
 
         return result;
@@ -231,7 +231,7 @@ public class SettingManagementStore : ISettingManagementStore, ITransientDepende
     }
 
     /// <summary>从缓存 Key 反向解析 Setting 名称，委托给 <see cref="SettingCacheItem.GetSettingNameFormCacheKeyOrNull"/>。</summary>
-    protected virtual string GetSettingNameFormCacheKeyOrNull(string key)
+    protected virtual string? GetSettingNameFormCacheKeyOrNull(string key)
     {
         //TODO: throw ex when name is null?
         return SettingCacheItem.GetSettingNameFormCacheKeyOrNull(key);

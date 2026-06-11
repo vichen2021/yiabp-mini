@@ -21,13 +21,13 @@ public class SettingStore : ISettingStore, ITransientDependency
     }
 
     /// <summary>读取单个 Setting 值，委托给 <see cref="ISettingManagementStore.GetOrNullAsync"/>。</summary>
-    public virtual Task<string> GetOrNullAsync(string name, string providerName, string providerKey)
+    public virtual Task<string?> GetOrNullAsync(string name, string? providerName, string? providerKey)
     {
         return ManagementStore.GetOrNullAsync(name, providerName, providerKey);
     }
 
     /// <summary>批量读取 Setting 值列表，委托给 <see cref="ISettingManagementStore.GetListAsync(string[], string, string)"/>。</summary>
-    public virtual Task<List<SettingValue>> GetAllAsync(string[] names, string providerName, string providerKey)
+    public virtual Task<List<SettingValue>> GetAllAsync(string[] names, string? providerName, string? providerKey)
     {
         return ManagementStore.GetListAsync(names, providerName, providerKey);
     }

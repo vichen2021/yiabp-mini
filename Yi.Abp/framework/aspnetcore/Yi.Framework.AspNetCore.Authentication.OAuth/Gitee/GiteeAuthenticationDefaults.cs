@@ -12,42 +12,42 @@ namespace Yi.Framework.AspNetCore.Authentication.OAuth.Gitee;
 public static class GiteeAuthenticationDefaults
 {
     /// <summary>
-    /// Default value for <see cref="AuthenticationScheme.Name"/>.
+    /// Default value for the authentication scheme name.
     /// </summary>
     public const string AuthenticationScheme = "Gitee";
 
     /// <summary>
-    /// Default value for <see cref="AuthenticationScheme.DisplayName"/>.
+    /// Default value for the authentication scheme display name.
     /// </summary>
     public static readonly string DisplayName = "Gitee";
 
     /// <summary>
-    /// Default value for <see cref="AuthenticationSchemeOptions.ClaimsIssuer"/>.
+    /// Default value for the claims issuer.
     /// </summary>
     public static readonly string Issuer = "Gitee";
 
     /// <summary>
-    /// Default value for <see cref="RemoteAuthenticationOptions.CallbackPath"/>.
+    /// Default value for the callback path.
     /// </summary>
     public static readonly string CallbackPath = "/signin-gitee";
 
     /// <summary>
-    /// Default value for <see cref="OAuthOptions.AuthorizationEndpoint"/>.
+    /// Default value for the authorization endpoint.
     /// </summary>
     public static readonly string AuthorizationEndpoint = "https://gitee.com/oauth/authorize";
 
     /// <summary>
-    /// Default value for <see cref="OAuthOptions.TokenEndpoint"/>.
+    /// Default value for the token endpoint.
     /// </summary>
     public static readonly string TokenEndpoint = "https://gitee.com/oauth/token";
 
     /// <summary>
-    /// Default value for <see cref="OAuthOptions.UserInformationEndpoint"/>.
+    /// Default value for the user information endpoint.
     /// </summary>
     public static readonly string UserInformationEndpoint = "https://gitee.com/api/v5/user";
 
     /// <summary>
-    /// Default value for <see cref="GiteeAuthenticationOptions.UserEmailsEndpoint"/>.
+    /// Default value for the user emails endpoint.
     /// </summary>
     public static readonly string UserEmailsEndpoint = "https://gitee.com/api/v5/emails";
 }

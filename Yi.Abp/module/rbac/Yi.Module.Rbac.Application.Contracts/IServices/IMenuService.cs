@@ -17,7 +17,7 @@ namespace Yi.Module.Rbac.Application.Contracts.IServices
         /// </summary>
         /// <param name="input">查询参数</param>
         /// <returns>菜单列表</returns>
-        Task<List<MenuGetListOutputDto>> GetListAsync(MenuGetListInputVo input);
+        new Task<List<MenuGetListOutputDto>> GetListAsync(MenuGetListInputVo input);
         /// <summary>
         /// 获取菜单树
         /// </summary>

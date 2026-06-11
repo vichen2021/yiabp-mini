@@ -11,7 +11,7 @@ namespace Yi.Module.SettingManagement.Domain.Shared;
 public static class GlobalSettingManagerExtensions
 {
     /// <summary>读取全局维度下指定 Setting 的值。</summary>
-    public static Task<string> GetOrNullGlobalAsync(this ISettingManager settingManager, [NotNull] string name, bool fallback = true)
+    public static Task<string?> GetOrNullGlobalAsync(this ISettingManager settingManager, [NotNull] string name, bool fallback = true)
     {
         return settingManager.GetOrNullAsync(name, GlobalSettingValueProvider.ProviderName, null, fallback);
     }
@@ -23,7 +23,7 @@ public static class GlobalSettingManagerExtensions
     }
 
     /// <summary>写入全局维度下指定 Setting 的值。</summary>
-    public static Task SetGlobalAsync(this ISettingManager settingManager, [NotNull] string name, [CanBeNull] string value)
+    public static Task SetGlobalAsync(this ISettingManager settingManager, [NotNull] string name, [CanBeNull] string? value)
     {
         return settingManager.SetAsync(name, value, GlobalSettingValueProvider.ProviderName, null);
     }

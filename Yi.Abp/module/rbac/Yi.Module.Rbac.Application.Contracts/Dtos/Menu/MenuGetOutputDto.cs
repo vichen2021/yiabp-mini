@@ -5,7 +5,6 @@ namespace Yi.Module.Rbac.Application.Contracts.Dtos.Menu
 {
     public class MenuGetOutputDto : EntityDto<Guid>
     {
-        public Guid Id { get; set; }
         public DateTime CreationTime { get; set; } = DateTime.Now;
         public Guid? CreatorId { get; set; }
         public bool State { get; set; }

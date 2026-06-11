@@ -50,7 +50,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <summary>
         /// 根据key查配置
         /// </summary>
-        /// <param name="key"></param>
+        /// <param name="configKey"></param>
         /// <returns></returns>
         ///
         [Route("config/config-key/{configKey}")]

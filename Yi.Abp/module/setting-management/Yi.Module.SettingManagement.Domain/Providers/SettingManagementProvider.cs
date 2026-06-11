@@ -24,7 +24,7 @@ public abstract class SettingManagementProvider : ISettingManagementProvider
     /// <summary>
     /// 读取当前 Provider 维度下的 Setting 值，无则返回 <c>null</c>。
     /// </summary>
-    public virtual async Task<string> GetOrNullAsync(SettingDefinition setting, string providerKey)
+    public virtual async Task<string?> GetOrNullAsync(SettingDefinition setting, string? providerKey)
     {
         return await SettingManagementStore.GetOrNullAsync(setting.Name, Name, NormalizeProviderKey(providerKey));
     }
@@ -32,7 +32,7 @@ public abstract class SettingManagementProvider : ISettingManagementProvider
     /// <summary>
     /// 写入当前 Provider 维度下的 Setting 值。
     /// </summary>
-    public virtual async Task SetAsync(SettingDefinition setting, string value, string providerKey)
+    public virtual async Task SetAsync(SettingDefinition setting, string value, string? providerKey)
     {
         await SettingManagementStore.SetAsync(setting.Name, value, Name, NormalizeProviderKey(providerKey));
     }
@@ -40,7 +40,7 @@ public abstract class SettingManagementProvider : ISettingManagementProvider
     /// <summary>
     /// 删除当前 Provider 维度下的 Setting 值。
     /// </summary>
-    public virtual async Task ClearAsync(SettingDefinition setting, string providerKey)
+    public virtual async Task ClearAsync(SettingDefinition setting, string? providerKey)
     {
         await SettingManagementStore.DeleteAsync(setting.Name, Name, NormalizeProviderKey(providerKey));
     }
@@ -50,7 +50,7 @@ public abstract class SettingManagementProvider : ISettingManagementProvider
     /// 默认直接返回传入的 <paramref name="providerKey"/>；
     /// 子类可覆写为从当前上下文（如租户/用户）自动提取。
     /// </summary>
-    protected virtual string NormalizeProviderKey(string providerKey)
+    protected virtual string? NormalizeProviderKey(string? providerKey)
     {
         return providerKey;
     }

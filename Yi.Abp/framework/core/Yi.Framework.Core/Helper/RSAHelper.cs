@@ -78,12 +78,11 @@ namespace Yi.Framework.Core.Helper
         #endregion
 
         #region 解密
-        /// <summary>
-        /// 私钥解密(原)
-        /// </summary>
-        /// <param name="cipherText">解密字符串(base64)</param>
-        /// <returns></returns>
-
+        // /// <summary>
+        // /// 私钥解密(原)
+        // /// </summary>
+        // /// <param name="cipherText">解密字符串(base64)</param>
+        // /// <returns></returns>
         //public string Decrypt(string cipherText)
         //{
         //	if (_privateKeyRsaProvider == null)
@@ -91,7 +90,7 @@ namespace Yi.Framework.Core.Helper
         //		throw new Exception("_privateKeyRsaProvider is null");
         //	}
         //	return _encoding.GetString(_privateKeyRsaProvider.Decrypt(Convert.FromBase64String(cipherText), RSAEncryptionPadding.Pkcs1));
-        //} 
+        //}
         /// <summary>
         /// 私钥解密(支持大量数据)
         /// </summary>
@@ -125,11 +124,11 @@ namespace Yi.Framework.Core.Helper
 
         #region 加密
 
-        /// <summary>
-        /// 公钥加密(原)
-        /// </summary>
-        /// <param name="text"></param>
-        /// <returns></returns>
+        // /// <summary>
+        // /// 公钥加密(原)
+        // /// </summary>
+        // /// <param name="text"></param>
+        // /// <returns></returns>
         //public string Encrypt(string text)
         //{
         //	if (_publicKeyRsaProvider == null)
@@ -137,7 +136,7 @@ namespace Yi.Framework.Core.Helper
         //		throw new Exception("_publicKeyRsaProvider is null");
         //	}
         //	return Convert.ToBase64String(_publicKeyRsaProvider.Encrypt(Encoding.UTF8.GetBytes(text), RSAEncryptionPadding.Pkcs1));
-        //} 
+        //}
         /// <summary>
         /// 公钥加密(支持大量数据)
         /// </summary>

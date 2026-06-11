@@ -10,6 +10,10 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
+
+	<ItemGroup Condition="'$(UsingMicrosoftNETSdkWeb)' != 'true'">
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
 	
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
@@ -32,8 +36,5 @@
     <Content Remove="$(UserProfile)\.nuget\packages\*\*\contentFiles\any\*\*.abppkg*.json" />
   </ItemGroup>
 	
-	<ItemGroup>
-		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-	</ItemGroup>
-	
+
 </Project>

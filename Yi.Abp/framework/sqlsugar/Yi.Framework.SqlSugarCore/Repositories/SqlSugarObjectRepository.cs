@@ -15,7 +15,7 @@ namespace Yi.Framework.SqlSugarCore.Repositories
     public class SqlSugarObjectRepository<TEntity> : IRepository<TEntity> where TEntity : class, IEntity
     {
         public ISqlSugarClient _Db => GetDbContextAsync().Result;
-        private ISugarDbContextProvider<ISqlSugarDbContext> _sugarDbContextProvider;
+        private ISugarDbContextProvider<ISqlSugarDbContext> _sugarDbContextProvider = null!;
         /// <summary>
         /// 获取DB
         /// </summary>

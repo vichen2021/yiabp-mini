@@ -36,6 +36,7 @@ namespace Yi.Framework.Core.Helper
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="xml"></param>
+        /// <param name="rootName"></param>
         /// <returns></returns>
         public static T ParseFormByXml<T>(string xml, string rootName = "root")
         {

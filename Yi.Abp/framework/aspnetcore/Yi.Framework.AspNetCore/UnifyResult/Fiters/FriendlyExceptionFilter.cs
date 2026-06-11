@@ -66,16 +66,14 @@ public sealed class FriendlyExceptionFilter : IAsyncExceptionFilter
     /// <returns></returns>
     public static ExceptionMetadata GetExceptionMetadata(ActionContext context)
     {
-        object errorCode = default;
-        object originErrorCode = default;
-        object errors = default;
-        object data = default;
+        object? errorCode = default;
+        object? originErrorCode = default;
+        object? errors = default;
+        object? data = default;
         var statusCode = StatusCodes.Status500InternalServerError;
-        var isValidationException = false; // 判断是否是验证异常
-        var isFriendlyException = false;
 
         // 判断是否是 ExceptionContext 或者 ActionExecutedContext
-        var exception = context is ExceptionContext exContext
+        Exception? exception = context is ExceptionContext exContext
             ? exContext.Exception
             : (
                 context is ActionExecutedContext edContext
@@ -86,7 +84,6 @@ public sealed class FriendlyExceptionFilter : IAsyncExceptionFilter
         // 判断是否是验证异常
         if (exception is AbpValidationException validationException)
         {
-            isValidationException = true;
             statusCode = StatusCodes.Status400BadRequest;
             
             // 提取第一个验证错误消息
@@ -105,11 +102,9 @@ public sealed class FriendlyExceptionFilter : IAsyncExceptionFilter
         {
             int statusCode2 = 500;
             int.TryParse(friendlyException.Code, out statusCode2);
-            isFriendlyException = true;
             errorCode = friendlyException.Code;
             originErrorCode = friendlyException.Code;
             statusCode = statusCode2==0?403:statusCode2;
-            isValidationException = false;
             errors = friendlyException.Message;
             data = friendlyException.Data;
         }

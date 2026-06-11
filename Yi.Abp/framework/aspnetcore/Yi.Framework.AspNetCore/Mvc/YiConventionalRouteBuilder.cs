@@ -39,7 +39,7 @@ namespace Yi.Framework.AspNetCore.Mvc
             string controllerName,
             ActionModel action,
             string httpMethod,
-            [CanBeNull] ConventionalControllerSetting configuration)
+            [CanBeNull] ConventionalControllerSetting? configuration)
         {
             // 获取API路由前缀
             var apiRoutePrefix = GetApiRoutePrefix(action, configuration);
@@ -70,7 +70,7 @@ namespace Yi.Framework.AspNetCore.Mvc
         private string BuildIdParameterRoute(
             string baseUrl, 
             ActionModel action, 
-            ConventionalControllerSetting configuration)
+            ConventionalControllerSetting? configuration)
         {
             var idParameter = action.Parameters.FirstOrDefault(p => p.ParameterName == "id");
             if (idParameter == null)
@@ -105,7 +105,7 @@ namespace Yi.Framework.AspNetCore.Mvc
             string controllerName,
             ActionModel action,
             string httpMethod,
-            ConventionalControllerSetting configuration)
+            ConventionalControllerSetting? configuration)
         {
             var actionNameInUrl = NormalizeUrlActionName(
                 rootPath, 

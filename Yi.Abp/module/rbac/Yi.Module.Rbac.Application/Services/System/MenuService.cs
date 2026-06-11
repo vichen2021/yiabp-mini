@@ -34,7 +34,7 @@ namespace Yi.Module.Rbac.Application.Services
 
         [Route("menu/list")]
         [PermissionAction(PermissionActionEnum.Query)]
-        public async Task<List<MenuGetListOutputDto>> GetListAsync(MenuGetListInputVo input)
+        public new async Task<List<MenuGetListOutputDto>> GetListAsync(MenuGetListInputVo input)
         {
             var entities = await _repository._DbQueryable.WhereIF(!string.IsNullOrEmpty(input.MenuName), x => x.MenuName.Contains(input.MenuName!))
                         .WhereIF(input.State is not null, x => x.State == input.State)

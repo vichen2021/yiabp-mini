@@ -176,7 +176,8 @@ namespace Yi.Module.Rbac.Domain.Entities
         /// <summary>
         /// 构建密码，MD5盐值加密
         /// </summary>
-        public UserAggregateRoot BuildPassword(string password = null)
+        /// <param name="password"></param>
+        public UserAggregateRoot BuildPassword(string? password = null)
         {
             //如果不传值，那就把自己的password当作传进来的password
             if (password == null)

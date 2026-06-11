@@ -1,15 +1,16 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using FreeRedis;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using Microsoft.VisualBasic;
-using TencentCloud.Mna.V20210119.Models;
+using Volo.Abp;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Caching;
 using Volo.Abp.DependencyInjection;
 using Yi.Framework.Authorization.Abstractions.Attributes;
 using Yi.Framework.Authorization.Abstractions.Enums;
-using Yi.Framework.OperationRecord.Abstractions.Attributes;
 using Yi.Module.Rbac.Application.Contracts.Dtos.MonitorCache;
 using Yi.Module.Rbac.Application.Contracts.IServices;
 
@@ -18,7 +19,7 @@ namespace Yi.Module.Rbac.Application.Services.Monitor
     [PermissionResource("monitor", "cache")]
     public class MonitorCacheService : ApplicationService, IMonitorCacheService
     {
-        public IAbpLazyServiceProvider LazyServiceProvider { get; set; }
+        public new IAbpLazyServiceProvider LazyServiceProvider { get; set; }
 
         /// <summary>
         /// 缓存前缀

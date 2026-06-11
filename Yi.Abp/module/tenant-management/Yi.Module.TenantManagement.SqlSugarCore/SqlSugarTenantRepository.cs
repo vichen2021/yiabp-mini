@@ -17,12 +17,12 @@ namespace Yi.Module.TenantManagement.SqlSugarCore
             return await _DbQueryable.FirstAsync(x => x.Name == name);
         }
 
-        public async Task<long> GetCountAsync(string filter = null)
+        public async Task<long> GetCountAsync(string? filter = null)
         {
             return await _DbQueryable.WhereIF(!string.IsNullOrEmpty(filter),x=>x.Name.Contains(filter)) .CountAsync();
         }
 
-        public async Task<List<TenantAggregateRoot>> GetListAsync(string sorting = null, int maxResultCount = int.MaxValue, int skipCount = 0, string filter = null, bool includeDetails = false)
+        public async Task<List<TenantAggregateRoot>> GetListAsync(string? sorting = null, int maxResultCount = int.MaxValue, int skipCount = 0, string? filter = null, bool includeDetails = false)
         {
 
 

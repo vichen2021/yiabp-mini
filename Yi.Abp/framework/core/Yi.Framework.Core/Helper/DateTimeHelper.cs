@@ -7,9 +7,10 @@ namespace Yi.Framework.Core.Helper
     public class DateTimeHelper
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="dateTime"></param>
+        /// <param name="days"></param>
         /// <returns></returns>
         public static DateTime GetBeginTime(DateTime? dateTime, int days = 0)
         {

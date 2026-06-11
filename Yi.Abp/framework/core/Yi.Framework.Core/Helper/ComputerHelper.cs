@@ -7,9 +7,9 @@ namespace Yi.Framework.Core.Helper
     {
 
         /// <summary>
-        /// 将object转换为long，若转换失败，则返回0。不抛出异常。  
+        /// 将object转换为long，若转换失败，则返回0。不抛出异常。
         /// </summary>
-        /// <param name="str"></param>
+        /// <param name="obj"></param>
         /// <returns></returns>
         private static long ParseToLong( object obj)
         {

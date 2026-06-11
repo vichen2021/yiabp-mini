@@ -16,7 +16,7 @@ public class SettingCacheItem
     private const string CacheKeyFormat = "pn:{0},pk:{1},n:{2}";
 
     /// <summary>Setting 的缓存值；<c>null</c> 表示该 Provider 维度下无记录。</summary>
-    public string Value { get; set; }
+    public string? Value { get; set; }
 
     /// <summary>无参构造（反序列化使用）。</summary>
     public SettingCacheItem()
@@ -25,7 +25,7 @@ public class SettingCacheItem
     }
 
     /// <summary>以指定值初始化缓存项。</summary>
-    public SettingCacheItem(string value)
+    public SettingCacheItem(string? value)
     {
         Value = value;
     }
@@ -41,7 +41,7 @@ public class SettingCacheItem
     /// <summary>
     /// 从缓存 Key 反向解析 Setting 名称，格式不匹配时返回 <c>null</c>。
     /// </summary>
-    public static string GetSettingNameFormCacheKeyOrNull(string cacheKey)
+    public static string? GetSettingNameFormCacheKeyOrNull(string cacheKey)
     {
         var result = FormattedStringValueExtracter.Extract(cacheKey, CacheKeyFormat, true);
         return result.IsMatch ? result.Matches.Last().Value : null;

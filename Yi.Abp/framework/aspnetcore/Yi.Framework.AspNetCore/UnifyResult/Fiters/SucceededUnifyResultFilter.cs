@@ -106,7 +106,7 @@ public class SucceededUnifyResultFilter : IAsyncActionFilter, IOrderedFilter
         }
         else
         {
-            IActionResult result = default;
+            IActionResult? result = default;
 
             // 检查是否是有效的结果（可进行规范化的结果）
             if (CheckVaildResult(actionExecutedContext.Result, out var data))
@@ -128,9 +128,9 @@ public class SucceededUnifyResultFilter : IAsyncActionFilter, IOrderedFilter
     /// <returns></returns>
     private static ValidationMetadata GetValidationMetadata(object errors)
     {
-        ModelStateDictionary _modelState = null;
-        object validationResults = null;
-        (string message, string firstErrorMessage, string firstErrorProperty) = (default, default, default);
+        ModelStateDictionary? _modelState = null;
+        object? validationResults = null;
+        (string? message, string? firstErrorMessage, string? firstErrorProperty) = (default, default, default);
 
         // 判断是否是集合类型
         if (errors is IEnumerable && errors is not string)
@@ -187,7 +187,7 @@ public class SucceededUnifyResultFilter : IAsyncActionFilter, IOrderedFilter
     /// <returns></returns>
     private bool CheckVaildResult(IActionResult result, out object data)
     {
-        data = default;
+        data = default!;
 
         // 排除以下结果，跳过规范化处理
         var isDataResult = result switch
@@ -215,12 +215,12 @@ public class SucceededUnifyResultFilter : IAsyncActionFilter, IOrderedFilter
         if (isDataResult) data = result switch
         {
             // 处理内容结果
-            ContentResult content => content.Content,
+            ContentResult content => content.Content!,
             // 处理对象结果
-            ObjectResult obj => obj.Value,
+            ObjectResult obj => obj.Value!,
             // 处理 JSON 对象
-            JsonResult json => json.Value,
-            _ => null,
+            JsonResult json => json.Value!,
+            _ => null!,
         };
 
         return isDataResult;
@@ -233,7 +233,7 @@ public class SucceededUnifyResultFilter : IAsyncActionFilter, IOrderedFilter
     /// <param name="context"></param>
     /// <param name="unifyResult"></param>
     /// <returns>返回 true 跳过处理，否则进行规范化处理</returns>
-    internal static bool CheckStatusCodeNonUnify(HttpContext context, out IUnifyResultProvider unifyResult)
+    internal static bool CheckStatusCodeNonUnify(HttpContext context, out IUnifyResultProvider? unifyResult)
     {
         // 获取终点路由特性
         var endpointFeature = context.Features.Get<IEndpointFeature>();
