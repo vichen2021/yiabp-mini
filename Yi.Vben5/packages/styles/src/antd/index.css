@@ -1,5 +1,4 @@
 /* ant-design-vue 组件库的一些样式重置 */
-@reference "@vben/tailwind-config/theme";
 
 .ant-app {
   width: 100%;
@@ -35,7 +34,10 @@
 
 .ant-message-notice-content,
 .ant-notification-notice {
-  @apply dark:border-border/60 dark:border;
+  &:is(.dark *) {
+    border-color: hsl(var(--border) / 60%);
+    border-width: 1px;
+  }
 }
 
 .form-valid-error {
@@ -73,77 +75,4 @@
 /** 时间选择器的样式 */
 .ant-app .form-valid-error .ant-picker-focused {
   box-shadow: 0 0 0 2px rgb(255 38 5 / 6%);
-}
-
-/** 前后置小圆点样式 */
-.dot-before-common,
-.dot-before-green,
-.dot-before-red {
-  position: relative;
-}
-
-.dot-before-common::before,
-.dot-before-green::before,
-.dot-before-red::before {
-  position: relative;
-  top: -2px;
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  margin-right: 5px;
-  content: '';
-  border-radius: 9999px;
-}
-
-.dot-before-red::before {
-  @apply bg-red-500;
-}
-
-.dot-before-green::before {
-  @apply bg-green-500;
-}
-
-/**
-vxe表格右上角toolbar元素之间的间距
-*/
-.vxe-button + .vxe-button.type--button {
-  margin-left: 8px !important;
-}
-
-/**
-vxe默认圆角
-*/
-html {
-  --vxe-ui-border-radius: 8px !important;
-}
-
-/**
-vxe表格loading 只加载表格 不加载上面的表单
-*/
-.vxe-grid.is--loading::before {
-  content: none !important;
-}
-
-/**
-自定义success按钮样式
-ghost按钮专用!
-*/
-.btn-success {
-  color: hsl(var(--success)) !important;
-  border-color: hsl(var(--success)) !important;
-}
-
-.btn-success:hover {
-  color: hsl(var(--success) / 50%) !important;
-  border-color: hsl(var(--success) / 50%) !important;
-}
-
-html.dark button[disabled].btn-success {
-  color: rgb(242 242 242 / 25%) !important;
-  border-color: hsl(240deg 3.7% 22%) !important;
-}
-
-button[disabled].btn-success {
-  color: rgb(50 54 57 / 25%) !important;
-  border-color: hsl(240deg 5.9% 90%) !important;
 }

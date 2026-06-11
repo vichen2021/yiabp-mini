@@ -1,8 +1,9 @@
 import type { ComputedRef } from 'vue';
 import type { RouteLocationNormalized } from 'vue-router';
 
-import { useTabbarStore } from '@vben/stores';
 import { useRoute, useRouter } from 'vue-router';
+
+import { useTabbarStore } from '@vben/stores';
 
 export function useTabs() {
   const router = useRouter();
@@ -46,7 +47,7 @@ export function useTabs() {
   }
 
   async function openTabInNewWindow(tab?: RouteLocationNormalized) {
-    await tabbarStore.openTabInNewWindow(tab || route);
+    await tabbarStore.openTabInNewWindow(tab || route, router);
   }
 
   async function closeTabByKey(key: string) {

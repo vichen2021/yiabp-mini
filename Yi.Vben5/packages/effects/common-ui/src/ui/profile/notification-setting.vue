@@ -25,7 +25,6 @@ function handleChange(fieldName: string, value: boolean) {
   emit('change', { fieldName, value });
 }
 </script>
-
 <template>
   <Form class="space-y-8">
     <div class="space-y-4">

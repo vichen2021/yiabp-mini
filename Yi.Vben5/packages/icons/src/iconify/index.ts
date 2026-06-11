@@ -1,18 +1,40 @@
-import { createIconifyIcon } from '@vben-core/icons';
+import { createIconifyIcon, IconifyIcon } from '@vben-core/icons';
 
 export * from '@vben-core/icons';
 
+export const AndroidIcon = createIconifyIcon('mdi:android');
+export const BaiduIcon = createIconifyIcon('simple-icons:baidu');
+export const CommandLineIcon = createIconifyIcon('mdi:console-line');
+export const ChromeIcon = createIconifyIcon('logos:chrome');
+export const DefaultBrowserIcon = createIconifyIcon('mdi:web');
+export const DefaultOsIcon = createIconifyIcon('mdi:desktop-classic');
+export const DingtalkIcon = createIconifyIcon('simple-icons:dingtalk');
+export const EdgeIcon = createIconifyIcon('logos:microsoft-edge');
+export const ExcelIcon = createIconifyIcon('vscode-icons:file-type-excel');
+export const FirefoxIcon = createIconifyIcon('logos:firefox');
+export const FolderIcon = createIconifyIcon('lucide:folder');
+export const GiteeIcon = createIconifyIcon('simple-icons:gitee');
+export const GitHubOutlined = createIconifyIcon('ant-design:github-outlined');
+export const GithubOAuthIcon = createIconifyIcon('ant-design:github-outlined');
+export const InBoxIcon = createIconifyIcon('ant-design:inbox-outlined');
+export const IPhoneIcon = createIconifyIcon('mdi:apple-ios');
+export const LinuxIcon = createIconifyIcon('logos:linux-tux');
+export const MemoryIcon = createIconifyIcon('mdi:memory');
 export const MdiKeyboardEsc = createIconifyIcon('mdi:keyboard-esc');
-
-export const MdiWechat = createIconifyIcon('mdi:wechat');
-
-export const MdiGithub = createIconifyIcon('mdi:github');
-
-export const MdiGoogle = createIconifyIcon('mdi:google');
-
-export const MdiQqchat = createIconifyIcon('mdi:qqchat');
-
-export const EosSystem = createIconifyIcon('eos-icons:system-group');
-
-// 个人中心
-export const ProfileIcon = createIconifyIcon('mingcute:profile-line');
+export const MenuIcon = createIconifyIcon('lucide:menu');
+export const MicromessengerIcon = createIconifyIcon('simple-icons:wechat');
+export const OkButtonIcon = createIconifyIcon('lucide:circle-check');
+export const OperaIcon = createIconifyIcon('logos:opera');
+export const OSXIcon = createIconifyIcon('mdi:apple');
+export const QuarkIcon = createIconifyIcon('simple-icons:quarkus');
+export const RedisIcon = createIconifyIcon('simple-icons:redis');
+export const SafariIcon = createIconifyIcon('logos:safari');
+export const SvgMaxKeyIcon = createIconifyIcon('svg:github');
+export const SvgMessageUrl = createIconifyIcon('svg:bell');
+export const SvgQQIcon = createIconifyIcon('svg:qqchat');
+export const SvgTopiamIcon = createIconifyIcon('svg:tdesign-logo');
+export const SvgWechatIcon = createIconifyIcon('svg:wechat');
+export const UcIcon = createIconifyIcon('simple-icons:ucbrowser');
+export const UserOutlined = createIconifyIcon('ant-design:user-outlined');
+export const VbenIcon = IconifyIcon;
+export const WindowsIcon = createIconifyIcon('logos:microsoft-windows-icon');

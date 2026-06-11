@@ -8,7 +8,7 @@ import { computed, onUnmounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { Fallback, useVbenModal, VbenAvatar } from '@vben/common-ui';
-import { DictEnum } from '@vben/constants';
+import { DictEnum } from '#/constants';
 import { getPopupContainer } from '@vben/utils';
 
 import { CopyOutlined } from '@antdv-next/icons';

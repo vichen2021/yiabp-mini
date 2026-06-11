@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import type { PointSelectionCaptchaCardProps } from '../types';
 
+import { computed } from 'vue';
+
 import { $t } from '@vben/locales';
+
 import {
   Card,
   CardContent,
@@ -9,7 +12,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@vben-core/shadcn-ui';
-import { computed } from 'vue';
 
 const props = withDefaults(defineProps<PointSelectionCaptchaCardProps>(), {
   height: '220px',
@@ -62,7 +64,9 @@ function handleClick(e: MouseEvent) {
         </div>
       </CardTitle>
     </CardHeader>
-    <CardContent class="relative mt-2 flex w-full overflow-hidden rounded p-0">
+    <CardContent
+      class="relative mt-2 flex w-full overflow-hidden rounded-sm p-0"
+    >
       <img
         v-show="captchaImage"
         :alt="$t('ui.captcha.alt')"

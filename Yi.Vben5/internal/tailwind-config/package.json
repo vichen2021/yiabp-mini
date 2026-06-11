@@ -34,14 +34,5 @@
     "@tailwindcss/typography": "catalog:",
     "tailwindcss": "catalog:",
     "tw-animate-css": "catalog:"
-  },
-  "devDependencies": {
-    "@iconify-json/ant-design": "^1.2.5",
-    "@iconify-json/bxs": "^1.2.3",
-    "@iconify-json/charm": "^1.2.3",
-    "@iconify-json/material-symbols": "^1.2.76",
-    "@iconify-json/mdi": "^1.2.3",
-    "@iconify-json/mingcute": "^1.2.7",
-    "@iconify-json/vaadin": "^1.2.1"
   }
 }

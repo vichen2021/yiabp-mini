@@ -56,18 +56,18 @@ describe('bindMethods', () => {
 
   it('should not bind getter/setter properties', () => {
     class TestWithGetterSetter {
-      private _value: string = 'test';
-
-      constructor() {
-        bindMethods(this);
-      }
-
       get value() {
         return this._value;
       }
 
       set value(newValue: string) {
         this._value = newValue;
+      }
+
+      private _value: string = 'test';
+
+      constructor() {
+        bindMethods(this);
       }
     }
 
@@ -138,8 +138,10 @@ describe('getNestedValue', () => {
     expect(result).toBe(2);
   });
 
-  it('should return the entire object if path is empty', () => {
-    expect(() => getNestedValue(data, '')()).toThrow();
+  it('should throw if path is empty', () => {
+    expect(() => getNestedValue(data, '')).toThrow(
+      'Path must be a non-empty string',
+    );
   });
 
   it('should handle paths with array indexes', () => {

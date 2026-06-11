@@ -6,7 +6,7 @@ import type { Dept } from '#/api/system/dept/model';
 import { onMounted, ref } from 'vue';
 
 import { SyncOutlined } from '@antdv-next/icons';
-import { Empty, InputSearch, Skeleton, Tree, Button } from 'antdv-next';
+import { Button, Empty, Input, Skeleton, SpaceCompact, Tree } from 'antdv-next';
 
 import { listToTree } from '@vben/utils';
 
@@ -76,18 +76,17 @@ onMounted(loadTree);
           v-if="showSearch"
           class="bg-background z-100 sticky left-0 top-0 p-[8px]"
         >
-          <InputSearch
-            v-model:value="searchValue"
-            :placeholder="$t('pages.common.search')"
-            size="small"
-            allow-clear
-          >
-            <template #addonAfter>
-              <Button @click="handleReload">
-                <SyncOutlined class="text-primary" />
-              </Button>
-            </template>
-          </InputSearch>
+          <SpaceCompact class="w-full">
+            <Input
+              v-model:value="searchValue"
+              :placeholder="$t('pages.common.search')"
+              size="small"
+              allow-clear
+            />
+            <Button size="small" @click="handleReload">
+              <SyncOutlined class="text-primary" />
+            </Button>
+          </SpaceCompact>
         </div>
         <div class="h-full overflow-x-hidden px-[8px]">
           <Tree

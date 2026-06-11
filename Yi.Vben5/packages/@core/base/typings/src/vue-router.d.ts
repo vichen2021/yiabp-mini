@@ -72,10 +72,6 @@ interface RouteMeta {
    */
   hideInTab?: boolean;
   /**
-   * 切换租户后是否强制回首页
-   */
-  requireHomeRedirect?: boolean;
-  /**
    * 图标（菜单/tab）
    */
   icon?: Component | string;
@@ -125,6 +121,10 @@ interface RouteMeta {
    * 菜单所携带的参数
    */
   query?: Recordable;
+  /**
+   * Yi backend route redirect marker.
+   */
+  requireHomeRedirect?: boolean;
   /**
    * 标题名称
    */

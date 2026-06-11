@@ -1,7 +1,7 @@
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { DictEnum } from '@vben/constants';
+import { DictEnum } from '#/constants';
 import { getPopupContainer } from '@vben/utils';
 
 import { renderDict } from '#/utils/render';
@@ -63,7 +63,7 @@ export const columns: VxeGridProps['columns'] = [
     slots: { default: 'action' },
     title: '操作',
     resizable: false,
-    width: 'auto',
+    width: 200,
   },
 ];
 

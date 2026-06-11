@@ -24,14 +24,9 @@ const buttonClass = computed(() =>
 const variant = computed(() => props.action.variant ?? 'link');
 const size = computed(() => props.action.size ?? 'default');
 
-function onClick(event?: MouseEvent) {
-  event?.stopPropagation();
+function onClick() {
   if (props.action.disabled || props.action.loading) return;
   props.action.onClick?.();
-}
-
-function stopPropagation(event: MouseEvent) {
-  event.stopPropagation();
 }
 
 function onConfirm() {
@@ -60,7 +55,6 @@ function onCancel() {
         :size="size"
         class="p-2"
         :variant="variant"
-        @click="stopPropagation"
       >
         <VbenIcon :icon="action.icon" v-if="action.icon" class="size-4" />
         <span v-if="action.text">{{ action.text }}</span>

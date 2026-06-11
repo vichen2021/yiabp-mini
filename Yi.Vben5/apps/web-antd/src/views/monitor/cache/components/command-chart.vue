@@ -32,7 +32,7 @@ onMounted(() => {
  * 从其他页面切换回来会有一个奇怪的动画效果 需要调用resize
  * 该饼图组件需要关闭animation
  */
-onActivated(() => resize(false));
+onActivated(() => resize());
 
 type EChartsOption = Parameters<typeof renderEcharts>['0'];
 function setEchartsOption(data: any[]) {

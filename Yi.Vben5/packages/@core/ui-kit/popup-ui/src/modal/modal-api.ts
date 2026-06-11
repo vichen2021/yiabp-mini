@@ -119,8 +119,8 @@ export class ModalApi {
     return this.setState({ submitting: isLocked });
   }
 
-  modalLoading(loading = true) {
-    return this.setState({ loading });
+  modalLoading(isLocked = true) {
+    return this.lock(isLocked);
   }
 
   /**

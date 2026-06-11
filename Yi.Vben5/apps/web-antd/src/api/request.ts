@@ -12,13 +12,12 @@ import {
   authenticateResponseInterceptor,
   errorMessageResponseInterceptor,
   RequestClient,
-  stringify,
 } from '@vben/request';
 import { useAccessStore } from '@vben/stores';
 
 import { message } from 'antdv-next';
 
-import { DEFAULT_TENANT_ID } from '@vben/constants';
+import { DEFAULT_TENANT_ID } from '#/constants';
 
 import { useAuthStore } from '#/store';
 import { useLoginTenantId } from '#/utils/tenant';
@@ -31,10 +30,56 @@ import {
 } from '#/utils/encryption/crypto';
 import * as encryptUtil from '#/utils/encryption/jsencrypt';
 
-const { apiURL, clientId, enableEncrypt, demoMode } = useAppConfig(
-  import.meta.env,
-  import.meta.env.PROD,
-);
+type YiRequestClient = RequestClient & {
+  deleteWithMsg<T = any>(
+    url: string,
+    config?: Parameters<RequestClient['delete']>[1],
+  ): Promise<T>;
+  postWithMsg<T = any>(
+    url: string,
+    data?: any,
+    config?: Parameters<RequestClient['post']>[2],
+  ): Promise<T>;
+  putWithMsg<T = any>(
+    url: string,
+    data?: any,
+    config?: Parameters<RequestClient['put']>[2],
+  ): Promise<T>;
+};
+
+const appConfig = useAppConfig(import.meta.env, import.meta.env.PROD) as any;
+const { apiURL } = appConfig;
+const clientId = appConfig.clientId ?? import.meta.env.VITE_GLOB_APP_CLIENT_ID;
+const enableEncrypt =
+  appConfig.enableEncrypt ?? import.meta.env.VITE_GLOB_ENABLE_ENCRYPT === 'true';
+const demoMode =
+  appConfig.demoMode ?? import.meta.env.VITE_GLOB_DEMO_MODE === 'true';
+
+function stringifyRepeat(params: Record<string, any>) {
+  const searchParams = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value === null || value === undefined) {
+      return;
+    }
+    if (Array.isArray(value)) {
+      value.forEach((item) => searchParams.append(key, String(item)));
+    } else {
+      searchParams.append(key, String(value));
+    }
+  });
+  return searchParams.toString();
+}
+
+function attachMessageMethods(client: RequestClient): YiRequestClient {
+  const yiClient = client as YiRequestClient;
+  yiClient.postWithMsg = (url, data, config) =>
+    client.post(url, data, { successMessageMode: 'message', ...config });
+  yiClient.putWithMsg = (url, data, config) =>
+    client.put(url, data, { successMessageMode: 'message', ...config });
+  yiClient.deleteWithMsg = (url, config) =>
+    client.delete(url, { successMessageMode: 'message', ...config });
+  return yiClient;
+}
 
 /**
  * 是否已经处在登出过程中了 一个标志位
@@ -160,8 +205,7 @@ function createRequestClient(baseURL: string) {
          * 1. 格式化参数 微服务在传递区间时间选择(后端的params Map类型参数)需要格式化key 否则接收不到
          * 2. 数组参数需要格式化 后端才能正常接收 会变成arr=1&arr=2&arr=3的格式来接收
          */
-        config.paramsSerializer = (params) =>
-          stringify(params, { arrayFormat: 'repeat' });
+        config.paramsSerializer = (params) => stringifyRepeat(params);
       }
 
       const { encrypt } = config;
@@ -330,7 +374,7 @@ function createRequestClient(baseURL: string) {
     }),
   );
 
-  return client;
+  return attachMessageMethods(client);
 }
 
 export const requestClient = createRequestClient(apiURL);

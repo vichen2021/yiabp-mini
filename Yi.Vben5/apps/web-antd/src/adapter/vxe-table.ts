@@ -1,4 +1,4 @@
-import type { ActionItem, TableActionProps } from '@vben/common-ui';
+import type { TableActionProps } from '@vben/common-ui';
 import type {
   VxeGridPropTypes,
   VxeTableGridOptions,
@@ -8,24 +8,11 @@ import type { PropType } from 'vue';
 
 import type { ComponentPropsMap, ComponentType } from './component';
 
-import { defineComponent, h } from 'vue';
+import { computed, defineComponent, h } from 'vue';
 
 import { useAccess } from '@vben/access';
 import { VbenTableAction as VbenTableActionCore } from '@vben/common-ui';
-import {
-  CircleAlert,
-  CircleX,
-  Copy,
-  Download,
-  Eye,
-  Info,
-  LockKeyhole,
-  LogOut,
-  MailCheck,
-  RotateCw,
-  Settings,
-  UserRoundPen,
-} from '@vben/icons';
+import { CircleX, Eye, UserRoundPen } from '@vben/icons';
 import { $te } from '@vben/locales';
 import {
   setupVbenVxeTable,
@@ -34,7 +21,7 @@ import {
 import { get, isFunction, isString } from '@vben/utils';
 
 import { objectOmit } from '@vueuse/core';
-import { Button, Image, Switch, Tag } from 'antdv-next';
+import { Button, Dropdown, Image, Popconfirm, Switch, Tag } from 'antdv-next';
 
 import { $t } from '#/locales';
 
@@ -303,62 +290,6 @@ export const useVbenVxeGrid = <T extends Record<string, any>>(
  * 通过 action 的 `auth` 字段声明权限码，结合 `useAccess().hasAccessByCodes` 判断是否展示。
  * 如需自定义权限逻辑，仍可显式传入 `:has-permission` 覆盖默认行为。
  */
-function normalizeTableAction(action: ActionItem): ActionItem {
-  if (action.icon || !action.text) {
-    return action;
-  }
-
-  const actionText = action.text;
-  const normalized: ActionItem = { ...action };
-  const iconTextMap = new Map<string, ActionItem['icon']>([
-    [$t('common.edit'), UserRoundPen],
-    [$t('pages.common.edit'), UserRoundPen],
-    [$t('common.delete'), CircleX],
-    [$t('pages.common.delete'), CircleX],
-    [$t('pages.common.download'), Download],
-    [$t('pages.common.info'), Info],
-    [$t('pages.common.preview'), Eye],
-    ['查看', Eye],
-    ['详情', Eye],
-    ['用户信息', Info],
-    ['重置密码', LockKeyhole],
-    ['权限', Settings],
-    ['分配', UserRoundPen],
-    ['初始化', RotateCw],
-    ['推送', MailCheck],
-    ['撤销', CircleAlert],
-    ['强制下线', LogOut],
-    ['取消授权', CircleX],
-    ['编辑信息', UserRoundPen],
-    ['删除流程', CircleX],
-    ['发布流程', MailCheck],
-    ['复制流程', Copy],
-    ['导出流程', Download],
-    ['作废流程', CircleAlert],
-    ['流程预览', Eye],
-    ['变量查看', Settings],
-    ['移除', CircleX],
-  ]);
-
-  normalized.icon = iconTextMap.get(actionText);
-
-  if (normalized.icon) {
-    normalized.tooltip ??= actionText;
-    normalized.danger ??= [
-      $t('common.delete'),
-      $t('pages.common.delete'),
-      '作废流程',
-      '强制下线',
-      '取消授权',
-      '撤销',
-      '移除',
-    ].includes(actionText);
-    normalized.text = undefined;
-  }
-
-  return normalized;
-}
-
 export const VbenTableAction = defineComponent({
   inheritAttrs: false,
   name: 'VbenTableAction',
@@ -388,24 +319,130 @@ export const VbenTableAction = defineComponent({
       type: String,
     },
   },
-  setup(props: TableActionProps, { attrs, slots }) {
+  setup(props: TableActionProps, { attrs }) {
     const { hasAccessByCodes } = useAccess();
     function hasPermission(auth?: string | string[]) {
       if (!auth) return true;
       return hasAccessByCodes(Array.isArray(auth) ? auth : [auth]);
     }
-    return () =>
-      h(
-        VbenTableActionCore,
+    function checkVisible(item: NonNullable<TableActionProps['actions']>[number]) {
+      if (item.auth && !hasPermission(item.auth)) return false;
+      if (typeof item.ifShow === 'boolean') return item.ifShow;
+      if (typeof item.ifShow === 'function') return item.ifShow();
+      return true;
+    }
+    const visibleActions = computed(() =>
+      (props.actions ?? []).filter((item) => checkVisible(item)),
+    );
+    const visibleDropdownActions = computed(() =>
+      (props.dropdownActions ?? []).filter((item) => checkVisible(item)),
+    );
+    const justifyContent = computed(() => {
+      switch (props.align) {
+        case 'center': {
+          return 'center';
+        }
+        case 'start': {
+          return 'flex-start';
+        }
+        default: {
+          return 'flex-end';
+        }
+      }
+    });
+    function runAction(action: NonNullable<TableActionProps['actions']>[number]) {
+      if (action.disabled || action.loading) return;
+      action.onClick?.();
+    }
+    function getButtonSize(
+      size: NonNullable<TableActionProps['actions']>[number]['size'],
+    ) {
+      if (size === 'sm' || size === 'xs') return 'small';
+      if (size === 'lg') return 'large';
+      return undefined;
+    }
+    function renderAction(action: NonNullable<TableActionProps['actions']>[number]) {
+      const button = h(
+        Button,
         {
-          hasPermission,
-          ...props,
-          ...attrs,
-          actions: props.actions?.map((item) => normalizeTableAction(item)),
-          dropdownActions: props.dropdownActions,
+          class: ['px-1', action.class],
+          danger: action.danger,
+          disabled: action.disabled,
+          loading: action.loading,
+          size: getButtonSize(action.size) ?? 'small',
+          type: 'link',
+          onClick: (event: MouseEvent) => {
+            event.stopPropagation();
+            if (!action.popConfirm) {
+              runAction(action);
+            }
+          },
         },
-        slots,
+        { default: () => action.text },
       );
+
+      if (!action.popConfirm) {
+        return button;
+      }
+
+      const popConfirm = action.popConfirm;
+      return h(
+        Popconfirm,
+        {
+          cancelText: popConfirm.cancelText,
+          okText: popConfirm.okText,
+          placement: 'left',
+          title: popConfirm.title,
+          onConfirm: () => {
+            popConfirm.confirm ? popConfirm.confirm() : runAction(action);
+          },
+        },
+        { default: () => button },
+      );
+    }
+    return () =>
+      h('div', {
+        class: ['flex items-center', props.class, attrs.class],
+        style: { justifyContent: justifyContent.value },
+      }, [
+        ...visibleActions.value.map((action) => renderAction(action)),
+        visibleDropdownActions.value.length > 0
+          ? h(
+              Dropdown,
+              {
+                placement: 'bottomRight',
+                menu: {
+                  items: visibleDropdownActions.value.map((action, index) => ({
+                    danger: action.danger,
+                    disabled: action.disabled,
+                    key: action.key ?? index,
+                    label: action.text,
+                  })),
+                  onClick: ({ key }: { key: number | string }) => {
+                    const action = visibleDropdownActions.value.find(
+                      (item, index) => (item.key ?? index) === key,
+                    );
+                    if (action) runAction(action);
+                  },
+                },
+              },
+              {
+                default: () =>
+                  h(
+                    Button,
+                    {
+                      class: 'px-1',
+                      size: 'small',
+                      type: 'link',
+                    },
+                    {
+                      default: () => props.moreText ?? $t('pages.common.more'),
+                    },
+                  ),
+              },
+            )
+          : null,
+      ]);
   },
 });
 

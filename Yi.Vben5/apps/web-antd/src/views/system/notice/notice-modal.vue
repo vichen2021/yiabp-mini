@@ -9,7 +9,7 @@ import type { RuleObject } from 'antdv-next/dist/form/types';
 import { computed, ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
-import { DictEnum } from '@vben/constants';
+import { DictEnum } from '#/constants';
 import { $t } from '@vben/locales';
 import { cloneDeep } from '@vben/utils';
 

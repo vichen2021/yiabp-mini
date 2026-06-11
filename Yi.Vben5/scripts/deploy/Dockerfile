@@ -5,6 +5,7 @@ ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 ENV NODE_OPTIONS=--max-old-space-size=8192
 ENV TZ=Asia/Shanghai
+ENV CI=true
 
 RUN npm i -g corepack
 
@@ -26,7 +27,7 @@ RUN echo "types { application/javascript js mjs; }" > /etc/nginx/conf.d/mjs.conf
     && rm -rf /etc/nginx/conf.d/default.conf
 
 # 复制构建产物
-COPY --from=builder /app/apps/web-antd/dist /usr/share/nginx/html
+COPY --from=builder /app/playground/dist /usr/share/nginx/html
 
 # 复制 nginx 配置
 COPY --from=builder /app/scripts/deploy/nginx.conf /etc/nginx/nginx.conf
