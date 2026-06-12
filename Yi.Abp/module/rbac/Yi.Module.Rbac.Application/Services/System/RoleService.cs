@@ -99,6 +99,7 @@ namespace Yi.Module.Rbac.Application.Services
 
             var entity = await MapToEntityAsync(input);
             await _repository.InsertAsync(entity);
+            await _roleManager.GiveRoleSetMenuAsync(new List<Guid> { entity.Id }, input.MenuIds ?? new List<Guid>());
             var outputDto = await MapToGetOutputDtoAsync(entity);
 
             return outputDto;
@@ -123,7 +124,7 @@ namespace Yi.Module.Rbac.Application.Services
             await MapToEntityAsync(input, entity);
             await _repository.UpdateAsync(entity);
 
-            await _roleManager.GiveRoleSetMenuAsync(new List<Guid> { id }, input.MenuIds);
+            await _roleManager.GiveRoleSetMenuAsync(new List<Guid> { id }, input.MenuIds ?? new List<Guid>());
 
             var dto = await MapToGetOutputDtoAsync(entity);
             return dto;

@@ -129,7 +129,7 @@ function handleMultiDelete() {
         <VbenTableAction
           :actions="[
             {
-              auth: 'system:notice:send',
+              auth: 'system:notice:edit',
               onClick: () => handleSendNotice(row),
               text: '推送',
             },
