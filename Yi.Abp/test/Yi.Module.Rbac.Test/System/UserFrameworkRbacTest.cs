@@ -30,7 +30,7 @@ namespace Yi.Module.Rbac.Test.System
         [Fact]
         public async Task Get_User_Test()
         {
-            var user = await _userService.GetListAsync(new UserGetListInputVo { UserName = UserConst.Admin });
+            var user = await _userService.GetListAsync(new UserGetListInputVo { UserName = UserConst.SuperAdminUserName });
             user.ShouldNotBeNull();
         }
 

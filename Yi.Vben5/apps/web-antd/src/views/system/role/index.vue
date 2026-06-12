@@ -123,6 +123,7 @@ function handleDownloadExcel() {
 
 const { hasAccessByCodes, hasAccessByRoles } = useAccess();
 
+const SUPERADMIN_ROLE_CODE = 'superadmin';
 const isSuperAdmin = computed(() => hasAccessByRoles(['superadmin']));
 
 const [RoleAuthModal, authModalApi] = useVbenModal({
@@ -175,17 +176,17 @@ function handleAssignRole(record: Role) {
           :api="() => roleUpdate(row)"
           :disabled="
             row.id === '1' ||
-            row.roleCode === 'admin' ||
+            row.roleCode === SUPERADMIN_ROLE_CODE ||
             !hasAccessByCodes(['system:role:edit'])
           "
           @reload="tableApi.query()"
         />
       </template>
       <template #action="{ row }">
-        <!-- 租户管理员不可修改admin角色 防止误操作 -->
+        <!-- 租户管理员不可修改超级管理员角色 防止误操作 -->
         <!-- 超级管理员可通过租户切换来操作租户管理员角色 -->
         <template
-          v-if="row.roleCode !== 'admin' || isSuperAdmin"
+          v-if="row.roleCode !== SUPERADMIN_ROLE_CODE || isSuperAdmin"
         >
           <VbenTableAction
             :actions="[

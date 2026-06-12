@@ -24,6 +24,13 @@ namespace Yi.Module.TenantManagement.Application.Services
     public class TenantPackageService : YiCrudAppService<TenantPackageAggregateRoot, TenantPackageGetOutputDto, TenantPackageGetListOutputDto, Guid,
         TenantPackageGetListInputVo, TenantPackageCreateInputVo, TenantPackageUpdateInputVo>, ITenantPackageService
     {
+        private static readonly HashSet<string> ExcludedPackageMenuNames = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "接口文档",
+            "租户管理",
+            "租户套餐",
+        };
+
         private readonly ISqlSugarRepository<TenantPackageAggregateRoot, Guid> _repository;
         private readonly ISqlSugarRepository<TenantPackageMenuEntity> _tenantPackageMenuRepository;
         private readonly ISqlSugarRepository<TenantAggregateRoot, Guid> _tenantRepository;
@@ -223,10 +230,8 @@ namespace Yi.Module.TenantManagement.Application.Services
         {
             var result = new MenuTreeResultDto();
 
-            // 查询全部菜单（排除租户管理菜单）
-            var menus = await _menuRepository._DbQueryable
-                .Where(x => x.MenuName != "租户管理")
-                .ToListAsync();
+            // 查询全部可下发给租户的菜单
+            var menus = await GetPackageSelectableMenusAsync();
 
             result.Menus = menus.TreeDtoBuild();
 
@@ -241,6 +246,44 @@ namespace Yi.Module.TenantManagement.Application.Services
             }
 
             return result;
+        }
+
+        private async Task<List<MenuAggregateRoot>> GetPackageSelectableMenusAsync()
+        {
+            var menus = await _menuRepository._DbQueryable
+                .Where(x => x.IsDeleted == false)
+                .ToListAsync();
+            var childrenByParentId = menus
+                .GroupBy(x => x.ParentId)
+                .ToDictionary(x => x.Key, x => x.ToList());
+            var excludedIds = new HashSet<Guid>();
+            foreach (var menu in menus.Where(x => ExcludedPackageMenuNames.Contains(x.MenuName)))
+            {
+                CollectMenuAndChildren(menu.Id, childrenByParentId, excludedIds);
+            }
+
+            return menus.Where(x => !excludedIds.Contains(x.Id)).ToList();
+        }
+
+        private static void CollectMenuAndChildren(
+            Guid menuId,
+            Dictionary<Guid, List<MenuAggregateRoot>> childrenByParentId,
+            HashSet<Guid> result)
+        {
+            if (!result.Add(menuId))
+            {
+                return;
+            }
+
+            if (!childrenByParentId.TryGetValue(menuId, out var children))
+            {
+                return;
+            }
+
+            foreach (var child in children)
+            {
+                CollectMenuAndChildren(child.Id, childrenByParentId, result);
+            }
         }
     }
 }

@@ -196,7 +196,7 @@ dotnet run --file .claude/skills/crud-generator-plus/scripts/check_entities.cs -
 
 **关键**：只有实体规范检查通过后，才能执行 CRUD 生成脚本。脚本通常只需要几秒，脚本完成后必须立即并行启动两个子 Agent：种子数据 Agent 和生成后优化检查 Agent。主线程只负责调度、等待结果、汇总 diff 和执行最终构建验证，不要在主线程手工完成大段优化。
 
-**Vben 5.7 基线**：生成的前端代码必须使用 `antdv-next`，不得再从 `ant-design-vue` 导入组件；应用内字典常量从 `#/constants` 导入。
+**Vben 5.7 基线**：生成的前端代码必须使用 `antdv-next`，不得再从 `ant-design-vue` 导入组件；应用内字典常量从 `#/constants` 导入。分页表格操作列必须使用 `VbenTableAction` 统一渲染 `actions/popConfirm`，不得再生成 `Popconfirm + ghost-button + Space` 的旧写法。
 
 ### 3a: 调用脚本生成代码
 
@@ -315,6 +315,11 @@ public bool? State { get; set; }
 ```text
 OrderNum、State、Remark、CreationTime、Action
 ```
+
+**操作列规则**：
+- 操作列固定右侧，宽度使用稳定数值 `200`，不得使用 `width: 'auto'`。
+- 操作按钮使用 `VbenTableAction`，编辑/新增子级/删除通过 `actions` 配置生成。
+- 删除确认使用 `popConfirm: { title: '确认删除？', confirm: () => handleDelete(row) }`，由公共 `VbenTableAction` 组件统一提供确认气泡样式。
 
 ### 树形实体额外输出
 

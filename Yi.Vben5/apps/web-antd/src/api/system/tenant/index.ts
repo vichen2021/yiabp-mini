@@ -119,5 +119,8 @@ export function dictSyncTenant(tenantId?: string) {
  * @returns { needForce } needForce=true 表示数据库已有数据，需确认强制初始化
  */
 export function tenantInit(id: ID, data: { isForce: boolean; username: string; password: string }) {
-  return requestClient.put<{ needForce: boolean }>(`${Api.tenantInit}/${id}`, data);
+  return requestClient.put<{ needForce: boolean }>(`${Api.tenantInit}/${id}`, data, {
+    errorMessageMode: 'message',
+    timeout: 120 * 1000,
+  });
 }

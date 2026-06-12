@@ -22,15 +22,15 @@ const title = computed(() => {
 
 const [BasicForm, formApi] = useVbenForm({
   commonConfig: {
-    formItemClass: 'col-span-2',
-    labelWidth: 100,
+    formItemClass: 'col-span-1',
+    labelWidth: 112,
     componentProps: {
       class: 'w-full',
     },
   },
   schema: drawerSchema(),
   showDefaultActions: false,
-  wrapperClass: 'grid-cols-2',
+  wrapperClass: 'grid-cols-1',
 });
 
 async function setupPackageSelect() {
@@ -130,5 +130,14 @@ async function handleClosed() {
 <style lang="scss" scoped>
 :deep(.ant-divider) {
   margin: 8px 0;
+}
+
+:deep(.ant-form-item-label) {
+  text-align: right;
+}
+
+:deep(.ant-form-item-label > label) {
+  justify-content: flex-end;
+  width: 100%;
 }
 </style>

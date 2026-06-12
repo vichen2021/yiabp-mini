@@ -47,7 +47,7 @@ VITE_GLOB_APP_CLIENT_ID=e5cd7e4891bf95d1d19206ce24a7b32e
 const namespace = `${import.meta.env.VITE_APP_NAMESPACE}-${appVersion}-${env}`;
 ```
 
-`appVersion` 来自 `apps/web-antd/package.json`。前端版本升级到 `2.0.0` 后，最终命名空间会随版本变化，从而自然隔离旧版本缓存。
+`appVersion` 来自 `apps/web-antd/package.json`。框架版本升级到 `2.1.0` 后，最终命名空间会随版本变化，从而自然隔离旧版本缓存。
 
 ### 加密配置
 

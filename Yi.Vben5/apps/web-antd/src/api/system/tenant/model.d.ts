@@ -3,7 +3,7 @@ export interface Tenant {
   name: string;
   entityVersion: number;
   tenantConnectionString: string;
-  dbType: number;
+  dbType: number | string;
   state: boolean;
   isDeleted: boolean;
   creationTime: string;

@@ -78,6 +78,10 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
           link: 'introduction/ai-development',
           text: '全栈+AI开发指南',
         },
+        {
+          link: 'introduction/changelog',
+          text: '更新日志',
+        },
       ],
     },
     {

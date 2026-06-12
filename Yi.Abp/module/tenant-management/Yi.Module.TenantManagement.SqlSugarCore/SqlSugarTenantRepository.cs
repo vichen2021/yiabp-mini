@@ -31,17 +31,40 @@ namespace Yi.Module.TenantManagement.SqlSugarCore
                 .ToPageListAsync(skipCount, maxResultCount);
         }
 
-        public Task<bool> DatabaseExistsAsync(string dbName)
+        public Task<bool> DatabaseExistsAsync(TenantAggregateRoot tenant)
         {
             try
             {
+                if (tenant.DbType == SqlSugar.DbType.Sqlite)
+                {
+                    var dataSource = GetSqliteDataSource(tenant.TenantConnectionString);
+                    return Task.FromResult(!string.IsNullOrWhiteSpace(dataSource) && File.Exists(dataSource));
+                }
+
                 var dbs = _Db.DbMaintenance.GetDataBaseList();
-                return Task.FromResult(dbs.Any(x => x?.ToString() == dbName));
+                return Task.FromResult(dbs.Any(x => x?.ToString() == tenant.Name));
             }
             catch
             {
                 return Task.FromResult(false);
             }
+        }
+
+        private static string? GetSqliteDataSource(string connectionString)
+        {
+            var dataSource = connectionString
+                .Split(';', StringSplitOptions.RemoveEmptyEntries)
+                .Select(part => part.Split('=', 2))
+                .Where(parts => parts.Length == 2)
+                .FirstOrDefault(parts =>
+                    parts[0].Trim().Equals("Data Source", StringComparison.OrdinalIgnoreCase) ||
+                    parts[0].Trim().Equals("DataSource", StringComparison.OrdinalIgnoreCase) ||
+                    parts[0].Trim().Equals("Filename", StringComparison.OrdinalIgnoreCase))?[1]
+                .Trim();
+
+            return string.IsNullOrWhiteSpace(dataSource)
+                ? null
+                : Path.GetFullPath(dataSource);
         }
 
         public Task<int> GetTableCountAsync()

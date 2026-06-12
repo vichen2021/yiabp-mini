@@ -8,7 +8,7 @@ import type { PropType } from 'vue';
 
 import type { ComponentPropsMap, ComponentType } from './component';
 
-import { computed, defineComponent, h } from 'vue';
+import { defineComponent, h } from 'vue';
 
 import { useAccess } from '@vben/access';
 import { VbenTableAction as VbenTableActionCore } from '@vben/common-ui';
@@ -21,7 +21,7 @@ import {
 import { get, isFunction, isString } from '@vben/utils';
 
 import { objectOmit } from '@vueuse/core';
-import { Button, Dropdown, Image, Popconfirm, Switch, Tag } from 'antdv-next';
+import { Button, Image, Switch, Tag } from 'antdv-next';
 
 import { $t } from '#/locales';
 
@@ -325,124 +325,12 @@ export const VbenTableAction = defineComponent({
       if (!auth) return true;
       return hasAccessByCodes(Array.isArray(auth) ? auth : [auth]);
     }
-    function checkVisible(item: NonNullable<TableActionProps['actions']>[number]) {
-      if (item.auth && !hasPermission(item.auth)) return false;
-      if (typeof item.ifShow === 'boolean') return item.ifShow;
-      if (typeof item.ifShow === 'function') return item.ifShow();
-      return true;
-    }
-    const visibleActions = computed(() =>
-      (props.actions ?? []).filter((item) => checkVisible(item)),
-    );
-    const visibleDropdownActions = computed(() =>
-      (props.dropdownActions ?? []).filter((item) => checkVisible(item)),
-    );
-    const justifyContent = computed(() => {
-      switch (props.align) {
-        case 'center': {
-          return 'center';
-        }
-        case 'start': {
-          return 'flex-start';
-        }
-        default: {
-          return 'flex-end';
-        }
-      }
-    });
-    function runAction(action: NonNullable<TableActionProps['actions']>[number]) {
-      if (action.disabled || action.loading) return;
-      action.onClick?.();
-    }
-    function getButtonSize(
-      size: NonNullable<TableActionProps['actions']>[number]['size'],
-    ) {
-      if (size === 'sm' || size === 'xs') return 'small';
-      if (size === 'lg') return 'large';
-      return undefined;
-    }
-    function renderAction(action: NonNullable<TableActionProps['actions']>[number]) {
-      const button = h(
-        Button,
-        {
-          class: ['px-1', action.class],
-          danger: action.danger,
-          disabled: action.disabled,
-          loading: action.loading,
-          size: getButtonSize(action.size) ?? 'small',
-          type: 'link',
-          onClick: (event: MouseEvent) => {
-            event.stopPropagation();
-            if (!action.popConfirm) {
-              runAction(action);
-            }
-          },
-        },
-        { default: () => action.text },
-      );
-
-      if (!action.popConfirm) {
-        return button;
-      }
-
-      const popConfirm = action.popConfirm;
-      return h(
-        Popconfirm,
-        {
-          cancelText: popConfirm.cancelText,
-          okText: popConfirm.okText,
-          placement: 'left',
-          title: popConfirm.title,
-          onConfirm: () => {
-            popConfirm.confirm ? popConfirm.confirm() : runAction(action);
-          },
-        },
-        { default: () => button },
-      );
-    }
     return () =>
-      h('div', {
-        class: ['flex items-center', props.class, attrs.class],
-        style: { justifyContent: justifyContent.value },
-      }, [
-        ...visibleActions.value.map((action) => renderAction(action)),
-        visibleDropdownActions.value.length > 0
-          ? h(
-              Dropdown,
-              {
-                placement: 'bottomRight',
-                menu: {
-                  items: visibleDropdownActions.value.map((action, index) => ({
-                    danger: action.danger,
-                    disabled: action.disabled,
-                    key: action.key ?? index,
-                    label: action.text,
-                  })),
-                  onClick: ({ key }: { key: number | string }) => {
-                    const action = visibleDropdownActions.value.find(
-                      (item, index) => (item.key ?? index) === key,
-                    );
-                    if (action) runAction(action);
-                  },
-                },
-              },
-              {
-                default: () =>
-                  h(
-                    Button,
-                    {
-                      class: 'px-1',
-                      size: 'small',
-                      type: 'link',
-                    },
-                    {
-                      default: () => props.moreText ?? $t('pages.common.more'),
-                    },
-                  ),
-              },
-            )
-          : null,
-      ]);
+      h(VbenTableActionCore, {
+        ...attrs,
+        ...props,
+        hasPermission,
+      });
   },
 });
 

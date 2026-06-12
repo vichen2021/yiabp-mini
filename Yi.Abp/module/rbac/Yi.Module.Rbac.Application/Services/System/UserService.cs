@@ -148,7 +148,7 @@ namespace Yi.Module.Rbac.Application.Services
         [Permission("system:user:edit")]
         public override async Task<UserGetOutputDto> UpdateAsync(Guid id, UserUpdateInputVo input)
         {
-            if (input.UserName == UserConst.Admin || input.UserName == UserConst.TenantAdmin)
+            if (input.UserName == UserConst.SuperAdminUserName || input.UserName == UserConst.TenantAdmin)
             {
                 throw new UserFriendlyException(UserConst.Name_Not_Allowed);
             }

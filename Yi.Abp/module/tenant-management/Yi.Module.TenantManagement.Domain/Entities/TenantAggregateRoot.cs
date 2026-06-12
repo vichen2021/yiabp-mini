@@ -24,6 +24,11 @@ namespace Yi.Module.TenantManagement.Domain.Entities
             SetName(name);
         }
 
+        public static TenantAggregateRoot Create(Guid id, [NotNull] string name)
+        {
+            return new TenantAggregateRoot(id, name);
+        }
+
         [SugarColumn(IsPrimaryKey = true)]
         public override Guid Id { get; protected set; }
 

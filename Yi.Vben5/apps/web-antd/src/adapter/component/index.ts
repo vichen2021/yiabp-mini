@@ -55,7 +55,32 @@ import {
 } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
-import { notification } from 'antdv-next';
+import {
+  AutoComplete,
+  Button,
+  Cascader,
+  Checkbox,
+  CheckboxGroup,
+  DateRangePicker,
+  DatePicker,
+  Divider,
+  Input,
+  InputNumber,
+  InputPassword,
+  Mentions,
+  Radio,
+  RadioGroup,
+  Rate,
+  Select,
+  Space,
+  Switch,
+  TextArea,
+  TimePicker,
+  TimeRangePicker,
+  TreeSelect,
+  Upload,
+  notification,
+} from 'antdv-next';
 
 const RichTextarea = defineAsyncComponent(() =>
   import('#/components/tinymce/index').then((res) => res.Tinymce),
@@ -69,71 +94,8 @@ const ImageUpload = defineAsyncComponent(() =>
   import('#/components/upload').then((res) => res.ImageUpload),
 );
 
-const AutoComplete = defineAsyncComponent(
-  () => import('antdv-next/dist/auto-complete/index'),
-);
-const Button = defineAsyncComponent(
-  () => import('antdv-next/dist/button/index'),
-);
-const Cascader = defineAsyncComponent(
-  () => import('antdv-next/dist/cascader/index'),
-);
-const Checkbox = defineAsyncComponent(
-  () => import('antdv-next/dist/checkbox/index'),
-);
-const CheckboxGroup = defineAsyncComponent(() =>
-  import('antdv-next/dist/checkbox/index').then((res) => res.CheckboxGroup),
-);
-const DatePicker = defineAsyncComponent(
-  () => import('antdv-next/dist/date-picker/index'),
-);
-const Divider = defineAsyncComponent(
-  () => import('antdv-next/dist/divider/index'),
-);
-const Input = defineAsyncComponent(() => import('antdv-next/dist/input/index'));
-const InputNumber = defineAsyncComponent(
-  () => import('antdv-next/dist/input-number/index'),
-);
-const InputPassword = defineAsyncComponent(() =>
-  import('antdv-next/dist/input/index').then((res) => res.InputPassword),
-);
-const Mentions = defineAsyncComponent(
-  () => import('antdv-next/dist/mentions/index'),
-);
-const Radio = defineAsyncComponent(() => import('antdv-next/dist/radio/index'));
-const RadioGroup = defineAsyncComponent(() =>
-  import('antdv-next/dist/radio/index').then((res) => res.RadioGroup),
-);
-const RangePicker = defineAsyncComponent(() =>
-  import('antdv-next/dist/date-picker/index').then(
-    (res) => res.DateRangePicker,
-  ),
-);
-const Rate = defineAsyncComponent(() => import('antdv-next/dist/rate/index'));
-const Select = defineAsyncComponent(
-  () => import('antdv-next/dist/select/index'),
-);
-const Space = defineAsyncComponent(() => import('antdv-next/dist/space/index'));
-const Switch = defineAsyncComponent(
-  () => import('antdv-next/dist/switch/index'),
-);
-const Textarea = defineAsyncComponent(() =>
-  import('antdv-next/dist/input/TextArea'),
-);
-const TimePicker = defineAsyncComponent(
-  () => import('antdv-next/dist/time-picker/index'),
-);
-const TimeRangePicker = defineAsyncComponent(() =>
-  import('antdv-next/dist/time-picker/index').then(
-    (res) => res.TimeRangePicker,
-  ),
-);
-const TreeSelect = defineAsyncComponent(
-  () => import('antdv-next/dist/tree-select/index'),
-);
-const Upload = defineAsyncComponent(
-  () => import('antdv-next/dist/upload/index'),
-);
+const RangePicker = DateRangePicker;
+const Textarea = TextArea;
 
 const VbenInputCaptcha = defineComponent({
   name: 'VbenInputCaptcha',

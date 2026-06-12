@@ -134,6 +134,7 @@ const isSuperAdmin = computed(() => {
 const initTenantId = ref('');
 const initUsername = ref('');
 const initPassword = ref('');
+const initializingTenantId = ref('');
 
 const [InitTenantModal, initTenantModalApi] = useVbenModal({
   onConfirm: handleInitConfirm,
@@ -154,27 +155,41 @@ async function handleInitConfirm() {
   }
 
   initTenantModalApi.close();
+  initializingTenantId.value = initTenantId.value;
 
-  const result = await tenantInit(initTenantId.value, {
-    isForce: false,
-    username: initUsername.value,
-    password: initPassword.value,
-  });
-
-  if (result?.needForce) {
-    confirmDangerAction({
-      content: '数据库有数据，是否清除所有数据强制初始化？',
-      onConfirmed: async () => {
-        await tenantInit(initTenantId.value, {
-          isForce: true,
-          username: initUsername.value,
-          password: initPassword.value,
-        });
-        await tableApi.query();
-      },
+  try {
+    const result = await tenantInit(initTenantId.value, {
+      isForce: false,
+      username: initUsername.value,
+      password: initPassword.value,
     });
-  } else {
-    await tableApi.query();
+
+    if (result?.needForce) {
+      const confirmed = await confirmDangerAction({
+        content: '数据库有数据，是否清除所有数据强制初始化？',
+        onConfirmed: async () => {
+          try {
+            await tenantInit(initTenantId.value, {
+              isForce: true,
+              username: initUsername.value,
+              password: initPassword.value,
+            });
+            await tableApi.query();
+          } finally {
+            initializingTenantId.value = '';
+          }
+        },
+      });
+      if (!confirmed) {
+        initializingTenantId.value = '';
+      }
+    } else {
+      await tableApi.query();
+      initializingTenantId.value = '';
+    }
+  } catch (error) {
+    initializingTenantId.value = '';
+    console.error(error);
   }
 }
 </script>
@@ -222,18 +237,22 @@ async function handleInitConfirm() {
           :actions="[
             {
               auth: 'system:tenant:edit',
+              disabled: initializingTenantId === row.id,
               onClick: () => handleEdit(row),
               text: $t('pages.common.edit'),
             },
             {
               auth: 'system:tenant:edit',
               class: 'text-green-600 hover:text-green-700',
+              disabled: !!initializingTenantId && initializingTenantId !== row.id,
+              loading: initializingTenantId === row.id,
               onClick: () => handleInit(row),
-              text: '初始化',
+              text: initializingTenantId === row.id ? '初始化中' : '初始化',
             },
             {
               auth: 'system:tenant:remove',
               danger: true,
+              disabled: initializingTenantId === row.id,
               popConfirm: {
                 title: '确认删除？',
                 confirm: () => handleDelete(row),

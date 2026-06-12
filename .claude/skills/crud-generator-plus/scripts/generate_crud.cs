@@ -1016,7 +1016,7 @@ string GenerateDataTs(EntityInfo entity, List<EnumInfo> enums)
     sb.AppendLine("  { title: '状态', field: 'state', width: 100, slots: { default: ({ row }) => renderDict(String(row.state), DictEnum.SYS_NORMAL_DISABLE) } },");
     sb.AppendLine("  { title: '备注', field: 'remark' },");
     sb.AppendLine("  { title: '创建时间', field: 'creationTime' },");
-    sb.AppendLine("  { field: 'action', fixed: 'right', slots: { default: 'action' }, title: '操作', resizable: false, width: 'auto' },");
+    sb.AppendLine("  { field: 'action', fixed: 'right', slots: { default: 'action' }, title: '操作', resizable: false, width: 200 },");
     sb.AppendLine("];");
     sb.AppendLine();
 
@@ -1075,28 +1075,17 @@ string GenerateIndexVue(EntityInfo entity)
 
     if (entity.IsTree)
     {
-        sb.AppendLine("import { eachTree, getVxePopupContainer } from '@vben/utils';");
+        sb.AppendLine("import { eachTree } from '@vben/utils';");
     }
-    else
-    {
-        sb.AppendLine("import { getVxePopupContainer } from '@vben/utils';");
-    }
-    if (entity.IsTree)
-    {
-        sb.AppendLine("import { Popconfirm, Space } from 'antdv-next';");
-    }
-    else
-    {
-        sb.AppendLine("import { Popconfirm, Space } from 'antdv-next';");
-    }
+    sb.AppendLine("import { Space } from 'antdv-next';");
     sb.AppendLine();
     if (entity.IsTree)
     {
-        sb.AppendLine("import { useVbenVxeGrid } from '#/adapter/vxe-table';");
+        sb.AppendLine("import { useVbenVxeGrid, VbenTableAction } from '#/adapter/vxe-table';");
     }
     else
     {
-        sb.AppendLine("import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';");
+        sb.AppendLine("import { useVbenVxeGrid, VbenTableAction, vxeCheckboxChecked } from '#/adapter/vxe-table';");
     }
     sb.AppendLine($"import {{ {entity.EntityNameLower}List, {entity.EntityNameLower}Remove }} from '#/api/{entity.EntityNameKebab}';");
     sb.AppendLine();
@@ -1277,22 +1266,34 @@ string GenerateIndexVue(EntityInfo entity)
     sb.AppendLine("        </Space>");
     sb.AppendLine("      </template>");
     sb.AppendLine("      <template #action=\"{ row }\">");
-    sb.AppendLine("        <Space>");
-    sb.AppendLine($"          <ghost-button v-access:code=\"['{entity.Module}:{entity.EntityNameKebab}:edit']\" @click=\"handleEdit(row)\">");
-    sb.AppendLine("            {{ $t('pages.common.edit') }}");
-    sb.AppendLine("          </ghost-button>");
+    sb.AppendLine("        <VbenTableAction");
+    sb.AppendLine("          :actions=\"[");
+    sb.AppendLine("            {");
+    sb.AppendLine($"              auth: '{entity.Module}:{entity.EntityNameKebab}:edit',");
+    sb.AppendLine("              onClick: () => handleEdit(row),");
+    sb.AppendLine("              text: $t('pages.common.edit'),");
+    sb.AppendLine("            },");
     if (entity.IsTree)
     {
-        sb.AppendLine($"          <ghost-button class=\"btn-success\" v-access:code=\"['{entity.Module}:{entity.EntityNameKebab}:add']\" @click=\"handleSubAdd(row)\">");
-        sb.AppendLine("            {{ $t('pages.common.add') }}");
-        sb.AppendLine("          </ghost-button>");
+        sb.AppendLine("            {");
+        sb.AppendLine($"              auth: '{entity.Module}:{entity.EntityNameKebab}:add',");
+        sb.AppendLine("              class: 'text-success hover:text-success',");
+        sb.AppendLine("              onClick: () => handleSubAdd(row),");
+        sb.AppendLine("              text: $t('pages.common.add'),");
+        sb.AppendLine("            },");
     }
-    sb.AppendLine($"          <Popconfirm :get-popup-container=\"getVxePopupContainer\" placement=\"left\" title=\"确认删除？\" @confirm=\"handleDelete(row)\">");
-    sb.AppendLine($"            <ghost-button danger v-access:code=\"['{entity.Module}:{entity.EntityNameKebab}:remove']\" @click.stop=\"\">");
-    sb.AppendLine("              {{ $t('pages.common.delete') }}");
-    sb.AppendLine("            </ghost-button>");
-    sb.AppendLine("          </Popconfirm>");
-    sb.AppendLine("        </Space>");
+    sb.AppendLine("            {");
+    sb.AppendLine($"              auth: '{entity.Module}:{entity.EntityNameKebab}:remove',");
+    sb.AppendLine("              danger: true,");
+    sb.AppendLine("              popConfirm: {");
+    sb.AppendLine("                title: '确认删除？',");
+    sb.AppendLine("                confirm: () => handleDelete(row),");
+    sb.AppendLine("              },");
+    sb.AppendLine("              text: $t('pages.common.delete'),");
+    sb.AppendLine("            },");
+    sb.AppendLine("          ]\"");
+    sb.AppendLine("          align=\"center\"");
+    sb.AppendLine("        />");
     sb.AppendLine("      </template>");
     sb.AppendLine("    </BasicTable>");
     sb.AppendLine($"    <{entity.EntityName}Drawer @reload=\"tableApi.query()\" />");

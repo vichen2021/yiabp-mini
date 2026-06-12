@@ -35,8 +35,8 @@ namespace Yi.Module.Rbac.SqlSugarCore
         {
             //获取当前用户的信息
             if (CurrentUser.Id == null || CurrentUser.IsRefreshToken()) return;
-            //管理员不过滤
-            if (CurrentUser.UserName.Equals(UserConst.Admin) || CurrentUser.Roles.Any(f => f.Equals(UserConst.AdminRolesCode))) return;
+            //平台超级管理员不过滤
+            if (CurrentUser.UserName.Equals(UserConst.SuperAdminUserName) || CurrentUser.Roles.Any(f => f.Equals(UserConst.SuperAdminRoleCode))) return;
             var expUser = Expressionable.Create<UserAggregateRoot>();
             var expRole = Expressionable.Create<RoleAggregateRoot>();
 
