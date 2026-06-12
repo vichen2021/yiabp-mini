@@ -57,7 +57,7 @@ export async function getAllMenusApi() {
 
 ## 权限绑定
 
-权限码格式推荐与后端 2.0 自动权限保持一致：
+权限码格式推荐与后端 2.1 自动权限保持一致：
 
 ```text
 {module}:{entity}:{action}
@@ -66,10 +66,10 @@ export async function getAllMenusApi() {
 示例：
 
 ```text
-system:user:list
+system:user:query
 system:user:add
 system:user:edit
-system:user:delete
+system:user:remove
 ```
 
 按钮权限：
@@ -81,7 +81,7 @@ system:user:delete
 ```
 
 ::: warning 兼容说明
-历史种子数据中可能存在 `remove`、`query`、`resetPwd` 等权限码。新增菜单建议使用 `list`、`detail`、`add`、`edit`、`delete`、`export`、`import` 等标准动作；需要兼容旧码时，由后端显式映射。
+历史种子数据中可能存在 `resetPwd` 等自定义权限码。新增菜单建议优先使用 `query`、`add`、`edit`、`remove`、`export`、`import` 等标准动作，并与后端服务实际权限保持一致；需要兼容旧码时，由后端显式映射。
 :::
 
 ## 图标配置

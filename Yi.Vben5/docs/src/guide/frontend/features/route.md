@@ -33,6 +33,14 @@ export const overridesPreferences = defineOverridesPreferences({
 | `RootMenu` | 转为一级根菜单，并隐藏子菜单 |
 | 业务页面路径 | 拼成 `/{component}`，例如 `system/user/index` |
 
+## 2.1 / Vben 5.7 注意事项
+
+- 后端路由模式保持不变，仍由 `/account/router` 返回菜单路由。
+- 普通角色授权菜单时，如果只关联了子菜单，后端会在返回路由前补齐父级目录，避免动态路由树丢节点。
+- 前端本地只保留登录页、异常页等基础路由，业务菜单不要硬编码到前端。
+- 页面组件路径仍使用 `apps/web-antd/src/views` 下的相对路径，不写 `views/` 和 `.vue`。
+- 平台超级管理员角色码为 `superadmin`，租户管理员角色码为 `admin`，不要在前端把两者混用。
+
 ## 菜单 Meta
 
 后端路由的 `meta` 会映射为 Vben 路由元数据：

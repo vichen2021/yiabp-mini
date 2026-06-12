@@ -2,12 +2,16 @@
 
 ## 功能说明
 
-初始化完整的业务模块脚手架，包括后端（C# .NET with ABP framework）和前端（Vue3 + Vben5 + Ant Design Vue）。创建实体类、DTOs、服务接口、服务实现、菜单种子数据、API 文件和视图组件，遵循项目的既定模式。
+初始化完整的业务模块脚手架，包括后端（C# .NET + ABP + SqlSugar）和前端（Vue3 + Vben 5.7 + antdv-next）。创建实体类、DTOs、服务接口、服务实现、菜单种子数据、API 文件和视图组件，遵循项目的既定模式。
 
 ::: warning 2.0 说明
 ~~旧版 `code-gen` 模块和 `Yi.Abp.Tool` 代码生成能力不再作为后端模块维护。~~
 
 2.0 起 CRUD 脚手架由 Skills 执行。生成时业务模块命名空间使用 `Yi.Module.*`，不要再使用 `Yi.Framework.{Module}`。
+:::
+
+::: tip 2.1 说明
+2.1 起，生成器以前端 Vben 5.7/antdv-next 为基线。生成页面应使用 `VbenTableAction`、`actions/popConfirm`、`antdv-next` 组件导入和 `#/constants` 字典常量，不再生成旧版 `ant-design-vue`、`Popconfirm + Space + ghost-button` 写法。
 :::
 
 ## ⚠️ 重要提示
@@ -51,6 +55,8 @@
 - [ ] View Index：`views/{module-name}/{entity-name}/index.vue` ⚠️ 关键
 - [ ] View Data：`views/{module-name}/{entity-name}/data.ts` ⚠️ 关键
 - [ ] View Drawer：`views/{module-name}/{entity-name}/{entity-name}-drawer.vue` ⚠️ 关键
+- [ ] 表格操作列：使用 `VbenTableAction` + `actions` + `popConfirm`
+- [ ] 组件导入：从 `antdv-next` 导入前端组件
 
 ### 验证 ⚠️ 必需 - 必须通过
 
@@ -141,7 +147,7 @@
 - 示例：`app:app-nav:list`, `app:app-nav:add`, `app:app-nav:edit`, `app:app-nav:delete`
 
 ::: warning 兼容说明
-2.0 权限自动推断的标准删除动作是 `delete`。历史菜单种子里可能仍有 `remove`、`query`、`resetPwd` 等权限码；新增功能建议使用标准动作，兼容旧权限时通过 `[Permission]` 或 `Operation:Permission:Mappings` 显式映射。
+当前基础菜单仍以 `query/add/edit/remove` 为主。历史菜单种子里也可能存在 `resetPwd` 等自定义权限码；新增功能应与后端服务实际权限保持一致，兼容旧权限时通过 `[Permission]` 或 `Operation:Permission:Mappings` 显式映射。
 :::
 
 **步骤 2 检查点 - 在继续之前验证：**
@@ -156,6 +162,8 @@
 ### 步骤 3：创建前端文件 ⚠️ 必需 - 不要跳过
 
 **重要**：前端文件是模块功能所必需的。仅创建后端文件会导致模块不完整。
+
+**Vben 5.7 基线**：生成的前端代码必须使用 `antdv-next`，不得再从 `ant-design-vue` 导入组件；应用内字典常量从 `#/constants` 导入。分页表格操作列必须使用 `VbenTableAction` 统一渲染 `actions/popConfirm`，不得再生成 `Popconfirm + ghost-button + Space` 的旧写法。
 
 #### 3.1 API 文件 ⚠️ 关键
 

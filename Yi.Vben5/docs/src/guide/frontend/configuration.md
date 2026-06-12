@@ -1,5 +1,13 @@
 # 配置项
 
+## 2.1 / Vben 5.7 变化
+
+- 管理端底座已同步到 Vben 5.7，应用包仍位于 `apps/web-antd`。
+- 开发配置文件使用 `apps/web-antd/vite.config.ts`。
+- UI 组件库使用 antdv-next；业务代码需要手动导入底层组件时，从 `antdv-next` 导入。
+- 后端路由模式仍为 `backend`，菜单和按钮权限由后端返回。
+- `VITE_APP_NAMESPACE` 会和应用版本、环境一起组成本地存储前缀，升级版本后会自然隔离旧缓存。
+
 ## 环境变量
 
 环境变量文件位于 `apps/web-antd/` 目录下：
@@ -48,6 +56,10 @@ const namespace = `${import.meta.env.VITE_APP_NAMESPACE}-${appVersion}-${env}`;
 ```
 
 `appVersion` 来自 `apps/web-antd/package.json`。框架版本升级到 `2.1.0` 后，最终命名空间会随版本变化，从而自然隔离旧版本缓存。
+
+::: warning 注意
+如果本地出现旧版本缓存导致的菜单、主题、标签页异常，优先确认当前命名空间是否已经变化；必要时清理浏览器 LocalStorage 后重新登录。
+:::
 
 ### 加密配置
 

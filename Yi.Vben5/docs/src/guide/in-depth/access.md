@@ -47,7 +47,7 @@ export const overridesPreferences = defineOverridesPreferences({
 
 ## 权限码
 
-2.0 推荐权限码格式：
+2.1 推荐权限码格式：
 
 ```text
 {module}:{entity}:{action}
@@ -56,11 +56,11 @@ export const overridesPreferences = defineOverridesPreferences({
 示例：
 
 ```text
-system:user:list
+system:user:query
 system:user:add
 system:user:edit
-system:user:delete
-monitor:audit-log:list
+system:user:remove
+monitor:operlog:query
 ```
 
 后端 `Yi.Framework.Operation` 会根据模块、实体和动作自动推断权限码，也可以通过 `[Permission]` 或配置映射显式指定。
@@ -68,6 +68,12 @@ monitor:audit-log:list
 ::: warning 兼容说明
 历史菜单数据中可能仍有 `remove`、`query`、`resetPwd` 等权限码。新增功能建议使用标准动作；兼容旧菜单时，需要后端显式映射或在服务方法上指定权限。
 :::
+
+## 超级管理员
+
+2.1 起平台超级管理员角色码为 `superadmin`，普通租户管理员角色码为 `admin`。平台超管通常同时拥有 `*:*:*` 权限码，前端权限判断会把它视为全部按钮权限。
+
+租户中不应出现 `superadmin` 角色。租户用户能访问哪些菜单，取决于租户套餐和角色菜单授权。
 
 ## 按钮权限
 
@@ -106,7 +112,7 @@ const { hasAccessByCodes } = useAccess();
 ```vue
 <template>
   <Button v-access:code="'system:user:add'">新增用户</Button>
-  <Button v-access:code="['system:user:delete']">删除用户</Button>
+  <Button v-access:code="['system:user:remove']">删除用户</Button>
 </template>
 ```
 
@@ -122,8 +128,8 @@ const { hasAccessByRoles } = useAccess();
 </script>
 
 <template>
-  <Button v-if="hasAccessByRoles(['admin'])">管理员可见</Button>
-  <Button v-access:role="['admin', 'super']">管理角色可见</Button>
+  <Button v-if="hasAccessByRoles(['superadmin'])">平台超管可见</Button>
+  <Button v-access:role="['admin']">租户管理员可见</Button>
 </template>
 ```
 

@@ -1,6 +1,14 @@
 # 表单组件
 
-基于 Ant Design Vue 的表单二次封装。
+基于 Vben Form 与 antdv-next 的表单二次封装。业务页面通过 `#/adapter/form` 使用统一适配器，不直接在页面内组装底层 antdv-next 表单。
+
+## 2.1 / Vben 5.7 约定
+
+- 业务表单优先使用 `useVbenForm`，弹窗和抽屉中的表单也使用同一套 schema。
+- antdv-next 基础组件由 `apps/web-antd/src/adapter/component/index.ts` 统一注册到表单组件适配器。
+- 新页面不要再从 `ant-design-vue` 导入组件；需要手动导入时使用 `antdv-next`。
+- 字典常量从 `#/constants` 导入，不再从 `@vben/constants` 导入。
+- 抽屉、弹窗中的表单组件需要确认首次打开即可渲染真实组件，不能只显示组件名称文本。
 
 ## 基本使用
 
@@ -23,8 +31,8 @@ const [BasicForm, formApi] = useVbenForm({
 ## Schema 配置
 
 ```typescript
+import { DictEnum } from '#/constants';
 import { getDictOptions } from '#/utils/dict';
-import { DictEnum } from '@vben/constants';
 
 export const formSchema: FormSchemaGetter = () => [
   {
@@ -43,7 +51,7 @@ export const formSchema: FormSchemaGetter = () => [
     rules: 'selectRequired',  // 选择必填
   },
   {
-    component: 'InputTextArea',
+    component: 'Textarea',
     fieldName: 'remark',
     label: '备注',
     formItemClass: 'col-span-2',  // 跨两列
@@ -111,7 +119,7 @@ import { z } from '#/adapter';
 
 ```typescript
 import { getDictOptions } from '#/utils/dict';
-import { DictEnum } from '@vben/constants';
+import { DictEnum } from '#/constants';
 
 {
   component: 'Select',
@@ -123,6 +131,21 @@ import { DictEnum } from '@vben/constants';
   },
 }
 ```
+
+## 常用组件
+
+| 场景 | 推荐组件 | 说明 |
+|------|----------|------|
+| 文本 | `Input` | 默认文本输入 |
+| 长文本 | `Textarea` | 备注、描述、内容 |
+| 数值 | `InputNumber` | 排序、金额、数量 |
+| 字典/枚举 | `Select` | 配合 `getDictOptions` |
+| 布尔状态 | `Switch` / `RadioGroup` | 按业务展示选择 |
+| 时间 | `DatePicker` / `RangePicker` | 单时间或时间范围 |
+| 远程下拉 | `ApiSelect` / `ApiTreeSelect` | 关联用户、部门、分类等 |
+| 上传 | `FileUpload` / `ImageUpload` | 文件和图片 |
+
+生成器生成后必须检查关联 Id、枚举、图片、文件、金额、长文本等字段，不能机械保留为普通 `Input`。
 
 ## 相关文档
 

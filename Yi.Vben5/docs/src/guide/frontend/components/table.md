@@ -2,6 +2,14 @@
 
 基于 VXE Table 的 Grid 配置式表格封装。
 
+## 2.1 / Vben 5.7 约定
+
+- 分页列表统一通过 `#/adapter/vxe-table` 使用 `useVbenVxeGrid`。
+- 操作列统一使用 `VbenTableAction`，保持文字按钮交互，不再统一改成图标按钮。
+- 删除确认使用 `actions[].popConfirm`，由公共操作列组件渲染确认气泡。
+- 操作列必须设置稳定宽度，避免初次渲染时按钮被覆盖，或只有窗口尺寸变化后才恢复。
+- 新页面不要手写 `Popconfirm + Space + Button` 作为表格操作列。
+
 ## 基本使用
 
 ```typescript
@@ -83,7 +91,7 @@ const columns = [
 
 ```typescript
 import { renderDict } from '#/utils/render';
-import { DictEnum } from '@vben/constants';
+import { DictEnum } from '#/constants';
 
 const columns = [
   {
@@ -97,6 +105,48 @@ const columns = [
 ```
 
 ## 表格操作
+
+### 操作列
+
+`data.ts` 中建议为操作列设置固定宽度：
+
+```typescript
+{
+  field: 'action',
+  fixed: 'right',
+  slots: { default: 'action' },
+  title: '操作',
+  width: 200,
+}
+```
+
+页面中通过 `VbenTableAction` 渲染：
+
+```vue
+<template #action="{ row }">
+  <VbenTableAction
+    :actions="[
+      {
+        auth: 'system:user:edit',
+        onClick: () => handleEdit(row),
+        text: '编辑',
+      },
+      {
+        auth: 'system:user:remove',
+        danger: true,
+        popConfirm: {
+          title: '确认删除？',
+          confirm: () => handleDelete(row),
+        },
+        text: '删除',
+      },
+    ]"
+    align="center"
+  />
+</template>
+```
+
+当操作超过可展示数量时，由公共组件处理“更多”菜单。不要在业务页面额外混用图标按钮和“更多”菜单。
 
 ```typescript
 // 刷新表格
