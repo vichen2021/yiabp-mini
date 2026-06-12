@@ -1,6 +1,7 @@
 ﻿using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
 using Yi.Module.Rbac.Domain.Entities;
+using Yi.Module.Rbac.Domain.Shared.Consts;
 using Yi.Module.Rbac.Domain.Shared.Enums;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
@@ -14,17 +15,17 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
             _repository = repository;
         }
 
-        public List<RoleAggregateRoot> GetSeedData()
+        public List<RoleAggregateRoot> GetSeedData(bool isHost = true)
         {
             var entities = new List<RoleAggregateRoot>();
             RoleAggregateRoot role1 = new RoleAggregateRoot()
             {
 
-                RoleName = "管理员",
-                RoleCode = "admin",
+                RoleName = isHost ? "超级管理员" : "管理员",
+                RoleCode = isHost ? UserConst.SuperAdminRoleCode : UserConst.AdminRoleCode,
                 DataScope = DataScopeEnum.ALL,
                 OrderNum = 999,
-                Remark = "管理员",
+                Remark = isHost ? "平台超级管理员" : "租户管理员",
                 IsDeleted = false
             };
             entities.Add(role1);
@@ -71,9 +72,74 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
 
         public async Task SeedAsync(DataSeedContext context)
         {
+            var isHost = context.TenantId is null;
+            if (isHost)
+            {
+                await SeedHostSuperAdminRoleAsync();
+            }
+            else
+            {
+                await SeedTenantAdminRoleAsync();
+            }
+
             if (!await _repository.IsAnyAsync(x => true))
             {
-                await _repository.InsertManyAsync(GetSeedData());
+                await _repository.InsertManyAsync(GetSeedData(isHost));
+            }
+        }
+
+        private async Task SeedHostSuperAdminRoleAsync()
+        {
+            var superAdminRole = await _repository.GetFirstAsync(x =>
+                x.RoleCode == UserConst.SuperAdminRoleCode);
+            var legacySuperAdminRole = await _repository.GetFirstAsync(x =>
+                x.RoleCode == UserConst.LegacySuperAdminRoleCode);
+            if (superAdminRole is null && legacySuperAdminRole is not null)
+            {
+                legacySuperAdminRole.RoleName = "超级管理员";
+                legacySuperAdminRole.RoleCode = UserConst.SuperAdminRoleCode;
+                legacySuperAdminRole.Remark = "平台超级管理员";
+                await _repository.UpdateAsync(legacySuperAdminRole);
+                superAdminRole = legacySuperAdminRole;
+            }
+
+            if (superAdminRole is null && await _repository.IsAnyAsync(x => true))
+            {
+                await _repository.InsertAsync(GetSeedData(true)[0]);
+            }
+        }
+
+        private async Task SeedTenantAdminRoleAsync()
+        {
+            var tenantAdminRole = await _repository.GetFirstAsync(x =>
+                x.RoleCode == UserConst.AdminRoleCode);
+            var invalidSuperAdminRole = await _repository.GetFirstAsync(x =>
+                x.RoleCode == UserConst.SuperAdminRoleCode);
+            if (tenantAdminRole is null && invalidSuperAdminRole is not null)
+            {
+                invalidSuperAdminRole.RoleName = "管理员";
+                invalidSuperAdminRole.RoleCode = UserConst.AdminRoleCode;
+                invalidSuperAdminRole.Remark = "租户管理员";
+                await _repository.UpdateAsync(invalidSuperAdminRole);
+                tenantAdminRole = invalidSuperAdminRole;
+            }
+            else if (tenantAdminRole is not null && invalidSuperAdminRole is not null)
+            {
+                await _repository._Db.Deleteable<UserRoleEntity>()
+                    .Where(x => x.RoleId == invalidSuperAdminRole.Id)
+                    .ExecuteCommandAsync();
+                await _repository._Db.Deleteable<RoleMenuEntity>()
+                    .Where(x => x.RoleId == invalidSuperAdminRole.Id)
+                    .ExecuteCommandAsync();
+                await _repository._Db.Deleteable<RoleDeptEntity>()
+                    .Where(x => x.RoleId == invalidSuperAdminRole.Id)
+                    .ExecuteCommandAsync();
+                await _repository.DeleteAsync(invalidSuperAdminRole);
+            }
+
+            if (tenantAdminRole is null && await _repository.IsAnyAsync(x => true))
+            {
+                await _repository.InsertAsync(GetSeedData(false)[0]);
             }
         }
     }

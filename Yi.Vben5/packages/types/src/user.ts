@@ -17,6 +17,7 @@ interface UserInfo extends BasicUserInfo {
   token?: string;
   email?: string;
   permissions?: string[];
+  superAdmin?: boolean;
 }
 
 export type { UserInfo };

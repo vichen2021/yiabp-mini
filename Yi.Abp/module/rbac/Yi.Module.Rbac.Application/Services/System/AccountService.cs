@@ -455,7 +455,7 @@ namespace Yi.Module.Rbac.Application.Services
             var menus = data.Menus.ToList();
 
             //为超级管理员直接给全部路由
-            if (UserConst.Admin.Equals(data.User.UserName))
+            if (UserConst.SuperAdminUserName.Equals(data.User.UserName))
             {
                 menus = ObjectMapper.Map<List<MenuAggregateRoot>, List<MenuDto>>(await _menuRepository.GetListAsync());
             }

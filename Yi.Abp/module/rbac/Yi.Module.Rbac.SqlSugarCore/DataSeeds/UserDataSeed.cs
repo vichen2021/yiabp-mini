@@ -25,11 +25,11 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
                 var entities = new List<UserAggregateRoot>();
                 UserAggregateRoot user1 = new UserAggregateRoot()
                 {
-                    Name = "大橙子",
+                    Name = "du白",
                     UserName = "cc",
-                    Nick = "橙子",
+                    Nick = "du白",
                     EncryPassword = new EncryPasswordValueObject(_options.AdminPassword),
-                    Email = "454313500@qq.com",
+                    Email = "weichen0716@@163.com",
                     Phone = 13800000000,
                     Sex = SexEnum.Male,
                     Address = "深圳",
@@ -45,7 +45,7 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
                 UserAggregateRoot user2 = new UserAggregateRoot()
                 {
 
-                    Name = "大测试",
+                    Name = "测试",
                     UserName = "test",
                     Nick = "测试",
                     EncryPassword=new EncryPasswordValueObject("123456"),

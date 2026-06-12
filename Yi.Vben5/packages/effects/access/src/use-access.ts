@@ -3,6 +3,8 @@ import { computed } from 'vue';
 import { preferences, updatePreferences } from '@vben/preferences';
 import { useAccessStore, useUserStore } from '@vben/stores';
 
+const SUPERADMIN_ROLE_KEY = 'superadmin';
+
 function useAccess() {
   const accessStore = useAccessStore();
   const userStore = useUserStore();
@@ -16,8 +18,16 @@ function useAccess() {
    * @param roles
    */
   function hasAccessByRoles(roles: string[]) {
-    const userRoleSet = new Set(userStore.userRoles);
-    const intersection = roles.filter((item) => userRoleSet.has(item));
+    const userRoleSet = new Set(
+      userStore.userRoles.map((role) => role.toLowerCase()),
+    );
+    if (userRoleSet.has(SUPERADMIN_ROLE_KEY)) {
+      return true;
+    }
+
+    const intersection = roles.filter((item) =>
+      userRoleSet.has(item.toLowerCase()),
+    );
     return intersection.length > 0;
   }
 

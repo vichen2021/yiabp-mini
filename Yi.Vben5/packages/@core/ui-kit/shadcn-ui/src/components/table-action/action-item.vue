@@ -60,22 +60,38 @@ function onCancel() {
         <span v-if="action.text">{{ action.text }}</span>
       </VbenButton>
     </PopoverTrigger>
-    <PopoverContent class="z-popup w-60" side="top">
-      <div class="text-foreground mb-3 text-sm">
-        {{ action.popConfirm.title ?? 'Are you sure?' }}
+    <PopoverContent
+      align="center"
+      class="z-popup relative w-auto min-w-[150px] max-w-[220px] rounded-[8px] border border-[#f0f0f0] bg-[#ffffff] px-3 py-2.5 text-[#1f1f1f] shadow-[0_6px_16px_0_rgba(0,0,0,0.08),0_3px_6px_-4px_rgba(0,0,0,0.12),0_9px_28px_8px_rgba(0,0,0,0.05)] dark:border-border dark:bg-popover dark:text-popover-foreground"
+      :side-offset="8"
+      side="left"
+    >
+      <div
+        class="absolute right-[-4px] top-1/2 size-2 -translate-y-1/2 rotate-45 border-r border-t border-[#f0f0f0] bg-[#ffffff] dark:border-border dark:bg-popover"
+      ></div>
+      <div class="mb-2 flex items-center gap-2 text-sm leading-[22px]">
+        <span
+          class="inline-flex size-3.5 shrink-0 items-center justify-center rounded-full bg-[#faad14] text-[10px] font-bold leading-none text-white"
+        >
+          !
+        </span>
+        <span>{{ action.popConfirm.title ?? '确认删除？' }}</span>
       </div>
-      <div class="flex justify-end gap-2">
-        <VbenButton size="default" variant="outline" @click="onCancel">
-          {{ action.popConfirm.cancelText ?? 'Cancel' }}
-        </VbenButton>
-        <VbenButton
-          :variant="action.danger ? 'destructive' : 'default'"
-          size="default"
-          class="p-2"
+      <div class="flex justify-end gap-3">
+        <button
+          class="inline-flex h-6 items-center justify-center rounded-[4px] border border-[#d9d9d9] bg-[#ffffff] px-[7px] text-sm leading-[22px] text-[#1f1f1f] hover:border-primary hover:text-primary dark:border-border dark:bg-background dark:text-foreground"
+          type="button"
+          @click="onCancel"
+        >
+          {{ action.popConfirm.cancelText ?? '取消' }}
+        </button>
+        <button
+          class="inline-flex h-6 items-center justify-center rounded-[4px] border border-primary bg-primary px-[7px] text-sm leading-[22px] text-primary-foreground hover:bg-primary/90"
+          type="button"
           @click="onConfirm"
         >
-          {{ action.popConfirm.okText ?? 'OK' }}
-        </VbenButton>
+          {{ action.popConfirm.okText ?? '确定' }}
+        </button>
       </div>
     </PopoverContent>
   </Popover>

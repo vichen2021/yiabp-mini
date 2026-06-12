@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\framework\sqlsugar\Yi.Framework.SqlSugarCore\Yi.Framework.SqlSugarCore.csproj" />
+    <ProjectReference Include="..\..\rbac\Yi.Module.Rbac.Domain\Yi.Module.Rbac.Domain.csproj" />
     <ProjectReference Include="..\Yi.Module.TenantManagement.Domain\Yi.Module.TenantManagement.Domain.csproj" />
   </ItemGroup>
 

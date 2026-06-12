@@ -170,7 +170,12 @@ namespace Yi.Module.Rbac.Domain.Managers
 
         public async Task SetAdminRoleAsync(Guid userId)
         {
-            await SetRoleByCodeAsync(userId, UserConst.AdminRolesCode);
+            await SetRoleByCodeAsync(userId, UserConst.AdminRoleCode);
+        }
+
+        public async Task SetSuperAdminRoleAsync(Guid userId)
+        {
+            await SetRoleByCodeAsync(userId, UserConst.SuperAdminRoleCode);
         }
 
         public async Task SetRoleByCodeAsync(Guid userId, string roleCode)
@@ -187,7 +192,7 @@ namespace Yi.Module.Rbac.Domain.Managers
 
         private void ValidateUserName(UserAggregateRoot input)
         {
-            if (input.UserName == UserConst.Admin || input.UserName == UserConst.TenantAdmin)
+            if (input.UserName == UserConst.SuperAdminUserName || input.UserName == UserConst.TenantAdmin)
             {
                 throw new UserFriendlyException("用户名无效注册！");
             }
@@ -286,11 +291,11 @@ namespace Yi.Module.Rbac.Domain.Managers
             user.EncryPassword.Salt = string.Empty;
 
             //超级管理员特殊处理
-            if (UserConst.Admin.Equals(user.UserName))
+            if (UserConst.SuperAdminUserName.Equals(user.UserName))
             {
                 userRoleMenu.User = user.Adapt<UserDto>();
-                userRoleMenu.RoleCodes.Add(UserConst.AdminRolesCode);
-                userRoleMenu.PermissionCodes.Add(UserConst.AdminPermissionCode);
+                userRoleMenu.RoleCodes.Add(UserConst.SuperAdminRoleCode);
+                userRoleMenu.PermissionCodes.Add(UserConst.SuperAdminPermissionCode);
                 return userRoleMenu;
             }
 

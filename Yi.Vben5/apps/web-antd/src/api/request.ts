@@ -349,13 +349,14 @@ function createRequestClient(baseURL: string) {
 
       // errorMessageMode='modal'的时候会显示modal错误弹窗，而不是消息提示，用于一些比较重要的错误
       // errorMessageMode='none' 一般是调用时明确表示不希望自动弹出错误提示
-      if (response.config.errorMessageMode === 'modal') {
+      const errorMessageMode = response.config.errorMessageMode ?? 'message';
+      if (errorMessageMode === 'modal') {
         alert({
           content: timeoutMsg,
           icon: 'error',
           title: $t('http.errorTip'),
         }).catch(() => {});
-      } else if (response.config.errorMessageMode === 'message') {
+      } else if (errorMessageMode === 'message') {
         message.error(timeoutMsg);
       }
 

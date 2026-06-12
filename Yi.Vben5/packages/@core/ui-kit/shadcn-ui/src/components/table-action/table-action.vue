@@ -190,7 +190,7 @@ function onContentInteractOutside(event: Event) {
     >
       <DropdownMenuTrigger as-child>
         <VbenButton class="gap-1 p-2" variant="link">
-          <Ellipsis class="size-4" />
+          <Ellipsis v-if="!moreText" class="size-4" />
           <span v-if="moreText">{{ moreText }}</span>
         </VbenButton>
       </DropdownMenuTrigger>

@@ -3,19 +3,19 @@ import type { VbenFormProps } from '@vben/common-ui';
 
 import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { User } from '#/api/system/user/model';
-import type { MenuProps } from 'antdv-next';
 
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 
 import { useAccess } from '@vben/access';
 import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 import { preferences } from '@vben/preferences';
 
-import { Avatar, Button, Dropdown, Popconfirm, Space } from 'antdv-next';
+import { Avatar, Button, Space } from 'antdv-next';
 
 import {
   useVbenVxeGrid,
+  VbenTableAction,
   vxeCheckboxChecked,
 } from '#/adapter/vxe-table';
 import {
@@ -180,26 +180,6 @@ function handleResetPwd(record: User) {
 }
 
 const { hasAccessByCodes } = useAccess();
-const menuItems = computed(() => {
-  const items: MenuProps['items'] = [{ key: 'info', label: '用户信息' }];
-  if (hasAccessByCodes(['system:user:resetPwd'])) {
-    items.push({ key: 'resetPwd', label: '重置密码' });
-  }
-  return items;
-});
-
-function handleMenuClick(key: string, row: User) {
-  switch (key) {
-    case 'info': {
-      handleUserInfo(row);
-      break;
-    }
-    case 'resetPwd': {
-      handleResetPwd(row);
-      break;
-    }
-  }
-}
 </script>
 
 <template>
@@ -260,40 +240,37 @@ function handleMenuClick(key: string, row: User) {
         </template>
         <template #action="{ row }">
           <template v-if="row.id !== '1'">
-            <Space>
-              <Button
-                type="link"
-                v-access:code="['system:user:edit']"
-                @click.stop="handleEdit(row)"
-              >
-                {{ $t('pages.common.edit') }}
-              </Button>
-              <Popconfirm
-                placement="left"
-                title="确认删除？"
-                @confirm="handleDelete(row)"
-              >
-                <Button
-                  danger
-                  type="link"
-                  v-access:code="['system:user:remove']"
-                  @click.stop=""
-                >
-                  {{ $t('pages.common.delete') }}
-                </Button>
-              </Popconfirm>
-            </Space>
-            <Dropdown
-              placement="bottomRight"
-              :menu="{
-                items: menuItems,
-                onClick: (info) => handleMenuClick(String(info.key), row),
-              }"
-            >
-              <Button size="small" type="link">
-                {{ $t('pages.common.more') }}
-              </Button>
-            </Dropdown>
+            <VbenTableAction
+              :actions="[
+                {
+                  auth: 'system:user:edit',
+                  onClick: () => handleEdit(row),
+                  text: $t('pages.common.edit'),
+                },
+                {
+                  auth: 'system:user:remove',
+                  danger: true,
+                  popConfirm: {
+                    title: '确认删除？',
+                    confirm: () => handleDelete(row),
+                  },
+                  text: $t('pages.common.delete'),
+                },
+              ]"
+              :dropdown-actions="[
+                {
+                  onClick: () => handleUserInfo(row),
+                  text: '用户信息',
+                },
+                {
+                  auth: 'system:user:resetPwd',
+                  onClick: () => handleResetPwd(row),
+                  text: '重置密码',
+                },
+              ]"
+              :more-text="$t('pages.common.more')"
+              align="center"
+            />
           </template>
         </template>
       </BasicTable>

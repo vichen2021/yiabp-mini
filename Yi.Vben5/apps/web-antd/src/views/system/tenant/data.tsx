@@ -10,6 +10,23 @@ import { z } from '#/adapter/form';
 import { getDictOptions } from '#/utils/dict';
 import { renderDict } from '#/utils/render';
 
+function normalizeDbType(value: number | string | undefined) {
+  if (typeof value === 'number') {
+    return value;
+  }
+
+  const normalizedValue = value?.toLowerCase();
+  const dbTypeMap: Record<string, number> = {
+    mysql: 0,
+    oracle: 3,
+    postgresql: 4,
+    sqlite: 2,
+    sqlserver: 1,
+  };
+
+  return normalizedValue ? (dbTypeMap[normalizedValue] ?? value) : value;
+}
+
 export const querySchema: FormSchemaGetter = () => [
   {
     component: 'Input',
@@ -54,7 +71,10 @@ export const columns: VxeGridProps['columns'] = [
   {
     title: '数据库类型',
     field: 'dbType',
-    slots: { default: ({ row }) => renderDict(row.dbType, DictEnum.SYS_DB_TYPE) },
+    slots: {
+      default: ({ row }) =>
+        renderDict(normalizeDbType(row.dbType), DictEnum.SYS_DB_TYPE),
+    },
   },
   {
     title: '连接字符串',
@@ -272,7 +292,7 @@ export const drawerSchema: FormSchemaGetter = () => [
     },
     defaultValue: true,
     fieldName: 'state',
-    formItemClass: 'col-span-2 lg:col-span-1',
+    formItemClass: 'col-span-1',
     label: '状态',
   },
 ];

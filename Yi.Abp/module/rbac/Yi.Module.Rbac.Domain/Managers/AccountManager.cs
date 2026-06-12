@@ -209,10 +209,10 @@ namespace Yi.Module.Rbac.Domain.Managers
             {
                 AddToClaim(claims, TokenTypeConst.RoleInfo, JsonConvert.SerializeObject(dto.Roles.Select(x => new RoleTokenInfoModel { Id = x.Id, DataScope = x.DataScope })));
             }
-            if (UserConst.Admin.Equals(dto.User.UserName))
+            if (UserConst.SuperAdminUserName.Equals(dto.User.UserName))
             {
-                AddToClaim(claims, TokenTypeConst.Permission, UserConst.AdminPermissionCode);
-                AddToClaim(claims, TokenTypeConst.Roles, UserConst.AdminRolesCode);
+                AddToClaim(claims, TokenTypeConst.Permission, UserConst.SuperAdminPermissionCode);
+                AddToClaim(claims, TokenTypeConst.Roles, UserConst.SuperAdminRoleCode);
             }
             else
             {

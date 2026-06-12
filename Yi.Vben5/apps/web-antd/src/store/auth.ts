@@ -19,6 +19,8 @@ import { startSignalRConnection, stopSignalRConnection } from '#/utils/signalr';
 
 import { useDictStore } from './dict';
 
+const SUPERADMIN_ROLE_KEY = 'superadmin';
+
 export const useAuthStore = defineStore('auth', () => {
   const accessStore = useAccessStore();
   const userStore = useUserStore();
@@ -130,6 +132,23 @@ export const useAuthStore = defineStore('auth', () => {
       : permissionCodes.length > 0
         ? permissionCodes
         : codes;
+    const normalizedRoles = [
+      ...(roleCodes.length > 0 ? roleCodes : roles),
+      ...(user.roles?.map((role) => role.roleKey).filter(Boolean) ?? []),
+    ];
+    const isSuperAdmin =
+      user.roles?.some((role) => role.superAdmin === true) === true ||
+      normalizedRoles.some(
+        (role) => role.toLowerCase() === SUPERADMIN_ROLE_KEY,
+      );
+    if (
+      isSuperAdmin &&
+      !normalizedRoles.some(
+        (role) => role.toLowerCase() === SUPERADMIN_ROLE_KEY,
+      )
+    ) {
+      normalizedRoles.push(SUPERADMIN_ROLE_KEY);
+    }
     /**
      * 从后台user -> vben user转换
      */
@@ -137,7 +156,8 @@ export const useAuthStore = defineStore('auth', () => {
       avatar: user.icon,
       permissions: accessCodes,
       realName: user.nick,
-      roles: roleCodes.length > 0 ? roleCodes : roles,
+      roles: normalizedRoles,
+      superAdmin: isSuperAdmin,
       userId: String(user.userId),
       username: user.userName,
       email: user.email ?? '',

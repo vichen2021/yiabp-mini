@@ -17,7 +17,7 @@ namespace Yi.Module.TenantManagement.Domain
         Task<long> GetCountAsync(
             string? filter = null);
 
-        Task<bool> DatabaseExistsAsync(string dbName);
+        Task<bool> DatabaseExistsAsync(TenantAggregateRoot tenant);
 
         Task<int> GetTableCountAsync();
 

@@ -23,13 +23,15 @@ namespace Yi.Module.Rbac.Domain.Shared.Consts
         public const string Name_Not_Allowed = "用户名被禁止";
         public const string Phone_Repeat = "手机号已重复";
 
-        //子租户管理员
-        public const string Admin = "cc";
-        public const string AdminRolesCode = "admin";
-        public const string AdminPermissionCode = "*:*:*";
+        //平台超级管理员
+        public const string SuperAdminUserName = "cc";
+        public const string SuperAdminRoleCode = "superadmin";
+        public const string LegacySuperAdminRoleCode = "admin";
+        public const string SuperAdminPermissionCode = "*:*:*";
 
         //租户管理员
         public const string TenantAdmin = "ccadmin";
+        public const string AdminRoleCode = "admin";
         public const string TenantAdminPermissionCode = "*";
 
         public const string DefaultRoleCode = "default";

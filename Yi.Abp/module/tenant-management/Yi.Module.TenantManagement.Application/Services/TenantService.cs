@@ -196,7 +196,7 @@ namespace Yi.Module.TenantManagement.Application
             {
                 using (var checkUow = UnitOfWorkManager.Begin(requiresNew: true, isTransactional: false))
                 {
-                    databaseExists = await _repository.DatabaseExistsAsync(tenant.Name);
+                    databaseExists = await _repository.DatabaseExistsAsync(tenant);
                     if (databaseExists)
                     {
                         tableCount = await _repository.GetTableCountAsync();
@@ -307,7 +307,7 @@ namespace Yi.Module.TenantManagement.Application
                 foreach (var role in roles)
                 {
                     // 管理员角色：全量替换
-                    if (role.RoleCode == UserConst.AdminRolesCode)
+                    if (role.RoleCode == UserConst.AdminRoleCode)
                     {
                         await _roleMenuRepository.DeleteAsync(x => x.RoleId == role.Id);
 
@@ -458,10 +458,10 @@ namespace Yi.Module.TenantManagement.Application
         {
             using (CurrentTenant.Change(tenantId))
             {
-                var adminRole = await _roleRepository.GetFirstAsync(x => x.RoleCode == UserConst.AdminRolesCode);
+                var adminRole = await _roleRepository.GetFirstAsync(x => x.RoleCode == UserConst.AdminRoleCode);
                 if (adminRole is null)
                 {
-                    throw new UserFriendlyException($"角色不存在：{UserConst.AdminRolesCode}");
+                    throw new UserFriendlyException($"角色不存在：{UserConst.AdminRoleCode}");
                 }
 
                 var menuIds = await _menuRepository._DbQueryable.Select(x => x.Id).ToListAsync();
