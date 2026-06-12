@@ -81,7 +81,7 @@ const getPopupContainer = getVxePopupContainer;
 
 ```typescript
 import { getDictOptions } from '#/utils/dict';
-import { DictEnum } from '@vben/constants';
+import { DictEnum } from '#/constants';
 
 // ✅ 使用 computed
 {
@@ -110,5 +110,5 @@ import { DictEnum } from '@vben/constants';
 
 遇到组件使用问题时，建议查阅以下官方文档：
 
-- [Ant Design Vue](https://www.antdv.com/components/overview-cn) - 组件库官方文档
+- [antdv-next](https://antdv-next.antdv.com/) - Vben 5.7 当前使用的 Ant Design Vue Next 组件库文档
 - [Vben Admin](https://doc.vben.pro/) - Vben Admin 官方文档

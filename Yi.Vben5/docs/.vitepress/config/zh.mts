@@ -95,6 +95,7 @@ function sidebarGuide(): DefaultTheme.SidebarItem[] {
         { link: 'backend/module', text: '模块开发' },
         { link: 'backend/enum', text: '枚举/系统字典' },
         { link: 'backend/permission', text: '权限与日志' },
+        { link: 'backend/multi-tenancy', text: '多租户' },
         { link: 'backend/infrastructure', text: '基础能力配置' },
       ],
     },

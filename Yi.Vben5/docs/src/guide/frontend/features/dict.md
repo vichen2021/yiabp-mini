@@ -4,11 +4,19 @@
 
 ## 使用方式
 
+## 2.1 / Vben 5.7 约定
+
+- 业务页面统一从 `#/constants` 导入 `DictEnum`。
+- 字典工具仍从 `#/utils/dict` 导入。
+- 表单中的字典字段优先使用 `Select` + `getDictOptions`。
+- 表格中的字典字段优先使用 `renderDict`，不要在列里手写状态文案。
+- 如果后端新增枚举或字典种子，必须同步前端 `DictEnum` 常量和页面引用。
+
 ### 获取字典选项
 
 ```typescript
+import { DictEnum } from '#/constants';
 import { getDictOptions } from '#/utils/dict';
-import { DictEnum } from '@vben/constants';
 
 // 用于 Select/Radio/Checkbox 组件
 const options = getDictOptions(DictEnum.SYS_NORMAL_DISABLE);
@@ -31,10 +39,10 @@ import { renderDict } from '#/utils/render';
 
 ## 字典枚举
 
-字典枚举定义在 `@vben/constants` 中：
+字典枚举定义在 `apps/web-antd/src/constants` 中，并由 `#/constants` 对业务页面暴露：
 
 ```typescript
-// packages/@core/base/shared/src/constants/dict-enum.ts
+// apps/web-antd/src/constants/index.ts
 export const DictEnum = {
   SYS_COMMON_STATUS: 'sys_common_status',
   SYS_DB_TYPE: 'sys_db_type',

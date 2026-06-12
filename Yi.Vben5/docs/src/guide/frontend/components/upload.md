@@ -2,6 +2,8 @@
 
 文件上传和图片上传组件。
 
+上传组件只负责选择文件并调用文件模块接口。实际保存到本地文件系统还是阿里云 OSS，由当前租户的文件存储配置决定。
+
 ## 导入使用
 
 ```typescript
@@ -67,3 +69,4 @@ data.images = data.images.join(',');
 ## 相关文档
 
 - [表单组件](/guide/frontend/components/form) - 表单使用
+- [基础能力配置](/guide/backend/infrastructure#租户级-oss-配置) - 文件存储与租户级 OSS

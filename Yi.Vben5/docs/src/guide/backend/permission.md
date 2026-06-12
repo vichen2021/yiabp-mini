@@ -20,6 +20,12 @@ system:user:remove
 monitor:operlog:query
 ```
 
+## 平台超管与租户管理员
+
+2.1 起，平台超级管理员角色码统一为 `superadmin`，仅宿主机允许存在。租户侧管理员角色码继续使用 `admin`，不要在租户中创建 `superadmin` 角色。
+
+平台超管账号会返回 `*:*:*` 权限码，可访问全部平台能力。租户管理员只能获得租户套餐分配的菜单与按钮权限，默认不包含租户管理、租户套餐、接口文档等平台治理能力。
+
 当前服务层推荐使用统一动作：
 
 | 动作 | 含义 |
@@ -238,6 +244,14 @@ public async Task SyncPackageAsync(Guid tenantId, Guid packageId)
 ```
 
 登录后 `getUserInfoApi()` 返回用户、角色码和权限码，前端会写入 `accessStore.accessCodes`。
+
+按钮权限必须与后端接口权限保持一致。例如通知公告“推送”接口复用 `system:notice:edit`，前端按钮也应使用 `system:notice:edit`，不要额外发明 `system:notice:send`。
+
+## 路由菜单父级补全
+
+普通角色授权时可能只勾选子菜单或按钮。后端 `/account/router` 在构建路由前会递归补齐缺失的父级菜单，避免子菜单因为缺少目录节点而无法进入最终路由树。
+
+父级补全只用于路由结构完整性，不会额外授予按钮权限。按钮权限仍以角色实际关联菜单的 `PermissionCode` 为准。
 
 ## 相关文档
 

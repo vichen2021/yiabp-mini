@@ -1,55 +1,121 @@
 # 基础能力配置
 
-本文说明后端常用基础能力的配置方式，包括租户套餐、文件存储 Provider 切换、阿里云 OSS、本地文件存储和阿里云短信。
+本文说明后端常用基础能力的配置方式，包括种子数据、配置来源、文件存储 Provider 切换、阿里云 OSS、本地文件存储和阿里云短信。
 
 ## 租户套餐
 
-租户套餐用于在宿主端维护一组可授权给租户的菜单范围。租户初始化或套餐同步时，系统会根据套餐中选择的宿主菜单，在租户数据库中匹配对应菜单并更新角色菜单关系。
+租户套餐、租户初始化、套餐同步和租户级文件存储属于多租户专题。详见 [多租户专题](/guide/backend/multi-tenancy)。
 
-### 主要服务
+## 种子数据
 
-| 服务 | 说明 |
+种子数据用于初始化系统运行必须存在的基础数据，例如角色、用户、部门、岗位、菜单、参数配置、默认租户和租户套餐。
+
+后端种子数据实现 `IDataSeedContributor`，并通过 `SeedAsync(DataSeedContext context)` 执行：
+
+```csharp
+public class RoleDataSeed : IDataSeedContributor, ITransientDependency
+{
+    public async Task SeedAsync(DataSeedContext context)
+    {
+        var isHost = context.TenantId is null;
+        // Host 初始化平台超级管理员，Tenant 初始化租户管理员
+    }
+}
+```
+
+常见种子数据位置：
+
+| 目录 | 说明 |
 |------|------|
-| `TenantPackageService` | 维护租户套餐、套餐菜单关系、套餐菜单树 |
-| `TenantService.InitAsync` | 初始化租户数据库、种子数据和管理员账号 |
-| `TenantService.SyncPackageAsync` | 将套餐菜单同步到指定租户 |
+| `Yi.Module.Rbac.SqlSugarCore/DataSeeds` | 角色、用户、菜单、部门、岗位、系统参数等 RBAC 基础数据 |
+| `Yi.Module.TenantManagement.SqlSugarCore/DataSeeds` | 默认租户、默认租户套餐等多租户基础数据 |
 
-### 权限与日志
+### 执行上下文
 
-租户套餐服务声明：
+`DataSeedContext.TenantId` 用于区分宿主机和租户：
 
-```csharp
-[PermissionResource("system", "tenantPackage")]
-[OperLogEntity("租户套餐")]
-public class TenantPackageService : YiCrudAppService<...>
-{
-}
+| 上下文 | `TenantId` | 典型数据 |
+|--------|------------|----------|
+| 宿主机 | `null` | 平台超级管理员、平台菜单、默认租户、租户套餐 |
+| 租户 | 有值 | 租户管理员、租户内菜单、租户内角色权限 |
+
+涉及多租户的数据不要只按“表是否为空”判断。宿主和租户可能使用相同实体结构，但语义不同，例如宿主机角色码为 `superadmin`，租户管理员角色码为 `admin`。
+
+### 编写规则
+
+- 种子数据必须幂等，多次执行不能产生重复数据。
+- 使用稳定的业务键判断是否存在，例如 `RoleCode`、`UserName`、`MenuName`、`ConfigKey`。
+- 需要升级历史数据时，应在种子中兼容旧值并迁移到新语义。
+- 不要在种子中写入真实密钥、真实手机号、生产连接串等敏感数据。
+- 租户侧种子不要创建平台治理能力，例如 `superadmin` 角色、租户管理菜单、租户套餐菜单。
+
+## Config 与 Setting
+
+项目中存在三类容易混淆的配置来源：
+
+| 类型 | 存储位置 | 适用场景 | 是否适合租户覆盖 |
+|------|----------|----------|------------------|
+| `IConfiguration` / `appsettings.json` | 配置文件、环境变量、部署平台配置 | 应用启动、数据库连接、Redis、全局默认值 | 不适合由租户页面直接修改 |
+| 系统参数 `ConfigService` | 业务数据库 `Config` 表 | 业务开关、可在后台维护的简单键值参数 | 按当前业务表设计决定 |
+| ABP `Setting` | Setting 管理体系 | 模块级配置、可继承、可加密、可按租户覆盖 | 适合 |
+
+### appsettings.json
+
+`appsettings.json` 适合放应用启动和部署级配置，例如：
+
+- 数据库连接
+- Redis
+- 日志和审计
+- 默认文件存储 Provider
+- 默认 OSS 配置
+- 第三方服务默认配置
+
+这类配置通常由运维或部署环境控制。业务页面不应直接改写 `appsettings.json`。
+
+### 系统参数 Config
+
+系统参数由 `ConfigService` 维护，入口通常是后台的参数配置页面。它适合简单业务键值，例如：
+
+```http
+GET /config/config-key/{configKey}
 ```
 
-租户服务中的初始化和套餐同步使用显式动作和操作记录：
+使用建议：
+
+- 适合业务开关、文本参数、前后台都能理解的简单键值。
+- `ConfigKey` 必须唯一。
+- 不适合存储密钥、连接串、租户级 Provider 配置。
+- 如果参数需要继承、加密或租户覆盖，优先使用 `Setting`。
+
+### ABP Setting
+
+`Setting` 适合模块级配置，支持定义默认值、继承和加密。以文件管理 OSS 为例：
 
 ```csharp
-[PermissionAction(PermissionActionEnum.Edit)]
-[OperLog("同步租户套餐", OperEnum.Update)]
-public async Task SyncPackageAsync(Guid tenantId, Guid packageId)
-{
-}
+new SettingDefinition(
+    FileManagementSettingNames.Aliyun.AccessKeySecret,
+    isInherited: true,
+    isEncrypted: true)
 ```
 
-### 使用流程
+读取时通常使用 `ISettingProvider`，写入时使用 `ISettingManager`：
 
-1. 在宿主端进入租户套餐页面。
-2. 新增或编辑套餐，选择允许租户使用的菜单。
-3. 创建租户时绑定套餐。
-4. 初始化租户时，系统会创建租户数据库、执行种子数据、创建租户管理员。
-5. 如果租户绑定套餐，则同步套餐菜单；否则同步全部租户可用菜单到管理员角色。
+```csharp
+var provider = await _settingProvider.GetOrNullAsync(FileManagementSettingNames.Provider);
+await _settingManager.SetGlobalAsync(FileManagementSettingNames.Provider, "Aliyun");
+```
 
-### 注意事项
+租户级 Setting 可以通过当前租户上下文读取，也可以显式按租户写入。租户未设置时，如果 Setting 定义允许继承，会回退到上级配置。
 
-- 套餐菜单保存的是宿主端菜单 ID。
-- 租户数据库初始化后，租户内菜单 ID 会重新生成。
-- 同步套餐时不会跨库复用宿主菜单 ID，而是根据菜单信息匹配租户本地菜单。
-- 已被租户引用的套餐不允许删除。
+推荐选择：
+
+| 需求 | 推荐 |
+|------|------|
+| 应用启动必须读取 | `appsettings.json` |
+| 后台维护简单业务参数 | `ConfigService` |
+| 敏感配置 | `Setting`，并启用加密 |
+| 租户可覆盖配置 | `Setting` |
+| 模块默认配置 | `SettingDefinitionProvider` |
 
 ## 文件存储 Provider 切换
 
@@ -94,6 +160,7 @@ public async Task SyncPackageAsync(Guid tenantId, Guid packageId)
 | `BlobStoring:Aliyun:AccessKeySecret` | 阿里云 AccessKeySecret |
 | `BlobStoring:Aliyun:Endpoint` | OSS Endpoint |
 | `BlobStoring:Aliyun:ContainerName` | OSS Bucket/容器名称 |
+| `BlobStoring:Aliyun:CustomDomain` | OSS 自定义访问域名 |
 | `BlobStoring:Aliyun:CreateContainerIfNotExists` | 容器不存在时是否自动创建 |
 
 ### 本地文件存储
@@ -128,6 +195,7 @@ public async Task SyncPackageAsync(Guid tenantId, Guid packageId)
       "AccessKeySecret": "your-access-key-secret",
       "Endpoint": "oss-cn-hangzhou.aliyuncs.com",
       "ContainerName": "your-bucket-name",
+      "CustomDomain": "https://cdn.example.com",
       "CreateContainerIfNotExists": false
     }
   }
@@ -151,6 +219,45 @@ host/default/{fileId}
 ```text
 {tenant-prefix}/default/{fileId}
 ```
+
+### 租户级 OSS 配置
+
+宿主机可以提供全局默认文件存储配置；租户也可以在自己的上下文中覆盖文件存储配置。配置入口位于文件管理页面的“OSS 存储设置”。
+
+前端接口已归入文件模块：
+
+```http
+GET /file-management/oss-settings
+PUT /file-management/oss-settings
+```
+
+可配置字段：
+
+| 字段 | 说明 |
+|------|------|
+| `Provider` | 文件存储 Provider，可选 `FileSystem` 或 `Aliyun` |
+| `PathPrefix` | 业务层 `StorageKey` 前缀 |
+| `AccessKeyId` | 阿里云 AccessKeyId |
+| `AccessKeySecret` | 阿里云 AccessKeySecret，读取时不回显，留空表示不修改原密钥 |
+| `Endpoint` | OSS Endpoint |
+| `ContainerName` | OSS Bucket 名称 |
+| `CustomDomain` | 自定义访问域名，为空时使用默认 Bucket 域名 |
+| `CreateContainerIfNotExists` | Bucket 不存在时是否自动创建 |
+
+解析优先级：
+
+```text
+当前租户 Setting
+  -> appsettings.json 中的 BlobStoring 配置
+```
+
+因此，租户未配置 OSS 时会使用宿主或应用默认配置；租户配置后，上传、下载 URL 解析和删除会按当前租户设置执行。
+
+### 文件 URL 与迁移
+
+文件 URL 解析支持本地文件、阿里云 OSS 默认域名和阿里云 OSS 直连地址。配置 `CustomDomain` 后，返回给前端的文件 URL 会优先使用自定义域名。
+
+当从本地文件系统切换到 OSS 时，可以通过文件模块提供的迁移能力把本地文件迁移到 OSS。迁移前需要先确认当前租户的 OSS 配置完整，包括 `Provider=Aliyun`、`Endpoint`、`ContainerName`、`AccessKeyId` 和 `AccessKeySecret`。
 
 ### 文件元数据
 
@@ -230,4 +337,6 @@ public class AccountService
 
 - [权限与日志](/guide/backend/permission)
 - [模块开发](/guide/backend/module)
+- [枚举/系统字典](/guide/backend/enum)
+- [多租户专题](/guide/backend/multi-tenancy)
 - [前端上传组件](/guide/frontend/components/upload)
