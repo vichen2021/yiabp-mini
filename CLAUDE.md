@@ -63,7 +63,7 @@ pnpm --dir Yi.Vben5 run dev:antd
 | 管理模板 | Vben Admin v5.5.7 |
 | UI 库 | Ant Design Vue 4.2 |
 | 构建工具 | Vite 6.3 |
-| Monorepo | Turborepo + pnpm 10.10 |
+| Monorepo | Turborepo + pnpm >= 11.0.0 |
 | 状态管理 | Pinia 3.0 |
 | 表格 | VXE Table 4.13 |
 | 图表 | ECharts 5.6 |
@@ -593,7 +593,7 @@ private readonly ISqlSugarRepository<ModuleBEntity, Guid> _moduleBRepository;
 | 组件 | 要求 |
 |------|------|
 | 后端 | .NET 10 SDK |
-| 前端 | Node.js >= 20.15.0, pnpm |
+| 前端 | Node.js ^22.18.0 || ^24.0.0, pnpm >= 11.0.0 |
 | 数据库 | SQLite / MySQL / PostgreSQL |
 | 缓存（可选） | Redis |
 

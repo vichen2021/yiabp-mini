@@ -53,8 +53,8 @@ admin 账号: admin admin123
 ```json
 "packageManager": "pnpm",
 "engines": {
-  "node": ">=20.15.0",
-  "pnpm": "latest"
+  "node": "^22.18.0 || ^24.0.0",
+  "pnpm": ">=11.0.0"
 },
 ```
 

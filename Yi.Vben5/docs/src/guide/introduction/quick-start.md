@@ -10,8 +10,8 @@
 
 ### 前端
 
-- **Node.js**：需要 20.15.0 及以上版本，推荐使用 [nvm](https://github.com/nvm-sh/nvm) 进行 Node.js 版本管理
-- **包管理器**：使用 [pnpm](https://pnpm.io/)
+- **Node.js**：需要 `^22.18.0 || ^24.0.0`，推荐使用 [nvm](https://github.com/nvm-sh/nvm) 进行 Node.js 版本管理
+- **包管理器**：使用 [pnpm](https://pnpm.io/) `>=11.0.0`
 
 ## 后端启动
 
