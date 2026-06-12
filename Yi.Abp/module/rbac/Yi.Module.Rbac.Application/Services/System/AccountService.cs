@@ -459,10 +459,55 @@ namespace Yi.Module.Rbac.Application.Services
             {
                 menus = ObjectMapper.Map<List<MenuAggregateRoot>, List<MenuDto>>(await _menuRepository.GetListAsync());
             }
+            else
+            {
+                menus = await FillParentMenusAsync(menus);
+            }
 
             object output = ObjectMapper.Map<List<MenuDto>, List<MenuAggregateRoot>>(menus.Where(x=>x.MenuSource==MenuSourceEnum.Ruoyi).ToList()).RouterBuild();;
 
             return output;
+        }
+
+        private async Task<List<MenuDto>> FillParentMenusAsync(List<MenuDto> menus)
+        {
+            if (menus.Count == 0)
+            {
+                return menus;
+            }
+
+            var menuMap = menus.ToDictionary(x => x.Id);
+            var missingParentIds = menus
+                .Where(x => x.ParentId != Guid.Empty && !menuMap.ContainsKey(x.ParentId))
+                .Select(x => x.ParentId)
+                .Distinct()
+                .ToList();
+
+            while (missingParentIds.Count > 0)
+            {
+                var parentMenus = ObjectMapper.Map<List<MenuAggregateRoot>, List<MenuDto>>(
+                    await _menuRepository._DbQueryable
+                        .Where(x => missingParentIds.Contains(x.Id))
+                        .ToListAsync());
+
+                if (parentMenus.Count == 0)
+                {
+                    break;
+                }
+
+                foreach (var parentMenu in parentMenus)
+                {
+                    menuMap.TryAdd(parentMenu.Id, parentMenu);
+                }
+
+                missingParentIds = parentMenus
+                    .Where(x => x.ParentId != Guid.Empty && !menuMap.ContainsKey(x.ParentId))
+                    .Select(x => x.ParentId)
+                    .Distinct()
+                    .ToList();
+            }
+
+            return menuMap.Values.ToList();
         }
 
         /// <summary>
