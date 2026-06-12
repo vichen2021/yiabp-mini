@@ -8,6 +8,7 @@
 
 - 管理端底座同步到 Vben 5.7，前端 UI 组件体系切换到 antdv-next 方向。
 - 同步 Vben 5.7 的 monorepo、构建、Vite、pnpm workspace 和公共包结构。
+- 前端运行环境要求提升为 Node.js `^22.18.0 || ^24.0.0`、pnpm `>=11.0.0`。
 - 表格操作列统一使用 `VbenTableAction` + `actions/popConfirm`，保留文字按钮交互。
 - 修复 antdv-next 表单组件在抽屉、弹窗内首次打开时只显示文本、不显示组件的问题。
 - 修复登录验证码、业务响应错误提示、个人中心、租户管理和系统管理页面兼容问题。
@@ -49,3 +50,4 @@
 - 平台超级管理员应使用 `superadmin` 角色码；租户管理员继续使用 `admin`，不要在租户内创建平台级 `superadmin`。
 - 新增 CRUD 默认不包含 `ConcurrencyStamp`。只有明确需要乐观锁时，才继承 ABP 原生 `AggregateRoot<Guid>` 并同步 DTO、前端和异常提示。
 - 前端页面按钮权限必须与后端接口权限一致。若后端方法复用 `edit` 动作，前端按钮也应使用对应 `system:*:edit` 权限码。
+- 升级或重新安装前端依赖前，请先确认本机 Node.js 满足 `^22.18.0 || ^24.0.0`，pnpm 满足 `>=11.0.0`。
