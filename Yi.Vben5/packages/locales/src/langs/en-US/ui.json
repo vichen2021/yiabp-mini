@@ -128,6 +128,7 @@
   },
   "widgets": {
     "document": "Document",
+    "profile": "Profile",
     "qa": "Q&A",
     "setting": "Settings",
     "logoutTip": "Do you want to logout?",
