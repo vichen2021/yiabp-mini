@@ -191,6 +191,7 @@ pnpm build:antd
 
 - [Yi.Admin](https://gitee.com/ccnetcore/Yi) - 橙子老哥的优秀框架
 - [ruoyi-plus-vben5](https://gitee.com/dapppp/ruoyi-plus-vben5) - 基于 Vben5 的 RuoYi-Plus 前端实现
+- [vben5 Admin](https://github.com/vbenjs/vue-vben-admin) - Vben5 Admin 框架
 
 
 
