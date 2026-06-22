@@ -44,20 +44,77 @@ Yi.Mini 是基于 [Yi.Admin](https://gitee.com/ccnetcore/Yi) 开发的轻量化 
 
 Yi.Mini 不是简单删减版，而是面向真实项目二开的轻量化重构版本：保留后台系统最常用的基础能力，升级前后端技术栈，统一前端体验，并内置 AI 开发工作流，让新项目更容易启动、扩展和长期维护。
 
-| 对比项 | Yi.Mini | Yi.Admin |
-| --- | --- | --- |
-| 项目定位 | 聚焦 RBAC 与通用后台基础能力，适合作为新业务系统起点 | 功能生态更完整，适合学习 Yi 全生态和参考多模块实现 |
-| 后端版本 | 升级到 .NET 10 + ABP10 + SqlSugar | .NET 8 + ABP + SqlSugar |
-| 仓库体量 | 只保留核心后端和 Vben5 管理端 | 包含后端、多套管理端、BBS 前端、文档与 Docker 示例，内容更全但体量更大 |
-| 基础模块 | 以 `rbac` 为核心，保留租户、设置、审计等基础模块，并新增文件管理 | 包含更多业务演示模块，适合参考完整生态 |
-| 权限控制 | 支持基于 Service 元数据自动推断权限码 | 不支持自动推断，需手动声明权限 |
-| 操作记录 | 操作记录复用 Service Action 元数据，可通过 `[OperLogEntity]` 自动推断 | 不支持自动推断，需手动声明操作记录 |
-| 多租户套餐 | 新增租户套餐能力，可定义租户可用菜单范围，并在租户初始化或同步时自动下发菜单和管理员权限 | 无 |
-| 文件管理 | 独立文件管理模块，记录文件元数据，支持上传、下载、URL 解析、Provider 来源展示等通用能力 | 不支持完整文件管理 |
-| OSS 配置 | 基于 ABP Blob Storing 支持本地文件与阿里云 OSS 切换，支持全局默认配置和租户级 OSS 覆盖 | 不支持 OSS 文件存储 |
-| 前端选择 | 统一使用 Vben5.7 + Ant Design Vue + 若依风格，减少多前端维护成本 | 同时提供 Vben5、RuoYi、Pure Vue、BBS 等多套前端 |
-| AI 开发 | 内置 Module Generator、CRUD Generator、Field Sync、Skill Creator 等 Skills，并提供 Agents 协作规范 | 无 |
-| 代码生成 | 推荐通过 AI Skills 生成模块、CRUD 和字段同步 | 提供独立 Tool 项目与原有代码生成思路 |
+<table>
+  <thead>
+    <tr>
+      <th width="110">对比项</th>
+      <th>Yi.Mini</th>
+      <th>Yi.Admin</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td width="110">项目定位</td>
+      <td>聚焦 RBAC 与通用后台基础能力，适合作为新业务系统起点</td>
+      <td>功能生态更完整，适合学习 Yi 全生态和参考多模块实现</td>
+    </tr>
+    <tr>
+      <td width="110">后端版本</td>
+      <td>升级到 .NET 10 + ABP10 + SqlSugar</td>
+      <td>.NET 8 + ABP + SqlSugar</td>
+    </tr>
+    <tr>
+      <td width="110">仓库体量</td>
+      <td>只保留核心后端和 Vben5 管理端</td>
+      <td>包含后端、多套管理端、BBS 前端、文档与 Docker 示例，内容更全但体量更大</td>
+    </tr>
+    <tr>
+      <td width="110">基础模块</td>
+      <td>以 <code>rbac</code> 为核心，保留租户、设置、审计等基础模块，并新增文件管理</td>
+      <td>包含更多业务演示模块，适合参考完整生态</td>
+    </tr>
+    <tr>
+      <td width="110">权限控制</td>
+      <td>支持基于 Service 元数据自动推断权限码</td>
+      <td>不支持自动推断，需手动声明权限</td>
+    </tr>
+    <tr>
+      <td width="110">操作记录</td>
+      <td>操作记录复用 Service Action 元数据，可通过 <code>[OperLogEntity]</code> 自动推断</td>
+      <td>不支持自动推断，需手动声明操作记录</td>
+    </tr>
+    <tr>
+      <td width="110">多租户套餐</td>
+      <td>新增租户套餐能力，可定义租户可用菜单范围，并在租户初始化或同步时自动下发菜单和管理员权限</td>
+      <td>无</td>
+    </tr>
+    <tr>
+      <td width="110">文件管理</td>
+      <td>独立文件管理模块，记录文件元数据，支持上传、下载、URL 解析、Provider 来源展示等通用能力</td>
+      <td>不支持完整文件管理</td>
+    </tr>
+    <tr>
+      <td width="110">OSS 配置</td>
+      <td>基于 ABP Blob Storing 支持本地文件与阿里云 OSS 切换，支持全局默认配置和租户级 OSS 覆盖</td>
+      <td>不支持 OSS 文件存储</td>
+    </tr>
+    <tr>
+      <td width="110">前端选择</td>
+      <td>统一使用 Vben5.7 + Ant Design Vue + 若依风格，减少多前端维护成本</td>
+      <td>同时提供 Vben5、RuoYi、Pure Vue、BBS 等多套前端</td>
+    </tr>
+    <tr>
+      <td width="110">AI 开发</td>
+      <td>内置 Module Generator、CRUD Generator、Field Sync、Skill Creator 等 Skills，并提供 Agents 协作规范</td>
+      <td>无</td>
+    </tr>
+    <tr>
+      <td width="110">代码生成</td>
+      <td>推荐通过 AI Skills 生成模块、CRUD 和字段同步</td>
+      <td>提供独立 Tool 项目与原有代码生成思路</td>
+    </tr>
+  </tbody>
+</table>
 
 
 ### 🔧环境要求
@@ -120,11 +177,13 @@ pnpm build:antd
 
 ## 🚀系统截图
 
-![image-20260101175759249](/resource/image-20260101175759249.png)
+![image1](resource/image1.png)
 
-![image-20260101175912025](/resource/image-20260101175912025.png)
+![image-20260101175759249](resource/image-20260101175759249.png)
 
-![image-20260101180006771](/resource/image-20260101180006771.png)
+![image-20260101175912025](resource/image-20260101175912025.png)
+
+![image-20260101180006771](resource/image-20260101180006771.png)
 
 ## 🙏感谢
 
@@ -136,8 +195,9 @@ pnpm build:antd
 
 
 ## 📬联系方式 & 交流群
-![微信交流群](resource/622-629wx.jpg)
 如有问题或建议，欢迎联系：
 
 - **QQ**：1363332824
-- **微信**：vichen2022
+- **微信**：vichen2022（如果群加不上，加我邀请）
+
+![微信交流群](resource/622-629wx.jpg)
