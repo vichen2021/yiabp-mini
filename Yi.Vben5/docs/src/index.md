@@ -5,11 +5,11 @@ sidebar: false
 
 hero:
   name: Yi.Mini
-  text: 精简版 RBAC 权限管理框架
+  text: YiMini 轻量化 RBAC 权限管理框架
   tagline: 基于 Yi.Admin & ABPvNext & Vben5，开箱即用，简单高效
   image:
     src: https://unpkg.com/@vbenjs/static-source@0.1.7/source/logo-v1.webp
-    alt: Yi.Mini
+    alt: Yi.Mini / YiMini / yimini
   actions:
     - theme: brand
       text: 快速开始 ->
@@ -34,7 +34,7 @@ features:
     linkText: 架构文档
   - icon: 🎯
     title: 专注 RBAC
-    details: 精简版设计，专注于权限管理核心功能，去除冗余业务模块
+    details: YiMini 专注于权限管理核心功能，去除冗余业务模块，适合作为业务系统二开底座
     link: /guide/introduction/features
     linkText: 核心特性
   - icon: 📝

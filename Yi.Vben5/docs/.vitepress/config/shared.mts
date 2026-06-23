@@ -107,8 +107,26 @@ function head(): HeadConfig[] {
     [
       'meta',
       {
-        content: 'yiabp, abp, .net, vue3, vben5, rbac, 权限管理',
+        content:
+          'Yi.Mini, YiMini, yimini, yi mini, yiabp-mini, yiabp, abp, .net10, abp10, vue3, vben5, rbac, 权限管理, AI Skills',
         name: 'keywords',
+      },
+    ],
+    [
+      'meta',
+      {
+        content:
+          'Yi.Mini（YiMini/yimini）是基于 .NET 10、ABP10、Vben5.7 的轻量化 RBAC 权限管理系统，集成 AI Skills 快速开发工作流。',
+        name: 'description',
+      },
+    ],
+    ['meta', { content: 'Yi.Mini / YiMini 权限管理系统', property: 'og:title' }],
+    [
+      'meta',
+      {
+        content:
+          'YiMini 是基于 .NET 10 + Vben5.7 的轻量化权限管理系统，内置 RBAC、多租户、文件管理、OSS 配置和 AI Skills。',
+        property: 'og:description',
       },
     ],
     ['link', { href: '/favicon.ico', rel: 'icon', type: 'image/svg+xml' }],
@@ -120,7 +138,6 @@ function head(): HeadConfig[] {
         name: 'viewport',
       },
     ],
-    ['meta', { content: 'Yi.Mini 文档', name: 'keywords' }],
     ['link', { href: '/favicon.ico', rel: 'icon' }],
     // [
     //   'script',

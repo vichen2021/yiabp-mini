@@ -2,7 +2,9 @@
 
 ## 📖简介
 
-Yi.Mini 是基于 [Yi.Admin](https://gitee.com/ccnetcore/Yi) 开发的轻量化 RBAC 权限管理框架，使用 Vben5 Admin 重写前端，采用若依风格设计。
+Yi.Mini(YiMini) 是基于 [Yi.Admin](https://gitee.com/ccnetcore/Yi) 开发的轻量化 RBAC 权限管理框架，使用 Vben5 Admin 重写前端，采用若依风格设计。
+
+> 别名：YiMini、yimini、yi mini、Yi.Mini、yiabp-mini
 
 本框架聚焦权限管理、租户管理、参数配置、审计日志、文件管理等后台系统高频基础能力，去除了非通用业务模块，启动更轻、结构更清晰，更适合作为新业务系统的二开底座。
 
@@ -191,7 +193,8 @@ pnpm build:antd
 
 - [Yi.Admin](https://gitee.com/ccnetcore/Yi) - 橙子老哥的优秀框架
 - [ruoyi-plus-vben5](https://gitee.com/dapppp/ruoyi-plus-vben5) - 基于 Vben5 的 RuoYi-Plus 前端实现
-- [vben5 Admin](https://github.com/vbenjs/vue-vben-admin) - Vben5 Admin 框架
+- [Vben5 Admin](https://github.com/vbenjs/vue-vben-admin) - 现代化的前端管理模板
+- [ABP Framework](https://abp.io/) - 企业级应用开发框架
 
 
 

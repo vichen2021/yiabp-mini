@@ -2,7 +2,7 @@
 
 ## 📖 简介
 
-Yi.Mini 是基于橙子老哥的 [Yi.Admin](https://gitee.com/ccnetcore/Yi) 框架开发的精简版 RBAC 权限管理框架，使用 Vben5 Admin 重写前端，采用若依风格设计。
+Yi.Mini（也可搜索 YiMini、yimini、yi mini）是基于橙子老哥的 [Yi.Admin](https://gitee.com/ccnetcore/Yi) 框架开发的轻量化 RBAC 权限管理框架，使用 Vben5 Admin 重写前端，采用若依风格设计。
 
 本框架专注于 RBAC（基于角色的访问控制）功能，去除了其他业务模块，更适合快速搭建权限管理系统。
 
