@@ -149,7 +149,7 @@ OperationLogService -> operationlog
 | `CreateAsync` / `Post*` | `add` |
 | `UpdateAsync` / `Put*` | `edit` |
 | `DeleteAsync` / `Delete*` / `Remove*` / `Clear*` | `remove` |
-| `ExportAsync` / `GetExportExcelAsync` | `export` |
+| `ExportAsync` / `PostExportAsync` | `export` |
 | `ImportAsync` / `PostImportExcelAsync` | `import` |
 
 ::: warning 兼容说明

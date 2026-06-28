@@ -222,9 +222,9 @@ namespace Yi.Module.Rbac.Application.Services
         }
 
         [Permission("system:user:export")]
-        public override Task<IActionResult> GetExportExcelAsync(UserGetListInputVo input)
+        public override Task<IActionResult> PostExportAsync(UserGetListInputVo input)
         {
-            return base.GetExportExcelAsync(input);
+            return base.PostExportAsync(input);
         }
 
         [Permission("system:user:import")]

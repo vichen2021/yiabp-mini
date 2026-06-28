@@ -24,7 +24,7 @@ function normalizeDbType(value: number | string | undefined) {
     sqlserver: 1,
   };
 
-  return normalizedValue ? (dbTypeMap[normalizedValue] ?? value) : value;
+  return normalizedValue ? (dbTypeMap[normalizedValue] ?? normalizedValue) : '';
 }
 
 export const querySchema: FormSchemaGetter = () => [

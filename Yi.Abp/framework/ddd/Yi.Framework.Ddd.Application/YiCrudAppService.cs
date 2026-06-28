@@ -245,7 +245,7 @@ namespace Yi.Framework.Ddd.Application
         /// <returns>Excel文件</returns>
         [PermissionAction(PermissionActionEnum.Export)]
         [OperLog(OperEnum.Export)]
-        public virtual async Task<IActionResult> GetExportExcelAsync(TGetListInput input)
+        public virtual async Task<IActionResult> PostExportAsync(TGetListInput input)
         {
             // 重置分页参数以获取全部数据
             if (input is IPagedResultRequest paged)

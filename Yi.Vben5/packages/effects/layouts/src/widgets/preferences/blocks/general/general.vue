@@ -35,8 +35,16 @@ onMounted(async () => {
   timezoneOptionsRef.value = await timezoneStore.getTimezoneOptions();
   // 获取当前时区，例如：Asia/Shanghai
   const timezoneValue = unref(timezoneStore.timezone);
-  if (timezoneValue) {
+  const hasTimezoneValue = timezoneOptionsRef.value.some(
+    (item) => item.value === timezoneValue,
+  );
+  const hasAppTimezone = timezoneOptionsRef.value.some(
+    (item) => item.value === unref(appTimezone),
+  );
+  if (timezoneValue && hasTimezoneValue) {
     appTimezone.value = timezoneValue;
+  } else if (!hasAppTimezone) {
+    appTimezone.value = 'Asia/Shanghai';
   }
 });
 </script>
