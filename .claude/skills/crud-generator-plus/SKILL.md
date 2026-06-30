@@ -292,6 +292,28 @@ public bool? State { get; set; }
 .WhereIF(input.Type is not null, x => x.Type == (ProductTypeEnum)input.Type!)
 ```
 
+### 分页参数约定
+
+当前项目后端 CRUD 列表使用 SqlSugar `ToPageListAsync(pageIndex, pageSize, total)`，第一参数是 **1-based 页码**，不是 ABP offset。由于历史 DTO 字段仍命名为 `SkipCount`，生成代码必须按以下兼容约定处理：
+
+**前端必须生成：**
+```typescript
+SkipCount: page.currentPage,
+MaxResultCount: page.pageSize,
+```
+
+**后端必须生成：**
+```csharp
+.ToPageListAsync(input.SkipCount, input.MaxResultCount, total);
+```
+
+**禁止生成：**
+```typescript
+SkipCount: (page.currentPage - 1) * page.pageSize,
+```
+
+说明：这里的 `SkipCount` 名称仅为兼容现有 DTO/API，不按 ABP `SkipCount` 偏移量语义解释。若未来统一重命名，应整体迁移为 `PageIndex/PageSize`，不能在局部 CRUD 中混用 offset 和 pageIndex。
+
 ### 新增功能：智能列表列生成
 
 前端分页列表不再只展示第一个搜索字段。脚本会根据字段语义选择最多 6 个高价值业务字段，再追加排序、状态、备注、创建时间和操作列。

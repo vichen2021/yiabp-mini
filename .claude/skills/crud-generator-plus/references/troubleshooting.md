@@ -80,13 +80,21 @@ enum Api {
 
 **Problem**: Pagination parameters don't match backend expectations.
 
-**Solution**: Ensure query uses correct parameter names:
+**Solution**: Current backend CRUD queries use SqlSugar `ToPageListAsync(pageIndex, pageSize, total)`, so `SkipCount` is a historical field name for the 1-based page index. Ensure query uses page index, not offset:
 ```typescript
 return await {entityName}List({
   SkipCount: page.currentPage,
   MaxResultCount: page.pageSize,
   ...formValues,
 });
+```
+
+Do not use ABP offset semantics in generated frontend code:
+
+```typescript
+// Wrong for current SqlSugar CRUD services
+SkipCount: (page.currentPage - 1) * page.pageSize,
+MaxResultCount: page.pageSize,
 ```
 
 ### Drawer form not populating on edit

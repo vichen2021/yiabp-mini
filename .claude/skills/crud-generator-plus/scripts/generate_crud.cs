@@ -1157,7 +1157,7 @@ string GenerateIndexVue(EntityInfo entity)
         sb.AppendLine("    ajax: {");
         sb.AppendLine("      query: async ({ page }, formValues = {}) => {");
         sb.AppendLine($"        return await {entity.EntityNameLower}List({{");
-        sb.AppendLine("          SkipCount: (page.currentPage - 1) * page.pageSize,");
+        sb.AppendLine("          SkipCount: page.currentPage,");
         sb.AppendLine("          MaxResultCount: page.pageSize,");
         sb.AppendLine("          ...formValues,");
         sb.AppendLine("        });");
