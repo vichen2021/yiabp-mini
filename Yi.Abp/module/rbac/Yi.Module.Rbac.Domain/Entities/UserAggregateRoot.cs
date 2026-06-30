@@ -194,6 +194,19 @@ namespace Yi.Module.Rbac.Domain.Entities
         }
 
         /// <summary>
+        /// 应用用户导入的基础资料，不处理密码、角色和岗位。
+        /// </summary>
+        public void ApplyImportProfile(string? nick, string? email, long? phone, SexEnum sex, Guid? deptId, bool state)
+        {
+            Nick = string.IsNullOrWhiteSpace(nick) ? Nick : nick.Trim();
+            Email = string.IsNullOrWhiteSpace(email) ? null : email.Trim();
+            Phone = phone;
+            Sex = sex;
+            DeptId = deptId;
+            State = state;
+        }
+
+        /// <summary>
         /// 判断密码和加密后的密码是否相同
         /// </summary>
         /// <param name="password"></param>
