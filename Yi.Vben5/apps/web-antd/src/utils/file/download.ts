@@ -201,7 +201,7 @@ export function downloadByData(
   document.body.append(tempLink);
   tempLink.click();
   tempLink.remove();
-  window.URL.revokeObjectURL(blobURL);
+  setTimeout(() => window.URL.revokeObjectURL(blobURL), 100);
 }
 
 export function openWindow(

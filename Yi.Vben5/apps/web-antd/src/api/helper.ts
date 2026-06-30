@@ -19,10 +19,9 @@ export const ContentTypeEnum = {
  * @returns blob二进制
  */
 export function commonExport(url: string, data: Record<string, any>) {
-  return requestClient.post<Blob>(url, data, {
+  return requestClient.download<Blob>(url, {
     data,
-    headers: { 'Content-Type': ContentTypeEnum.FORM_URLENCODED },
     isTransformResponse: false,
-    responseType: 'blob',
+    method: 'POST',
   });
 }
