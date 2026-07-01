@@ -81,6 +81,9 @@ enum Api {
 **Problem**: Pagination parameters don't match backend expectations.
 
 **Solution**: Current backend CRUD queries use SqlSugar `ToPageListAsync(pageIndex, pageSize, total)`, so `SkipCount` is a historical field name for the 1-based page index. Ensure query uses page index, not offset:
+
+Do not introduce a local `PageIndex/PageSize` compatibility DTO just for generated CRUD. Keeping `SkipCount/MaxResultCount` avoids exposing two pagination naming schemes in the same API surface.
+
 ```typescript
 return await {entityName}List({
   SkipCount: page.currentPage,

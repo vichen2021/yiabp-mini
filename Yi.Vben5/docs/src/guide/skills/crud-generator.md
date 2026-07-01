@@ -12,6 +12,8 @@
 
 ::: tip 2.1 说明
 2.1 起，生成器以前端 Vben 5.7/antdv-next 为基线。生成页面应使用 `VbenTableAction`、`actions/popConfirm`、`antdv-next` 组件导入和 `#/constants` 字典常量，不再生成旧版 `ant-design-vue`、`Popconfirm + Space + ghost-button` 写法。
+
+列表分页必须保持项目历史 API 字段 `SkipCount/MaxResultCount`，其中 `SkipCount` 传当前页码，不传 offset。
 :::
 
 ## ⚠️ 重要提示
@@ -164,6 +166,19 @@
 **重要**：前端文件是模块功能所必需的。仅创建后端文件会导致模块不完整。
 
 **Vben 5.7 基线**：生成的前端代码必须使用 `antdv-next`，不得再从 `ant-design-vue` 导入组件；应用内字典常量从 `#/constants` 导入。分页表格操作列必须使用 `VbenTableAction` 统一渲染 `actions/popConfirm`，不得再生成 `Popconfirm + ghost-button + Space` 的旧写法。
+
+**分页参数**：生成 `useVbenVxeGrid` 的 `proxyConfig.ajax.query` 时，必须传：
+
+```typescript
+SkipCount: page.currentPage,
+MaxResultCount: page.pageSize,
+```
+
+不要生成：
+
+```typescript
+SkipCount: (page.currentPage - 1) * page.pageSize,
+```
 
 #### 3.1 API 文件 ⚠️ 关键
 

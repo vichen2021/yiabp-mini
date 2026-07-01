@@ -296,6 +296,8 @@ public bool? State { get; set; }
 
 当前项目后端 CRUD 列表使用 SqlSugar `ToPageListAsync(pageIndex, pageSize, total)`，第一参数是 **1-based 页码**，不是 ABP offset。由于历史 DTO 字段仍命名为 `SkipCount`，生成代码必须按以下兼容约定处理：
 
+**当前决策：** 保持现有 API 字段 `SkipCount/MaxResultCount`，不为局部命名优化新增 `PageQueryRequestDto` 或 `PageIndex/PageSize` 兼容层。`SkipCount` 在本项目 CRUD 场景中按页码解释。
+
 **前端必须生成：**
 ```typescript
 SkipCount: page.currentPage,

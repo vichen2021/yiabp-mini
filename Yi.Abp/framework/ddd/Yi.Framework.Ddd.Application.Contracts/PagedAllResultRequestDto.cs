@@ -3,7 +3,8 @@
 namespace Yi.Framework.Ddd.Application.Contracts
 {
     /// <summary>
-    /// 分页查询请求DTO，包含时间范围和自定义排序功能
+    /// 分页查询请求DTO，包含时间范围和自定义排序功能。
+    /// 约定 SkipCount = currentPage，MaxResultCount = pageSize。
     /// </summary>
     public class PagedAllResultRequestDto : PagedAndSortedResultRequestDto, IPagedAllResultRequestDto
     {

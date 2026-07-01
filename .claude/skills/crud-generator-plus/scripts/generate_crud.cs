@@ -727,6 +727,7 @@ string GenerateService(EntityInfo entity)
     }
     else
     {
+        // SkipCount is a historical API name here; SqlSugar expects a 1-based page index.
         sb.AppendLine("                .ToPageListAsync(input.SkipCount, input.MaxResultCount, total);");
         sb.AppendLine();
         sb.AppendLine($"            return new PagedResultDto<{entity.EntityName}GetListOutputDto>(total, output);");

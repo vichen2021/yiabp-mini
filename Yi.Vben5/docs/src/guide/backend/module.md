@@ -72,6 +72,18 @@ public class UserService : YiCrudAppService<
 
 列表查询 DTO 通常继承 `PagedAllResultRequestDto`，用于分页、时间范围和动态排序。
 
+::: warning 分页字段语义
+`PagedAllResultRequestDto` 继承 ABP 分页字段名 `SkipCount/MaxResultCount`，但当前项目 CRUD 查询使用 SqlSugar `ToPageListAsync(pageIndex, pageSize, total)`。
+
+因此在本项目列表接口中：
+
+- `SkipCount` 表示从 1 开始的当前页码，不是 offset。
+- `MaxResultCount` 表示每页大小。
+- 前端应传 `SkipCount = currentPage`，不要传 `(currentPage - 1) * pageSize`。
+
+当前不新增 `PageIndex/PageSize` 兼容 DTO，避免同一 API 同时暴露两套分页字段名。
+:::
+
 ### 依赖注入
 
 构造函数可以使用元组解构赋值：
@@ -135,6 +147,8 @@ var output = await _repository._DbQueryable
     .Select((user, dept) => new UserGetListOutputDto(), true)
     .ToPageListAsync(input.SkipCount, input.MaxResultCount, total);
 ```
+
+这里的 `input.SkipCount` 按 SqlSugar 页码传入，期望值为 `1, 2, 3...`，不是跳过记录数。
 
 ## 相关文档
 

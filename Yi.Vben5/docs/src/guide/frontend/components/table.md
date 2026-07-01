@@ -9,6 +9,7 @@
 - 删除确认使用 `actions[].popConfirm`，由公共操作列组件渲染确认气泡。
 - 操作列必须设置稳定宽度，避免初次渲染时按钮被覆盖，或只有窗口尺寸变化后才恢复。
 - 新页面不要手写 `Popconfirm + Space + Button` 作为表格操作列。
+- 分页参数沿用后端历史字段名：`SkipCount` 传当前页码，`MaxResultCount` 传每页大小。不要把 `SkipCount` 当 ABP offset 使用。
 
 ## 基本使用
 
@@ -42,6 +43,7 @@ const gridOptions: VxeGridProps = {
     ajax: {
       query: async ({ page }, formValues) => {
         return await userList({
+          // 项目后端使用 SqlSugar 页码分页，SkipCount 在这里表示当前页码。
           SkipCount: page.currentPage,
           MaxResultCount: page.pageSize,
           ...formValues,
@@ -51,6 +53,23 @@ const gridOptions: VxeGridProps = {
   },
 };
 ```
+
+::: warning 分页参数
+当前项目列表接口虽然沿用了 `SkipCount/MaxResultCount` 字段名，但 CRUD 列表查询使用 SqlSugar `ToPageListAsync(pageIndex, pageSize, total)`。
+
+因此前端必须传：
+
+```typescript
+SkipCount: page.currentPage,
+MaxResultCount: page.pageSize,
+```
+
+不要传：
+
+```typescript
+SkipCount: (page.currentPage - 1) * page.pageSize,
+```
+:::
 
 ## 插槽使用
 

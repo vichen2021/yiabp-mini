@@ -33,6 +33,12 @@ var outPut = await _repository._DbQueryable
     .ToPageListAsync(input.SkipCount, input.MaxResultCount, total);
 ```
 
+分页字段沿用 ABP 命名，但项目内按 SqlSugar 页码语义使用：
+
+- `SkipCount`：当前页码，从 1 开始。
+- `MaxResultCount`：每页大小。
+- 禁止把 `SkipCount` 写成 offset，例如 `(currentPage - 1) * pageSize`。
+
 ## 前端编码规范
 
 ### TypeScript
@@ -47,8 +53,22 @@ var outPut = await _repository._DbQueryable
 - 使用 Prettier 格式化
 - 统一的命名规范
 
+### 分页参数
+
+VXE 表格列表请求统一传当前页码：
+
+```typescript
+SkipCount: page.currentPage,
+MaxResultCount: page.pageSize,
+```
+
+不要传 offset：
+
+```typescript
+SkipCount: (page.currentPage - 1) * page.pageSize,
+```
+
 ## 相关文档
 
 - [命名规范](/guide/backend/naming) - 了解命名规范
 - [Git 提交规范](/guide/standards/git) - 了解 Git 规范
-
