@@ -204,4 +204,4 @@ pnpm build:antd
 - **QQ**：1363332824
 - **微信**：vichen2022（如果群加不上，加我邀请）
 
-![微信交流群](resource/622-629wx.jpg)
+![微信交流群](resource/701-708wx.jpg)
