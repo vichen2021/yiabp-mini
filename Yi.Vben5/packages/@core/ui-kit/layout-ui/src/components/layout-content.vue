@@ -56,7 +56,11 @@ const style = computed((): CSSProperties => {
 </script>
 
 <template>
-  <main ref="contentElement" :style="style" class="relative bg-background-deep">
+  <main
+    ref="contentElement"
+    :style="style"
+    class="relative min-h-0 overflow-x-hidden overflow-y-auto bg-background-deep"
+  >
     <Slot :style="overlayStyle">
       <slot name="overlay"></slot>
     </Slot>
