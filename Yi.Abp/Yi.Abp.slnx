@@ -104,6 +104,7 @@
   </Folder>
   <Folder Name="/tools/">
     <Project Path="tools/Yi.Abp.DbMigrator/Yi.Abp.DbMigrator.csproj" />
+    <Project Path="tools/Yi.Abp.Mcp/Yi.Abp.Mcp.csproj" />
   </Folder>
   <Folder Name="/test/">
     <Project Path="test/Yi.Abp.Test/Yi.Abp.Test.csproj" />
