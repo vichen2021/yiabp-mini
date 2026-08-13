@@ -37,6 +37,7 @@ dist
 *.njsproj
 *.sw?
 .hbuilderx
+.turbo
 
 .stylelintcache
 .eslintcache
