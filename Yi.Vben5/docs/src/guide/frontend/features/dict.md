@@ -64,6 +64,12 @@ export const DictEnum = {
 
 ## 注意事项
 
+### 接口权限边界
+
+业务页面通过 `GET /api/dictionary/dict-type/{dictType}` 读取状态、类型等通用字典项。该接口面向已登录用户，不要求角色同时拥有字典管理查询权限；字典类型、字典项的管理接口仍受 `system:dict:*` 权限控制。
+
+不要为了让岗位、用户等页面显示字典标签而额外授予“字典管理”菜单权限，也不要把通用字典读取接口改为匿名访问。如果请求返回 403，应先检查后端公共读取接口是否保留 `[IgnorePermission]`，并确认用户登录令牌有效。
+
 ### 异步特性
 
 `getDictOptions` 是异步封装，直接在业务逻辑中使用会拿到空数组：
@@ -116,3 +122,4 @@ getDictOptions(DictEnum.SYS_NORMAL_DISABLE, true)
 
 - [表单组件](/guide/frontend/components/form) - 表单中使用字典
 - [表格组件](/guide/frontend/components/table) - 表格中渲染字典
+- [权限与数据权限](/guide/backend/permission) - 公共读取接口与数据范围边界

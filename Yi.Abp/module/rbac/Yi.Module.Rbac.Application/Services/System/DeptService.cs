@@ -50,7 +50,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// </summary>
         /// <param name="keywords">部门查询关键字</param>
         /// <returns>部门选择数据列表</returns>
-        /// <remarks>该接口是岗位、用户等页面的公共读取依赖，不要求调用方同时拥有部门管理权限；返回值仍按当前数据权限裁剪并补齐祖先路径，仅跳过资源权限校验，ABP 默认认证仍然生效，框架授权行为升级时需要复核</remarks>
+        /// <remarks>该接口是岗位、用户等页面的公共读取依赖，不要求调用方同时拥有部门管理权限；返回值仍按当前数据权限裁剪，并补齐从顶级部门到目标部门的完整路径；仅跳过资源权限校验，ABP 默认认证仍然生效，框架授权行为升级时需要复核</remarks>
         [IgnorePermission]
         public override async Task<List<DeptGetListOutputDto>> GetSelectDataListAsync(string? keywords = null)
         {
@@ -73,7 +73,7 @@ namespace Yi.Module.Rbac.Application.Services
 
             if (scope.IncludesDescendantDepts && scope.CurrentDeptId.HasValue)
             {
-                AddDescendantDeptIds(scope.CurrentDeptId.Value, allDepts, visibleDeptIds);
+                AddChildDeptIds(scope.CurrentDeptId.Value, allDepts, visibleDeptIds);
             }
 
             if (scope.CustomRoleIds.Count > 0)
@@ -86,19 +86,19 @@ namespace Yi.Module.Rbac.Application.Services
                 visibleDeptIds.UnionWith(customDeptIds);
             }
 
-            // 祖先节点只用于维持树的层级结构，不代表调用方获得祖先部门业务数据权限
-            AddAncestorDeptIds(allDepts, visibleDeptIds);
+            // 上级部门节点只用于维持树的层级结构，不代表调用方获得上级部门的业务数据权限
+            AddParentDeptIds(allDepts, visibleDeptIds);
             var visibleDepts = allDepts.Where(dept => visibleDeptIds.Contains(dept.Id)).ToList();
             return MapDeptSelectData(visibleDepts, keywords);
         }
 
         /// <summary>
-        /// 递归收集当前部门的全部启用后代部门
+        /// 递归收集当前部门的全部启用子部门
         /// </summary>
         /// <param name="parentId">父部门标识</param>
         /// <param name="allDepts">全部启用部门</param>
         /// <param name="visibleDeptIds">可见部门标识集合</param>
-        private static void AddDescendantDeptIds(
+        private static void AddChildDeptIds(
             Guid parentId,
             IReadOnlyCollection<DeptAggregateRoot> allDepts,
             ISet<Guid> visibleDeptIds)
@@ -107,17 +107,17 @@ namespace Yi.Module.Rbac.Application.Services
             {
                 if (visibleDeptIds.Add(child.Id))
                 {
-                    AddDescendantDeptIds(child.Id, allDepts, visibleDeptIds);
+                    AddChildDeptIds(child.Id, allDepts, visibleDeptIds);
                 }
             }
         }
 
         /// <summary>
-        /// 补齐可见部门的祖先节点以维持前端树结构
+        /// 补齐可见部门的上级部门节点以维持前端树结构
         /// </summary>
         /// <param name="allDepts">全部启用部门</param>
         /// <param name="visibleDeptIds">可见部门标识集合</param>
-        private static void AddAncestorDeptIds(
+        private static void AddParentDeptIds(
             IReadOnlyCollection<DeptAggregateRoot> allDepts,
             ISet<Guid> visibleDeptIds)
         {
