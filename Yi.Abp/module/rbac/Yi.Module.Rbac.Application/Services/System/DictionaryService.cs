@@ -50,12 +50,13 @@ namespace Yi.Module.Rbac.Application.Services
 
 
         /// <summary>
-        /// 根据字典类型获取字典列表
+        /// 根据字典类型获取业务页面所需的启用字典项
         /// </summary>
-        /// <param name="dictType"></param>
-        /// <returns></returns>
+        /// <param name="dictType">字典类型编码</param>
+        /// <returns>启用状态的字典项列表</returns>
+        /// <remarks>字典项是状态、类型等通用展示依赖，不要求调用方拥有字典管理权限；仅跳过资源权限校验，ABP 默认认证仍然生效，框架授权行为升级时需要复核</remarks>
         [Route("dictionary/dict-type/{dictType}")]
-        [PermissionAction(PermissionActionEnum.Query)]
+        [IgnorePermission]
         public async Task<List<DictionaryGetListOutputDto>> GetDicType([FromRoute] string dictType)
         {
             var entities = await _repository.GetListAsync(u => u.DictType == dictType && u.State == true);
