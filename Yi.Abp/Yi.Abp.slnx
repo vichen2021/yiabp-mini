@@ -1,9 +1,4 @@
 <Solution>
-  <Folder Name="/client/">
-    <Project Path="client/Yi.Abp.Client.Console/Yi.Abp.Client.Console.csproj" />
-    <Project Path="client/Yi.Abp.Client.WebApi/Yi.Abp.Client.WebApi.csproj" />
-    <Project Path="client/Yi.Abp.HttpApi.Client/Yi.Abp.HttpApi.Client.csproj" />
-  </Folder>
   <Folder Name="/framework/" />
   <Folder Name="/framework/aspnetcore/">
     <Project Path="framework/aspnetcore/Yi.Framework.AspNetCore.Authentication.OAuth/Yi.Framework.AspNetCore.Authentication.OAuth.csproj" />
