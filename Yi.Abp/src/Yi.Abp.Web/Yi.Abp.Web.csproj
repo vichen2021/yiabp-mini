@@ -13,10 +13,10 @@
     <!-- 解决 docker 构建冲突问题，冲突版本信息如下 -->
     <!-- Yi.Abp.Web -> Hangfire.Redis.StackExchange 1.9.4 -> Hangfire.Core (>= 1.8.7)  -->
     <!-- Yi.Abp.Web -> Yi.Abp.Application -> Yi.Module.Rbac.Application -> Volo.Abp.BackgroundJobs.HangFire 0.4.1 -> Volo.Abp.HangFire 0.4.1 -> Hangfire.AspNetCore 1.6.19 -> Hangfire.Core (= 1.6.19). -->
-    <PackageReference Include="Hangfire.Core" Version="1.8.23" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
+    <PackageReference Include="Hangfire.Core" Version="1.8.24" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.11" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
     <PackageReference Include="Volo.Abp.AspNetCore.Authentication.JwtBearer" Version="$(AbpVersion)" />

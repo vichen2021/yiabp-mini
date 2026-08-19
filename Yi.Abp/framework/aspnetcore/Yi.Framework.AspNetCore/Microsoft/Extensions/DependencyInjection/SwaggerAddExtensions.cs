@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Xml.Linq;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Volo.Abp.AspNetCore.Mvc;
 using Volo.Abp.AspNetCore.Mvc.Conventions;
@@ -123,8 +123,11 @@ namespace Yi.Framework.AspNetCore.Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
-        /// 配置JWT认证
+        /// 配置JWT认证安全定义和全局安全要求
         /// </summary>
+        /// <remarks>
+        /// Swashbuckle 10 要求安全引用绑定当前文档，升级 Swashbuckle 时需复核引用构造方式
+        /// </remarks>
         private static void ConfigureJwtAuthentication(SwaggerGenOptions options)
         {
             options.AddSecurityDefinition("JwtBearer", new OpenApiSecurityScheme
@@ -136,18 +139,9 @@ namespace Yi.Framework.AspNetCore.Microsoft.Extensions.DependencyInjection
                 Scheme = "bearer"
             });
 
-            var scheme = new OpenApiSecurityScheme
+            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
             {
-                Reference = new OpenApiReference 
-                { 
-                    Type = ReferenceType.SecurityScheme, 
-                    Id = "JwtBearer" 
-                }
-            };
-
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
-                [scheme] = Array.Empty<string>()
+                [new OpenApiSecuritySchemeReference("JwtBearer", document)] = []
             });
         }
 
@@ -167,17 +161,20 @@ namespace Yi.Framework.AspNetCore.Microsoft.Extensions.DependencyInjection
     public class EnumSchemaFilter : ISchemaFilter
     {
         /// <summary>
-        /// 应用枚举架构过滤器
+        /// 应用枚举架构过滤器，将枚举值改为字符串并保留数值说明
         /// </summary>
         /// <param name="schema">OpenAPI架构</param>
         /// <param name="context">架构过滤器上下文</param>
-        public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+        /// <remarks>
+        /// Microsoft.OpenApi 2.x 通过接口暴露架构，仅具体架构对象支持原位修改
+        /// </remarks>
+        public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
         {
-            if (!context.Type.IsEnum) return;
+            if (!context.Type.IsEnum || schema is not OpenApiSchema mutableSchema) return;
 
-            schema.Enum.Clear();
-            schema.Type = "string";
-            schema.Format = null;
+            mutableSchema.Enum = [];
+            mutableSchema.Type = JsonSchemaType.String;
+            mutableSchema.Format = null;
 
             var enumDescriptions = new StringBuilder();
             foreach (var enumName in Enum.GetNames(context.Type))
@@ -186,11 +183,11 @@ namespace Yi.Framework.AspNetCore.Microsoft.Extensions.DependencyInjection
                 var description = GetEnumDescription(enumValue);
                 var enumIntValue = Convert.ToInt64(enumValue);
 
-                schema.Enum.Add(new OpenApiString(enumName));
+                mutableSchema.Enum.Add(JsonValue.Create(enumName));
                 enumDescriptions.AppendLine(
                     $"【枚举：{enumName}{(description is null ? string.Empty : $"({description})")}={enumIntValue}】");
             }
-            schema.Description = enumDescriptions.ToString();
+            mutableSchema.Description = enumDescriptions.ToString();
         }
 
         /// <summary>
@@ -215,11 +212,14 @@ namespace Yi.Framework.AspNetCore.Microsoft.Extensions.DependencyInjection
         private const string TenantHeaderKey = "__tenant";
 
         /// <summary>
-        /// 应用租户头部参数过滤器
+        /// 向Swagger操作追加ABP多租户请求头
         /// </summary>
+        /// <remarks>
+        /// Microsoft.OpenApi 2.x 使用接口参数集合，采用目标类型集合表达式避免具体类型不兼容
+        /// </remarks>
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
-            operation.Parameters ??= new List<OpenApiParameter>();
+            operation.Parameters ??= [];
             
             operation.Parameters.Add(new OpenApiParameter
             {

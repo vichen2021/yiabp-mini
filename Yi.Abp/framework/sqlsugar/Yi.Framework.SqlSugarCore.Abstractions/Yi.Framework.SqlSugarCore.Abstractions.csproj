@@ -6,6 +6,8 @@
 <!--    <PackageReference Include="SqlSugarCoreNoDrive" Version="$(SqlSugarVersion)" />-->
     
     <PackageReference Include="SqlSugarCore" Version="$(SqlSugarVersion)" />
+    <!-- 覆盖 Microsoft.Data.Sqlite 的易受攻击传递版本，并保持 SQLitePCLRaw 2.x ABI -->
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.13" />
     
     <PackageReference Include="Volo.Abp.Ddd.Domain" Version="$(AbpVersion)" />
   </ItemGroup>
