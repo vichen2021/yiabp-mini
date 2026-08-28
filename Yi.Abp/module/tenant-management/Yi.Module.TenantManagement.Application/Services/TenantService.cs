@@ -227,7 +227,7 @@ namespace Yi.Module.TenantManagement.Application
             // 同步套餐菜单到租户（如果租户绑定了套餐）
             if (tenant.PackageId.HasValue)
             {
-                await SyncPackageAsync(id, tenant.PackageId.Value);
+                await SyncPackageAsync(id, tenant.PackageId.Value, syncDatabaseSchema: false);
             }
             else
             {
@@ -244,18 +244,32 @@ namespace Yi.Module.TenantManagement.Application
         /// <param name="packageId">套餐ID</param>
         [PermissionAction(PermissionActionEnum.Edit)]
         [OperLog("同步租户套餐", Yi.Framework.OperationRecord.Abstractions.Enums.OperEnum.Update)]
-        public async Task SyncPackageAsync(Guid tenantId, Guid packageId)
+        public Task SyncPackageAsync(Guid tenantId, Guid packageId)
         {
-            // 同步租户数据库表结构
+            return SyncPackageAsync(tenantId, packageId, syncDatabaseSchema: true);
+        }
+
+        /// <summary>
+        /// 同步套餐菜单，并按需执行租户数据库表结构同步
+        /// </summary>
+        /// <param name="tenantId">租户ID</param>
+        /// <param name="packageId">套餐ID</param>
+        /// <param name="syncDatabaseSchema">是否同步租户数据库表结构</param>
+        private async Task SyncPackageAsync(Guid tenantId, Guid packageId, bool syncDatabaseSchema)
+        {
             var tenant = await _repository.GetByIdAsync(tenantId);
             if (tenant is null)
             {
                 throw new UserFriendlyException("租户不存在");
             }
 
-            using (CurrentTenant.Change(tenantId))
+            // 初始化流程已经完成 CodeFirst，重复执行 DDL 会与尚未提交的种子事务争用 MySQL 元数据锁
+            if (syncDatabaseSchema)
             {
-                await CodeFirst(this.LazyServiceProvider, tenant.Name);
+                using (CurrentTenant.Change(tenantId))
+                {
+                    await CodeFirst(this.LazyServiceProvider, tenant.Name);
+                }
             }
 
             // 查询套餐关联的宿主菜单 ID
