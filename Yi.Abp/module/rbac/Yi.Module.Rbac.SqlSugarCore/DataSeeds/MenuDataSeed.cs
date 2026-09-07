@@ -1,12 +1,11 @@
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Guids;
+using Volo.Abp;
+using Volo.Abp.Authorization.Permissions;
 using Yi.Module.Rbac.Domain.Entities;
 using Yi.Module.Rbac.Domain.Shared.Enums;
 using Yi.Framework.SqlSugarCore.Abstractions;
-using Yi.Framework.Authorization.Abstractions.Permissions;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
 using Yi.Module.Rbac.SqlSugarCore.DataSeeds.FileManagementDataSeeds;
 using Yi.Module.Rbac.SqlSugarCore.DataSeeds.TenantDataSeeds;
 
@@ -16,23 +15,20 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
     {
         private ISqlSugarRepository<MenuAggregateRoot> _repository;
         private IGuidGenerator _guidGenerator;
-        private IServiceProvider _serviceProvider;
-        private ILogger<MenuDataSeed> _logger;
+        private IPermissionDefinitionManager _permissionDefinitionManager;
         private FileManagementMenuDataSeed _fileManagementMenuDataSeed;
         private TenantMenuDataSeed _tenantMenuDataSeed;
 
         public MenuDataSeed(
             ISqlSugarRepository<MenuAggregateRoot> repository,
             IGuidGenerator guidGenerator,
-            IServiceProvider serviceProvider,
-            ILogger<MenuDataSeed> logger,
+            IPermissionDefinitionManager permissionDefinitionManager,
             FileManagementMenuDataSeed fileManagementMenuDataSeed,
             TenantMenuDataSeed tenantMenuDataSeed)
         {
             _repository = repository;
             _guidGenerator = guidGenerator;
-            _serviceProvider = serviceProvider;
-            _logger = logger;
+            _permissionDefinitionManager = permissionDefinitionManager;
             _fileManagementMenuDataSeed = fileManagementMenuDataSeed;
             _tenantMenuDataSeed = tenantMenuDataSeed;
         }
@@ -42,19 +38,16 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
             if (!await _repository.IsAnyAsync(x => x.MenuName == "系统管理"&&x.MenuSource==MenuSourceEnum.Ruoyi))
             {
                 var seedData = GetSeedData(context.TenantId == null);
-                ValidatePermissionCodes(seedData);
+                await ValidatePermissionCodesAsync(seedData);
                 await _repository.InsertManyAsync(seedData);
             }
         }
 
-        private void ValidatePermissionCodes(List<MenuAggregateRoot> seedData)
+        /// <summary>
+        /// 使用 ABP 权限定义校验菜单种子中的权限码
+        /// </summary>
+        private async Task ValidatePermissionCodesAsync(List<MenuAggregateRoot> seedData)
         {
-            var permissionDefinitionValidator = _serviceProvider.GetService<IPermissionDefinitionValidator>();
-            if (permissionDefinitionValidator == null)
-            {
-                return;
-            }
-
             var usedPermissionCodes = seedData
                 .Select(menu => menu.PermissionCode)
                 .Where(code => !string.IsNullOrWhiteSpace(code))
@@ -62,7 +55,17 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
-            var validationResult = permissionDefinitionValidator.Validate(usedPermissionCodes);
+            var definedPermissionCodes = (await _permissionDefinitionManager.GetPermissionsAsync())
+                .Select(permission => permission.Name)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var undefinedPermissionCodes = usedPermissionCodes
+                .Where(code => !definedPermissionCodes.Contains(code))
+                .ToList();
+
+            if (undefinedPermissionCodes.Count > 0)
+            {
+                throw new AbpException($"菜单包含未定义权限码: {string.Join(", ", undefinedPermissionCodes)}");
+            }
         }
 
         public List<MenuAggregateRoot> GetSeedData(bool includeTenantModule = true)
@@ -811,6 +814,18 @@ namespace Yi.Module.Rbac.SqlSugarCore.DataSeeds
                 IsDeleted = false
             };
             entities.Add(operationLogQuery);
+
+            MenuAggregateRoot operationLogExport = new MenuAggregateRoot(_guidGenerator.Create())
+            {
+
+                MenuName = "操作导出",
+                PermissionCode = "monitor:operlog:export",
+                MenuType = MenuTypeEnum.Component,
+                OrderNum = 99,
+                ParentId = operationLog.Id,
+                IsDeleted = false
+            };
+            entities.Add(operationLogExport);
 
             MenuAggregateRoot operationLogRemove = new MenuAggregateRoot(_guidGenerator.Create())
             {

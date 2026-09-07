@@ -31,7 +31,7 @@ using Yi.Module.Rbac.Domain.Shared.Etos;
 using Yi.Module.Rbac.Domain.Shared.Options;
 using Yi.Framework.SqlSugarCore.Abstractions;
 using Yi.Framework.Authorization.Abstractions.Attributes;
-using Yi.Framework.OperationRecord.Abstractions.Attributes;
+using Yi.Framework.Auditing.Abstractions.Attributes;
 
 namespace Yi.Module.Rbac.Application.Services
 {
@@ -538,7 +538,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <returns></returns>
         [Authorize]
         [IgnorePermission]
-        [OperLog("更新个人密码", Yi.Framework.OperationRecord.Abstractions.Enums.OperEnum.Update)]
+        [OperLog("更新个人密码", Yi.Framework.Auditing.Abstractions.Enums.OperEnum.Update)]
         public async Task<bool> UpdatePasswordAsync(UpdatePasswordDto input)
         {
             if (input.OldPassword.Equals(input.NewPassword))
@@ -564,7 +564,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <returns></returns>
         [HttpPut]
         [Permission("system:user:resetPwd")]
-        [OperLog("重置用户密码", Yi.Framework.OperationRecord.Abstractions.Enums.OperEnum.Update)]
+        [OperLog("重置用户密码", Yi.Framework.Auditing.Abstractions.Enums.OperEnum.Update)]
         public async Task<bool> ResetPasswordAsync(Guid userId, RestPasswordDto input)
         {
             if (string.IsNullOrEmpty(input.Password))
@@ -583,7 +583,7 @@ namespace Yi.Module.Rbac.Application.Services
         /// <returns></returns>
         [Authorize]
         [IgnorePermission]
-        [OperLog("更新用户头像", Yi.Framework.OperationRecord.Abstractions.Enums.OperEnum.Update)]
+        [OperLog("更新用户头像", Yi.Framework.Auditing.Abstractions.Enums.OperEnum.Update)]
         public async Task<bool> UpdateIconAsync(UpdateIconDto input)
         {
             Guid userId = input.UserId == null ? _currentUser.GetId() : input.UserId.Value;

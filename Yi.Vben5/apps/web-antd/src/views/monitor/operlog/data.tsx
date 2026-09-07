@@ -26,11 +26,6 @@ export const querySchema: FormSchemaGetter = () => [
     label: '操作类型',
   },
   {
-    component: 'Input',
-    fieldName: 'operIp',
-    label: '操作IP',
-  },
-  {
     component: 'RangePicker',
     fieldName: 'createTime',
     label: '操作时间',
@@ -54,7 +49,11 @@ export const columns: VxeGridProps['columns'] = [
   },
   { field: 'operUser', title: '操作人员' },
   { field: 'operIp', title: 'IP地址' },
-  { field: 'operLocation', title: 'IP信息' },
+  {
+    field: 'isSuccess',
+    title: '状态',
+    formatter: ({ cellValue }) => (cellValue ? '成功' : '失败'),
+  },
   { field: 'creationTime', title: '操作日期', sortable: true },
   {
     field: 'action',

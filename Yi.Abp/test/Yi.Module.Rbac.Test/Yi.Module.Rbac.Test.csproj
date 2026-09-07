@@ -35,8 +35,13 @@
 
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\framework\authorization\Yi.Framework.Authorization.Core\Yi.Framework.Authorization.Core.csproj" />
+    <ProjectReference Include="..\..\module\audit-logging\Yi.Module.AuditLogging.Application\Yi.Module.AuditLogging.Application.csproj" />
+    <ProjectReference Include="..\..\module\audit-logging\Yi.Module.AuditLogging.SqlSugarCore\Yi.Module.AuditLogging.SqlSugarCore.csproj" />
+    <ProjectReference Include="..\..\module\file-management\Yi.Module.FileManagement.Application\Yi.Module.FileManagement.Application.csproj" />
     <ProjectReference Include="..\..\module\rbac\Yi.Module.Rbac.Application\Yi.Module.Rbac.Application.csproj" />
     <ProjectReference Include="..\..\module\rbac\Yi.Module.Rbac.SqlSugarCore\Yi.Module.Rbac.SqlSugarCore.csproj" />
+    <ProjectReference Include="..\..\module\tenant-management\Yi.Module.TenantManagement.Application\Yi.Module.TenantManagement.Application.csproj" />
   </ItemGroup>
 
 </Project>

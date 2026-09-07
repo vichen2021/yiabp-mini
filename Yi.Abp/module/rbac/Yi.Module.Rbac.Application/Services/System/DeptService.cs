@@ -9,7 +9,7 @@ using Yi.Module.Rbac.Domain.Entities;
 using Yi.Module.Rbac.Domain.Repositories;
 using Yi.Framework.Authorization.Abstractions.Attributes;
 using Yi.Framework.Authorization.Abstractions.Enums;
-using Yi.Framework.OperationRecord.Abstractions.Attributes;
+using Yi.Framework.Auditing.Abstractions.Attributes;
 using Yi.Module.Rbac.Domain.Shared.Consts;
 using Yi.Module.Rbac.Domain.Shared.Dtos;
 using Yi.Module.Rbac.Domain.Shared.Authorization;

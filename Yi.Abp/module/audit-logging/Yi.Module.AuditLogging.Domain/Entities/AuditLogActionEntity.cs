@@ -5,6 +5,8 @@ using Volo.Abp.Data;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.MultiTenancy;
 using Yi.Module.AuditLogging.Domain.Shared.Consts;
+using Yi.Framework.Auditing.Abstractions;
+using Yi.Framework.Auditing.Abstractions.Enums;
 
 namespace Yi.Module.AuditLogging.Domain.Entities;
 
@@ -29,6 +31,22 @@ public class AuditLogActionEntity : Entity<Guid>, IMultiTenant
 
     public virtual int? ExecutionDuration { get; protected set; }
 
+    /// <summary>
+    /// 业务操作标题
+    /// </summary>
+    [SugarColumn(Length = 200)]
+    public virtual string? OperationTitle { get; protected set; }
+
+    /// <summary>
+    /// 业务操作类型
+    /// </summary>
+    public virtual OperEnum? OperationType { get; protected set; }
+
+    /// <summary>
+    /// 是否为需要展示的业务操作
+    /// </summary>
+    public virtual bool IsBusinessOperation { get; protected set; }
+
 
     [SugarColumn(ColumnName = "Id", IsPrimaryKey = true)]
     public override Guid Id { get; protected set; }
@@ -48,5 +66,29 @@ public class AuditLogActionEntity : Entity<Guid>, IMultiTenant
         ServiceName = actionInfo.ServiceName.TruncateFromBeginning(AuditLogActionConsts.MaxServiceNameLength);
         MethodName = actionInfo.MethodName.TruncateFromBeginning(AuditLogActionConsts.MaxMethodNameLength);
         Parameters = actionInfo.Parameters.Length > AuditLogActionConsts.MaxParametersLength ? "" : actionInfo.Parameters;
+
+        OperationTitle = GetExtraProperty<string>(actionInfo, OperationMetadataPropertyNames.Title);
+        var operationType = GetExtraProperty<int?>(actionInfo, OperationMetadataPropertyNames.Type);
+        OperationType = operationType.HasValue ? (OperEnum)operationType.Value : null;
+        IsBusinessOperation = GetExtraProperty<bool>(actionInfo, OperationMetadataPropertyNames.IsBusinessOperation);
+    }
+
+    /// <summary>
+    /// 从 ABP Action 扩展属性读取并转换业务审计字段
+    /// </summary>
+    private static T? GetExtraProperty<T>(AuditLogActionInfo actionInfo, string name)
+    {
+        if (!actionInfo.ExtraProperties.TryGetValue(name, out var value) || value == null)
+        {
+            return default;
+        }
+
+        if (value is T typedValue)
+        {
+            return typedValue;
+        }
+
+        var targetType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+        return (T?)Convert.ChangeType(value, targetType);
     }
 }

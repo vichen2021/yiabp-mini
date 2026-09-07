@@ -8,14 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="16.2.0" />
     <PackageReference Include="MiniExcel" Version="1.45.0" />
     <PackageReference Include="SqlSugarCore" Version="$(SqlSugarVersion)" />
-    <PackageReference Include="Volo.Abp.AutoMapper" Version="$(AbpVersion)" />
     <PackageReference Include="Volo.Abp.Ddd.Application" Version="$(AbpVersion)" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\framework\authorization\Yi.Framework.Authorization.Abstractions\Yi.Framework.Authorization.Abstractions.csproj" />
     <ProjectReference Include="..\..\..\framework\ddd\Yi.Framework.Ddd.Application\Yi.Framework.Ddd.Application.csproj" />
     <ProjectReference Include="..\Yi.Module.AuditLogging.Application.Contracts\Yi.Module.AuditLogging.Application.Contracts.csproj" />
     <ProjectReference Include="..\Yi.Module.AuditLogging.Domain\Yi.Module.AuditLogging.Domain.csproj" />

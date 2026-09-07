@@ -211,12 +211,10 @@ namespace Yi.Module.Rbac.Domain.Managers
             }
             if (UserConst.SuperAdminUserName.Equals(dto.User.UserName))
             {
-                AddToClaim(claims, TokenTypeConst.Permission, UserConst.SuperAdminPermissionCode);
                 AddToClaim(claims, TokenTypeConst.Roles, UserConst.SuperAdminRoleCode);
             }
             else
             {
-                dto.PermissionCodes?.ToList()?.ForEach(per => AddToClaim(claims, TokenTypeConst.Permission, per));
                 dto.RoleCodes?.ToList()?.ForEach(role => AddToClaim(claims, AbpClaimTypes.Role, role));
             }
 

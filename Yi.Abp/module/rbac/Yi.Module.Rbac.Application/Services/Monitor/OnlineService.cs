@@ -5,7 +5,7 @@ using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Yi.Framework.Authorization.Abstractions.Attributes;
 using Yi.Framework.Authorization.Abstractions.Enums;
-using Yi.Framework.OperationRecord.Abstractions.Attributes;
+using Yi.Framework.Auditing.Abstractions.Attributes;
 using Yi.Module.Rbac.Application.Contracts.IServices;
 using Yi.Module.Rbac.Application.SignalRHubs;
 using Yi.Module.Rbac.Domain.Shared.Model;

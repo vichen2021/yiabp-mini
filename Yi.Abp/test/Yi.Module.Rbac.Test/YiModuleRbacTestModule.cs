@@ -3,15 +3,23 @@ using Volo.Abp.Auditing;
 using Volo.Abp.Autofac;
 using Volo.Abp.BackgroundWorkers;
 using Yi.Module.Rbac.Application;
+using Yi.Framework.Authorization.Abstractions.Options;
+using Yi.Framework.Authorization.Core;
+using Yi.Module.AuditLogging.Application;
+using Yi.Module.AuditLogging.SqlSugarCore;
+using Yi.Module.FileManagement.Application;
 using Yi.Module.Rbac.Domain.Entities;
 using Yi.Module.Rbac.Domain.Managers;
 using Yi.Module.Rbac.Domain.Shared.Consts;
 using Yi.Module.Rbac.SqlSugarCore;
-using Yi.Framework.SqlSugarCore.Abstractions;
+using Yi.Module.TenantManagement.Application;
 
 namespace Yi.Module.Rbac.Test
 {
     [DependsOn(
+        typeof(YiFrameworkAuthorizationCoreModule),
+        typeof(YiModuleAuditLoggingApplicationModule),
+        typeof(YiModuleAuditLoggingSqlSugarCoreModule),
         typeof(YiModuleRbacApplicationModule),
         typeof(YiModuleRbacSqlSugarCoreModule),
 
@@ -19,6 +27,9 @@ namespace Yi.Module.Rbac.Test
         )]
     public class YiModuleRbacTestModule : AbpModule
     {
+        /// <summary>
+        /// 配置测试宿主
+        /// </summary>
         public override void ConfigureServices(ServiceConfigurationContext context)
         {
 
@@ -30,24 +41,13 @@ namespace Yi.Module.Rbac.Test
             {
                 options.IsEnabled = false; //禁用作业执行
             });
-            Configure<DbConnOptions>(options =>
+
+            // RBAC 菜单种子包含这些基础模块的菜单，测试宿主只登记程序集以完成权限码一致性校验
+            Configure<PermissionDefinitionOptions>(options =>
             {
-                options.Url = $"DataSource=yi-rbac-test-{DateTime.Now.ToString("yyyyMMdd_HHmmss")}.db";
+                options.AddApplicationAssembly(typeof(YiModuleFileManagementApplicationModule).Assembly);
+                options.AddApplicationAssembly(typeof(YiModuleTenantManagementApplicationModule).Assembly);
             });
-        }
-
-        public override async Task OnPostApplicationInitializationAsync(ApplicationInitializationContext context)
-        {
-            var services = context.ServiceProvider;
-
-            #region 给默认角色设置一些权限，防止注册后无权限禁止登录
-            var roleManager = services.GetRequiredService<RoleManager>();
-            var roleRep = services.GetRequiredService<ISqlSugarRepository<RoleAggregateRoot>>();
-            var menuRep = services.GetRequiredService<ISqlSugarRepository<MenuAggregateRoot>>();
-            var defaultRoleEntity = await roleRep._DbQueryable.Where(x => x.RoleCode == UserConst.DefaultRoleCode).FirstAsync();
-            var menuIds = await menuRep._DbQueryable.Where(x => x.PermissionCode.Contains("user")).Select(x => x.Id).ToListAsync();
-            await roleManager.GiveRoleSetMenuAsync(new List<Guid> { defaultRoleEntity.Id }, menuIds);
-            #endregion
         }
 
     }

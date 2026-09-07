@@ -1,7 +1,5 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc.Controllers;
-using Yi.Framework.ActionMetadata.Abstractions.Metadata;
-using Yi.Framework.ActionMetadata.Core.Metadata;
 using Yi.Framework.Authorization.Abstractions.Attributes;
 using Yi.Framework.Authorization.Abstractions.Metadata;
 
@@ -12,30 +10,22 @@ namespace Yi.Framework.Authorization.Core.Metadata
     /// </summary>
     public class DefaultPermissionRequirementResolver : IPermissionRequirementResolver
     {
-        private readonly IActionIdentityResolver _identityResolver;
-
-        public DefaultPermissionRequirementResolver(IActionIdentityResolver identityResolver)
-        {
-            _identityResolver = identityResolver;
-        }
-
+        /// <summary>
+        /// 从 MVC Action 解析权限要求
+        /// </summary>
         public PermissionRequirement Resolve(ControllerActionDescriptor descriptor)
         {
-            var identity = _identityResolver.Resolve(descriptor);
-            return ResolvePermission(identity, descriptor.MethodInfo);
+            return Resolve(descriptor.ControllerTypeInfo.AsType(), descriptor.MethodInfo);
         }
 
+        /// <summary>
+        /// 从应用服务类型和方法解析权限要求
+        /// </summary>
         public PermissionRequirement Resolve(Type serviceType, MethodInfo methodInfo)
-        {
-            var identity = _identityResolver.Resolve(serviceType, methodInfo);
-            return ResolvePermission(identity, methodInfo);
-        }
-
-        private static PermissionRequirement ResolvePermission(ActionIdentity identity, MethodInfo methodInfo)
         {
             var requirement = new PermissionRequirement();
 
-            if (HasIgnorePermission(methodInfo, identity.ServiceType))
+            if (HasIgnorePermission(methodInfo, serviceType))
             {
                 requirement.Ignore = true;
                 requirement.IsResolved = true;
@@ -43,7 +33,7 @@ namespace Yi.Framework.Authorization.Core.Metadata
                 return requirement;
             }
 
-            var permissionAttr = ActionReflectionHelper.GetMethodAttribute<PermissionAttribute>(methodInfo, identity.ServiceType);
+            var permissionAttr = PermissionReflectionHelper.GetMethodAttribute<PermissionAttribute>(methodInfo, serviceType);
             if (permissionAttr != null && !string.IsNullOrEmpty(permissionAttr.Code))
             {
                 requirement.Code = permissionAttr.Code;
@@ -52,7 +42,7 @@ namespace Yi.Framework.Authorization.Core.Metadata
                 return requirement;
             }
 
-            var resourceAttr = ResolvePermissionResource(identity.ServiceType);
+            var resourceAttr = ResolvePermissionResource(serviceType);
             if (resourceAttr == null)
             {
                 requirement.IsResolved = false;
@@ -60,7 +50,7 @@ namespace Yi.Framework.Authorization.Core.Metadata
                 return requirement;
             }
 
-            var actionAttr = ActionReflectionHelper.GetMethodAttribute<PermissionActionAttribute>(methodInfo, identity.ServiceType);
+            var actionAttr = PermissionReflectionHelper.GetMethodAttribute<PermissionActionAttribute>(methodInfo, serviceType);
             if (actionAttr == null || string.IsNullOrWhiteSpace(actionAttr.Action))
             {
                 requirement.IsResolved = false;
@@ -77,7 +67,7 @@ namespace Yi.Framework.Authorization.Core.Metadata
 
         private static bool HasIgnorePermission(MethodInfo methodInfo, Type serviceType)
         {
-            if (ActionReflectionHelper.GetMethodAttribute<IgnorePermissionAttribute>(methodInfo, serviceType) != null)
+            if (PermissionReflectionHelper.GetMethodAttribute<IgnorePermissionAttribute>(methodInfo, serviceType) != null)
             {
                 return true;
             }

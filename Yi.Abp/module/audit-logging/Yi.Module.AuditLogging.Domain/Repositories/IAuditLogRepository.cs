@@ -2,6 +2,7 @@
 using Volo.Abp.Auditing;
 using Yi.Module.AuditLogging.Domain.Entities;
 using Yi.Framework.SqlSugarCore.Abstractions;
+using Yi.Framework.Auditing.Abstractions.Enums;
 
 namespace Yi.Module.AuditLogging.Domain.Repositories
 {
@@ -15,5 +16,10 @@ namespace Yi.Module.AuditLogging.Domain.Repositories
         Task<List<EntityChangeWithUsername>> GetEntityChangesWithUsernameAsync(string entityId, string entityTypeFullName, CancellationToken cancellationToken = default);
         Task<EntityChangeWithUsername> GetEntityChangeWithUsernameAsync(Guid entityChangeId);
         Task<List<AuditLogAggregateRoot>> GetListAsync(string? sorting = null, int maxResultCount = 50, int skipCount = 0, DateTime? startTime = null, DateTime? endTime = null, string? httpMethod = null, string? url = null, Guid? userId = null, string? userName = null, string? applicationName = null, string? clientIpAddress = null, string? correlationId = null, int? maxExecutionDuration = null, int? minExecutionDuration = null, bool? hasException = null, HttpStatusCode? httpStatusCode = null, bool includeDetails = false);
+        Task<(List<OperationLogRecord> Items, int Total)> GetOperationLogPageAsync(OperEnum? operationType, string? userName, string? title, bool? isSuccess, DateTime? startTime, DateTime? endTime, int skipCount, int maxResultCount);
+        Task<List<OperationLogRecord>> GetOperationLogListAsync(OperEnum? operationType, string? userName, string? title, bool? isSuccess, DateTime? startTime, DateTime? endTime);
+        Task<OperationLogRecord?> GetOperationLogAsync(Guid actionId);
+        Task DeleteOperationLogsAsync(IEnumerable<Guid> actionIds);
+        Task DeleteAllOperationLogsAsync();
     }
 }

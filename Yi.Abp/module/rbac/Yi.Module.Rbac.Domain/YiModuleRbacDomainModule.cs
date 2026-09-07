@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 using Volo.Abp.AspNetCore.SignalR;
+using Volo.Abp.Authorization;
+using Volo.Abp.Authorization.Permissions;
 using Volo.Abp.Caching;
 using Volo.Abp.DistributedLocking;
 using Volo.Abp.Domain;
@@ -11,6 +13,7 @@ using Volo.Abp.Modularity;
 using Yi.Framework.Aliyun.Sms;
 using Yi.Framework.Caching.FreeRedis;
 using Yi.Framework.Ddd.Domain;
+using Yi.Module.Rbac.Domain.Authorization;
 using Yi.Module.Rbac.Domain.Shared;
 
 namespace Yi.Module.Rbac.Domain
@@ -23,6 +26,7 @@ namespace Yi.Module.Rbac.Domain
         typeof(AbpDddDomainModule),
         typeof(AbpCachingModule),
         typeof(AbpDistributedLockingModule),
+        typeof(AbpAuthorizationModule),
         typeof(YiFrameworkAliyunSmsModule)
         )]
     public class YiModuleRbacDomainModule : AbpModule
@@ -30,6 +34,13 @@ namespace Yi.Module.Rbac.Domain
         public override void ConfigureServices(ServiceConfigurationContext context)
         {
             var configuration = context.Services.GetConfiguration();
+
+            Configure<AbpPermissionOptions>(options =>
+            {
+                // 角色菜单是唯一授权来源，移除依赖 PermissionGrant 存储的 ABP 默认 Provider
+                options.ValueProviders.Clear();
+                options.ValueProviders.Add<RoleMenuPermissionValueProvider>();
+            });
 
             // Filter 注册已迁移到 Yi.Abp.Web，此处移除
 

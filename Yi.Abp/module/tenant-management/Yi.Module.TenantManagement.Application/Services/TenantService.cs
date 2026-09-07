@@ -14,10 +14,11 @@ using Yi.Framework.Ddd.Application;
 using Yi.Framework.SqlSugarCore.Abstractions;
 using Yi.Framework.Authorization.Abstractions.Attributes;
 using Yi.Framework.Authorization.Abstractions.Enums;
-using Yi.Framework.OperationRecord.Abstractions.Attributes;
+using Yi.Framework.Auditing.Abstractions.Attributes;
 using Yi.Module.Rbac.Domain.Entities;
 using Yi.Module.Rbac.Domain.Managers;
 using Yi.Module.Rbac.Domain.Shared.Consts;
+using Yi.Module.Rbac.Domain.Shared.Authorization;
 using Yi.Module.TenantManagement.Application.Contracts;
 using Yi.Module.TenantManagement.Application.Contracts.Dtos;
 using Yi.Module.TenantManagement.Domain;
@@ -43,13 +44,15 @@ namespace Yi.Module.TenantManagement.Application
         private readonly ISqlSugarRepository<RoleAggregateRoot, Guid> _roleRepository;
         private readonly ISqlSugarRepository<RoleMenuEntity> _roleMenuRepository;
         private readonly ISqlSugarRepository<MenuAggregateRoot, Guid> _menuRepository;
+        private readonly IPermissionCacheVersionManager _permissionCacheVersionManager;
 
         public TenantService(ISqlSugarTenantRepository repository, IDataSeeder dataSeeder,
             IOptions<DbConnOptions> dbConnOptions, SqlSugarAndConfigurationTenantStore tenantStore, UserManager userManager,
             ISqlSugarRepository<TenantPackageMenuEntity> tenantPackageMenuRepository,
             ISqlSugarRepository<RoleAggregateRoot, Guid> roleRepository,
             ISqlSugarRepository<RoleMenuEntity> roleMenuRepository,
-            ISqlSugarRepository<MenuAggregateRoot, Guid> menuRepository) :
+            ISqlSugarRepository<MenuAggregateRoot, Guid> menuRepository,
+            IPermissionCacheVersionManager permissionCacheVersionManager) :
             base(repository)
         {
             _repository = repository;
@@ -61,6 +64,7 @@ namespace Yi.Module.TenantManagement.Application
             _roleRepository = roleRepository;
             _roleMenuRepository = roleMenuRepository;
             _menuRepository = menuRepository;
+            _permissionCacheVersionManager = permissionCacheVersionManager;
         }
 
         /// <summary>
@@ -176,7 +180,7 @@ namespace Yi.Module.TenantManagement.Application
         /// <returns></returns>
         [HttpPut("tenant/init/{id}")]
         [PermissionAction(PermissionActionEnum.Edit)]
-        [OperLog("初始化租户", Yi.Framework.OperationRecord.Abstractions.Enums.OperEnum.Update)]
+        [OperLog("初始化租户", Yi.Framework.Auditing.Abstractions.Enums.OperEnum.Update)]
         public async Task<TenantInitOutputDto> InitAsync
             ([FromRoute] Guid id, [FromBody] TenantInitInput input)
         {
@@ -243,7 +247,7 @@ namespace Yi.Module.TenantManagement.Application
         /// <param name="tenantId">租户ID</param>
         /// <param name="packageId">套餐ID</param>
         [PermissionAction(PermissionActionEnum.Edit)]
-        [OperLog("同步租户套餐", Yi.Framework.OperationRecord.Abstractions.Enums.OperEnum.Update)]
+        [OperLog("同步租户套餐", Yi.Framework.Auditing.Abstractions.Enums.OperEnum.Update)]
         public Task SyncPackageAsync(Guid tenantId, Guid packageId)
         {
             return SyncPackageAsync(tenantId, packageId, syncDatabaseSchema: true);
@@ -346,6 +350,8 @@ namespace Yi.Module.TenantManagement.Application
                     }
                 }
             }
+
+            await _permissionCacheVersionManager.InvalidateAsync(tenantId);
         }
 
         /// <summary>
@@ -492,6 +498,8 @@ namespace Yi.Module.TenantManagement.Application
                     await _roleMenuRepository.InsertRangeAsync(roleMenus);
                 }
             }
+
+            await _permissionCacheVersionManager.InvalidateAsync(tenantId);
         }
 
         private static List<Guid> ResolveTenantMenuIds(List<MenuAggregateRoot> packageMenus, List<MenuAggregateRoot> tenantMenus)

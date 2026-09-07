@@ -7,7 +7,7 @@ using Volo.Abp.Application.Services;
 using Yi.Framework.Core.Helper;
 using Yi.Framework.Authorization.Abstractions.Attributes;
 using Yi.Framework.Authorization.Abstractions.Enums;
-using Yi.Framework.OperationRecord.Abstractions.Attributes;
+using Yi.Framework.Auditing.Abstractions.Attributes;
 using Yi.Module.Rbac.Application.Contracts.IServices;
 
 namespace Yi.Module.Rbac.Application.Services.Monitor

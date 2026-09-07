@@ -1,8 +1,11 @@
 ﻿using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
 using System.Net;
 using SqlSugar;
 using Volo.Abp.Auditing;
 using Volo.Abp.Domain.Entities;
+using Volo.Abp.MultiTenancy;
+using Yi.Framework.Auditing.Abstractions.Enums;
 using Yi.Module.AuditLogging.Domain;
 using Yi.Module.AuditLogging.Domain.Entities;
 using Yi.Module.AuditLogging.Domain.Repositories;
@@ -13,8 +16,35 @@ namespace Yi.Module.AuditLogging.SqlSugarCore.Repositories;
 
 public class SqlSugarCoreAuditLogRepository : SqlSugarRepository<AuditLogAggregateRoot, Guid>, IAuditLogRepository
 {
-    public SqlSugarCoreAuditLogRepository(ISugarDbContextProvider<ISqlSugarDbContext> sugarDbContextProvider) : base(sugarDbContextProvider)
+    private static readonly Expression<Func<AuditLogActionEntity, AuditLogAggregateRoot, OperationLogRecord>> OperationLogProjection =
+        (action, auditLog) => new OperationLogRecord
+        {
+            Id = action.Id,
+            AuditLogId = auditLog.Id,
+            Title = action.OperationTitle,
+            OperType = action.OperationType ?? OperEnum.Other,
+            RequestMethod = auditLog.HttpMethod,
+            OperUser = auditLog.UserName,
+            OperIp = auditLog.ClientIpAddress,
+            Method = auditLog.HttpMethod + " " + auditLog.Url,
+            RequestParam = action.Parameters,
+            IsSuccess = (auditLog.Exceptions == null || auditLog.Exceptions == "") &&
+                        (auditLog.HttpStatusCode == null || auditLog.HttpStatusCode < 400),
+            ErrorMessage = auditLog.Exceptions,
+            ExecutionDuration = action.ExecutionDuration ?? 0,
+            CreationTime = action.ExecutionTime ?? auditLog.ExecutionTime ?? DateTime.MinValue
+        };
+
+    private readonly ICurrentTenant _currentTenant;
+
+    /// <summary>
+    /// 创建支持租户隔离操作记录查询的统一审计仓储
+    /// </summary>
+    public SqlSugarCoreAuditLogRepository(
+        ISugarDbContextProvider<ISqlSugarDbContext> sugarDbContextProvider,
+        ICurrentTenant currentTenant) : base(sugarDbContextProvider)
     {
+        _currentTenant = currentTenant;
     }
 
     /// <summary>
@@ -257,5 +287,151 @@ public class SqlSugarCoreAuditLogRepository : SqlSugarRepository<AuditLogAggrega
             .WhereIF(changeType.HasValue, e => e.ChangeType == changeType)
             .WhereIF(!string.IsNullOrWhiteSpace(entityId), e => e.EntityId == entityId)
             .WhereIF(!string.IsNullOrWhiteSpace(entityTypeFullName), e => e.EntityTypeFullName.Contains(entityTypeFullName));
+    }
+
+    /// <summary>
+    /// 分页查询统一审计模型中的业务操作记录
+    /// </summary>
+    public async Task<(List<OperationLogRecord> Items, int Total)> GetOperationLogPageAsync(
+        OperEnum? operationType,
+        string? userName,
+        string? title,
+        bool? isSuccess,
+        DateTime? startTime,
+        DateTime? endTime,
+        int skipCount,
+        int maxResultCount)
+    {
+        RefAsync<int> total = 0;
+        var records = await BuildOperationLogQuery(operationType, userName, title, isSuccess, startTime, endTime)
+            .OrderBy((action, auditLog) => action.ExecutionTime, OrderByType.Desc)
+            .Select(OperationLogProjection)
+            .ToPageListAsync(skipCount, maxResultCount, total);
+
+        return (records, total);
+    }
+
+    /// <summary>
+    /// 查询符合条件的全部业务操作记录
+    /// </summary>
+    public async Task<List<OperationLogRecord>> GetOperationLogListAsync(
+        OperEnum? operationType,
+        string? userName,
+        string? title,
+        bool? isSuccess,
+        DateTime? startTime,
+        DateTime? endTime)
+    {
+        return await BuildOperationLogQuery(operationType, userName, title, isSuccess, startTime, endTime)
+            .OrderBy((action, auditLog) => action.ExecutionTime, OrderByType.Desc)
+            .Select(OperationLogProjection)
+            .ToListAsync();
+    }
+
+    /// <summary>
+    /// 按 Action 标识查询业务操作详情
+    /// </summary>
+    public async Task<OperationLogRecord?> GetOperationLogAsync(Guid actionId)
+    {
+        return await BuildOperationLogQuery(null, null, null, null, null, null)
+            .Where((action, auditLog) => action.Id == actionId)
+            .Select(OperationLogProjection)
+            .FirstAsync();
+    }
+
+    /// <summary>
+    /// 按业务 Action 标识删除完整审计聚合
+    /// </summary>
+    public async Task DeleteOperationLogsAsync(IEnumerable<Guid> actionIds)
+    {
+        var ids = actionIds.Distinct().ToArray();
+        if (ids.Length == 0)
+        {
+            return;
+        }
+
+        var auditLogIds = await _Db.Queryable<AuditLogActionEntity>()
+            .Where(action => action.TenantId == _currentTenant.Id && action.IsBusinessOperation && ids.Contains(action.Id))
+            .Select(action => action.AuditLogId)
+            .Distinct()
+            .ToListAsync();
+
+        await DeleteAuditLogAggregatesAsync(auditLogIds);
+    }
+
+    /// <summary>
+    /// 清空当前租户包含业务操作的完整审计聚合
+    /// </summary>
+    public async Task DeleteAllOperationLogsAsync()
+    {
+        var auditLogIds = await _Db.Queryable<AuditLogActionEntity>()
+            .Where(action => action.TenantId == _currentTenant.Id && action.IsBusinessOperation)
+            .Select(action => action.AuditLogId)
+            .Distinct()
+            .ToListAsync();
+
+        await DeleteAuditLogAggregatesAsync(auditLogIds);
+    }
+
+    /// <summary>
+    /// 构建租户隔离的业务操作联表查询
+    /// </summary>
+    private ISugarQueryable<AuditLogActionEntity, AuditLogAggregateRoot> BuildOperationLogQuery(
+        OperEnum? operationType,
+        string? userName,
+        string? title,
+        bool? isSuccess,
+        DateTime? startTime,
+        DateTime? endTime)
+    {
+        return _Db.Queryable<AuditLogActionEntity, AuditLogAggregateRoot>(
+                (action, auditLog) => new JoinQueryInfos(JoinType.Inner, action.AuditLogId == auditLog.Id))
+            .Where((action, auditLog) => action.IsBusinessOperation &&
+                                         action.TenantId == _currentTenant.Id &&
+                                         auditLog.TenantId == _currentTenant.Id)
+            .WhereIF(operationType.HasValue, (action, auditLog) => action.OperationType == operationType)
+            .WhereIF(!string.IsNullOrWhiteSpace(userName), (action, auditLog) => auditLog.UserName != null && auditLog.UserName.Contains(userName!))
+            .WhereIF(!string.IsNullOrWhiteSpace(title), (action, auditLog) => action.OperationTitle != null && action.OperationTitle.Contains(title!))
+            .WhereIF(startTime.HasValue, (action, auditLog) => action.ExecutionTime >= startTime)
+            .WhereIF(endTime.HasValue, (action, auditLog) => action.ExecutionTime <= endTime)
+            .WhereIF(isSuccess == true, (action, auditLog) =>
+                (auditLog.Exceptions == null || auditLog.Exceptions == "") &&
+                (auditLog.HttpStatusCode == null || auditLog.HttpStatusCode < 400))
+            .WhereIF(isSuccess == false, (action, auditLog) =>
+                (auditLog.Exceptions != null && auditLog.Exceptions != "") ||
+                (auditLog.HttpStatusCode != null && auditLog.HttpStatusCode >= 400));
+    }
+
+    /// <summary>
+    /// 删除审计根及其全部 Action 和实体变更以保持聚合完整性
+    /// </summary>
+    private async Task DeleteAuditLogAggregatesAsync(IReadOnlyCollection<Guid> auditLogIds)
+    {
+        if (auditLogIds.Count == 0)
+        {
+            return;
+        }
+
+        var entityChangeIds = await _Db.Queryable<EntityChangeEntity>()
+            .Where(change => auditLogIds.Contains(change.AuditLogId))
+            .Select(change => change.Id)
+            .ToListAsync();
+
+        if (entityChangeIds.Count > 0)
+        {
+            await _Db.Deleteable<EntityPropertyChangeEntity>()
+                .Where(change => change.EntityChangeId.HasValue && entityChangeIds.Contains(change.EntityChangeId.Value))
+                .ExecuteCommandAsync();
+        }
+
+        await _Db.Deleteable<EntityChangeEntity>()
+            .Where(change => auditLogIds.Contains(change.AuditLogId))
+            .ExecuteCommandAsync();
+        await _Db.Deleteable<AuditLogActionEntity>()
+            .Where(action => auditLogIds.Contains(action.AuditLogId))
+            .ExecuteCommandAsync();
+        await _Db.Deleteable<AuditLogAggregateRoot>()
+            .Where(auditLog => auditLogIds.Contains(auditLog.Id) && auditLog.TenantId == _currentTenant.Id)
+            .ExecuteCommandAsync();
     }
 }

@@ -4,7 +4,7 @@ using Volo.Abp.Application.Services;
 using Yi.Framework.Ddd.Application;
 using Yi.Framework.Authorization.Abstractions.Attributes;
 using Yi.Framework.Authorization.Abstractions.Enums;
-using Yi.Framework.OperationRecord.Abstractions.Attributes;
+using Yi.Framework.Auditing.Abstractions.Attributes;
 using Yi.Module.Rbac.Application.Contracts.Dtos.Config;
 using Yi.Module.Rbac.Application.Contracts.IServices;
 using Yi.Module.Rbac.Domain.Entities;

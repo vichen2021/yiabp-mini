@@ -15,7 +15,6 @@ namespace Yi.Module.AuditLogging.SqlSugarCore
         public override void ConfigureServices(ServiceConfigurationContext context)
         {
             context.Services.AddTransient<IAuditLogRepository, SqlSugarCoreAuditLogRepository>();
-            context.Services.AddTransient<IOperationLogRepository, SqlSugarCoreOperationLogRepository>();
         }
     }
 }

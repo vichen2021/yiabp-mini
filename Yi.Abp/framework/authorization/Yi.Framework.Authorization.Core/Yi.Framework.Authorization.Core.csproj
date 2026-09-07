@@ -8,11 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Volo.Abp.AspNetCore.Mvc" Version="$(AbpVersion)" />
+    <PackageReference Include="Volo.Abp.Authorization" Version="$(AbpVersion)" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Yi.Framework.Authorization.Abstractions\Yi.Framework.Authorization.Abstractions.csproj" />
-    <ProjectReference Include="..\..\action-metadata\Yi.Framework.ActionMetadata.Core\Yi.Framework.ActionMetadata.Core.csproj" />
   </ItemGroup>
 </Project>

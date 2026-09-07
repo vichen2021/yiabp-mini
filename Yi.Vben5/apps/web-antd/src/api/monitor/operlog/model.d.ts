@@ -5,10 +5,10 @@ export interface OperationLog {
   requestMethod: string;
   operUser: string;
   operIp: string;
-  operLocation: string;
   method: string;
   requestParam: string;
-  requestResult: string;
+  isSuccess: boolean;
+  errorMessage: null | string;
+  executionDuration: number;
   creationTime: string;
-  creatorId: string | null;
 }

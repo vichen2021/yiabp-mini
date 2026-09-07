@@ -12,7 +12,7 @@ using Yi.Module.TenantManagement.Domain.Entities;
 using Yi.Framework.SqlSugarCore.Abstractions;
 using Yi.Framework.Authorization.Abstractions.Attributes;
 using Yi.Framework.Authorization.Abstractions.Enums;
-using Yi.Framework.OperationRecord.Abstractions.Attributes;
+using Yi.Framework.Auditing.Abstractions.Attributes;
 
 namespace Yi.Module.TenantManagement.Application.Services
 {

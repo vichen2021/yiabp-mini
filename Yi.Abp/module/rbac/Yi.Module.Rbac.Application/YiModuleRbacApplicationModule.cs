@@ -1,5 +1,6 @@
 using Lazy.Captcha.Core.Generator;
 using Microsoft.Extensions.DependencyInjection;
+using Yi.Framework.Authorization.Abstractions.Options;
 using Yi.Framework.Ddd.Application;
 using Yi.Module.Rbac.Application.Contracts;
 using Yi.Module.Rbac.Domain;
@@ -18,6 +19,11 @@ namespace Yi.Module.Rbac.Application
         public override void ConfigureServices(ServiceConfigurationContext context)
         {
             var service = context.Services;
+
+            Configure<PermissionDefinitionOptions>(options =>
+            {
+                options.AddApplicationAssembly(typeof(YiModuleRbacApplicationModule).Assembly);
+            });
 
             service.AddCaptcha(options =>
             {

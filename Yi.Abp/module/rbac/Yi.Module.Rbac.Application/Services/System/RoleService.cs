@@ -4,6 +4,7 @@ using SqlSugar;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Entities;
+using Volo.Abp.MultiTenancy;
 using Volo.Abp.Uow;
 using Yi.Framework.Core.Helper;
 using Yi.Framework.Ddd.Application;
@@ -14,11 +15,12 @@ using Yi.Module.Rbac.Domain.Entities;
 using Yi.Module.Rbac.Domain.Managers;
 using Yi.Module.Rbac.Domain.Repositories;
 using Yi.Module.Rbac.Domain.Shared.Consts;
+using Yi.Module.Rbac.Domain.Shared.Authorization;
 using Yi.Module.Rbac.Domain.Shared.Dtos;
 using Yi.Module.Rbac.Domain.Shared.Enums;
 using Yi.Framework.Authorization.Abstractions.Attributes;
-using Yi.Framework.OperationRecord.Abstractions.Attributes;
-using Yi.Framework.OperationRecord.Abstractions.Enums;
+using Yi.Framework.Auditing.Abstractions.Attributes;
+using Yi.Framework.Auditing.Abstractions.Enums;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
 namespace Yi.Module.Rbac.Application.Services
@@ -36,10 +38,14 @@ namespace Yi.Module.Rbac.Application.Services
             ISqlSugarRepository<UserRoleEntity> userRoleRepository,
             ISqlSugarRepository<RoleAggregateRoot, Guid> repository,
             ISqlSugarRepository<MenuAggregateRoot, Guid> menuRepository,
-            IDeptRepository deptRepository) : base(repository)
+            IDeptRepository deptRepository,
+            IPermissionCacheVersionManager permissionCacheVersionManager,
+            ICurrentTenant currentTenant) : base(repository)
         {
             (_roleManager, _roleDeptRepository, _userRoleRepository, _repository, _menuRepository, _deptRepository) =
                 (roleManager, roleDeptRepository, userRoleRepository, repository, menuRepository, deptRepository);
+            _permissionCacheVersionManager = permissionCacheVersionManager;
+            _currentTenant = currentTenant;
         }
 
         private ISqlSugarRepository<RoleAggregateRoot, Guid> _repository;
@@ -52,6 +58,8 @@ namespace Yi.Module.Rbac.Application.Services
         private ISqlSugarRepository<MenuAggregateRoot, Guid> _menuRepository;
 
         private IDeptRepository _deptRepository;
+        private readonly IPermissionCacheVersionManager _permissionCacheVersionManager;
+        private readonly ICurrentTenant _currentTenant;
 
         [Permission("system:role:edit")]
         [OperLog("更新角色数据权限", OperEnum.Update)]
@@ -69,6 +77,7 @@ namespace Yi.Module.Rbac.Application.Services
             var entity = new RoleAggregateRoot() { DataScope = input.DataScope };
             EntityHelper.TrySetId(entity, () => input.Id);
             await _repository._Db.Updateable(entity).UpdateColumns(x => x.DataScope).ExecuteCommandAsync();
+            await _permissionCacheVersionManager.InvalidateAsync(_currentTenant.Id);
         }
 
         public override async Task<PagedResultDto<RoleGetListOutputDto>> GetListAsync(RoleGetListInputVo input)
@@ -150,6 +159,7 @@ namespace Yi.Module.Rbac.Application.Services
 
             entity.State = state;
             await _repository.UpdateAsync(entity);
+            await _permissionCacheVersionManager.InvalidateAsync(_currentTenant.Id);
             return await MapToGetOutputDtoAsync(entity);
         }
 
@@ -222,6 +232,7 @@ namespace Yi.Module.Rbac.Application.Services
             var userRoleEntities = input.UserIds.Select(u => new UserRoleEntity { RoleId = input.RoleId, UserId = u })
                 .ToList();
             await _userRoleRepository.InsertRangeAsync(userRoleEntities);
+            await _permissionCacheVersionManager.InvalidateAsync(_currentTenant.Id);
         }
 
 
@@ -237,7 +248,16 @@ namespace Yi.Module.Rbac.Application.Services
             await _userRoleRepository._Db.Deleteable<UserRoleEntity>().Where(x => x.RoleId == input.RoleId)
                 .Where(x => input.UserIds.Contains(x.UserId))
                 .ExecuteCommandAsync();
-            ;
+            await _permissionCacheVersionManager.InvalidateAsync(_currentTenant.Id);
+        }
+
+        /// <summary>
+        /// 删除角色并使当前租户授权快照立即失效
+        /// </summary>
+        public override async Task DeleteAsync(IEnumerable<Guid> ids)
+        {
+            await base.DeleteAsync(ids);
+            await _permissionCacheVersionManager.InvalidateAsync(_currentTenant.Id);
         }
 
         /// <summary>

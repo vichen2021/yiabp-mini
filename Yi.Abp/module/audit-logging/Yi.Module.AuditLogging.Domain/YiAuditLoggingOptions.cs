@@ -1,22 +1,25 @@
 namespace Yi.Module.AuditLogging.Domain
 {
     /// <summary>
+    /// 审计日志持久化模式
+    /// </summary>
+    public enum AuditLogSaveMode
+    {
+        Disabled,
+        BusinessOperations,
+        All
+    }
+
+    /// <summary>
     /// Yi 审计记录配置选项
     /// Yi 开关负责"存不存表"
     /// </summary>
     public class YiAuditLoggingOptions
     {
         /// <summary>
-        /// 是否保存详细审计记录
-        /// 默认 false：不保存详细审计记录，减少数据量
+        /// 审计日志持久化模式
         /// </summary>
-        public bool SaveAuditLog { get; set; } = false;
-
-        /// <summary>
-        /// 是否保存业务操作记录
-        /// 默认 true：保存写操作的业务日志
-        /// </summary>
-        public bool SaveOperationLog { get; set; } = true;
+        public AuditLogSaveMode SaveMode { get; set; } = AuditLogSaveMode.BusinessOperations;
 
         /// <summary>
         /// 请求参数最大长度

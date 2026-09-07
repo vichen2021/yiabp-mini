@@ -4,7 +4,7 @@ using Volo.Abp.Application.Dtos;
 using Volo.Abp.Caching;
 using Yi.Framework.Ddd.Application;
 using Yi.Framework.Authorization.Abstractions.Attributes;
-using Yi.Framework.OperationRecord.Abstractions.Attributes;
+using Yi.Framework.Auditing.Abstractions.Attributes;
 using Yi.Module.Rbac.Application.Contracts.Dtos.DictionaryType;
 using Yi.Module.Rbac.Application.Contracts.IServices;
 using Yi.Module.Rbac.Domain.Entities;

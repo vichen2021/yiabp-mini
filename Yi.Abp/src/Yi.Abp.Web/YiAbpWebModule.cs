@@ -46,7 +46,6 @@ using Yi.Framework.BackgroundWorkers.Hangfire;
 using Yi.Framework.Core.Json;
 using Yi.Framework.Authorization.Core;
 using Yi.Framework.Authorization.Core.Filters;
-using Yi.Framework.OperationRecord.Core;
 using Yi.Module.FileManagement.Application;
 using Yi.Module.Rbac.Application;
 using Yi.Module.Rbac.Application.Authorization;
@@ -71,7 +70,6 @@ namespace Yi.Abp.Web
 
         typeof(YiModuleAuditLoggingApplicationModule),
         typeof(YiFrameworkAuthorizationCoreModule),
-        typeof(YiFrameworkOperationRecordCoreModule),
         typeof(YiFrameworkBackgroundWorkersHangfireModule),
         typeof(AbpAutofacModule)
     )]
@@ -106,6 +104,13 @@ namespace Yi.Abp.Web
             var host = context.Services.GetHostingEnvironment();
             var service = context.Services;
 
+            service.AddTransient<ApplicationServicePermissionAuthorizationFilter>();
+            Configure<MvcOptions>(options =>
+            {
+                // ABP 动态 API 会忽略 Castle 代理，使用 MVC 过滤器执行同一套权限决策
+                options.Filters.AddService<ApplicationServicePermissionAuthorizationFilter>(order: -1000);
+            });
+
             //本地开发环境，禁用作业执行
             if (host.IsDevelopment())
             {
@@ -133,12 +138,6 @@ namespace Yi.Abp.Web
             //前置：需要将管道工作单元前加上app.Properties.Add("_AbpExceptionHandlingMiddleware_Added",false);
             //你没看错。。。
             service.AddFurionUnifyResultApi();
-
-            //注册权限全局过滤器
-            service.AddControllers(options =>
-            {
-                options.Filters.Add<PermissionAuthorizationFilter>();
-            });
 
             //配置错误处理显示详情
             Configure<AbpExceptionHandlingOptions>(options => { options.SendExceptionsDetailsToClients = true; });

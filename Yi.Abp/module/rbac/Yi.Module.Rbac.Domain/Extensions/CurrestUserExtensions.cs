@@ -8,17 +8,6 @@ namespace Yi.Module.Rbac.Domain.Extensions
     public static class CurrestUserExtensions
     {
         /// <summary>
-        /// 获取用户权限codes
-        /// </summary>
-        /// <param name="currentUser"></param>
-        /// <returns></returns>
-        public static List<string> GetPermissions(this ICurrentUser currentUser)
-        {
-            return currentUser.FindClaims(TokenTypeConst.Permission).Select(x => x.Value).ToList();
-
-        }
-
-        /// <summary>
         /// 获取用户权限岗位id
         /// </summary>
         /// <param name="currentUser"></param>

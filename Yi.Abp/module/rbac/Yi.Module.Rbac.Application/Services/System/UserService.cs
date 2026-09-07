@@ -9,20 +9,22 @@ using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Caching;
 using Volo.Abp.EventBus.Local;
+using Volo.Abp.MultiTenancy;
 using Volo.Abp.Users;
 using Yi.Framework.Ddd.Application;
 using Yi.Module.Rbac.Application.Contracts.Dtos.User;
 using Yi.Module.Rbac.Application.Contracts.IServices;
 using Yi.Framework.Authorization.Abstractions.Attributes;
-using Yi.Framework.OperationRecord.Abstractions.Attributes;
+using Yi.Framework.Auditing.Abstractions.Attributes;
 using Yi.Module.Rbac.Domain.Entities;
 using Yi.Module.Rbac.Domain.Managers;
 using Yi.Module.Rbac.Domain.Repositories;
 using Yi.Module.Rbac.Domain.Shared.Caches;
+using Yi.Module.Rbac.Domain.Shared.Authorization;
 using Yi.Module.Rbac.Domain.Shared.Consts;
 using Yi.Module.Rbac.Domain.Shared.Etos;
 using Yi.Module.Rbac.Domain.Shared.Enums;
-using Yi.Framework.OperationRecord.Abstractions.Enums;
+using Yi.Framework.Auditing.Abstractions.Enums;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
 namespace Yi.Module.Rbac.Application.Services
@@ -43,10 +45,15 @@ namespace Yi.Module.Rbac.Application.Services
             ILocalEventBus localEventBus,
             ISqlSugarRepository<DeptAggregateRoot, Guid> deptRepository,
             ISqlSugarRepository<ConfigAggregateRoot, Guid> configRepository,
-            IDistributedCache<UserInfoCacheItem, UserInfoCacheKey> userCache) : base(repository)
-            =>
-                (_userManager, _userRepository, _currentUser, _deptService, _repository, _localEventBus, _deptRepository, _configRepository) =
+            IDistributedCache<UserInfoCacheItem, UserInfoCacheKey> userCache,
+            IPermissionCacheVersionManager permissionCacheVersionManager,
+            ICurrentTenant currentTenant) : base(repository)
+        {
+            (_userManager, _userRepository, _currentUser, _deptService, _repository, _localEventBus, _deptRepository, _configRepository) =
                 (userManager, userRepository, currentUser, deptService, repository, localEventBus, deptRepository, configRepository);
+            _permissionCacheVersionManager = permissionCacheVersionManager;
+            _currentTenant = currentTenant;
+        }
 
         private UserManager _userManager { get; set; }
         private ISqlSugarRepository<UserAggregateRoot, Guid> _repository;
@@ -58,6 +65,8 @@ namespace Yi.Module.Rbac.Application.Services
         private ICurrentUser _currentUser { get; set; }
 
         private ILocalEventBus _localEventBus;
+        private readonly IPermissionCacheVersionManager _permissionCacheVersionManager;
+        private readonly ICurrentTenant _currentTenant;
 
         /// <summary>
         /// 查询用户
@@ -220,6 +229,7 @@ namespace Yi.Module.Rbac.Application.Services
 
             entity.State = state;
             await _repository.UpdateAsync(entity);
+            await _permissionCacheVersionManager.InvalidateAsync(_currentTenant.Id);
             return await MapToGetOutputDtoAsync(entity);
         }
 
@@ -228,6 +238,7 @@ namespace Yi.Module.Rbac.Application.Services
         public override async Task DeleteAsync(Guid id)
         {
             await base.DeleteAsync(id);
+            await _permissionCacheVersionManager.InvalidateAsync(_currentTenant.Id);
         }
 
         [Permission("system:user:export")]
@@ -282,6 +293,7 @@ namespace Yi.Module.Rbac.Application.Services
             }
 
             var msg = BuildImportMessage(successMessages, failureMessages);
+            await _permissionCacheVersionManager.InvalidateAsync(_currentTenant.Id);
             return new { code = failureMessages.Count == 0 && successMessages.Count > 0 ? 200 : 500, msg };
         }
 

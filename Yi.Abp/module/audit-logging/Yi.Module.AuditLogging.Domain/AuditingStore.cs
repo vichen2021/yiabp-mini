@@ -14,27 +14,21 @@ public class AuditingStore : IAuditingStore, ITransientDependency
 {
     public ILogger<AuditingStore> Logger { get; set; }
     protected IAuditLogRepository AuditLogRepository { get; }
-    protected IOperationLogRepository OperationLogRepository { get; }
     protected IUnitOfWorkManager UnitOfWorkManager { get; }
     protected AbpAuditingOptions Options { get; }
     protected YiAuditLoggingOptions YiOptions { get; }
     protected IAuditLogInfoToAuditLogConverter Converter { get; }
-    protected IOperationLogMapper OperationLogMapper { get; }
 
     public AuditingStore(
         IAuditLogRepository auditLogRepository,
-        IOperationLogRepository operationLogRepository,
         IUnitOfWorkManager unitOfWorkManager,
         IOptions<AbpAuditingOptions> options,
         IOptions<YiAuditLoggingOptions> yiOptions,
-        IAuditLogInfoToAuditLogConverter converter,
-        IOperationLogMapper operationLogMapper)
+        IAuditLogInfoToAuditLogConverter converter)
     {
         AuditLogRepository = auditLogRepository;
-        OperationLogRepository = operationLogRepository;
         UnitOfWorkManager = unitOfWorkManager;
         Converter = converter;
-        OperationLogMapper = operationLogMapper;
         Options = options.Value;
         YiOptions = yiOptions.Value;
 
@@ -66,20 +60,29 @@ public class AuditingStore : IAuditingStore, ITransientDependency
 
         using (var uow = UnitOfWorkManager.Begin())
         {
-            // 保存详细审计记录（如果配置开启）
-            if (YiOptions.SaveAuditLog)
+            if (ShouldSave(auditInfo))
             {
                 await AuditLogRepository.InsertAsync(await Converter.ConvertAsync(auditInfo));
             }
 
-            // 映射并保存操作记录
-            var operationLog = OperationLogMapper.TryMap(auditInfo);
-            if (operationLog != null)
-            {
-                await OperationLogRepository.InsertAsync(operationLog);
-            }
-
             await uow.CompleteAsync();
         }
+    }
+
+    /// <summary>
+    /// 根据统一持久化模式判断当前 ABP 审计聚合是否需要保存
+    /// </summary>
+    private bool ShouldSave(AuditLogInfo auditInfo)
+    {
+        return YiOptions.SaveMode switch
+        {
+            AuditLogSaveMode.Disabled => false,
+            AuditLogSaveMode.All => true,
+            AuditLogSaveMode.BusinessOperations => auditInfo.Actions.Any(action =>
+                action.ExtraProperties.TryGetValue(
+                    Yi.Framework.Auditing.Abstractions.OperationMetadataPropertyNames.IsBusinessOperation,
+                    out var value) && value is true),
+            _ => false
+        };
     }
 }

@@ -11,7 +11,4 @@
     <PackageReference Include="Volo.Abp.AspNetCore.Mvc" Version="$(AbpVersion)" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\action-metadata\Yi.Framework.ActionMetadata.Abstractions\Yi.Framework.ActionMetadata.Abstractions.csproj" />
-  </ItemGroup>
 </Project>

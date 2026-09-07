@@ -3,7 +3,7 @@ using Volo.Abp;
 using Volo.Abp.Application.Services;
 using Yi.Framework.Authorization.Abstractions.Attributes;
 using Yi.Framework.Authorization.Abstractions.Enums;
-using Yi.Framework.OperationRecord.Abstractions.Attributes;
+using Yi.Framework.Auditing.Abstractions.Attributes;
 using Yi.Module.FileManagement.Application.Contracts.Dtos;
 using Yi.Module.FileManagement.Application.Contracts.IServices;
 using Yi.Module.FileManagement.Domain.Shared.Settings;

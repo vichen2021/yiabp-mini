@@ -1,5 +1,7 @@
 ﻿using Volo.Abp.Domain.Services;
+using Volo.Abp.MultiTenancy;
 using Yi.Module.Rbac.Domain.Entities;
+using Yi.Module.Rbac.Domain.Shared.Authorization;
 using Yi.Framework.SqlSugarCore.Abstractions;
 
 namespace Yi.Module.Rbac.Domain.Managers
@@ -8,10 +10,22 @@ namespace Yi.Module.Rbac.Domain.Managers
     {
         private ISqlSugarRepository<RoleAggregateRoot> _repository;
         private ISqlSugarRepository<RoleMenuEntity> _roleMenuRepository;
-        public RoleManager(ISqlSugarRepository<RoleAggregateRoot> repository, ISqlSugarRepository<RoleMenuEntity> roleMenuRepository)
+        private readonly IPermissionCacheVersionManager _permissionCacheVersionManager;
+        private readonly ICurrentTenant _currentTenant;
+
+        /// <summary>
+        /// 创建负责角色菜单授权及缓存失效的领域服务
+        /// </summary>
+        public RoleManager(
+            ISqlSugarRepository<RoleAggregateRoot> repository,
+            ISqlSugarRepository<RoleMenuEntity> roleMenuRepository,
+            IPermissionCacheVersionManager permissionCacheVersionManager,
+            ICurrentTenant currentTenant)
         {
             _repository = repository;
             _roleMenuRepository = roleMenuRepository;
+            _permissionCacheVersionManager = permissionCacheVersionManager;
+            _currentTenant = currentTenant;
         }
 
         /// <summary>
@@ -37,6 +51,7 @@ namespace Yi.Module.Rbac.Domain.Managers
                 await _roleMenuRepository.InsertRangeAsync(roleMenuEntity);
             }
 
+            await _permissionCacheVersionManager.InvalidateAsync(_currentTenant.Id);
         }
     }
 }

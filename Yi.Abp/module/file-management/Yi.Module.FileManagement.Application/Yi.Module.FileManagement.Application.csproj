@@ -12,7 +12,7 @@
     <PackageReference Include="Volo.Abp.BlobStoring.FileSystem" Version="$(AbpVersion)" />
     <ProjectReference Include="..\..\..\framework\ddd\Yi.Framework.Ddd.Application\Yi.Framework.Ddd.Application.csproj" />
     <ProjectReference Include="..\..\..\framework\authorization\Yi.Framework.Authorization.Abstractions\Yi.Framework.Authorization.Abstractions.csproj" />
-    <ProjectReference Include="..\..\..\framework\operation-record\Yi.Framework.OperationRecord.Abstractions\Yi.Framework.OperationRecord.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\framework\auditing\Yi.Framework.Auditing.Abstractions\Yi.Framework.Auditing.Abstractions.csproj" />
     <ProjectReference Include="..\Yi.Module.FileManagement.Application.Contracts\Yi.Module.FileManagement.Application.Contracts.csproj" />
     <ProjectReference Include="..\Yi.Module.FileManagement.Domain\Yi.Module.FileManagement.Domain.csproj" />
     <ProjectReference Include="..\..\setting-management\Yi.Module.SettingManagement.Domain.Shared\Yi.Module.SettingManagement.Domain.Shared.csproj" />

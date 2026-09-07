@@ -5,8 +5,8 @@ using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Yi.Framework.Authorization.Abstractions.Attributes;
 using Yi.Framework.Ddd.Application;
-using Yi.Framework.OperationRecord.Abstractions.Attributes;
-using Yi.Framework.OperationRecord.Abstractions.Enums;
+using Yi.Framework.Auditing.Abstractions.Attributes;
+using Yi.Framework.Auditing.Abstractions.Enums;
 using Yi.Module.Rbac.Application.Contracts.Dtos.LoginLog;
 using Yi.Module.Rbac.Domain.Entities;
 using Yi.Module.Rbac.Domain.Repositories;
@@ -46,10 +46,13 @@ namespace Yi.Module.Rbac.Application.Services.RecordLog
             await _repository.DeleteAllAsync();
         }
 
+        /// <summary>
+        /// 按登录日志筛选条件导出 Excel 文件
+        /// </summary>
         [HttpPost("export")]
         [Permission("monitor:loginlog:export")]
         [OperLog("导出登录日志", OperEnum.Export)]
-        public async Task<IActionResult> PostExportAsync(LoginLogGetListInputVo input)
+        public override async Task<IActionResult> PostExportAsync(LoginLogGetListInputVo input)
         {
             var entities = await _repository.GetFilteredListAsync(
                 input.LoginIp, input.LoginUser, input.StartTime, input.EndTime);

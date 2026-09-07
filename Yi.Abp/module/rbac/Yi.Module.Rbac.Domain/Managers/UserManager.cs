@@ -8,9 +8,11 @@ using Volo.Abp.Caching;
 using Volo.Abp.Domain.Services;
 using Volo.Abp.EventBus.Local;
 using Volo.Abp.Guids;
+using Volo.Abp.MultiTenancy;
 using Yi.Module.Rbac.Domain.Entities;
 using Yi.Module.Rbac.Domain.Repositories;
 using Yi.Module.Rbac.Domain.Shared.Caches;
+using Yi.Module.Rbac.Domain.Shared.Authorization;
 using Yi.Module.Rbac.Domain.Shared.Consts;
 using Yi.Module.Rbac.Domain.Shared.Dtos;
 using Yi.Module.Rbac.Domain.Shared.Etos;
@@ -29,9 +31,29 @@ namespace Yi.Module.Rbac.Domain.Managers
         private readonly IGuidGenerator _guidGenerator;
         private IUserRepository _userRepository;
         private ILocalEventBus _localEventBus;
-        public UserManager(ISqlSugarRepository<UserAggregateRoot> repository, ISqlSugarRepository<UserRoleEntity> repositoryUserRole, ISqlSugarRepository<UserPostEntity> repositoryUserPost, IGuidGenerator guidGenerator, IDistributedCache<UserInfoCacheItem, UserInfoCacheKey> userCache, IUserRepository userRepository, ILocalEventBus localEventBus, ISqlSugarRepository<RoleAggregateRoot> roleRepository) =>
+        private readonly IPermissionCacheVersionManager _permissionCacheVersionManager;
+        private readonly ICurrentTenant _currentTenant;
+
+        /// <summary>
+        /// 创建负责用户角色关系及权限缓存失效的领域服务
+        /// </summary>
+        public UserManager(
+            ISqlSugarRepository<UserAggregateRoot> repository,
+            ISqlSugarRepository<UserRoleEntity> repositoryUserRole,
+            ISqlSugarRepository<UserPostEntity> repositoryUserPost,
+            IGuidGenerator guidGenerator,
+            IDistributedCache<UserInfoCacheItem, UserInfoCacheKey> userCache,
+            IUserRepository userRepository,
+            ILocalEventBus localEventBus,
+            ISqlSugarRepository<RoleAggregateRoot> roleRepository,
+            IPermissionCacheVersionManager permissionCacheVersionManager,
+            ICurrentTenant currentTenant)
+        {
             (_repository, _repositoryUserRole, _repositoryUserPost, _guidGenerator, _userCache, _userRepository, _localEventBus, _roleRepository) =
-            (repository, repositoryUserRole, repositoryUserPost, guidGenerator, userCache, userRepository, localEventBus, roleRepository);
+                (repository, repositoryUserRole, repositoryUserPost, guidGenerator, userCache, userRepository, localEventBus, roleRepository);
+            _permissionCacheVersionManager = permissionCacheVersionManager;
+            _currentTenant = currentTenant;
+        }
 
         /// <summary>
         /// 给用户设置角色
@@ -60,6 +82,8 @@ namespace Yi.Module.Rbac.Domain.Managers
                     await _repositoryUserRole.InsertRangeAsync(userRoleEntities);
                 }
             }
+
+            await _permissionCacheVersionManager.InvalidateAsync(_currentTenant.Id);
         }
 
 

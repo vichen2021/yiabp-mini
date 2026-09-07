@@ -8,7 +8,7 @@ using Yi.Module.FileManagement.Application.BlobStoring;
 using Yi.Framework.Ddd.Application;
 using Yi.Framework.Authorization.Abstractions.Attributes;
 using Yi.Framework.Authorization.Abstractions.Enums;
-using Yi.Framework.OperationRecord.Abstractions.Attributes;
+using Yi.Framework.Auditing.Abstractions.Attributes;
 using Yi.Module.FileManagement.Application.Contracts.Dtos;
 using Yi.Module.FileManagement.Application.Contracts.Dtos.File;
 using Yi.Module.FileManagement.Application.Contracts.IServices;

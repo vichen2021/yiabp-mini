@@ -7,10 +7,12 @@ using Yi.Module.Rbac.Domain.Entities;
 using Yi.Module.Rbac.Domain.Shared.Consts;
 using Yi.Framework.Authorization.Abstractions.Attributes;
 using Yi.Framework.Authorization.Abstractions.Enums;
-using Yi.Framework.OperationRecord.Abstractions.Attributes;
+using Yi.Framework.Auditing.Abstractions.Attributes;
 using Yi.Framework.SqlSugarCore.Abstractions;
 using Microsoft.AspNetCore.Mvc;
+using Volo.Abp.MultiTenancy;
 using Yi.Module.Rbac.Domain.Shared.Dtos;
+using Yi.Module.Rbac.Domain.Shared.Authorization;
 using Yi.Module.TenantManagement.Application.Contracts.IServices;
 using Yi.Module.TenantManagement.Application.Contracts.Dtos.TenantPackage;
 
@@ -26,11 +28,48 @@ namespace Yi.Module.Rbac.Application.Services
     {
         private readonly ISqlSugarRepository<MenuAggregateRoot, Guid> _repository;
         private readonly ITenantPackageService _tenantPackageService;
+        private readonly IPermissionCacheVersionManager _permissionCacheVersionManager;
+        private readonly ICurrentTenant _currentTenant;
 
         public MenuService(
             ISqlSugarRepository<MenuAggregateRoot, Guid> repository,
-            ITenantPackageService tenantPackageService) : base(repository) =>
+            ITenantPackageService tenantPackageService,
+            IPermissionCacheVersionManager permissionCacheVersionManager,
+            ICurrentTenant currentTenant) : base(repository)
+        {
             (_repository, _tenantPackageService) = (repository, tenantPackageService);
+            _permissionCacheVersionManager = permissionCacheVersionManager;
+            _currentTenant = currentTenant;
+        }
+
+        /// <summary>
+        /// 创建菜单并使当前租户授权快照立即失效
+        /// </summary>
+        public override async Task<MenuGetOutputDto> CreateAsync(MenuCreateInputVo input)
+        {
+            var result = await base.CreateAsync(input);
+            await _permissionCacheVersionManager.InvalidateAsync(_currentTenant.Id);
+            return result;
+        }
+
+        /// <summary>
+        /// 更新菜单并使当前租户授权快照立即失效
+        /// </summary>
+        public override async Task<MenuGetOutputDto> UpdateAsync(Guid id, MenuUpdateInputVo input)
+        {
+            var result = await base.UpdateAsync(id, input);
+            await _permissionCacheVersionManager.InvalidateAsync(_currentTenant.Id);
+            return result;
+        }
+
+        /// <summary>
+        /// 删除菜单并使当前租户授权快照立即失效
+        /// </summary>
+        public override async Task DeleteAsync(IEnumerable<Guid> ids)
+        {
+            await base.DeleteAsync(ids);
+            await _permissionCacheVersionManager.InvalidateAsync(_currentTenant.Id);
+        }
 
         [Route("menu/list")]
         [PermissionAction(PermissionActionEnum.Query)]

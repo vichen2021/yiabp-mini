@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Volo.Abp;
+using Yi.Framework.Authorization.Core;
 using Yi.Module.Rbac.Domain.Repositories;
 using Yi.Module.Rbac.SqlSugarCore.Repositories;
 
@@ -34,19 +35,26 @@ namespace Yi.Module.Rbac.Test
                .Build();
 
             ServiceProvider = host.Services;
-            TestServiceScope = ServiceProvider.CreateScope();
             Logger = (ILogger)ServiceProvider.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
 
             host.InitializeAsync().Wait();
+            TestServiceScope = ServiceProvider.CreateScope();
         }
 
 
         public virtual void ConfigureServices(HostBuilderContext host, IServiceCollection service)
         {
         }
+        /// <summary>
+        /// 配置测试环境并为每个测试宿主分配独立数据库
+        /// </summary>
         protected virtual void ConfigureAppConfiguration(IConfigurationBuilder configurationBuilder)
         {
             configurationBuilder.AddJsonFile("appsettings.json");
+            configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["DbConnOptions:Url"] = $"DataSource=yi-rbac-test-{Guid.NewGuid():N}.db"
+            });
             //configurationBuilder.AddJsonFile("appsettings.Development.json");
 
         }

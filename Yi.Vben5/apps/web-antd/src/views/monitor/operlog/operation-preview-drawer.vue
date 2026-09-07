@@ -39,7 +39,7 @@ const actionInfo = computed(() => {
     return '-';
   }
   const data = currentLog.value;
-  return `账号: ${data.operUser} / ${data.operIp} / ${data.operLocation}`;
+  return `账号: ${data.operUser} / IP: ${data.operIp}`;
 });
 </script>
 
@@ -66,6 +66,12 @@ const actionInfo = computed(() => {
       <VbenDescriptionsItem label="请求信息">
         <component :is="renderHttpMethodTag(currentLog.requestMethod)" />
       </VbenDescriptionsItem>
+      <VbenDescriptionsItem label="执行结果">
+        <Tag :color="currentLog.isSuccess ? 'success' : 'error'">
+          {{ currentLog.isSuccess ? '成功' : '失败' }}
+        </Tag>
+        <span class="ml-2">{{ currentLog.executionDuration }} ms</span>
+      </VbenDescriptionsItem>
       <VbenDescriptionsItem label="方法">
         {{ currentLog.method }}
       </VbenDescriptionsItem>
@@ -74,9 +80,9 @@ const actionInfo = computed(() => {
           <component :is="renderJsonPreview(currentLog.requestParam)" />
         </div>
       </VbenDescriptionsItem>
-      <VbenDescriptionsItem v-if="currentLog.requestResult" label="响应参数">
-        <div class="max-h-[300px] overflow-y-auto">
-          <component :is="renderJsonPreview(currentLog.requestResult)" />
+      <VbenDescriptionsItem v-if="currentLog.errorMessage" label="错误信息">
+        <div class="max-h-[300px] overflow-y-auto whitespace-pre-wrap">
+          {{ currentLog.errorMessage }}
         </div>
       </VbenDescriptionsItem>
       <VbenDescriptionsItem label="操作时间">

@@ -1,5 +1,5 @@
 using Yi.Framework.Ddd.Application.Contracts;
-using Yi.Framework.OperationRecord.Abstractions.Enums;
+using Yi.Framework.Auditing.Abstractions.Enums;
 
 namespace Yi.Module.AuditLogging.Application.Contracts.Dtos.OperationLog
 {
